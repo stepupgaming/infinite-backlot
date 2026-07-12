@@ -23,6 +23,7 @@ use crate::story::apply_persistent_changes;
 use crate::tts::build_tts;
 use crate::validation::{validate_beat_command, validate_plan, ValidatedPlan};
 use crate::world::WorldState;
+use crate::timeline::*;
 use crate::serial_id;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -62,512 +63,6 @@ pub struct ProduceReport {
     pub probe: ProbeInfo,
     pub issues: Vec<String>,
     pub ffmpeg_command: Option<String>,
-}
-
-// ===========================================================================
-// Schedule (deterministic timeline)
-// ===========================================================================
-
-#[derive(Debug, Clone)]
-struct ScheduledAction {
-    actor: String,
-    action: String,
-    target: Option<String>,
-    text: Option<String>,
-    start: f32,
-    dur: f32,
-}
-
-#[derive(Debug, Clone)]
-struct CharTrack {
-    id: String,
-    home: [f32; 3],
-    actions: Vec<ScheduledAction>,
-}
-
-#[derive(Debug, Clone)]
-struct CameraShotSpec {
-    start: f32,
-    end: f32,
-    intent: String,
-    subject: String,
-    reaction: Option<String>,
-}
-
-#[derive(Debug, Clone)]
-struct PropAttach {
-    prop: String,
-    char_id: String,
-    start: f32,
-    end: f32,
-}
-
-#[derive(Debug, Clone)]
-struct Schedule {
-    duration: f32,
-    characters: Vec<CharTrack>,
-    camera_shots: Vec<CameraShotSpec>,
-    dialogue: Vec<DialogueLine>,
-    captions: Vec<Caption>,
-    events: Vec<TimedEvent>,
-    flicker: Vec<(f32, f32)>,
-    prop_attach: Vec<PropAttach>,
-}
-
-enum ActionKind {
-    Move,
-    Speak,
-    React,
-    Gesture,
-    Point,
-    Look,
-    Listen,
-    Other,
-}
-
-fn action_kind(a: &str) -> ActionKind {
-    match a {
-        "move_to" | "approach" | "retreat_from" | "follow" | "flee_to" | "enter_room" | "exit_room" => ActionKind::Move,
-        "speak" | "whisper" | "shout" => ActionKind::Speak,
-        "react" => ActionKind::React,
-        "gesture" => ActionKind::Gesture,
-        "point_at" => ActionKind::Point,
-        "look_at" | "turn_toward" => ActionKind::Look,
-        "sigh" | "laugh" | "display_emotion" | "conceal_emotion" | "pause" | "interrupt" => ActionKind::Listen,
-        _ => ActionKind::Other,
-    }
-}
-
-/// Resolve a target id to a static world position (marks, character homes, or
-/// prop home marks). Deterministic and resolution-independent.
-fn resolve_pos(
-    target: &str,
-    world: &WorldState,
-    home_of: &HashMap<String, [f32; 3]>,
-) -> Option<[f32; 3]> {
-    // staging mark
-    for l in world.locations.values() {
-        if let Some(m) = l.staging_marks.iter().find(|m| m.id == target) {
-            return Some(m.position);
-        }
-    }
-    // character home
-    if let Some(p) = home_of.get(target) {
-        return Some(*p);
-    }
-    // prop home mark
-    if let Some(p) = world.props.get(target) {
-        for l in world.locations.values() {
-            if let Some(m) = l.staging_marks.iter().find(|m| m.id == p.home_mark) {
-                return Some(m.position);
-            }
-        }
-    }
-    None
-}
-
-/// Build the deterministic schedule from a validated plan + measured TTS
-/// durations. Movement timing is estimated; dialogue timing uses the *measured*
-/// audio duration so lips/audio stay in sync.
-fn build_schedule(
-    world: &WorldState,
-    validated: &ValidatedPlan,
-    tts_durations: &HashMap<(String, String), f32>,
-) -> Schedule {
-    let loc_id = &validated.plan.primary_location;
-    let marks: Vec<[f32; 3]> = world
-        .locations
-        .get(loc_id)
-        .map(|l| l.staging_marks.iter().map(|m| m.position).collect())
-        .unwrap_or_default();
-
-    let active: Vec<&String> = validated.plan.active_characters.iter().collect();
-    let mut home_of: HashMap<String, [f32; 3]> = HashMap::new();
-    let default_marks = ["hall_center", "apt_3b_door", "maintenance_panel", "apt_4a_door"];
-    for (i, id) in active.iter().enumerate() {
-        let pos = marks
-            .get(i)
-            .copied()
-            .or_else(|| {
-                world
-                    .locations
-                    .get(loc_id)
-                    .and_then(|l| l.staging_marks.iter().find(|m| m.id == default_marks[i % default_marks.len()]).map(|m| m.position))
-            })
-            .unwrap_or([0.0, 0.0, 0.0]);
-        home_of.insert((*id).clone(), pos);
-    }
-
-    let mut chars: Vec<CharTrack> = active
-        .iter()
-        .map(|id| CharTrack {
-            id: (*id).clone(),
-            home: home_of.get(*id).copied().unwrap_or([0.0; 3]),
-            actions: Vec::new(),
-        })
-        .collect();
-
-    let mut dialogue: Vec<DialogueLine> = Vec::new();
-    let mut captions: Vec<Caption> = Vec::new();
-    let mut events: Vec<TimedEvent> = Vec::new();
-    let mut flicker: Vec<(f32, f32)> = Vec::new();
-    let mut prop_attach: Vec<PropAttach> = Vec::new();
-    let mut camera_shots: Vec<CameraShotSpec> = Vec::new();
-
-    let mut clock = 0.0f32;
-    for rb in &validated.resolved_beats {
-        let beat_start = clock;
-        let mut t = 0.0f32;
-        for ra in &rb.resolved_actions {
-            let dur = match action_kind(&ra.action) {
-                ActionKind::Speak => {
-                    let key = (ra.actor_id.clone(), ra.text.clone().unwrap_or_default());
-                    *tts_durations.get(&key).unwrap_or(&ra.estimated_duration)
-                }
-                _ => ra.estimated_duration,
-            };
-            // record on the actor track
-            if let Some(ct) = chars.iter_mut().find(|c| c.id == ra.actor_id) {
-                ct.actions.push(ScheduledAction {
-                    actor: ra.actor_id.clone(),
-                    action: ra.action.clone(),
-                    target: ra.target_id.clone(),
-                    text: ra.text.clone(),
-                    start: beat_start + t,
-                    dur,
-                });
-            }
-            // dialogue + captions for speech
-            if matches!(action_kind(&ra.action), ActionKind::Speak) {
-                let voice = world
-                    .character(&ra.actor_id)
-                    .map(|c| c.voice_id.clone())
-                    .unwrap_or_else(|| ra.actor_id.clone());
-                let s = beat_start + t;
-                let e = s + dur;
-                let text = ra.text.clone().unwrap_or_default();
-                dialogue.push(DialogueLine {
-                    start: s,
-                    end: e,
-                    actor: ra.actor_id.clone(),
-                    text: text.clone(),
-                    voice_id: voice.clone(),
-                });
-                captions.push(Caption { start: s, end: e, text });
-            }
-            // events log
-            events.push(TimedEvent {
-                t: beat_start + t,
-                kind: ra.action.clone(),
-                actor: Some(ra.actor_id.clone()),
-                target: ra.target_id.clone(),
-                detail: ra.text.clone().unwrap_or_default(),
-            });
-            // flicker
-            if ra.action == "flicker_lights" {
-                flicker.push((beat_start + t, beat_start + t + dur));
-            }
-            // prop attach for interaction actions
-            if matches!(
-                ra.action.as_str(),
-                "pick_up" | "give" | "conceal_object" | "reveal_object" | "carry" | "hold"
-            ) {
-                if let Some(target) = &ra.target_id {
-                    if world.props.contains_key(target) {
-                        prop_attach.push(PropAttach {
-                            prop: target.clone(),
-                            char_id: ra.actor_id.clone(),
-                            start: beat_start + t,
-                            end: beat_start + t + dur + 2.0,
-                        });
-                    }
-                }
-            }
-            t += dur;
-        }
-        let beat_end = (beat_start + t + 0.6).max(
-            rb.completion
-                .seconds
-                .unwrap_or(0.0)
-                .max(beat_start + t),
-        );
-        // camera shot
-        camera_shots.push(CameraShotSpec {
-            start: beat_start,
-            end: beat_end,
-            intent: rb.camera_intent.r#type.clone(),
-            subject: rb.camera_intent.subject.clone(),
-            reaction: rb.camera_intent.reaction_subject.clone(),
-        });
-        clock = beat_end;
-    }
-
-    Schedule {
-        duration: clock.max(1.0),
-        characters: chars,
-        camera_shots,
-        dialogue,
-        captions,
-        events,
-        flicker,
-        prop_attach,
-    }
-}
-
-// ===========================================================================
-// Frame evaluation
-// ===========================================================================
-
-#[derive(Debug, Clone)]
-struct CharFrame {
-    id: String,
-    root: Xform,
-    state: PerformanceState,
-    walk_phase: f32,
-    speaking: bool,
-}
-
-#[derive(Debug, Clone)]
-struct PropFrame {
-    id: String,
-    pos: [f32; 3],
-}
-
-#[derive(Debug, Clone)]
-struct FrameState {
-    chars: Vec<(CharFrame, Pose)>,
-    camera_eye: [f32; 3],
-    camera_look: [f32; 3],
-    props: Vec<PropFrame>,
-    flicker: bool,
-}
-
-/// Compute the world state at absolute time `t` (deterministic).
-fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world: &WorldState, t: f32) -> FrameState {
-    // First pass: root positions + performance state per character.
-    let mut frames: Vec<CharFrame> = Vec::new();
-    for ct in &sched.characters {
-        // position from sequential moves
-        let mut pos = ct.home;
-        let mut from = ct.home;
-        let mut moving = false;
-        let mut dir = [0.0f32, 0.0, 0.0];
-        let mut yaw = 0.0f32;
-        let mut active_state: Option<(PerformanceState, bool)> = None;
-        // gather this character's actions sorted by start
-        let mut acts: Vec<&ScheduledAction> = ct.actions.iter().collect();
-        acts.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
-        for a in &acts {
-            if t < a.start {
-                break;
-            }
-            match action_kind(&a.action) {
-                ActionKind::Move => {
-                    if let Some(p) = resolve_pos(a.target.as_deref().unwrap_or(""), world, &char_home_map(sched)) {
-                        let k = ((t - a.start) / a.dur.max(0.001)).clamp(0.0, 1.0);
-                        if t < a.start + a.dur {
-                            pos = [
-                                from[0] + (p[0] - from[0]) * k,
-                                from[1] + (p[1] - from[1]) * k,
-                                from[2] + (p[2] - from[2]) * k,
-                            ];
-                            dir = [p[0] - from[0], 0.0, p[2] - from[2]];
-                            moving = true;
-                        } else {
-                            // move already completed; advance current position
-                            pos = p;
-                            dir = [p[0] - from[0], 0.0, p[2] - from[2]];
-                            from = p;
-                        }
-                    }
-                }
-                ActionKind::Speak => active_state = Some((PerformanceState::Talk, true)),
-                ActionKind::React => active_state = Some((PerformanceState::React, false)),
-                ActionKind::Gesture => active_state = Some((PerformanceState::Gesture, false)),
-                ActionKind::Point => active_state = Some((PerformanceState::Point, false)),
-                ActionKind::Look => active_state = Some((PerformanceState::Look, false)),
-                ActionKind::Listen => active_state = Some((PerformanceState::Listen, false)),
-                ActionKind::Other => { /* interaction: keep current */ }
-            }
-        }
-        if moving && (dir[0] != 0.0 || dir[2] != 0.0) {
-            yaw = dir[0].atan2(dir[2]);
-        }
-        let (state, speaking) = match active_state {
-            Some(s) => s,
-            None => {
-                // listening if someone else is speaking
-                let other_speaking = sched.dialogue.iter().any(|d| d.start <= t && t < d.end && d.actor != ct.id);
-                if other_speaking {
-                    (PerformanceState::Listen, false)
-                } else {
-                    (PerformanceState::Idle, false)
-                }
-            }
-        };
-        frames.push(CharFrame {
-            id: ct.id.clone(),
-            root: Xform { pos: [pos[0], 0.0, pos[2]], rot: [0.0, yaw, 0.0] },
-            state,
-            walk_phase: t,
-            speaking,
-        });
-    }
-
-    // Second pass: poses + focus yaw (face conversational partner).
-    let mut posed: Vec<(CharFrame, Pose)> = Vec::new();
-    for f in &frames {
-        let mut pose = character_pose(f.state, t, f.walk_phase);
-        // gaze toward conversational partner if listening/speaking
-        if matches!(f.state, PerformanceState::Listen | PerformanceState::Talk | PerformanceState::Look) {
-            let partner = frames
-                .iter()
-                .find(|o| o.id != f.id)
-                .map(|o| o.root.pos);
-            if let Some(p) = partner {
-                let dx = p[0] - f.root.pos[0];
-                let dz = p[2] - f.root.pos[2];
-                if dx != 0.0 || dz != 0.0 {
-                    let yaw = dx.atan2(dz);
-                    // blend into head yaw
-                    if let Some(h) = pose.get(crate::avatar::SemanticJoint::Head) {
-                        let mut nh = h.clone();
-                        nh.rot[1] = yaw;
-                        pose.set(crate::avatar::SemanticJoint::Head, nh);
-                    } else {
-                        pose.set(crate::avatar::SemanticJoint::Head, Xform { pos: [0.0; 3], rot: [0.0, yaw, 0.0] });
-                    }
-                }
-            }
-        }
-        posed.push((f.clone(), pose));
-    }
-
-    // Camera: pick active shot, frame a CHARACTER so performers stay visible.
-    // The deterministic director sometimes names a prop/mark as `subject`; we
-    // resolve that to the most relevant on-screen performer instead.
-    let active_shot = sched
-        .camera_shots
-        .iter()
-        .find(|s| t >= s.start && t < s.end)
-        .or_else(|| sched.camera_shots.last());
-    let (eye, look) = if let Some(shot) = active_shot {
-        let subject_char = posed
-            .iter()
-            .find(|(f, _)| f.id == shot.subject)
-            .map(|(f, _)| f.id.clone())
-            .or_else(|| {
-                shot.reaction
-                    .as_ref()
-                    .and_then(|r| posed.iter().find(|(f, _)| f.id == *r).map(|(f, _)| f.id.clone()))
-            })
-            .or_else(|| {
-                sched
-                    .dialogue
-                    .iter()
-                    .find(|d| d.start <= t && t < d.end)
-                    .map(|d| d.actor.clone())
-            })
-            .or_else(|| posed.first().map(|(f, _)| f.id.clone()));
-        let subj_frame = subject_char.as_ref().and_then(|id| posed.iter().find(|(f, _)| &f.id == id));
-        let subj_pos = subj_frame
-            .map(|(f, p)| {
-                rigs.get(&f.id)
-                    .map(|r| r.camera_target(CameraTargetRole::Head, &f.root, p))
-                    .unwrap_or(f.root.pos)
-            })
-            .unwrap_or([0.0, 1.5, 0.0]);
-        let react_pos = shot
-            .reaction
-            .as_ref()
-            .and_then(|rid| posed.iter().find(|(f, _)| f.id == *rid))
-            .map(|(f, p)| {
-                rigs.get(&f.id)
-                    .map(|r| r.camera_target(CameraTargetRole::Head, &f.root, p))
-                    .unwrap_or(f.root.pos)
-            });
-        let (off, _look_role) = camera_offset(&shot.intent, react_pos);
-        let eye = [subj_pos[0] + off.0, subj_pos[1] + off.1, subj_pos[2] + off.2];
-        let look = if let Some(rp) = react_pos {
-            if matches!(shot.intent.as_str(), "reaction" | "over_the_shoulder") {
-                rp
-            } else {
-                subj_pos
-            }
-        } else {
-            subj_pos
-        };
-        (eye, look)
-    } else {
-        ([0.0, 3.0, 7.0], [0.0, 1.2, 0.0])
-    };
-
-    // Props: attached to grip or at home mark.
-    let mut props: Vec<PropFrame> = Vec::new();
-    for p in world.props.values() {
-        let attached = sched
-            .prop_attach
-            .iter()
-            .find(|a| a.prop == p.id && t >= a.start && t < a.end);
-        let pos = if let Some(a) = attached {
-            posed
-                .iter()
-                .find(|(f, _)| f.id == a.char_id)
-                .and_then(|(f, pose)| {
-                    rigs.get(&f.id)
-                        .map(|r| r.camera_target(CameraTargetRole::PropGrip, &f.root, pose))
-                })
-                .unwrap_or([0.0, 1.0, 0.0])
-        } else {
-            let home = world
-                .locations
-                .values()
-                .flat_map(|l| l.staging_marks.iter())
-                .find(|m| m.id == p.home_mark)
-                .map(|m| m.position)
-                .unwrap_or([0.0; 3]);
-            [home[0], 0.5, home[2]]
-        };
-        props.push(PropFrame { id: p.id.clone(), pos });
-    }
-
-    let flicker = sched.flicker.iter().any(|(s, e)| t >= *s && t < *e);
-
-    FrameState {
-        chars: posed,
-        camera_eye: eye,
-        camera_look: look,
-        props,
-        flicker,
-    }
-}
-
-fn char_home_map(sched: &Schedule) -> HashMap<String, [f32; 3]> {
-    sched
-        .characters
-        .iter()
-        .map(|c| (c.id.clone(), c.home))
-        .collect()
-}
-
-/// Camera offset (relative to subject head) per intent, in world meters.
-fn camera_offset(intent: &str, react: Option<[f32; 3]>) -> ((f32, f32, f32), CameraTargetRole) {
-    let o = match intent {
-        "establish" | "comedic_wide" | "group_coverage" => (0.0, 2.6, 6.5),
-        "speaker_closeup" | "follow" | "conversation" => (0.0, 1.5, 3.0),
-        "reaction" => {
-            let r = react.unwrap_or([0.0, 1.5, 0.0]);
-            // approach the reactor from the side
-            (r[0].signum().max(1.0), 1.5, 3.0)
-        }
-        "reveal" | "insert_object" => (1.4, 1.3, 2.6),
-        "tension_push" => (0.0, 1.7, 2.3),
-        "cliffhanger_hold" => (0.0, 1.9, 2.5),
-        "over_the_shoulder" => (-1.4, 1.6, 2.8),
-        "exit_transition" => (0.0, 2.2, 5.0),
-        _ => (0.0, 1.6, 4.0),
-    };
-    (o, CameraTargetRole::Head)
 }
 
 // ===========================================================================
@@ -723,6 +218,178 @@ impl StageRenderer {
     }
 }
 
+/// Expose the software stage renderer for arbitrary frame states (used by the
+/// visual-review pass and by tests). Returns RGBA8 pixels of size `w*4*h`.
+pub fn render_frame_pixels(
+    state: &FrameState,
+    rigs: &HashMap<String, HumanoidRig>,
+    world: &WorldState,
+    w: u32,
+    h: u32,
+) -> Vec<u8> {
+    StageRenderer::new(w, h).render(state, rigs, world)
+}
+
+/// Metrics produced by the offline visual-review pass over a schedule.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReviewReport {
+    pub sampled_frames: usize,
+    pub render_width: u32,
+    pub render_height: u32,
+    pub mean_luminance: f32,
+    pub foreground_fraction: f32,
+    pub mean_frame_motion: f32,
+    pub max_frame_motion: f32,
+    pub freeze_detected: bool,
+    pub articulation_observed: bool,
+    pub notes: Vec<String>,
+}
+
+/// Run the autonomous visual-review loop over a schedule by re-rendering sampled
+/// frames with the *same* software stage renderer used for production. This is a
+/// CPU-only, GPU-independent review: it measures per-frame luminance, on-screen
+/// figure occupancy (foreground fraction), and inter-frame motion to detect
+/// freezes and to confirm that performers are actually articulated (limbs/head
+/// moving between frames) rather than standing static.
+///
+/// It re-simulates from the shared timeline (`evaluate_at`) so it validates the
+/// *performance*, independent of which render backend produced the final MP4.
+pub fn review_schedule(
+    sched: &Schedule,
+    rigs: &HashMap<String, HumanoidRig>,
+    world: &WorldState,
+    w: u32,
+    h: u32,
+    sample_n: usize,
+) -> ReviewReport {
+    let dur = sched.duration.max(0.001);
+    let n = sample_n.max(2);
+    let mut pix: Vec<Vec<u8>> = Vec::with_capacity(n);
+    let mut lums: Vec<f32> = Vec::with_capacity(n);
+    let mut fg: Vec<f32> = Vec::with_capacity(n);
+    for i in 0..n {
+        let t = dur * (i as f32 / (n as f32 - 1.0));
+        let state = evaluate_at(sched, rigs, world, t);
+        let p = render_frame_pixels(&state, rigs, world, w, h);
+        let (l, f) = frame_luminance_and_fg(&p, w, h);
+        lums.push(l);
+        fg.push(f);
+        pix.push(p);
+    }
+    // inter-frame motion (mean abs luminance diff, normalized 0..1)
+    let mut motions: Vec<f32> = Vec::new();
+    for i in 1..pix.len() {
+        motions.push(frame_motion(&pix[i - 1], &pix[i]));
+    }
+    let mean_motion = if motions.is_empty() {
+        0.0
+    } else {
+        motions.iter().sum::<f32>() / motions.len() as f32
+    };
+    let max_motion = motions.iter().cloned().fold(0.0f32, f32::max);
+    let mean_lum = if lums.is_empty() {
+        0.0
+    } else {
+        lums.iter().sum::<f32>() / lums.len() as f32
+    };
+    let mean_fg = if fg.is_empty() {
+        0.0
+    } else {
+        fg.iter().sum::<f32>() / fg.len() as f32
+    };
+    let freeze = max_motion < 0.003;
+    let articulation = max_motion > 0.006;
+    let mut notes: Vec<String> = Vec::new();
+    if freeze {
+        notes.push("freeze detected: near-zero inter-frame motion across sampled frames".into());
+    }
+    if !articulation {
+        notes.push("articulation not clearly observed in sampled motion (below threshold)".into());
+    }
+    if mean_fg < 0.02 {
+        notes.push("foreground (figure) occupancy very low: subjects may be off-frame".into());
+    }
+    if mean_lum < 4.0 {
+        notes.push("mean luminance very low: scene may be underlit".into());
+    }
+    ReviewReport {
+        sampled_frames: n,
+        render_width: w,
+        render_height: h,
+        mean_luminance: mean_lum,
+        foreground_fraction: mean_fg,
+        mean_frame_motion: mean_motion,
+        max_frame_motion: max_motion,
+        freeze_detected: freeze,
+        articulation_observed: articulation,
+        notes,
+    }
+}
+
+/// Mean luminance + on-screen *figure* occupancy of an RGBA8 buffer.
+/// A pixel counts as a figure pixel only when it is far from the vertical
+/// background gradient AND far from the known static set (gray walls / floor /
+/// elevator). This isolates the coloured character boxes from the static stage.
+pub fn frame_luminance_and_fg(p: &[u8], w: u32, h: u32) -> (f32, f32) {
+    let n = (w * h) as usize;
+    if n == 0 || p.len() < n * 4 {
+        return (0.0, 0.0);
+    }
+    // Static stage colours (walls / floor / elevator) — excluded from "figure".
+    let statics: [[f32; 3]; 3] = [
+        [71.0, 71.0, 87.0],   // walls
+        [41.0, 41.0, 51.0],   // floor
+        [115.0, 120.0, 128.0], // elevator
+    ];
+    let mut lum = 0.0f32;
+    let mut fg = 0.0f32;
+    for y in 0..h as usize {
+        let bg_t = y as f32 / h as f32;
+        let bgr = 28.0 * (1.0 - bg_t) + 10.0 * bg_t;
+        let bgg = 30.0 * (1.0 - bg_t) + 11.0 * bg_t;
+        let bgb = 40.0 * (1.0 - bg_t) + 16.0 * bg_t;
+        for x in 0..w as usize {
+            let i = (y * w as usize + x) * 4;
+            let r = p[i] as f32;
+            let g = p[i + 1] as f32;
+            let b = p[i + 2] as f32;
+            lum += (r + g + b) / 3.0;
+            let d_bg = (r - bgr).abs() + (g - bgg).abs() + (b - bgb).abs();
+            let d_st = statics
+                .iter()
+                .map(|s| (r - s[0]).abs() + (g - s[1]).abs() + (b - s[2]).abs())
+                .fold(f32::INFINITY, f32::min);
+            if d_bg > 36.0 && d_st > 45.0 {
+                fg += 1.0;
+            }
+        }
+    }
+    (lum / n as f32, fg / n as f32)
+}
+
+/// Fraction of pixels whose luminance changed by more than a small delta between
+/// two RGBA8 buffers. The static stage (walls/floor) does not move, so it
+/// contributes ~0; only the articulated performers raise this value. A robust
+/// freeze / articulation signal independent of how much of the frame is "set".
+pub fn frame_motion(prev: &[u8], cur: &[u8]) -> f32 {
+    let n = prev.len().min(cur.len());
+    if n < 4 {
+        return 0.0;
+    }
+    let npix = n / 4;
+    let mut changed = 0u32;
+    let mut i = 0;
+    while i + 4 <= n {
+        let lp = (prev[i] as f32 + prev[i + 1] as f32 + prev[i + 2] as f32) / 3.0;
+        let lc = (cur[i] as f32 + cur[i + 1] as f32 + cur[i + 2] as f32) / 3.0;
+        if (lp - lc).abs() > 3.0 {
+            changed += 1;
+        }
+        i += 4;
+    }
+    changed as f32 / npix as f32
+}
+
 fn push_box(tris: &mut Vec<([f32; 3], [f32; 3], [f32; 3], [f32; 3])>, center: [f32; 3], half: [f32; 3], col: [f32; 3]) {
     let c = [
         [center[0] - half[0], center[1] - half[1], center[2] - half[2]],
@@ -821,7 +488,7 @@ pub struct ProbeInfo {
 }
 
 /// Encode the captioned + clean MP4s from frames + mixed audio.
-fn encode_mp4(
+pub fn encode_mp4(
     cfg: &Config,
     frames_dir: &str,
     audio_path: &str,
@@ -915,7 +582,7 @@ fn run_ffmpeg(ff: &str, args: &[String]) -> std::result::Result<bool, crate::err
     }
 }
 
-fn build_caption_filter(captions: &[Caption], font_ref: &str, resolution: (u32, u32)) -> String {
+pub fn build_caption_filter(captions: &[Caption], font_ref: &str, resolution: (u32, u32)) -> String {
     if captions.is_empty() {
         return String::new();
     }
@@ -948,7 +615,7 @@ fn build_caption_filter(captions: &[Caption], font_ref: &str, resolution: (u32, 
 /// colon) filter reference, e.g. `:fontfile='output/episodes/.../fonts/arial.ttf'`.
 /// ffmpeg's filter parser cannot handle a `:` inside a path value on Windows,
 /// so we avoid absolute `C:/...` paths entirely.
-fn stage_font_for_ffmpeg(frames_dir: &str, font_abs: &str) -> String {
+pub fn stage_font_for_ffmpeg(frames_dir: &str, font_abs: &str) -> String {
     if font_abs.is_empty() {
         return String::new();
     }
@@ -975,7 +642,7 @@ fn stage_font_for_ffmpeg(frames_dir: &str, font_abs: &str) -> String {
 }
 
 
-fn wrap_caption(text: &str) -> String {
+pub fn wrap_caption(text: &str) -> String {
     // Keep captions short: split into <=2 lines of ~26 chars.
     let words: Vec<&str> = text.split_whitespace().collect();
     let mut lines: Vec<String> = Vec::new();
@@ -999,7 +666,7 @@ fn wrap_caption(text: &str) -> String {
     lines.join("\\n")
 }
 
-fn escape_drawtext(s: &str) -> String {
+pub fn escape_drawtext(s: &str) -> String {
     // Inside a single-quoted drawtext `text='...'` value: a backslash is
     // drawtext's own escape char, so we leave backslashes untouched (the `\n`
     // line-break escape must survive verbatim). Straight single quotes are
@@ -1012,7 +679,7 @@ fn escape_drawtext(s: &str) -> String {
         .replace('%', "\\%")
 }
 
-fn resolve_font(configured: &str) -> String {
+pub fn resolve_font(configured: &str) -> String {
     if !configured.is_empty() && Path::new(configured).exists() {
         return configured.into();
     }
@@ -1030,7 +697,7 @@ fn resolve_font(configured: &str) -> String {
 }
 
 /// Verify the produced MP4 with ffprobe (or ffmpeg if ffprobe missing).
-fn verify_mp4(cfg: &Config, path: &str) -> ProbeInfo {
+pub fn verify_mp4(cfg: &Config, path: &str) -> ProbeInfo {
     let ffprobe = if cfg.runtime.ffmpeg_path == "ffmpeg" {
         "ffprobe".to_string()
     } else {
@@ -1097,7 +764,7 @@ fn parse_probe(v: &serde_json::Value) -> ProbeInfo {
 /// Mix real TTS WAV clips (placed at their dialogue start times) into one WAV.
 /// Falls back to silence if no real audio was produced (truthfully flagged by
 /// the caller via `any_real`).
-fn mix_audio(
+pub fn mix_audio(
     clips: &[(String, f32, f32)], // (wav_path, start_sec, duration)
     out_path: &str,
     sample_rate: u32,
@@ -1196,24 +863,33 @@ fn write_wav(path: &str, sample_rate: u32, pcm: &[i16]) {
 // Produce one episode end-to-end
 // ===========================================================================
 
-/// Author, validate, voice, rehearse (deterministic schedule), render frames,
-/// mix audio, burn captions, encode the MP4, verify, and write the package.
-pub fn produce_episode(
-    cfg: ProduceConfig,
-    author: Box<dyn EpisodeAuthor>,
-) -> crate::error::Result<ProduceReport> {
-    let ProduceConfig { config, require_llm, world, seed, episode_number, keep_frames } = cfg;
-    let episode_id = serial_id("episode", episode_number, 6);
-    let out_dir = &config.runtime.output_dir;
-    let ep_dir = Path::new(out_dir).join("episodes").join(&episode_id);
-    let frames_dir = ep_dir.join("frames");
-    let audio_dir = ep_dir.join("audio");
-    let llm_dir = ep_dir.join("llm");
-    std::fs::create_dir_all(&frames_dir).map_err(io_err(&ep_dir))?;
-    std::fs::create_dir_all(&audio_dir).map_err(io_err(&ep_dir))?;
-    std::fs::create_dir_all(&llm_dir).map_err(io_err(&ep_dir))?;
 
-    // --- 1. Author ---
+/// Result of the shared preparation stage (authoring + validation + TTS +
+/// schedule + rigs). Both renderers consume this; neither re-derives state.
+pub struct PreparedProduction {
+    pub episode_id: String,
+    pub planned: PlannedEpisode,
+    pub auth: PlanAuthorship,
+    pub validated: ValidatedPlan,
+    pub schedule: Schedule,
+    pub rigs: HashMap<String, HumanoidRig>,
+    pub clips: Vec<(String, f32, f32)>,
+    pub any_real: bool,
+    pub tts_provider: String,
+    pub world_before: WorldState,
+}
+
+/// Stage 1 (shared): author, validate, synthesize TTS, build the authoritative
+/// schedule, build rigs, collect audio clips. No frames are rendered here.
+pub fn prepare_production(
+    config: &Config,
+    require_llm: bool,
+    world: &WorldState,
+    seed: u64,
+    episode_number: u64,
+    author: &dyn EpisodeAuthor,
+) -> crate::error::Result<PreparedProduction> {
+    let episode_id = serial_id("episode", episode_number, 6);
     let ctx = crate::director::DirectorContext {
         world: world.clone(),
         episode_number,
@@ -1223,13 +899,9 @@ pub fn produce_episode(
         tone: vec!["surreal".into(), "comedy".into()],
     };
     let (planned, auth) = author.author(&ctx)?;
-    let plan = planned.plan.clone();
-
-    // --- 2. Validate ---
-    let validated = build_validated(&world, &planned)
+    let validated = build_validated(world, &planned)
         .ok_or_else(|| crate::error::CoreError::EmptyPlan)?;
 
-    // --- 3. TTS (real local synthesis, measured durations) ---
     let tts = build_tts(&config.tts);
     let provider = tts.provider_name().to_string();
     let mut tts_durations: HashMap<(String, String), f32> = HashMap::new();
@@ -1249,9 +921,7 @@ pub fn produce_episode(
             tts_durations.insert((ra.actor_id.clone(), text), res.duration);
         }
     }
-    // Build dialogue lines with measured durations (re-run mapping)
-    let sched = build_schedule(&world, &validated, &tts_durations);
-    // (re)synthesize to collect clip paths for the exact dialogue timings
+    let sched = build_schedule(world, &validated, &tts_durations);
     for d in &sched.dialogue {
         let voice = world
             .character(&d.actor)
@@ -1262,89 +932,33 @@ pub fn produce_episode(
             clips.push((p.clone(), d.start, d.end - d.start));
         }
     }
+    let rigs = build_rigs(world);
+    Ok(PreparedProduction {
+        episode_id,
+        planned,
+        auth,
+        validated,
+        schedule: sched,
+        rigs,
+        clips,
+        any_real,
+        tts_provider: provider,
+        world_before: world.clone(),
+    })
+}
 
-    // --- 4. Render frames (deterministic, no LLM) ---
-    let rigs = build_rigs(&world);
-    let fps = config.runtime.frame_rate.max(1);
-    let (rw, rh) = (config.runtime.resolution.0 / 2, config.runtime.resolution.1 / 2);
-    let renderer = StageRenderer::new(rw.max(2), rh.max(2));
-    let n_frames = (sched.duration * fps as f32).ceil() as u32;
-    let mut captured = 0u32;
-    for i in 0..n_frames {
-        let t = i as f32 / fps as f32;
-        let state = evaluate_at(&sched, &rigs, &world, t);
-        let rgba = renderer.render(&state, &rigs, &world);
-        let path = frames_dir.join(format!("frame_{:06}.png", i + 1));
-        if let Err(e) = write_png(&path, rw, rh, &rgba) {
-            tracing::warn!("frame write failed: {e}");
-            break;
-        }
-        captured += 1;
-    }
-
-    // --- 5. Mix audio ---
-    let sr = config.tts.sample_rate;
-    let mix_path = audio_dir.join("final_mix.wav");
-    mix_audio(&clips, mix_path.to_str().unwrap(), sr, sched.duration);
-
-    // --- 6. Encode MP4 ---
-    let cap_out = ep_dir.join("output").join("vertical_captioned.mp4");
-    let clean_out = ep_dir.join("output").join("vertical_clean.mp4");
-    std::fs::create_dir_all(ep_dir.join("output")).map_err(io_err(&ep_dir))?;
-    let (cmd, enc_ok) = encode_mp4(
-        &config,
-        frames_dir.to_str().unwrap(),
-        mix_path.to_str().unwrap(),
-        cap_out.to_str().unwrap(),
-        clean_out.to_str().unwrap(),
-        &sched.captions,
-        config.runtime.resolution,
-        fps,
-    )?;
-
-    // --- 7. Verify ---
-    let probe = verify_mp4(&config, cap_out.to_str().unwrap());
-    let ffprobe_ok = probe.has_video && probe.has_audio && probe.duration >= sched.duration * 0.8;
-
-    // --- 8. Package ---
-    let world_before = world.clone();
-    let mut world_after = world.clone();
-    let delta = apply_persistent_changes(&mut world_after, &plan.persistent_changes);
-    let _ = delta;
-
-    let llm_used = auth.plan_source == AuthorSource::Llm
-        || auth.beats.iter().any(|b| b.source == AuthorSource::Llm);
-    let plan_source = auth.plan_source.as_str().to_string();
-
-    let mut m = EpisodeMetrics::default();
-    m.hook_latency_secs = sched.camera_shots.first().map(|s| s.start).unwrap_or(0.0);
-    m.objective_understandable_secs = sched.dialogue.first().map(|d| d.start).unwrap_or(sched.duration);
-    m.dead_air_secs = compute_max_gap(&sched.dialogue, sched.duration);
-    m.avg_shot_duration = if sched.camera_shots.is_empty() {
-        0.0
-    } else {
-        sched.camera_shots.iter().map(|s| s.end - s.start).sum::<f32>() / sched.camera_shots.len() as f32
-    };
-    m.longest_shot_duration = sched.camera_shots.iter().map(|s| s.end - s.start).fold(0.0f32, f32::max);
-    m.visual_changes_per_min = (sched.events.len() as f32) / (sched.duration / 60.0);
-    m.payoff_complete = !plan.payoff.trim().is_empty();
-    m.persistent_consequence = !plan.persistent_changes.is_empty();
-    m.model_validation_failures = if llm_used { 0 } else { 0 };
-
-    let transcript: String = sched
-        .dialogue
-        .iter()
-        .map(|d| format!("{}: {}", d.actor, d.text))
-        .collect::<Vec<_>>()
-        .join("\n");
-
-    let camera_plan: Vec<CameraShot> = sched
+/// Build the committed camera plan (eye/look sampled at each shot midpoint).
+pub fn build_camera_plan(
+    world: &WorldState,
+    sched: &Schedule,
+    rigs: &HashMap<String, HumanoidRig>,
+) -> Vec<CameraShot> {
+    sched
         .camera_shots
         .iter()
         .map(|s| {
-            // recompute the shot's eye/look at its midpoint for the committed plan
             let mid = (s.start + s.end) / 2.0;
-            let st = evaluate_at(&sched, &rigs, &world, mid);
+            let st = evaluate_at(sched, rigs, world, mid);
             CameraShot {
                 start: s.start,
                 end: s.end,
@@ -1354,14 +968,117 @@ pub fn produce_episode(
                 look_at: st.camera_look,
             }
         })
-        .collect();
+        .collect()
+}
+
+/// Stage 3 (shared): mix audio, encode MP4, verify, package, and write truthful
+/// logs. `render_backend` is recorded in the diagnostics so the artifact never
+/// lies about which renderer produced the imagery.
+pub fn finalize_production(
+    config: &Config,
+    require_llm: bool,
+    prep: &PreparedProduction,
+    frames_dir: &Path,
+    captured: u32,
+    render_backend: &str,
+) -> crate::error::Result<ProduceReport> {
+    let out_dir = &config.runtime.output_dir;
+    let ep_dir = Path::new(out_dir).join("episodes").join(&prep.episode_id);
+    let audio_dir = ep_dir.join("audio");
+    let llm_dir = ep_dir.join("llm");
+    std::fs::create_dir_all(&audio_dir).map_err(io_err(&ep_dir))?;
+    std::fs::create_dir_all(&llm_dir).map_err(io_err(&ep_dir))?;
+
+    let sched = &prep.schedule;
+    let rigs = &prep.rigs;
+    let world = &prep.world_before;
+    let plan = prep.planned.plan.clone();
+    let auth = &prep.auth;
+
+    // Mix audio
+    let sr = config.tts.sample_rate;
+    let mix_path = audio_dir.join("final_mix.wav");
+    mix_audio(&prep.clips, mix_path.to_str().unwrap(), sr, sched.duration);
+
+    // Encode MP4
+    let fps = config.runtime.frame_rate.max(1);
+    let cap_out = ep_dir.join("output").join("vertical_captioned.mp4");
+    let clean_out = ep_dir.join("output").join("vertical_clean.mp4");
+    std::fs::create_dir_all(ep_dir.join("output")).map_err(io_err(&ep_dir))?;
+    let (cmd, enc_ok) = encode_mp4(
+        config,
+        frames_dir.to_str().unwrap(),
+        mix_path.to_str().unwrap(),
+        cap_out.to_str().unwrap(),
+        clean_out.to_str().unwrap(),
+        &sched.captions,
+        config.runtime.resolution,
+        fps,
+    )?;
+
+    // Verify
+    let probe = verify_mp4(config, cap_out.to_str().unwrap());
+    let ffprobe_ok = probe.has_video && probe.has_audio && probe.duration >= sched.duration * 0.8;
+
+    // Package
+    let mut world_after = world.clone();
+    let _delta = apply_persistent_changes(&mut world_after, &plan.persistent_changes);
+
+    let llm_used = auth.plan_source == AuthorSource::Llm
+        || auth.beats.iter().any(|b| b.source == AuthorSource::Llm);
+    let plan_source = auth.plan_source.as_str().to_string();
+
+    let mut m = EpisodeMetrics::default();
+    m.hook_latency_secs = sched.camera_shots.first().map(|s| s.start).unwrap_or(0.0);
+    m.objective_understandable_secs = sched
+        .dialogue
+        .first()
+        .map(|d| d.start)
+        .unwrap_or(sched.duration);
+    m.dead_air_secs = compute_max_gap(&sched.dialogue, sched.duration);
+    m.avg_shot_duration = if sched.camera_shots.is_empty() {
+        0.0
+    } else {
+        sched.camera_shots.iter().map(|s| s.end - s.start).sum::<f32>() / sched.camera_shots.len() as f32
+    };
+    m.longest_shot_duration = sched
+        .camera_shots
+        .iter()
+        .map(|s| s.end - s.start)
+        .fold(0.0f32, f32::max);
+    m.visual_changes_per_min = (sched.events.len() as f32) / (sched.duration / 60.0);
+    m.payoff_complete = !plan.payoff.trim().is_empty();
+    m.persistent_consequence = !plan.persistent_changes.is_empty();
+
+    let transcript: String = sched
+        .dialogue
+        .iter()
+        .map(|d| format!("{}: {}", d.actor, d.text))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let camera_plan = build_camera_plan(world, sched, rigs);
+
+    // --- Autonomous visual-review loop (CPU-only) ---
+    // Re-simulate sampled frames from the shared timeline and measure
+    // articulation / freeze / on-screen figure occupancy. This is independent of
+    // the GPU render backend and documents that the performance is actually
+    // articulated, not a single static frame. Emitted as `review.json`.
+    let review = review_schedule(sched, rigs, world, 200, 356, 24);
+    let _ = std::fs::write(
+        ep_dir.join("review.json"),
+        serde_json::to_string_pretty(&review).unwrap_or_default(),
+    );
 
     let diagnostics = Diagnostics {
-        episode_id: episode_id.clone(),
+        episode_id: prep.episode_id.clone(),
         generated_at: chrono::Utc::now().to_rfc3339(),
         director: plan_source.clone(),
         llm_requests: auth.beats.iter().map(|b| b.attempts).sum::<u32>() + auth.attempts,
-        llm_failures: auth.beats.iter().filter(|b| b.source == AuthorSource::DeterministicFallback).count() as u32,
+        llm_failures: auth
+            .beats
+            .iter()
+            .filter(|b| b.source == AuthorSource::DeterministicFallback)
+            .count() as u32,
         validation_errors: vec![],
         repairs: 0,
         metrics: m.clone(),
@@ -1370,20 +1087,25 @@ pub fn produce_episode(
         llm_used,
         plan_author_source: plan_source.clone(),
         authorship: Some(auth.clone()),
-        tts_provider: provider.clone(),
-        tts_real: any_real,
-        audio_real: any_real,
+        tts_provider: prep.tts_provider.clone(),
+        tts_real: prep.any_real,
+        audio_real: prep.any_real,
         frames_captured: captured > 0,
         mp4_produced: enc_ok,
         ffmpeg_command: Some(cmd.clone()),
         ffprobe_ok,
         replay_no_llm: true,
+        render_backend: render_backend.to_string(),
     };
 
     let gemmy = GemmyManifest {
         title: plan.episode_title.clone(),
         summary: plan.logline.clone(),
-        hook_text: sched.captions.first().map(|c| c.text.clone()).unwrap_or_default(),
+        hook_text: sched
+            .captions
+            .first()
+            .map(|c| c.text.clone())
+            .unwrap_or_default(),
         duration_secs: sched.duration,
         characters: plan.active_characters.clone(),
         transcript: transcript.clone(),
@@ -1402,13 +1124,13 @@ pub fn produce_episode(
     };
 
     let mut pkg = EpisodePackage {
-        id: episode_id.clone(),
+        id: prep.episode_id.clone(),
         title: plan.episode_title.clone(),
         logline: plan.logline.clone(),
         duration_secs: sched.duration,
         canonical: true,
         plan: plan.clone(),
-        world_before,
+        world_before: world.clone(),
         world_after,
         events: sched.events.clone(),
         dialogue: sched.dialogue.clone(),
@@ -1422,19 +1144,19 @@ pub fn produce_episode(
     pkg.build_report();
     pkg.write(out_dir)?;
 
-    // llm/ truthful logs
-    write_llm_logs(&llm_dir, &auth, &planned, require_llm, llm_used);
-    // custom render manifest with real provenance
-    write_render_manifest(&ep_dir, &cmd, &probe, cap_out.to_str().unwrap(), clean_out.to_str().unwrap(), sched.duration);
-    // write tts clip list
-    write_tts_manifest(&audio_dir, &clips, provider.clone(), any_real);
-
-    if !keep_frames && captured > 0 {
-        let _ = std::fs::remove_dir_all(&frames_dir);
-    }
+    write_llm_logs(&llm_dir, auth, &prep.planned, require_llm, llm_used);
+    write_render_manifest(
+        &ep_dir,
+        &cmd,
+        &probe,
+        cap_out.to_str().unwrap(),
+        clean_out.to_str().unwrap(),
+        sched.duration,
+    );
+    write_tts_manifest(&audio_dir, &prep.clips, prep.tts_provider.clone(), prep.any_real);
 
     Ok(ProduceReport {
-        episode_id,
+        episode_id: prep.episode_id.clone(),
         mp4_captioned: cap_out.to_string_lossy().into_owned(),
         mp4_clean: clean_out.to_string_lossy().into_owned(),
         duration_secs: sched.duration,
@@ -1442,9 +1164,9 @@ pub fn produce_episode(
         require_llm,
         plan_author_source: plan_source,
         llm_used,
-        tts_provider: provider,
-        tts_real: any_real,
-        audio_real: any_real,
+        tts_provider: prep.tts_provider.clone(),
+        tts_real: prep.any_real,
+        audio_real: prep.any_real,
         frames_captured: captured > 0,
         mp4_produced: enc_ok,
         ffprobe_ok,
@@ -1452,6 +1174,45 @@ pub fn produce_episode(
         issues: diagnostics.issues.clone(),
         ffmpeg_command: Some(cmd),
     })
+}
+
+/// CPU software-rasterizer production path (regression / offline fallback).
+pub fn produce_episode(
+    cfg: ProduceConfig,
+    author: Box<dyn EpisodeAuthor>,
+) -> crate::error::Result<ProduceReport> {
+    let ProduceConfig { config, require_llm, world, seed, episode_number, keep_frames } = cfg;
+    let out_dir = config.runtime.output_dir.clone();
+    let ep_dir = Path::new(&out_dir).join("episodes").join(serial_id("episode", episode_number, 6));
+    let frames_dir = ep_dir.join("frames");
+    std::fs::create_dir_all(&frames_dir).map_err(io_err(&ep_dir))?;
+
+    let prep = prepare_production(&config, require_llm, &world, seed, episode_number, &*author)?;
+
+    // CPU software-rasterizer frame capture (deterministic, no LLM).
+    let fps = config.runtime.frame_rate.max(1);
+    let (rw, rh) = (config.runtime.resolution.0 / 2, config.runtime.resolution.1 / 2);
+    let renderer = StageRenderer::new(rw.max(2), rh.max(2));
+    let n_frames = (prep.schedule.duration * fps as f32).ceil() as u32;
+    let mut captured = 0u32;
+    for i in 0..n_frames {
+        let t = i as f32 / fps as f32;
+        let state = evaluate_at(&prep.schedule, &prep.rigs, &world, t);
+        let rgba = renderer.render(&state, &prep.rigs, &world);
+        let path = frames_dir.join(format!("frame_{:06}.png", i + 1));
+        if write_png(&path, rw, rh, &rgba).is_err() {
+            tracing::warn!("frame write failed");
+            break;
+        }
+        captured += 1;
+    }
+
+    let report = finalize_production(&config, require_llm, &prep, &frames_dir, captured, "cpu_software")?;
+
+    if !keep_frames && captured > 0 {
+        let _ = std::fs::remove_dir_all(&frames_dir);
+    }
+    Ok(report)
 }
 
 // ---- helpers for produce ----
@@ -1475,7 +1236,7 @@ fn build_validated(world: &WorldState, planned: &PlannedEpisode) -> Option<Valid
     Some(ValidatedPlan { plan: planned.plan.clone(), resolved_beats: resolved })
 }
 
-fn build_rigs(world: &WorldState) -> HashMap<String, HumanoidRig> {
+pub fn build_rigs(world: &WorldState) -> HashMap<String, HumanoidRig> {
     let mut m = HashMap::new();
     for c in world.characters.values() {
         let col = hex_rgb(&c.color_hex);
@@ -1484,7 +1245,7 @@ fn build_rigs(world: &WorldState) -> HashMap<String, HumanoidRig> {
     m
 }
 
-fn hex_rgb(hex: &str) -> [f32; 3] {
+pub fn hex_rgb(hex: &str) -> [f32; 3] {
     let h = hex.trim_start_matches('#');
     let r = u8::from_str_radix(&h.get(0..2).unwrap_or("80"), 16).unwrap_or(128);
     let g = u8::from_str_radix(&h.get(2..4).unwrap_or("80"), 16).unwrap_or(128);
@@ -1492,7 +1253,7 @@ fn hex_rgb(hex: &str) -> [f32; 3] {
     [r as f32 / 255.0, g as f32 / 255.0, b as f32 / 255.0]
 }
 
-fn compute_max_gap(dialogue: &[DialogueLine], duration: f32) -> f32 {
+pub fn compute_max_gap(dialogue: &[DialogueLine], duration: f32) -> f32 {
     if dialogue.is_empty() {
         return duration;
     }
@@ -1506,7 +1267,7 @@ fn compute_max_gap(dialogue: &[DialogueLine], duration: f32) -> f32 {
     max.max(0.0)
 }
 
-fn write_png(path: &Path, w: u32, h: u32, rgba: &[u8]) -> crate::error::Result<()> {
+pub fn write_png(path: &Path, w: u32, h: u32, rgba: &[u8]) -> crate::error::Result<()> {
     let file = std::fs::File::create(path).map_err(io_err(path))?;
     let mut enc = png::Encoder::new(file, w, h);
     enc.set_color(png::ColorType::Rgba);
@@ -1595,4 +1356,69 @@ fn write_tts_manifest(dir: &Path, clips: &[(String, f32, f32)], provider: String
         }))
         .unwrap_or_default(),
     );
+}
+
+#[cfg(test)]
+mod review_tests {
+    use crate::timeline::{CameraShotSpec, CharTrack, Schedule, ScheduledAction};
+    use crate::world::build_default_world;
+    use super::*;
+
+    #[test]
+    fn frame_motion_detects_change_and_identity() {
+        let blank = vec![10u8; 4 * 4 * 4];
+        let mut diff = blank.clone();
+        let mid = 4 * 4 * 4 / 2;
+        diff[mid] = 220;
+        diff[mid + 1] = 220;
+        diff[mid + 2] = 220;
+        assert!(frame_motion(&blank, &diff) > 0.0, "changed frame must show motion");
+        assert_eq!(frame_motion(&blank, &blank), 0.0, "identical frames show no motion");
+    }
+
+    #[test]
+    fn review_detects_articulation_on_talking_character() {
+        let world = build_default_world();
+        let rigs = build_rigs(&world);
+        let sched = Schedule {
+            duration: 4.0,
+            characters: vec![CharTrack {
+                id: "mara".into(),
+                home: [0.0, 0.0, 0.0],
+                actions: vec![ScheduledAction {
+                    actor: "mara".into(),
+                    action: "speak".into(),
+                    target: None,
+                    text: Some("hello".into()),
+                    start: 0.0,
+                    dur: 4.0,
+                }],
+            }],
+            camera_shots: vec![CameraShotSpec {
+                start: 0.0,
+                end: 4.0,
+                intent: "waist".into(),
+                subject: "mara".into(),
+                reaction: None,
+            }],
+            dialogue: vec![],
+            captions: vec![],
+            events: vec![],
+            flicker: vec![],
+            prop_attach: vec![],
+            inserts: vec![],
+        };
+        let rep = review_schedule(&sched, &rigs, &world, 160, 284, 24);
+        assert_eq!(rep.sampled_frames, 24);
+        assert!(
+            rep.articulation_observed,
+            "talking character must articulate (head nod / arm gesture); notes={:?}",
+            rep.notes
+        );
+        assert!(
+            !rep.freeze_detected,
+            "talking character must not freeze; notes={:?}",
+            rep.notes
+        );
+    }
 }

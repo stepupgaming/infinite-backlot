@@ -36,6 +36,9 @@ pub enum CoreError {
 
     #[error("replay mismatch: {0}")]
     ReplayMismatch(String),
+
+    #[error("{0}")]
+    Msg(String),
 }
 
 pub type Result<T> = std::result::Result<T, CoreError>;

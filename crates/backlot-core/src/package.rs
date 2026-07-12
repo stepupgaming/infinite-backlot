@@ -111,6 +111,10 @@ pub struct Diagnostics {
     pub ffprobe_ok: bool,
     /// Whether the final render issued zero LLM requests.
     pub replay_no_llm: bool,
+    /// The actual renderer used for the final proof: "cpu_software" (regression
+    /// only) or "bevy" (the authoritative scene). Never claim "bevy" unless the
+    /// Bevy renderer produced the frames.
+    pub render_backend: String,
 }
 
 /// Manifest for downstream tools (PRD §26.1).

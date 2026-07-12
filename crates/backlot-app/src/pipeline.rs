@@ -399,6 +399,7 @@ pub fn commit_system(
             ffmpeg_command: None,
             ffprobe_ok: false,
             replay_no_llm: true,
+            render_backend: "bevy".into(),
         },
         gemmy,
         report_md: String::new(),

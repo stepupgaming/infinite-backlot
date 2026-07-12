@@ -7,6 +7,7 @@
 pub mod author;
 pub mod avatar;
 pub mod config;
+pub mod timeline;
 pub mod director;
 pub mod error;
 pub mod package;

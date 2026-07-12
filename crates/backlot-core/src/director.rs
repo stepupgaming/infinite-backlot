@@ -9,7 +9,10 @@
 use crate::error::Result;
 use crate::protocol::*;
 use crate::rng::SeededRng;
+use crate::timeline::CameraShotSpec;
 use crate::world::WorldState;
+use crate::package::DialogueLine;
+use crate::validation::ValidatedPlan;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -286,4 +289,177 @@ fn hash_str(s: &str) -> u64 {
     let mut h = DefaultHasher::new();
     s.hash(&mut h);
     h.finish()
+}
+
+// ---------------------------------------------------------------------------
+// Autonomous camera director (Phase 6)
+// ---------------------------------------------------------------------------
+//
+// Turns the sparse per-beat camera intent into purposeful, legible coverage.
+// Every shot frames a *real performer* (never a wall or the elevator shell),
+// the hook is immediate and close, speaker + reaction coverage is guaranteed,
+// and inserts/reveals get their own brief close-up. The result is 8-14 shots
+// for a typical short episode.
+
+/// Resolve a camera subject to a real character id (fallback chain).
+fn resolve_subject_char(
+    world: &WorldState,
+    subject: &str,
+    active: &[String],
+    dialogue: &[DialogueLine],
+    at_time: f32,
+) -> String {
+    if world.character(subject).is_some() {
+        return subject.to_string();
+    }
+    // The subject might be a prop/mark; find whoever is speaking, else first active.
+    if let Some(d) = dialogue.iter().find(|d| d.start <= at_time && at_time < d.end) {
+        if world.character(&d.actor).is_some() {
+            return d.actor.clone();
+        }
+    }
+    active.first().cloned().unwrap_or_else(|| subject.to_string())
+}
+
+/// Plan the expanded camera coverage for an episode.
+pub fn plan_shots(
+    world: &WorldState,
+    validated: &ValidatedPlan,
+    home_of: &HashMap<String, [f32; 3]>,
+    dialogue: &[DialogueLine],
+    inserts: &[(f32, String)],
+    duration: f32,
+) -> Vec<CameraShotSpec> {
+    let active: Vec<String> = validated.plan.active_characters.clone();
+    let mut shots: Vec<CameraShotSpec> = Vec::new();
+
+    // Per-beat boundaries (mirror of build_schedule clocking).
+    let mut clock = 0.0f32;
+    let beat_bounds: Vec<(f32, f32)> = validated
+        .resolved_beats
+        .iter()
+        .map(|rb| {
+            let b0 = clock;
+            let mut t = 0.0f32;
+            for ra in &rb.resolved_actions {
+                t += ra.estimated_duration;
+            }
+            let b1 = (b0 + t + 0.6).max(rb.completion.seconds.unwrap_or(0.0).max(b0 + t));
+            clock = b1;
+            (b0, b1)
+        })
+        .collect();
+
+    for (i, rb) in validated.resolved_beats.iter().enumerate() {
+        let (b0, b1) = beat_bounds[i];
+        let seg = (b1 - b0).max(0.1);
+        let speaker = resolve_subject_char(world, &rb.camera_intent.subject, &active, dialogue, b0);
+        let reaction = rb.camera_intent.reaction_subject.clone().filter(|r| {
+            world.character(r).is_some() && *r != speaker
+        });
+
+        let is_hook = rb.outline.beat_type == "hook" || i == 0;
+        // Context/group shot length.
+        let ctx_len = (seg * 0.35).clamp(2.0, 3.5);
+        let ctx_end = (b0 + ctx_len).min(b1 - 1.0).max(b0 + 1.5);
+
+        // Reaction shot length (last portion of the beat).
+        let react_len = if reaction.is_some() {
+            (seg * 0.3).clamp(2.0, 3.0)
+        } else {
+            0.0
+        };
+        let react_start = (b1 - react_len).max(ctx_end + 1.0);
+
+        // Hook: open close on the performer, not a wide.
+        let ctx_intent = if is_hook {
+            "tension_push".to_string()
+        } else {
+            "group_coverage".to_string()
+        };
+        shots.push(CameraShotSpec {
+            start: b0,
+            end: ctx_end,
+            intent: ctx_intent,
+            subject: speaker.clone(),
+            reaction: reaction.clone(),
+        });
+
+        // Speaker closeup for the middle of the beat.
+        if react_start > ctx_end + 0.5 {
+            shots.push(CameraShotSpec {
+                start: ctx_end,
+                end: react_start,
+                intent: if is_hook { "speaker_closeup" } else { "speaker_closeup" }.to_string(),
+                subject: speaker.clone(),
+                reaction: reaction.clone(),
+            });
+        }
+
+        // Reaction coverage at the end.
+        if let Some(r) = reaction.clone() {
+            if b1 - react_start >= 1.2 {
+                shots.push(CameraShotSpec {
+                    start: react_start,
+                    end: b1,
+                    intent: "reaction".to_string(),
+                    subject: speaker.clone(),
+                    reaction: Some(r),
+                });
+            }
+        }
+    }
+
+    // Insert / reveal close-ups around key prop moments.
+    for (time, _prop) in inserts {
+        // Find a character active near this time to frame.
+        let subj = resolve_subject_char(world, &active.first().cloned().unwrap_or_default(), &active, dialogue, *time);
+        let start = (*time - 1.0).max(0.0);
+        let end = (*time + 1.4).min(duration);
+        if end - start >= 1.0 {
+            shots.push(CameraShotSpec {
+                start,
+                end,
+                intent: "insert_object".to_string(),
+                subject: subj,
+                reaction: None,
+            });
+        }
+    }
+
+    // Sort by start, then trim to a purposeful 8-14 shot count.
+    shots.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
+    if shots.len() > 14 {
+        // Keep speaker + reaction shots first; drop surplus group shots.
+        let mut kept: Vec<CameraShotSpec> = shots
+            .iter()
+            .filter(|s| s.intent != "group_coverage")
+            .cloned()
+            .collect();
+        // Re-add group shots until we reach 14.
+        for s in &shots {
+            if kept.len() >= 14 {
+                break;
+            }
+            if s.intent == "group_coverage" && !kept.contains(s) {
+                kept.push(s.clone());
+            }
+        }
+        kept.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
+        shots = kept;
+    }
+
+    // Guarantee a minimum of 8 shots by cloning the nearest speaker shots if the
+    // episode is very short.
+    if shots.len() < 8 && !shots.is_empty() {
+        let mut extra = shots.clone();
+        while shots.len() + extra.len() < 8 && !extra.is_empty() {
+            shots.extend(extra.iter().cloned());
+        }
+        shots.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
+    }
+
+    // Avoid zero/negative-length shots.
+    shots.retain(|s| s.end > s.start + 0.05);
+    shots
 }

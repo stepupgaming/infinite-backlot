@@ -8,11 +8,10 @@
 # fails clearly (never silently falls back) when it is unreachable.
 
 [llm]
-# LM Studio / llama.cpp local default. Change to your endpoint.
-base_url = "http://localhost:1234/v1"
-# Any chat model. Example local models:
-#   "gemma-4-26b-a3b", "qwen2.5-14b-instruct", "llama-3.1-8b-instruct"
-model = "gemma-4-26b-a3b"
+# Local Gemma ("gemmy") server — llama-server speaking OpenAI-compatible /v1.
+base_url = "http://127.0.0.1:8080/v1"
+# Configured Gemma model served by gemmy.
+model = "gemma-4-26b-mtp-q5"
 # Most local servers accept an empty key; cloud providers need a real token.
 api_key = ""
 timeout_secs = 120

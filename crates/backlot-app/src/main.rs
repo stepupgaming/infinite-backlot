@@ -4,6 +4,7 @@
 //! author (an OpenAI-compatible LLM director with deterministic fallback), then
 //! runs the Bevy application state machine described in the PRD.
 
+mod bevy_capture;
 mod pipeline;
 mod player;
 mod scene;
@@ -35,6 +36,11 @@ fn main() {
     let cli_args: Vec<String> = std::env::args().collect();
     let produce_one = cli_args.iter().any(|a| a == "--produce-one");
     let require_llm = cli_args.iter().any(|a| a == "--require-llm");
+    let render_backend = cli_args
+        .iter()
+        .position(|a| a == "--render-backend")
+        .and_then(|i| cli_args.get(i + 1).cloned())
+        .unwrap_or_else(|| "cpu".to_string());
     if produce_one {
         let author: Box<dyn EpisodeAuthor> = if require_llm {
             // CLI flag overrides the config file: in REQUIRE-LLM production mode
@@ -66,7 +72,14 @@ fn main() {
             episode_number: 1,
             keep_frames: false,
         };
-        match produce_episode(cfg, author) {
+        let report_res: backlot_core::error::Result<backlot_core::render::ProduceReport> =
+            if render_backend == "bevy" {
+                eprintln!("RENDER BACKEND: bevy (real GPU scene)");
+                bevy_capture::produce_episode_bevy(cfg, author)
+            } else {
+                produce_episode(cfg, author)
+            };
+        match report_res {
             Ok(report) => {
                 println!("PRODUCED {}", report.episode_id);
                 println!("  captioned  : {}", report.mp4_captioned);
