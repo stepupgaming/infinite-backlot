@@ -1,0 +1,21 @@
+[package]
+name = "backlot-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "backlot"
+path = "src/main.rs"
+
+[dependencies]
+backlot-core.workspace = true
+backlot-llm.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tokio.workspace = true
+bevy.workspace = true
+chrono.workspace = true

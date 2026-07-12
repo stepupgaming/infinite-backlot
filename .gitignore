@@ -1,0 +1,15 @@
+# Build artifacts
+/target
+/output
+**/*.rs.bk
+
+# Rust lockfile is committed for applications (reproducible builds)
+
+# Scratch / reference dumps (not part of the project)
+/build_*.log
+*.html
+/shapes.rs
+/ta.rs
+/text_src.rs
+/text_lib.rs
+/ui_text_src.rs

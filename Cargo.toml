@@ -1,0 +1,42 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/backlot-core",
+    "crates/backlot-llm",
+    "crates/backlot-app",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+rust-version = "1.85"
+
+[workspace.dependencies]
+# Internal crates
+backlot-core = { path = "crates/backlot-core" }
+backlot-llm = { path = "crates/backlot-llm" }
+
+# Serialization / data
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+schemars = { version = "0.8", features = ["chrono"] }
+toml = "0.8"
+thiserror = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+rand = "0.8"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Async runtime for the LLM client
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync", "io-util"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+
+# Engine
+bevy = "0.19"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1

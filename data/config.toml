@@ -1,0 +1,86 @@
+# Infinite Backlot — runtime configuration.
+#
+# The LLM section is an OpenAI-compatible shape. Any local server that speaks
+# `/v1/chat/completions` works: llama.cpp, Ollama, vLLM, LM Studio, OpenAI, etc.
+# With no reachable model the app transparently falls back to the built-in
+# deterministic director, so it always runs. Set `force_fallback = true` to skip
+# the network, or `require_llm = true` for a run that MUST use the model and
+# fails clearly (never silently falls back) when it is unreachable.
+
+[llm]
+# LM Studio / llama.cpp local default. Change to your endpoint.
+base_url = "http://localhost:1234/v1"
+# Any chat model. Example local models:
+#   "gemma-4-26b-a3b", "qwen2.5-14b-instruct", "llama-3.1-8b-instruct"
+model = "gemma-4-26b-a3b"
+# Most local servers accept an empty key; cloud providers need a real token.
+api_key = ""
+timeout_secs = 120
+temperature = 0.4
+max_tokens = 2048
+max_retries = 2
+# Use the streaming protocol and aggregate the final choice.
+stream = false
+organization = ""
+
+[runtime]
+# Target length of a produced episode (seconds). The actual length is the sum
+# of validated beat durations (dialogue + movement), so this guides pacing.
+target_duration_secs = 50
+# Watchability governor: max continuous silence before it forces a beat end.
+max_dead_air_secs = 4
+# How many episodes to produce before returning to idle (0 = run forever /
+# wait for operator input). Set to e.g. 3 for an unattended demo run.
+episodes_to_run = 0
+# Base seed for authoring (0xC0FFEE).
+base_seed = 12648430
+# Whether the render pass should attempt frame capture.
+capture_frames = false
+# Root output directory for committed episode packages.
+output_dir = "C:/Projects/bevy-infinite/output"
+# Caption style identifier handed to downstream export tooling.
+caption_style = "backlot-default"
+# Master video resolution (width, height). Proof targets vertical 1080x1920.
+resolution = [1080, 1920]
+# Fixed frame rate for deterministic capture.
+frame_rate = 30
+# FFmpeg binary name / path (on PATH here).
+ffmpeg_path = "ffmpeg"
+# TrueType font for burned-in captions (Windows Arial).
+font_path = "C:/Windows/Fonts/arial.ttf"
+
+[director]
+# If the model is unreachable or disabled, use the built-in deterministic
+# director so the product is always runnable.
+allow_fallback_director = true
+# Set to true to never touch the network and always use the deterministic
+# director. Set to false to attempt the real LLM first (it still falls back).
+force_fallback = false
+# REQUIRE-LLM production mode: when true the run MUST use the configured model
+# and fails clearly (never silently falls back) if the model is unreachable,
+# invalid, or any beat cannot be authored/validated.
+require_llm = false
+# How many times a single LLM piece may be repaired/re-requested before giving
+# up (only relevant when require_llm is true).
+max_repairs = 2
+
+[tts]
+# Provider: "espeak" (real local TTS) or "estimating" (duration-only stub).
+provider = "espeak"
+# Full path to espeak-ng (it is not on PATH by default on this machine).
+executable = "C:/Program Files/eSpeak NG/espeak-ng"
+# Output sample rate for generated audio.
+sample_rate = 44100
+# Directory for cached WAV clips (keyed by content hash).
+cache_dir = "C:/Projects/bevy-infinite/output/cache/tts"
+# Default voice id used when a character has no explicit mapping.
+default_voice = "en-us"
+# Amplitude passed to espeak-ng (0..200).
+amplitude = 100
+# Speed multiplier (espeak words/min scaled). The WAV-duration reader measures
+# real (16-bit) speech length, so 0.9 (slower) lands the autonomous episode in
+# the 45-60s target window.
+speed = 0.9
+# Character id -> espeak voice name. Two characters map to two distinct voices
+# (en-us / en-gb) so dialogue is clearly distinguishable.
+voice_map = { mara = "en-us", ellis = "en-gb", voss = "en-us", nox = "en-gb" }
