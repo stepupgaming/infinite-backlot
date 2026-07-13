@@ -70,7 +70,7 @@ fn main() {
             world: world.clone(),
             seed: config.runtime.base_seed,
             episode_number: 1,
-            keep_frames: false,
+            keep_frames: true,
         };
         let report_res: backlot_core::error::Result<backlot_core::render::ProduceReport> =
             if render_backend == "bevy" {

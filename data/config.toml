@@ -11,12 +11,12 @@
 # Local Gemma ("gemmy") server — llama-server speaking OpenAI-compatible /v1.
 base_url = "http://127.0.0.1:8080/v1"
 # Configured Gemma model served by gemmy.
-model = "gemma-4-26b-mtp-q5"
+model = "dcf179a91153e3a7ece792e48ef872180d9d6ef9b7677f0a0bd3e83cfe624d5e"
 # Most local servers accept an empty key; cloud providers need a real token.
 api_key = ""
 timeout_secs = 120
 temperature = 0.4
-max_tokens = 2048
+max_tokens = 8192
 max_retries = 2
 # Use the streaming protocol and aggregate the final choice.
 stream = false

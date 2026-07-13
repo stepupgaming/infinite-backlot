@@ -128,6 +128,7 @@ impl LlmAuthor {
                                 "require_llm: plan failed validation: {e:?}"
                             )));
                         }
+                        eprintln!("LLM-FALLBACK plan-validation: {e:?}");
                         tracing::warn!("LLM plan failed validation ({e:?}); using fallback plan");
                         return self.fallback_plan(ctx);
                     }
@@ -136,6 +137,7 @@ impl LlmAuthor {
                     if self.require_llm {
                         return Err(CoreError::Llm(format!("require_llm: plan parse failed: {e}")));
                     }
+                    eprintln!("LLM-FALLBACK plan-parse: {e}");
                     tracing::warn!("LLM plan parse failed ({e}); using fallback plan");
                     return self.fallback_plan(ctx);
                 }
@@ -144,6 +146,7 @@ impl LlmAuthor {
                 if self.require_llm {
                     return Err(CoreError::Llm(format!("require_llm: plan request failed: {e}")));
                 }
+                eprintln!("LLM-FALLBACK plan-request: {e}");
                 tracing::warn!("LLM plan request failed ({e}); using fallback plan");
                 return self.fallback_plan(ctx);
             }

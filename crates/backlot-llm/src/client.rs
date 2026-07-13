@@ -72,6 +72,10 @@ struct Choice {
 #[derive(Clone, Debug, Deserialize)]
 struct ChatMessageOut {
     content: String,
+    /// Present on reasoning models (e.g. Gemma with `--reasoning`); the
+    /// structured answer is frequently emitted here rather than in `content`.
+    #[serde(default)]
+    reasoning_content: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -222,6 +226,18 @@ impl LlmClient {
             v
         };
 
+        // Reasoning models (e.g. Gemma launched with `--reasoning`) emit the
+        // structured answer inside `reasoning_content`, and may leave `content`
+        // empty. Combine both so extraction can find the JSON either place.
+        let combined = |m: &ChatMessageOut| -> String {
+            let mut s = m.content.clone();
+            if let Some(r) = &m.reasoning_content {
+                s.push('\n');
+                s.push_str(r);
+            }
+            s
+        };
+
         // Attempt 1: strict json_schema.
         let strict_fmt = ResponseFormat::JsonSchema {
             json_schema: JsonSchemaBody {
@@ -232,9 +248,10 @@ impl LlmClient {
         };
         match self.chat(messages(""), Some(strict_fmt)).await {
             Ok(r) => {
-                if let Some(content) = r.choices.into_iter().next().and_then(|c| Some(c.message.content)) {
-                    if content.trim().starts_with('{') {
-                        return Ok(content);
+                if let Some(m) = r.choices.into_iter().next().map(|c| c.message) {
+                    let text = combined(&m);
+                    if let Some(extracted) = extract_json(&text) {
+                        return Ok(extracted.to_string());
                     }
                 }
             }
@@ -257,8 +274,9 @@ impl LlmClient {
                 .await
             {
                 Ok(r) => {
-                    if let Some(content) = r.choices.into_iter().next().map(|c| c.message.content) {
-                        if let Some(extracted) = extract_json(&content) {
+                    if let Some(m) = r.choices.into_iter().next().map(|c| c.message) {
+                        let text = combined(&m);
+                        if let Some(extracted) = extract_json(&text) {
                             return Ok(extracted.to_string());
                         }
                     }

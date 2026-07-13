@@ -29,6 +29,12 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
+/// Object-id for the ground/floor plane. It is kept distinct from the `set`
+/// id (1, walls/elevator shell) so that, in the subject-only occlusion pass,
+/// the floor a performer *stands on* is never counted as an occluder — only
+/// solid structure (walls, props, other characters) can occlude.
+const GROUND_ID: u32 = 3;
+
 // ===========================================================================
 // Configuration + report
 // ===========================================================================
@@ -69,6 +75,40 @@ pub struct ProduceReport {
 // Software rasterizer
 // ===========================================================================
 
+/// A single scene triangle in *world* space, with a flat base color and a
+/// stable object id used by the diagnostic / occlusion passes.
+///   id == 0  -> background (never emitted)
+///   id == 1  -> static set (walls / floor / elevator shell)
+///   id == 2  -> prop
+///   id >= 100 + k -> character `k` (index into the rig order)
+#[derive(Clone)]
+struct SceneTri {
+    v: [[f32; 3]; 3],
+    col: [f32; 3],
+    id: u32,
+}
+
+/// Per-frame geometry-correctness statistics. These are the objective,
+/// structured "visual review" numbers (no image interpretation required):
+/// they prove that no triangle exploded into a full-frame spike, that nothing
+/// was drawn behind the camera, and that no non-finite projection occurred.
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct GeometryStats {
+    pub total_triangles: u32,
+    /// Triangles fully (or nearly) behind the camera.
+    pub behind_camera: u32,
+    /// Triangles that contained a non-finite vertex.
+    pub non_finite: u32,
+    /// Triangles actually cut by the near plane (clipped into a valid polygon).
+    pub clipped_near: u32,
+    /// Character body-part triangles that filled an implausibly large fraction
+    /// of the frame (a sure sign of stretched geometry).
+    pub implausible_character_triangles: u32,
+    /// Largest single-triangle screen-area fraction observed (frame units).
+    pub max_triangle_screen_fraction: f32,
+    pub notes: Vec<String>,
+}
+
 struct StageRenderer {
     w: u32,
     h: u32,
@@ -78,6 +118,10 @@ struct StageRenderer {
 struct Buffers {
     color: Vec<u8>,
     depth: Vec<f32>,
+    /// Object id at each pixel (0 = background, 1 = set, 2 = prop, 100+k = char).
+    id: Vec<u32>,
+    /// Geometry-correctness diagnostics for this frame.
+    stats: GeometryStats,
     w: u32,
     h: u32,
 }
@@ -106,16 +150,40 @@ impl StageRenderer {
         Buffers {
             color,
             depth: vec![f32::INFINITY; n],
+            id: vec![0u32; n],
+            stats: GeometryStats::default(),
             w: self.w,
             h: self.h,
         }
     }
 
-    /// Render one frame to an RGBA buffer.
+    /// Render one frame to an RGBA buffer (color only). Geometry-correctness
+    /// diagnostics are captured by [`StageRenderer::render_buffers`].
     fn render(&self, state: &FrameState, rigs: &HashMap<String, HumanoidRig>, world: &WorldState) -> Vec<u8> {
+        self.render_buffers(state, rigs, world, None).color
+    }
+
+    /// Render one frame, returning the color + object-id buffers and per-frame
+    /// geometry statistics.
+    ///
+    /// Geometry pipeline (every vertex):
+    ///   world -> view space (camera basis) -> homogeneous *near-plane* clip
+    ///   -> perspective divide -> viewport map -> triangle setup -> depth test.
+    ///
+    /// The near-plane clip is the critical correctness fix: a triangle that
+    /// crosses the camera near plane is clipped to a valid polygon (3..6 verts)
+    /// and fanned into triangles, so geometry never explodes into a full-frame
+    /// spike and never silently disappears. Vertices behind the camera or
+    /// non-finite are rejected outright.
+    fn render_buffers(
+        &self,
+        state: &FrameState,
+        rigs: &HashMap<String, HumanoidRig>,
+        world: &WorldState,
+        mask: Option<u32>,
+    ) -> Buffers {
         let mut buf = self.blank([28, 30, 40], [10, 11, 16]);
         let (eye, look) = (state.camera_eye, state.camera_look);
-        // view basis
         let f = normalize(sub(look, eye));
         let up = [0.0f32, 1.0, 0.0];
         let r = normalize(cross(f, up));
@@ -123,71 +191,63 @@ impl StageRenderer {
         let aspect = self.w as f32 / self.h as f32;
         let fproj = 1.0 / (self.fov_y / 2.0).tan();
         let near = 0.08f32;
+        // Side/far frustum planes (view space, vz > 0 in front). A vertex is
+        // inside when |vx| <= vz * r_plane and |vy| <= vz * t_plane, which is
+        // exactly the inverse of `project_view`'s ndc bounds.
+        let r_plane = aspect / fproj;
+        let t_plane = 1.0 / fproj;
         let light = normalize([0.4, 1.0, 0.35]);
+        let total_area = (self.w * self.h) as f32;
 
-        // project a world point -> (sx, sy, depth)
-        let project = |p: [f32; 3]| -> Option<(f32, f32, f32)> {
-            let d = sub(p, eye);
-            let cz = dot(d, f);
-            if cz <= near {
-                return None;
-            }
-            let cx = dot(d, r);
-            let cy = dot(d, u);
-            let ndc_x = (fproj / aspect) * cx / cz;
-            let ndc_y = fproj * cy / cz;
-            let sx = (ndc_x * 0.5 + 0.5) * self.w as f32;
-            let sy = (1.0 - (ndc_y * 0.5 + 0.5)) * self.h as f32;
-            Some((sx, sy, cz))
-        };
+        // ---- Collect world-space triangles with stable object ids ----
+        let set = 1u32;
+        let prop_id = 2u32;
+        let mut tris: Vec<SceneTri> = Vec::new();
 
-        // collect triangles: (world[3], base_color)
-        let mut tris: Vec<([f32; 3], [f32; 3], [f32; 3], [f32; 3])> = Vec::new();
-
-        // floor (two large triangles)
+        // floor (two large triangles) — distinct id so it never reads as an
+        // occluder in the subject-only pass.
         let fy = 0.0f32;
         let fx0 = -12.0;
         let fx1 = 12.0;
         let fz0 = -10.0;
         let fz1 = 8.0;
-        tris.push(([fx0, fy, fz0], [fx1, fy, fz0], [fx1, fy, fz1], [0.16, 0.16, 0.2]));
-        tris.push(([fx0, fy, fz0], [fx1, fy, fz1], [fx0, fy, fz1], [0.16, 0.16, 0.2]));
+        tris.push(SceneTri { v: [[fx0, fy, fz0], [fx1, fy, fz0], [fx1, fy, fz1]], col: [0.16, 0.16, 0.2], id: GROUND_ID });
+        tris.push(SceneTri { v: [[fx0, fy, fz0], [fx1, fy, fz1], [fx0, fy, fz1]], col: [0.16, 0.16, 0.2], id: GROUND_ID });
 
         // back wall + side walls
         let wall_col = [0.28, 0.28, 0.34];
-        tris.push(([-8.0, 0.0, -3.2], [8.0, 0.0, -3.2], [8.0, 4.0, -3.2], wall_col));
-        tris.push(([-8.0, 0.0, -3.2], [8.0, 4.0, -3.2], [-8.0, 4.0, -3.2], wall_col));
+        tris.push(SceneTri { v: [[-8.0, 0.0, -3.2], [8.0, 0.0, -3.2], [8.0, 4.0, -3.2]], col: wall_col, id: set });
+        tris.push(SceneTri { v: [[-8.0, 0.0, -3.2], [8.0, 4.0, -3.2], [-8.0, 4.0, -3.2]], col: wall_col, id: set });
         for sx in [-8.0f32, 8.0] {
-            tris.push(([sx, 0.0, -3.2], [sx, 4.0, -3.2], [sx, 4.0, 8.0], wall_col));
-            tris.push(([sx, 0.0, -3.2], [sx, 4.0, 8.0], [sx, 0.0, 8.0], wall_col));
+            tris.push(SceneTri { v: [[sx, 0.0, -3.2], [sx, 4.0, -3.2], [sx, 4.0, 8.0]], col: wall_col, id: set });
+            tris.push(SceneTri { v: [[sx, 0.0, -3.2], [sx, 4.0, 8.0], [sx, 0.0, 8.0]], col: wall_col, id: set });
         }
 
-        // elevator box
-        let elev = world.props.get("elevator").and_then(|p| {
-            world.locations.values().flat_map(|l| l.staging_marks.iter()).find(|m| m.id == p.home_mark).map(|m| m.position)
-        });
-        if let Some(e) = elev {
-            push_box(&mut tris, [e[0], 1.3, e[2] + 0.2], [0.8, 1.3, 0.3], [0.45, 0.47, 0.5]);
-        }
+        // openable, non-blocking elevator
+        push_elevator(&mut tris, world, state.elevator_open);
 
         // props
         for pf in &state.props {
-            push_box(&mut tris, [pf.pos[0], pf.pos[1], pf.pos[2]], [0.22, 0.22, 0.22], [0.9, 0.75, 0.3]);
+            push_box(&mut tris, [pf.pos[0], pf.pos[1], pf.pos[2]], [0.22, 0.22, 0.22], [0.9, 0.75, 0.3], prop_id);
         }
 
-        // characters: each rig part as a box
-        for (cf, pose) in &state.chars {
+        // characters: each rig part as a box, tagged with a stable char id
+        for (k, (cf, pose)) in state.chars.iter().enumerate() {
             if let Some(rig) = rigs.get(&cf.id) {
                 let wm = rig.world_matrices(&cf.root, pose);
+                let cid = 100 + k as u32;
                 for part in &rig.parts {
-                    let w = wm.get(&part.joint).cloned().unwrap_or(crate::avatar::RigWorld { rot: [[1.0,0.0,0.0],[0.0,1.0,0.0],[0.0,0.0,1.0]], pos: cf.root.pos });
+                    let w = wm
+                        .get(&part.joint)
+                        .cloned()
+                        .unwrap_or(crate::avatar::RigWorld { rot: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], pos: cf.root.pos });
                     let corners = part_corners(part, &w);
-                    push_box_corners(&mut tris, &corners, part.color);
+                    push_box_corners(&mut tris, &corners, part.color, cid);
                 }
             }
         }
 
-        // flicker light tint: just darken everything slightly if flicker active
+        // flicker light tint: darken everything slightly if flicker active
         let amb = if state.flicker {
             let ph = (state.camera_eye[0] * 13.0).fract();
             0.25 + 0.2 * (ph * 6.28).sin().abs()
@@ -195,26 +255,83 @@ impl StageRenderer {
             1.0
         };
 
-        // draw
-        for (a, b, c, col) in tris {
-            // flat shade
-            let nrm = normalize(cross(sub(b, a), sub(c, a)));
-            let shade = (0.4 + 0.6 * dot(nrm, light).max(0.0)) * amb;
-            let base = [
-                (col[0] * shade).clamp(0.0, 1.0),
-                (col[1] * shade).clamp(0.0, 1.0),
-                (col[2] * shade).clamp(0.0, 1.0),
-            ];
-            // project with near clipping
-            let pa = project(a);
-            let pb = project(b);
-            let pc = project(c);
-            if let (Some(pa), Some(pb), Some(pc)) = (pa, pb, pc) {
-                draw_triangle(&mut buf, pa, pb, pc, base);
+        // ---- Project + clip + rasterize ----
+        let mut stats = GeometryStats::default();
+        for tri in &tris {
+            let id = match mask {
+                // Subject-only pass: draw *only* the subject's triangles so we can
+                // measure its true (un-occluded) silhouette. Everything else is
+                // skipped — this is what makes the occlusion metric honest (it is
+                // `1 - visible / silhouette`, not a count of all other geometry).
+                Some(subj) => {
+                    if tri.id == subj {
+                        tri.id
+                    } else {
+                        continue;
+                    }
+                }
+                None => tri.id,
+            };
+            let va = view_of(tri.v[0], eye, r, u, f);
+            let vb = view_of(tri.v[1], eye, r, u, f);
+            let vc = view_of(tri.v[2], eye, r, u, f);
+            if !finite3(va) || !finite3(vb) || !finite3(vc) {
+                stats.non_finite += 1;
+                continue;
+            }
+            let poly = clip_near(&[va, vb, vc], near);
+            if poly.is_empty() {
+                stats.behind_camera += 1;
+                continue;
+            }
+            // Bound the polygon to the visible frustum. Without the side planes a
+            // triangle straddling the camera (e.g. an off-screen character behind
+            // the lens) would be clipped only at the near plane, leaving a vertex
+            // with an arbitrarily large projected coordinate that paints a giant
+            // shard across the frame. Clipping the four side planes keeps every
+            // drawn triangle inside the viewport.
+            let poly = clip_plane(&poly, [-1.0, 0.0, r_plane]); // right: vx <= vz*r
+            let poly = clip_plane(&poly, [1.0, 0.0, r_plane]); // left:  vx >= -vz*r
+            let poly = clip_plane(&poly, [0.0, -1.0, t_plane]); // top:    vy <= vz*t
+            let poly = clip_plane(&poly, [0.0, 1.0, t_plane]); // bottom: vy >= -vz*t
+            if poly.len() < 3 {
+                continue;
+            }
+            if poly.len() > 3 {
+                stats.clipped_near += 1;
+            }
+            stats.total_triangles += 1;
+            // project each clipped view vertex to the screen
+            let pts: Vec<(f32, f32, f32)> = poly
+                .iter()
+                .map(|p| project_view(*p, fproj, aspect, self.w as f32, self.h as f32))
+                .collect();
+            for k in 1..pts.len() - 1 {
+                let (a, b, c) = (pts[0], pts[k], pts[k + 1]);
+                let a3 = [a.0, a.1, a.2];
+                let b3 = [b.0, b.1, b.2];
+                let c3 = [c.0, c.1, c.2];
+                let nrm = normalize(cross(sub(b3, a3), sub(c3, a3)));
+                let shade = (0.4 + 0.6 * dot(nrm, light).max(0.0)) * amb;
+                let base = [
+                    (tri.col[0] * shade).clamp(0.0, 1.0),
+                    (tri.col[1] * shade).clamp(0.0, 1.0),
+                    (tri.col[2] * shade).clamp(0.0, 1.0),
+                ];
+                let frac = tri_area_2d(a, b, c) / total_area;
+                if frac > stats.max_triangle_screen_fraction {
+                    stats.max_triangle_screen_fraction = frac;
+                }
+                // A character body part must never fill most of the frame.
+                if id >= 100 && frac > 0.6 {
+                    stats.implausible_character_triangles += 1;
+                }
+                draw_triangle(&mut buf, a, b, c, base, id);
             }
         }
 
-        buf.color
+        buf.stats = stats;
+        buf
     }
 }
 
@@ -390,7 +507,169 @@ pub fn frame_motion(prev: &[u8], cur: &[u8]) -> f32 {
     changed as f32 / npix as f32
 }
 
-fn push_box(tris: &mut Vec<([f32; 3], [f32; 3], [f32; 3], [f32; 3])>, center: [f32; 3], half: [f32; 3], col: [f32; 3]) {
+/// Per-shot objective framing / occlusion analysis. These are the
+/// programmatic "camera legibility" numbers: no image interpretation, just
+/// structured counts over the rendered object-id + depth buffers.
+#[derive(Debug, Clone, Serialize, serde::Deserialize)]
+pub struct ShotAnalysis {
+    pub start: f32,
+    pub end: f32,
+    pub intent: String,
+    pub subject: String,
+    pub in_frame: bool,
+    /// Subject height as a fraction of frame height (0..1).
+    pub subject_height_fraction: f32,
+    /// Subject pixels as a fraction of the whole frame (0..1).
+    pub subject_area_fraction: f32,
+    /// 0 = fully visible, 1 = fully hidden / off-frame.
+    pub occlusion: f32,
+    /// Static-set pixels as a fraction of the frame (0..1).
+    pub set_fraction: f32,
+    pub rejected: bool,
+    pub reject_reason: String,
+    pub notes: Vec<String>,
+}
+
+/// Analyze a single frame for the given subject character id. The subject is
+/// tagged `id = 100 + index_in_state.chars` by the renderer, so we locate it by
+/// name. We render the full frame for size/position and a subject-only frame to
+/// measure the performer's *true* (un-occluded) silhouette. Occlusion is then
+/// `1 - visible / silhouette` — honest, because it only considers how much of
+/// the performer's own area is hidden by foreground geometry.
+pub fn analyze_frame(
+    state: &FrameState,
+    rigs: &HashMap<String, HumanoidRig>,
+    world: &WorldState,
+    w: u32,
+    h: u32,
+    subject_char_id: &str,
+) -> ShotAnalysis {
+    let total = (w * h) as f32;
+    let subject_id = state
+        .chars
+        .iter()
+        .position(|(cf, _)| cf.id == subject_char_id)
+        .map(|k| 100 + k as u32);
+
+    let full = StageRenderer::new(w, h).render_buffers(state, rigs, world, None);
+    let mut full_subj = 0u32;
+    let mut full_set = 0u32;
+    let mut minx = u32::MAX;
+    let mut maxx = 0u32;
+    let mut miny = u32::MAX;
+    let mut maxy = 0u32;
+    for (i, &id) in full.id.iter().enumerate() {
+        if id == 1 {
+            full_set += 1;
+        }
+        if Some(id) == subject_id {
+            full_subj += 1;
+            let x = (i % w as usize) as u32;
+            let y = (i / w as usize) as u32;
+            if x < minx {
+                minx = x;
+            }
+            if x > maxx {
+                maxx = x;
+            }
+            if y < miny {
+                miny = y;
+            }
+            if y > maxy {
+                maxy = y;
+            }
+        }
+    }
+
+    // Subject-only pass: only the performer is drawn, giving its full silhouette.
+    let silhouette = if let Some(sid) = subject_id {
+        StageRenderer::new(w, h)
+            .render_buffers(state, rigs, world, Some(sid))
+            .id
+            .iter()
+            .filter(|&&id| id == sid)
+            .count() as u32
+    } else {
+        0
+    };
+    let visible = full_subj;
+
+    let occlusion = if silhouette > 0 {
+        1.0 - visible as f32 / silhouette as f32
+    } else {
+        1.0
+    };
+    let in_frame = silhouette > 0 && full_subj > 0;
+    let height_frac = if full_subj > 0 {
+        (maxy - miny) as f32 / h as f32
+    } else {
+        0.0
+    };
+    let area_frac = full_subj as f32 / total;
+    let set_frac = full_set as f32 / total;
+    let (rejected, reason) = evaluate_shot_legibility(in_frame, height_frac, occlusion, set_frac);
+
+    ShotAnalysis {
+        start: 0.0,
+        end: 0.0,
+        intent: String::new(),
+        subject: subject_char_id.to_string(),
+        in_frame,
+        subject_height_fraction: height_frac,
+        subject_area_fraction: area_frac,
+        occlusion,
+        set_fraction: set_frac,
+        rejected,
+        reject_reason: reason,
+        notes: Vec::new(),
+    }
+}
+
+/// Hard camera-legibility rules (Phase 6). Returns (rejected, reason).
+fn evaluate_shot_legibility(
+    in_frame: bool,
+    height_frac: f32,
+    occlusion: f32,
+    set_frac: f32,
+) -> (bool, String) {
+    if !in_frame {
+        return (true, "subject off-frame / not visible".into());
+    }
+    if height_frac < 0.20 {
+        return (true, format!("subject too small (h={height_frac:.2})"));
+    }
+    if occlusion > 0.30 {
+        return (true, format!("subject occluded {:.0}%", occlusion * 100.0));
+    }
+    if set_frac > 0.65 {
+        return (true, format!("blank/set dominates {:.0}%", set_frac * 100.0));
+    }
+    (false, String::new())
+}
+
+/// Analyze every planned camera shot at its midpoint. Used to *prove* the
+/// coverage is legible and to record truthful framing diagnostics.
+pub fn analyze_schedule(
+    sched: &Schedule,
+    rigs: &HashMap<String, HumanoidRig>,
+    world: &WorldState,
+    w: u32,
+    h: u32,
+) -> Vec<ShotAnalysis> {
+    let mut out = Vec::new();
+    for shot in &sched.camera_shots {
+        let t = (shot.start + shot.end) / 2.0;
+        let state = evaluate_at(sched, rigs, world, t);
+        let mut a = analyze_frame(&state, rigs, world, w, h, &shot.subject);
+        a.start = shot.start;
+        a.end = shot.end;
+        a.intent = shot.intent.clone();
+        out.push(a);
+    }
+    out
+}
+
+fn push_box(tris: &mut Vec<SceneTri>, center: [f32; 3], half: [f32; 3], col: [f32; 3], id: u32) {
     let c = [
         [center[0] - half[0], center[1] - half[1], center[2] - half[2]],
         [center[0] + half[0], center[1] - half[1], center[2] - half[2]],
@@ -401,10 +680,10 @@ fn push_box(tris: &mut Vec<([f32; 3], [f32; 3], [f32; 3], [f32; 3])>, center: [f
         [center[0] + half[0], center[1] + half[1], center[2] + half[2]],
         [center[0] - half[0], center[1] + half[1], center[2] + half[2]],
     ];
-    push_box_corners(tris, &c, col);
+    push_box_corners(tris, &c, col, id);
 }
 
-fn push_box_corners(tris: &mut Vec<([f32; 3], [f32; 3], [f32; 3], [f32; 3])>, c: &[[f32; 3]; 8], col: [f32; 3]) {
+fn push_box_corners(tris: &mut Vec<SceneTri>, c: &[[f32; 3]; 8], col: [f32; 3], id: u32) {
     let faces = [
         (0, 1, 2, 3),
         (4, 5, 6, 7),
@@ -414,12 +693,73 @@ fn push_box_corners(tris: &mut Vec<([f32; 3], [f32; 3], [f32; 3], [f32; 3])>, c:
         (0, 3, 7, 4),
     ];
     for (i0, i1, i2, i3) in faces {
-        tris.push((c[i0], c[i1], c[i2], col));
-        tris.push((c[i0], c[i2], c[i3], col));
+        tris.push(SceneTri { v: [c[i0], c[i1], c[i2]], col, id });
+        tris.push(SceneTri { v: [c[i0], c[i2], c[i3]], col, id });
     }
 }
 
-fn draw_triangle(buf: &mut Buffers, a: (f32, f32, f32), b: (f32, f32, f32), c: (f32, f32, f32), col: [f32; 3]) {
+/// Push the openable elevator as a set of readable components that live *behind*
+/// the performers (deeper than the staging marks), so the shell can never
+/// enclose an actor or block the camera. `open` in [0,1] slides the door panels
+/// apart to reveal the interior.
+fn push_elevator(tris: &mut Vec<SceneTri>, world: &WorldState, open: f32) {
+    let e = world
+        .props
+        .get("elevator")
+        .and_then(|p| {
+            world
+                .locations
+                .values()
+                .flat_map(|l| l.staging_marks.iter())
+                .find(|m| m.id == p.home_mark)
+                .map(|m| m.position)
+        })
+        .unwrap_or([3.0, 0.0, -1.0]);
+    let cx = e[0];
+    let front_z = e[2] - 0.4; // door plane, in front of the cabin
+    let back_z = -3.0;
+    let half_w = 0.9;
+    let height = 2.6;
+    let midz = (front_z + back_z) / 2.0;
+    let depth_h = (front_z - back_z) / 2.0;
+    let shell = [0.4, 0.42, 0.46];
+    let door_col = [0.52, 0.54, 0.58];
+    let interior = [0.22, 0.23, 0.27];
+
+    // interior back wall
+    push_box(tris, [cx, height / 2.0, back_z - 0.04], [half_w, height / 2.0, 0.04], interior, 1);
+    // interior side walls
+    push_box(tris, [cx - half_w, height / 2.0, midz], [0.05, height / 2.0, depth_h], interior, 1);
+    push_box(tris, [cx + half_w, height / 2.0, midz], [0.05, height / 2.0, depth_h], interior, 1);
+    // ceiling + floor
+    push_box(tris, [cx, height + 0.03, midz], [half_w, 0.03, depth_h], shell, 1);
+    push_box(tris, [cx, 0.02, midz], [half_w, 0.02, depth_h], [0.12, 0.12, 0.15], 1);
+    // exterior side frames (visible in the hallway)
+    push_box(tris, [cx - half_w - 0.06, height / 2.0, front_z + 0.1], [0.06, height / 2.0, 0.18], shell, 1);
+    push_box(tris, [cx + half_w + 0.06, height / 2.0, front_z + 0.1], [0.06, height / 2.0, 0.18], shell, 1);
+    // control panel + floor indicator (semantic, on the right jamb)
+    push_box(tris, [cx + half_w + 0.10, 1.15, front_z + 0.06], [0.05, 0.18, 0.04], [0.3, 0.32, 0.36], 1);
+    push_box(tris, [cx, height - 0.18, front_z + 0.02], [0.16, 0.06, 0.03], [0.9, 0.8, 0.2], 1);
+
+    // sliding door panels (slide apart as `open` -> 1), revealing the interior
+    let slide = 0.9 * open.clamp(0.0, 1.0);
+    let door_w = 0.45;
+    let left_cx = (cx - half_w / 2.0) - slide;
+    let right_cx = (cx + half_w / 2.0) + slide;
+    // When fully open the panels tuck beside the jambs; while closed they cover
+    // the doorway. Draw them at the front plane regardless (thin panels).
+    push_box(tris, [left_cx, height / 2.0, front_z], [door_w, height / 2.0, 0.04], door_col, 1);
+    push_box(tris, [right_cx, height / 2.0, front_z], [door_w, height / 2.0, 0.04], door_col, 1);
+}
+
+fn draw_triangle(
+    buf: &mut Buffers,
+    a: (f32, f32, f32),
+    b: (f32, f32, f32),
+    c: (f32, f32, f32),
+    col: [f32; 3],
+    id: u32,
+) {
     let (ax, ay, az) = a;
     let (bx, by, bz) = b;
     let (cx, cy, cz) = c;
@@ -443,6 +783,7 @@ fn draw_triangle(buf: &mut Buffers, a: (f32, f32, f32), b: (f32, f32, f32), c: (
                 let idx = (y as u32 * buf.w + x as u32) as usize;
                 if depth < buf.depth[idx] {
                     buf.depth[idx] = depth;
+                    buf.id[idx] = id;
                     let i = idx * 4;
                     buf.color[i] = (col[0] * 255.0) as u8;
                     buf.color[i + 1] = (col[1] * 255.0) as u8;
@@ -452,6 +793,107 @@ fn draw_triangle(buf: &mut Buffers, a: (f32, f32, f32), b: (f32, f32, f32), c: (
             }
         }
     }
+}
+
+// ---- geometry helpers (view transform, near clipping, projection) ----
+
+/// Transform a world point into camera/view space given the orthonormal basis
+/// (r = right, u = up, f = forward). Returns [vx, vy, vz] where vz is distance
+/// along the view direction (positive = in front of the camera).
+fn view_of(p: [f32; 3], eye: [f32; 3], r: [f32; 3], u: [f32; 3], f: [f32; 3]) -> [f32; 3] {
+    let d = sub(p, eye);
+    [dot(d, r), dot(d, u), dot(d, f)]
+}
+
+/// Clip a (convex) polygon against the near plane `z >= near` using
+/// Sutherland–Hodgman. Returns the clipped polygon (3..6 vertices) in view
+/// space, or an empty vector if the whole polygon is behind the camera.
+fn clip_near(poly: &[[f32; 3]], near: f32) -> Vec<[f32; 3]> {
+    if poly.len() < 3 {
+        return Vec::new();
+    }
+    let mut out: Vec<[f32; 3]> = Vec::new();
+    let n = poly.len();
+    for i in 0..n {
+        let cur = poly[i];
+        let nxt = poly[(i + 1) % n];
+        let cur_in = cur[2] >= near;
+        let nxt_in = nxt[2] >= near;
+        if cur_in {
+            out.push(cur);
+        }
+        if cur_in != nxt_in {
+            let denom = nxt[2] - cur[2];
+            if denom.abs() > 1e-9 {
+                let t = (near - cur[2]) / denom;
+                out.push([
+                    cur[0] + (nxt[0] - cur[0]) * t,
+                    cur[1] + (nxt[1] - cur[1]) * t,
+                    near,
+                ]);
+            }
+        }
+    }
+    out
+}
+
+/// Clip a view-space polygon against a half-space `n . p >= 0` (Sutherland–
+/// Hodgman). Used for the four side/far frustum planes so that a triangle which
+/// straddles the camera (e.g. an off-screen character *behind* the camera) is
+/// bounded to the screen instead of exploding to an infinitely large polygon
+/// that would otherwise corrupt the whole frame as a shard.
+fn clip_plane(poly: &[[f32; 3]], n: [f32; 3]) -> Vec<[f32; 3]> {
+    if poly.len() < 3 {
+        return Vec::new();
+    }
+    let mut out: Vec<[f32; 3]> = Vec::new();
+    let n = normalize(n);
+    let side = |p: [f32; 3]| dot(n, p);
+    let m = poly.len();
+    for i in 0..m {
+        let cur = poly[i];
+        let nxt = poly[(i + 1) % m];
+        let cur_in = side(cur) >= -1e-6;
+        let nxt_in = side(nxt) >= -1e-6;
+        if cur_in {
+            out.push(cur);
+        }
+        if cur_in != nxt_in {
+            let dcur = side(cur);
+            let dnxt = side(nxt);
+            let denom = dnxt - dcur;
+            if denom.abs() > 1e-9 {
+                let t = -dcur / denom;
+                out.push([
+                    cur[0] + (nxt[0] - cur[0]) * t,
+                    cur[1] + (nxt[1] - cur[1]) * t,
+                    cur[2] + (nxt[2] - cur[2]) * t,
+                ]);
+            }
+        }
+    }
+    out
+}
+
+/// True if all three components are finite (not NaN, not infinite).
+fn finite3(v: [f32; 3]) -> bool {
+    v[0].is_finite() && v[1].is_finite() && v[2].is_finite()
+}
+
+/// Perspective-project a view-space point (already clipped to vz >= near) to
+/// screen coordinates + camera-space depth.
+fn project_view(p: [f32; 3], fproj: f32, aspect: f32, w: f32, h: f32) -> (f32, f32, f32) {
+    let vz = p[2].max(1e-4);
+    let ndc_x = (fproj / aspect) * p[0] / vz;
+    let ndc_y = fproj * p[1] / vz;
+    let sx = (ndc_x * 0.5 + 0.5) * w;
+    let sy = (1.0 - (ndc_y * 0.5 + 0.5)) * h;
+    (sx, sy, vz)
+}
+
+/// Absolute 2D area of a screen-space triangle (ignores depth).
+fn tri_area_2d(a: (f32, f32, f32), b: (f32, f32, f32), c: (f32, f32, f32)) -> f32 {
+    ((b.0 - a.0) * (c.1 - a.1) - (c.0 - a.0) * (b.1 - a.1)).abs() * 0.5
 }
 
 // vec helpers
@@ -498,12 +940,28 @@ pub fn encode_mp4(
     resolution: (u32, u32),
     fps: u32,
 ) -> std::result::Result<(String, bool), crate::error::CoreError> {
-    let font = resolve_font(&cfg.runtime.font_path);
-    // ffmpeg cannot parse a Windows drive colon inside a filter path, so stage
-    // the font at a *relative* (no-drive-colon) location resolved against CWD.
-    let font_ref = stage_font_for_ffmpeg(frames_dir, &font);
+    // ffmpeg's image2 glob and subtitle/font filters do not cope with the mixed
+    // `\`/`/` separators that Rust's Windows `Path::join` produces, so normalise
+    // every path argument to forward slashes. This is the fix for the
+    // "Could find no file or sequence" failure on the frame pattern.
+    let frames_dir = frames_dir.replace('\\', "/");
+    let audio_path = audio_path.replace('\\', "/");
+    let out_captioned = out_captioned.replace('\\', "/");
+    let out_clean = out_clean.replace('\\', "/");
     let scale = format!("scale={}:{}", resolution.0, resolution.1);
-    let captions_filter = build_caption_filter(captions, &font_ref, resolution);
+    // Prefer robust ASS subtitles (correct wrapping, outlines, safe margins,
+    // line breaks, and *no* fragile drawtext string concatenation that can
+    // fuse words or expose escape syntax). Falls back to drawtext only if the
+    // ASS file cannot be written.
+    let captions_filter = if captions.is_empty() {
+        String::new()
+    } else if let Some(ass_rel) = stage_ass_for_ffmpeg(&frames_dir, &build_ass_subtitles(captions, resolution)) {
+        format!(",subtitles='{ass_rel}'")
+    } else {
+        let font = resolve_font(&cfg.runtime.font_path);
+        let font_ref = stage_font_for_ffmpeg(&frames_dir, &font);
+        build_caption_filter(captions, &font_ref, resolution)
+    };
     let vf_captioned = format!("{scale},format=yuv420p{captions_filter}");
     let vf_clean = format!("{scale},format=yuv420p");
 
@@ -518,7 +976,7 @@ pub fn encode_mp4(
         "-i".into(),
         frame_pattern.clone(),
         "-i".into(),
-        audio_path.into(),
+        audio_path.clone(),
         "-vf".into(),
         vf_captioned.clone(),
         "-c:v".into(),
@@ -530,7 +988,7 @@ pub fn encode_mp4(
         "-shortest".into(),
         "-movflags".into(),
         "+faststart".into(),
-        out_captioned.into(),
+        out_captioned.clone(),
     ];
     let status_cap = run_ffmpeg(ff, &args)?;
     // Clean.
@@ -541,7 +999,7 @@ pub fn encode_mp4(
         "-i".into(),
         frame_pattern.clone(),
         "-i".into(),
-        audio_path.into(),
+        audio_path.clone(),
         "-vf".into(),
         vf_clean.clone(),
         "-c:v".into(),
@@ -553,7 +1011,7 @@ pub fn encode_mp4(
         "-shortest".into(),
         "-movflags".into(),
         "+faststart".into(),
-        out_clean.into(),
+        out_clean.clone(),
     ];
     let status_clean = run_ffmpeg(ff, &args_clean)?;
     let ok = status_cap && status_clean;
@@ -679,6 +1137,112 @@ pub fn escape_drawtext(s: &str) -> String {
         .replace('%', "\\%")
 }
 
+/// Canonical caption normalization.
+///
+/// Collapses *all* whitespace (real newlines, tabs, runs of spaces) into a
+/// single space and trims. This is the direct fix for the "fused words"
+/// corruption: a stray newline no longer eats the space between two words, and
+/// apostrophes / punctuation are preserved verbatim. ASS then wraps the line.
+pub fn normalize_caption_text(raw: &str) -> String {
+    let mut out = String::with_capacity(raw.len());
+    let mut last_ws = false;
+    for c in raw.chars() {
+        if c.is_whitespace() {
+            if !last_ws && !out.is_empty() {
+                out.push(' ');
+            }
+            last_ws = true;
+        } else {
+            out.push(c);
+            last_ws = false;
+        }
+    }
+    out.trim().to_string()
+}
+
+/// Escape a caption string for the ASS `Text` field. ASS line breaks are `\N`;
+/// backslashes and commas are reserved and must be escaped.
+fn escape_ass(t: &str) -> String {
+    let normalized = normalize_caption_text(t);
+    let mut out = String::with_capacity(normalized.len() + 4);
+    for c in normalized.chars() {
+        match c {
+            '\\' => out.push_str("\\\\"),
+            ',' => out.push_str("\\,"),
+            '\n' => out.push_str("\\N"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+/// ASS `H:MM:SS.cc` timecode.
+fn ass_timecode(sec: f32) -> String {
+    let s = sec.max(0.0);
+    let h = (s / 3600.0) as u32;
+    let m = ((s % 3600.0) / 60.0) as u32;
+    let rem = s - (h as f32 * 3600.0 + m as f32 * 60.0);
+    format!("{h}:{m:02}:{rem:05.2}")
+}
+
+/// Build a complete ASS subtitle file for the episode captions. ASS handles
+/// font size, outline, safe-margin placement, wrapping and timing natively, so
+/// the rendered captions are robust regardless of punctuation or line breaks.
+pub fn build_ass_subtitles(captions: &[Caption], resolution: (u32, u32)) -> String {
+    let (w, h) = resolution;
+    let fontsize = ((h as f32 * 0.030).round() as u32).clamp(38, 60);
+    let margin_v = ((h as f32 * 0.12).round() as u32).clamp(160, 320);
+    let mut s = String::new();
+    s.push_str("[Script Info]\n");
+    s.push_str("ScriptType: v4.00+\n");
+    s.push_str(&format!("PlayResX: {w}\n"));
+    s.push_str(&format!("PlayResY: {h}\n"));
+    s.push_str("WrapStyle: 2\n");
+    s.push_str("ScaledBorderAndShadow: yes\n\n");
+    s.push_str("[V4+ Styles]\n");
+    s.push_str("Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n");
+    // Alignment 2 = bottom-centre; MarginV lifts captions above the unsafe
+    // bottom platform region. White fill, black outline + soft shadow.
+    s.push_str(&format!(
+        "Style: Default,Arial,{fontsize},&H00FFFFFF,&H00000000,&H00000000,&H7F000000,0,0,0,0,100,100,0,0,1,4,1,2,80,80,{margin_v},1\n\n"
+    ));
+    s.push_str("[Events]\n");
+    s.push_str("Format: Layer, Start, End, Style, Text\n");
+    for c in captions {
+        let text = escape_ass(&c.text);
+        s.push_str(&format!(
+            "Dialogue: 0,{},{},Default,{}\n",
+            ass_timecode(c.start),
+            ass_timecode(c.end),
+            text
+        ));
+    }
+    s
+}
+
+/// Stage the ASS subtitle file at a *relative* (no drive-colon) path so ffmpeg's
+/// `subtitles` filter can parse it on Windows. Returns the relative path, or
+/// `None` if it could not be written.
+fn stage_ass_for_ffmpeg(frames_dir: &str, ass_content: &str) -> Option<String> {
+    let dest = std::path::Path::new(frames_dir)
+        .join("..")
+        .join("subtitles")
+        .join("captions.ass");
+    if let Some(parent) = dest.parent() {
+        let _ = std::fs::create_dir_all(parent);
+    }
+    if std::fs::write(&dest, ass_content).is_err() {
+        return None;
+    }
+    let cwd = std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."));
+    let rel = if let Ok(stripped) = dest.strip_prefix(&cwd) {
+        stripped.to_string_lossy().into_owned()
+    } else {
+        dest.to_string_lossy().into_owned()
+    };
+    Some(rel.replace('\\', "/"))
+}
+
 pub fn resolve_font(configured: &str) -> String {
     if !configured.is_empty() && Path::new(configured).exists() {
         return configured.into();
@@ -698,6 +1262,7 @@ pub fn resolve_font(configured: &str) -> String {
 
 /// Verify the produced MP4 with ffprobe (or ffmpeg if ffprobe missing).
 pub fn verify_mp4(cfg: &Config, path: &str) -> ProbeInfo {
+    let path = path.replace('\\', "/");
     let ffprobe = if cfg.runtime.ffmpeg_path == "ffmpeg" {
         "ffprobe".to_string()
     } else {
@@ -711,7 +1276,7 @@ pub fn verify_mp4(cfg: &Config, path: &str) -> ProbeInfo {
             "stream=codec_type,width,height,duration,r_frame_rate",
             "-of",
             "json",
-            path,
+            &path,
         ])
         .output()
     {
@@ -837,6 +1402,134 @@ fn read_wav_mono_f32(path: &str) -> Option<Vec<f32>> {
     Some(out)
 }
 
+/// Minimum continuous-silence length (seconds) that counts as "dead air" and
+/// must be explained or compressed (Phase 8).
+pub fn cfg_silence_min_gap() -> f32 {
+    2.5
+}
+
+/// A contiguous silent span in the mixed track.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct SilenceRange {
+    pub start: f32,
+    pub end: f32,
+    pub duration: f32,
+    /// Whether this gap was repaired (made intentional) or remains as dead air.
+    pub repaired: bool,
+}
+
+/// Objective silence / dead-air report derived from the *actual* mixed WAV
+/// (RMS energy per short window). This is the programmatic replacement for
+/// "listening" — it proves where, how long, and how much dead air exists.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct SilenceReport {
+    pub first_content_secs: f32,
+    pub max_gap_secs: f32,
+    pub ranges: Vec<SilenceRange>,
+}
+
+/// Analyze a mono/stereo WAV for silent windows. `min_gap` is the shortest
+/// silent span (seconds) worth reporting; `rms_thresh` is the energy floor
+/// below which a window is considered silent.
+pub fn detect_silence(path: &str, min_gap: f32, rms_thresh: f32) -> SilenceReport {
+    let Some(samples) = read_wav_mono_f32(path) else {
+        return SilenceReport {
+            first_content_secs: 0.0,
+            max_gap_secs: 0.0,
+            ranges: vec![],
+        };
+    };
+    let sr_est = 44100u32; // only used for windowing; exact rate not required
+    let win = ((0.1f32 * sr_est as f32).round() as usize).max(1);
+    let n = samples.len();
+    let mut silent: Vec<bool> = Vec::with_capacity(n / win + 1);
+    let mut first_content = n as f32; // index of first non-silent sample
+    let mut last_content = 0usize;
+    let mut i = 0;
+    while i < n {
+        let end = (i + win).min(n);
+        let mut sum = 0.0f32;
+        for s in &samples[i..end] {
+            sum += s * s;
+        }
+        let rms = (sum / (end - i) as f32).sqrt();
+        let is_silent = rms < rms_thresh;
+        silent.push(is_silent);
+        if !is_silent {
+            if i < first_content as usize {
+                first_content = i as f32;
+            }
+            last_content = end;
+        }
+        i = end;
+    }
+    let step = win as f32 / sr_est as f32;
+    // Build silent runs (in seconds).
+    let mut ranges: Vec<SilenceRange> = Vec::new();
+    let mut run_start: Option<usize> = None;
+    for (k, &s) in silent.iter().enumerate() {
+        if s && run_start.is_none() {
+            run_start = Some(k);
+        } else if !s && run_start.is_some() {
+            let a = run_start.unwrap() as f32 * step;
+            let b = k as f32 * step;
+            if b - a >= min_gap {
+                ranges.push(SilenceRange {
+                    start: a,
+                    end: b,
+                    duration: b - a,
+                    repaired: false,
+                });
+            }
+            run_start = None;
+        }
+    }
+    if let Some(k) = run_start {
+        let a = k as f32 * step;
+        let b = silent.len() as f32 * step;
+        if b - a >= min_gap {
+            ranges.push(SilenceRange {
+                start: a,
+                end: b,
+                duration: b - a,
+                repaired: false,
+            });
+        }
+    }
+
+    // The lead-in (0 .. first content) and tail (last content .. duration) are
+    // also dead air worth reporting.
+    let first_content_secs = first_content / sr_est as f32;
+    let duration = n as f32 / sr_est as f32;
+    if first_content_secs >= min_gap {
+        ranges.insert(
+            0,
+            SilenceRange {
+                start: 0.0,
+                end: first_content_secs,
+                duration: first_content_secs,
+                repaired: false,
+            },
+        );
+    }
+    let tail = duration - last_content as f32 / sr_est as f32;
+    if tail >= min_gap {
+        ranges.push(SilenceRange {
+            start: last_content as f32 / sr_est as f32,
+            end: duration,
+            duration: tail,
+            repaired: false,
+        });
+    }
+
+    let max_gap = ranges.iter().map(|r| r.duration).fold(0.0f32, f32::max);
+    SilenceReport {
+        first_content_secs,
+        max_gap_secs: max_gap,
+        ranges,
+    }
+}
+
 fn write_wav(path: &str, sample_rate: u32, pcm: &[i16]) {
     let mut buf = Vec::with_capacity(44 + pcm.len() * 2);
     buf.extend_from_slice(b"RIFF");
@@ -858,6 +1551,40 @@ fn write_wav(path: &str, sample_rate: u32, pcm: &[i16]) {
     }
     let _ = std::fs::write(path, buf);
 }
+
+/// Trim leading and trailing silence from a mono WAV file in place, so the
+/// cached clip's length matches the actual spoken duration. This is what keeps
+/// the mixed audio free of dead air: `mix_audio` plays the *whole* clip file
+/// starting at its scheduled time, so any espeak trailing/leading padding would
+/// otherwise widen the gaps between lines. Returns the trimmed duration in
+/// seconds (falls back to the original length if the file cannot be read).
+fn trim_wav_silence_in_place(path: &str, sr: u32, rms_thresh: f32) -> f32 {
+    let Some(samples) = read_wav_mono_f32(path) else {
+        return 0.0;
+    };
+    let n = samples.len();
+    if n == 0 {
+        return 0.0;
+    }
+    let orig = n as f32 / sr.max(1) as f32;
+    // Find the first/last sample whose magnitude clears the threshold.
+    let first = (0..n).find(|&i| samples[i].abs() > rms_thresh);
+    let last = (0..n).rev().find(|&i| samples[i].abs() > rms_thresh);
+    let (Some(a), Some(b)) = (first, last) else {
+        // Wholly silent clip: leave as-is.
+        return orig;
+    };
+    if a == 0 && b == n - 1 {
+        return orig; // already tight
+    }
+    let trimmed: Vec<i16> = samples[a..=b]
+        .iter()
+        .map(|s| (s.clamp(-1.0, 1.0) * 32767.0).round().clamp(-32768.0, 32767.0) as i16)
+        .collect();
+    write_wav(path, sr, &trimmed);
+    ((b - a + 1) as f32) / sr.max(1) as f32
+}
+
 
 // ===========================================================================
 // Produce one episode end-to-end
@@ -918,10 +1645,21 @@ pub fn prepare_production(
             if res.ok {
                 any_real = true;
             }
-            tts_durations.insert((ra.actor_id.clone(), text), res.duration);
+            // Trim trailing/leading silence so the schedule duration matches the
+            // real spoken length (and the cached mix clip carries no padding).
+            let dur = if let Some(p) = &res.audio_path {
+                let t = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
+                if t > 0.0 { t } else { res.duration }
+            } else {
+                res.duration
+            };
+            tts_durations.insert((ra.actor_id.clone(), text), dur);
         }
     }
-    let sched = build_schedule(world, &validated, &tts_durations);
+    let mut sched = build_schedule(world, &validated, &tts_durations);
+    // Phase 8: compress the timeline so content starts within ~1s and no
+    // inter-line gap exceeds the dead-air limit.
+    compact_dead_air(&mut sched, config.runtime.max_dead_air_secs);
     for d in &sched.dialogue {
         let voice = world
             .character(&d.actor)
@@ -929,6 +1667,8 @@ pub fn prepare_production(
             .unwrap_or_else(|| d.actor.clone());
         let res = tts.synthesize(&d.text, &voice);
         if let Some(p) = &res.audio_path {
+            // Idempotent: re-trim in case this line was not seen in the action loop.
+            let _ = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
             clips.push((p.clone(), d.start, d.end - d.start));
         }
     }
@@ -1069,6 +1809,60 @@ pub fn finalize_production(
         serde_json::to_string_pretty(&review).unwrap_or_default(),
     );
 
+    // --- Camera legibility + framing diagnostics (Phase 6) ---
+    // Objective, image-free proof that each shot frames a real, visible,
+    // un-occluded performer. Re-renders each shot midpoint through the same
+    // software renderer and reads the object-id + depth buffers.
+    let (rw, rh) = (config.runtime.resolution.0 / 2, config.runtime.resolution.1 / 2);
+    let cam_analysis = analyze_schedule(sched, rigs, world, rw, rh);
+    let rejected: Vec<&ShotAnalysis> = cam_analysis.iter().filter(|a| a.rejected).collect();
+    let means = |sel: fn(&ShotAnalysis) -> f32| {
+        let v: Vec<f32> = cam_analysis.iter().map(sel).collect();
+        if v.is_empty() {
+            0.0
+        } else {
+            v.iter().sum::<f32>() / v.len() as f32
+        }
+    };
+    let cam_quality = serde_json::json!({
+        "resolution": [rw, rh],
+        "shots": cam_analysis,
+        "summary": {
+            "total_shots": cam_analysis.len(),
+            "rejected_shots": rejected.len(),
+            "rejected_intents": rejected.iter().map(|a| a.intent.clone()).collect::<Vec<_>>(),
+            "mean_subject_height_fraction": means(|a| a.subject_height_fraction),
+            "mean_subject_area_fraction": means(|a| a.subject_area_fraction),
+            "mean_occlusion": means(|a| a.occlusion),
+            "mean_set_fraction": means(|a| a.set_fraction),
+        }
+    });
+    let _ = std::fs::write(
+        ep_dir.join("review").join("camera_quality.json"),
+        serde_json::to_string_pretty(&cam_quality).unwrap_or_default(),
+    );
+    let _ = std::fs::write(
+        ep_dir.join("review").join("framing_report.json"),
+        serde_json::to_string_pretty(&cam_quality).unwrap_or_default(),
+    );
+
+    // --- Silence / dead-air analysis of the actual mixed audio (Phase 8) ---
+    let silence = detect_silence(&mix_path.to_string_lossy(), cfg_silence_min_gap(), 0.012);
+    let first_content = silence.first_content_secs;
+    let max_gap = silence.max_gap_secs;
+    let silence_report = serde_json::json!({
+        "min_gap_secs": cfg_silence_min_gap(),
+        "first_content_secs": first_content,
+        "max_gap_secs": max_gap,
+        "dead_air_limit_exceeded": max_gap > config.runtime.max_dead_air_secs,
+        "duration_secs": sched.duration,
+        "silent_ranges": silence.ranges,
+    });
+    let _ = std::fs::write(
+        ep_dir.join("review").join("silence_report.json"),
+        serde_json::to_string_pretty(&silence_report).unwrap_or_default(),
+    );
+
     let diagnostics = Diagnostics {
         episode_id: prep.episode_id.clone(),
         generated_at: chrono::Utc::now().to_rfc3339(),
@@ -1195,17 +1989,33 @@ pub fn produce_episode(
     let renderer = StageRenderer::new(rw.max(2), rh.max(2));
     let n_frames = (prep.schedule.duration * fps as f32).ceil() as u32;
     let mut captured = 0u32;
+    let mut geo = GeometryStats::default();
     for i in 0..n_frames {
         let t = i as f32 / fps as f32;
         let state = evaluate_at(&prep.schedule, &prep.rigs, &world, t);
-        let rgba = renderer.render(&state, &prep.rigs, &world);
+        let buf = renderer.render_buffers(&state, &prep.rigs, &world, None);
+        let rgba = &buf.color;
+        let fstats = &buf.stats;
+        geo.total_triangles += fstats.total_triangles;
+        geo.behind_camera += fstats.behind_camera;
+        geo.non_finite += fstats.non_finite;
+        geo.clipped_near += fstats.clipped_near;
+        geo.implausible_character_triangles += fstats.implausible_character_triangles;
+        geo.max_triangle_screen_fraction = geo.max_triangle_screen_fraction.max(fstats.max_triangle_screen_fraction);
         let path = frames_dir.join(format!("frame_{:06}.png", i + 1));
-        if write_png(&path, rw, rh, &rgba).is_err() {
+        if write_png(&path, rw, rh, rgba).is_err() {
             tracing::warn!("frame write failed");
             break;
         }
         captured += 1;
     }
+
+    // Truthful geometry-correctness artifact (the objective "visual review").
+    let _ = std::fs::create_dir_all(ep_dir.join("review"));
+    let _ = std::fs::write(
+        ep_dir.join("review").join("geometry_diagnostics.json"),
+        serde_json::to_string_pretty(&geo).unwrap_or_default(),
+    );
 
     let report = finalize_production(&config, require_llm, &prep, &frames_dir, captured, "cpu_software")?;
 
@@ -1360,8 +2170,12 @@ fn write_tts_manifest(dir: &Path, clips: &[(String, f32, f32)], provider: String
 
 #[cfg(test)]
 mod review_tests {
-    use crate::timeline::{CameraShotSpec, CharTrack, Schedule, ScheduledAction};
+    use crate::timeline::{
+        CameraShotSpec, CharFrame, CharTrack, FrameState, Schedule, ScheduledAction, evaluate_at,
+    };
+    use crate::avatar::{HumanoidRig, PerformanceState, Pose, SemanticJoint, Xform};
     use crate::world::build_default_world;
+    use std::collections::HashMap;
     use super::*;
 
     #[test]
@@ -1420,5 +2234,425 @@ mod review_tests {
             "talking character must not freeze; notes={:?}",
             rep.notes
         );
+    }
+
+    // ---- Phase 3: caption normalization (the "fused words" corruption) ----
+
+    #[test]
+    fn caption_normalization_fixes_fused_words() {
+        // The original corruption fused "The elevator's" into "Thenelevator's"
+        // because a stray newline ate the space. Normalization must restore it.
+        assert_eq!(
+            normalize_caption_text("The\nelevator's feeling warm tonight"),
+            "The elevator's feeling warm tonight"
+        );
+        assert_eq!(
+            normalize_caption_text("  too   many   spaces  "),
+            "too many spaces"
+        );
+        // Punctuation and apostrophes are preserved verbatim.
+        assert_eq!(
+            normalize_caption_text("don't — it's fine."),
+            "don't — it's fine."
+        );
+    }
+
+    #[test]
+    fn escape_ass_reserves_backslash_comma_newline() {
+        assert_eq!(escape_ass("a,b"), "a\\,b");
+        assert_eq!(escape_ass("a\\b"), "a\\\\b");
+        // a literal newline in a caption is normalized to a space (fused-words
+        // fix); it must never survive as a raw newline or an ASS \N break.
+        assert_eq!(escape_ass("line1\nline2"), "line1 line2");
+        // apostrophe must survive unescaped
+        assert_eq!(escape_ass("it's"), "it's");
+    }
+
+    #[test]
+    fn build_ass_subtitles_is_valid_and_per_caption() {
+        let caps = vec![
+            Caption { start: 0.5, end: 2.0, text: "The\nelevator's feeling warm".into() },
+            Caption { start: 2.5, end: 4.0, text: "Don't crowd the door".into() },
+        ];
+        let ass = build_ass_subtitles(&caps, (1080, 1920));
+        assert!(ass.contains("[Script Info]"));
+        assert!(ass.contains("PlayResX: 1080"));
+        assert!(ass.contains("PlayResY: 1920"));
+        assert!(ass.contains("Style: Default"));
+        // one Dialogue line per caption
+        assert_eq!(ass.matches("Dialogue:").count(), 2);
+        // the fused newline in the source must have been normalized to a space
+        // (the original corruption produced "Thenelevator's"); the *normalized*
+        // text must appear and the raw newline form must not.
+        assert!(ass.contains("elevator's feeling warm"));
+        assert!(!ass.contains("The\nelevator"));
+        // no raw ffmpeg-style escape syntax should leak into the ASS body
+        assert!(!ass.contains("\\:"));
+        assert!(!ass.contains("\\%"));
+    }
+
+    // ---- Phase 3: homogeneous near-plane clipping ----
+
+    #[test]
+    fn clip_near_rejects_geometry_behind_camera() {
+        // Polygon entirely behind the near plane (z < near) -> empty.
+        let behind = [[-1.0, -1.0, -0.5], [1.0, -1.0, -0.5], [0.0, 1.0, -0.5]];
+        assert!(clip_near(&behind, 0.08).is_empty());
+    }
+
+    #[test]
+    fn clip_near_keeps_no_vertex_behind() {
+        // A triangle straddling the near plane must be clipped so *every*
+        // resulting vertex has z >= near (no full-frame spike, no hole).
+        let straddle = [[-2.0, -2.0, 0.01], [2.0, -2.0, 0.5], [0.0, 2.0, 0.5]];
+        let out = clip_near(&straddle, 0.08);
+        assert!(!out.is_empty(), "clipped polygon must not vanish");
+        for v in &out {
+            assert!(v[2] >= 0.08 - 1e-5, "vertex behind near plane after clip: {:?}", v);
+        }
+    }
+
+    #[test]
+    fn clip_near_passes_geometry_in_front() {
+        let front = [[-1.0, -1.0, 2.0], [1.0, -1.0, 2.0], [0.0, 1.0, 2.0]];
+        let out = clip_near(&front, 0.08);
+        assert_eq!(out.len(), 3);
+    }
+
+    // ---- Phase 6: camera / shot legibility rules ----
+
+    #[test]
+    fn shot_legibility_rejects_bad_framing() {
+        // off-frame
+        assert!(evaluate_shot_legibility(false, 0.5, 0.0, 0.3).0);
+        // too small
+        assert!(evaluate_shot_legibility(true, 0.10, 0.0, 0.3).0);
+        // occluded > 30%
+        assert!(evaluate_shot_legibility(true, 0.5, 0.6, 0.3).0);
+        // set dominates > 65%
+        assert!(evaluate_shot_legibility(true, 0.5, 0.0, 0.8).0);
+        // good shot passes
+        assert!(!evaluate_shot_legibility(true, 0.5, 0.1, 0.3).0);
+    }
+
+    // ---- Phase 3/5: full software renderer produces sane frames ----
+
+    fn sample_world_with_char() -> (WorldState, HashMap<String, HumanoidRig>, FrameState) {
+        let world = build_default_world();
+        let mut rigs = HashMap::new();
+        rigs.insert(
+            "mara".to_string(),
+            HumanoidRig::default_humanoid("mara", "en-us", [0.8, 0.3, 0.3]),
+        );
+        let state = FrameState {
+            chars: vec![(
+                CharFrame {
+                    id: "mara".into(),
+                    root: Xform { pos: [0.0, 0.0, 0.0], rot: [0.0, 0.0, 0.0] },
+                    state: PerformanceState::Idle,
+                    walk_phase: 0.0,
+                    speaking: false,
+                },
+                Pose::default(),
+            )],
+            camera_eye: [0.0, 1.6, 3.5],
+            camera_look: [0.0, 1.0, 0.0],
+            props: vec![],
+            flicker: false,
+            elevator_open: 0.0,
+        };
+        (world, rigs, state)
+    }
+
+    #[test]
+    fn renderer_pipeline_no_nan_no_spikes() {
+        let (world, rigs, state) = sample_world_with_char();
+        let r = StageRenderer::new(240, 420);
+        let buf = r.render_buffers(&state, &rigs, &world, None);
+        assert_eq!(buf.stats.non_finite, 0, "no non-finite projections");
+        assert_eq!(buf.stats.behind_camera, 0, "no whole triangles behind camera");
+        assert_eq!(
+            buf.stats.implausible_character_triangles, 0,
+            "no character triangle may fill >60% of the frame (spike/shard guard)"
+        );
+        let set = buf.id.iter().filter(|&&id| id == 1).count();
+        let chr = buf.id.iter().filter(|&&id| id >= 100).count();
+        assert!(set > 500, "set (floor/walls) must be visible");
+        assert!(chr > 200, "character must be rendered and in frame");
+    }
+
+    #[test]
+    fn character_does_not_vanish_into_elevator() {
+        // Place the performer at the elevator door and frame them from inside the
+        // hall; even with the doors CLOSED they must remain visible (the rebuilt
+        // elevator is openable and non-blocking).
+        let world = build_default_world();
+        let mut rigs = HashMap::new();
+        rigs.insert(
+            "mara".to_string(),
+            HumanoidRig::default_humanoid("mara", "en-us", [0.8, 0.3, 0.3]),
+        );
+        let state = FrameState {
+            chars: vec![(
+                CharFrame {
+                    id: "mara".into(),
+                    root: Xform { pos: [3.0, 0.0, -1.0], rot: [0.0, 0.0, 0.0] },
+                    state: PerformanceState::Idle,
+                    walk_phase: 0.0,
+                    speaking: false,
+                },
+                Pose::default(),
+            )],
+            camera_eye: [3.0, 1.6, 1.6],
+            camera_look: [3.0, 1.0, -1.0],
+            props: vec![],
+            flicker: false,
+            elevator_open: 0.0,
+        };
+        let analysis = analyze_frame(&state, &rigs, &world, 240, 420, "mara");
+        assert!(analysis.in_frame, "performer at elevator must be in frame");
+        assert!(
+            analysis.occlusion < 0.30,
+            "closed elevator must not occlude the performer (occ={:.2})",
+            analysis.occlusion
+        );
+    }
+
+    #[test]
+    fn elevator_open_changes_geometry() {
+        let (world, rigs, mut state) = sample_world_with_char();
+        // Frame the elevator (x ~ 3) so the door panels are in view.
+        state.camera_eye = [3.0, 1.6, 3.0];
+        state.camera_look = [3.0, 1.0, -1.4];
+        let r = StageRenderer::new(160, 284);
+        state.elevator_open = 0.0;
+        let closed = r.render_buffers(&state, &rigs, &world, None);
+        state.elevator_open = 1.0;
+        let open = r.render_buffers(&state, &rigs, &world, None);
+        let differing = closed
+            .id
+            .iter()
+            .zip(open.id.iter())
+            .filter(|(a, b)| a != b)
+            .count();
+        assert!(differing > 0, "elevator doors must move when opened");
+    }
+
+    // ---- Phase 4: rig hierarchy + articulation ----
+
+    #[test]
+    fn rig_hierarchy_head_above_feet_and_connected() {
+        let rig = HumanoidRig::default_humanoid("mara", "en-us", [0.8, 0.3, 0.3]);
+        let wm = rig.world_matrices(&Xform { pos: [0.0, 0.0, 0.0], rot: [0.0, 0.0, 0.0] }, &Pose::default());
+        let head_y = wm.get(&SemanticJoint::Head).unwrap().pos[1];
+        let chest_y = wm.get(&SemanticJoint::Chest).unwrap().pos[1];
+        let pelvis_y = wm.get(&SemanticJoint::Pelvis).unwrap().pos[1];
+        assert!(head_y > chest_y && chest_y > pelvis_y, "head above chest above pelvis");
+        // Exclude the Root joint (placed at the character origin y=0) and only
+        // consider the actual body parts: the lowest point of any part (center
+        // minus its half-height) must sit near the floor.
+        let lowest = rig
+            .parts
+            .iter()
+            .map(|p| {
+                let w = wm.get(&p.joint).unwrap();
+                w.pos[1] - p.half[1]
+            })
+            .fold(f32::INFINITY, f32::min);
+        assert!(lowest > 0.0 && lowest < 0.20, "feet must sit near the floor (y={lowest:.3})");
+        for p in &rig.parts {
+            // The Pelvis hangs ~0.92 m above the Root (ground anchor); that long
+            // link is the leg length by design, not a detachment. We verify that
+            // every *body* part attaches to its neighbouring body part.
+            if p.parent == SemanticJoint::Root {
+                continue;
+            }
+            let cp = wm.get(&p.joint).unwrap().pos;
+            let pp = wm.get(&p.parent).map(|w| w.pos).unwrap_or([0.0; 3]);
+            let d = ((cp[0] - pp[0]).powi(2) + (cp[1] - pp[1]).powi(2) + (cp[2] - pp[2]).powi(2)).sqrt();
+            assert!(d < 0.8, "part {:?} detached from parent (d={d:.2})", p.joint);
+        }
+    }
+
+    #[test]
+    fn rig_articulation_states_differ() {
+        let rig = HumanoidRig::default_humanoid("mara", "en-us", [0.8, 0.3, 0.3]);
+        let idle = character_pose(PerformanceState::Idle, 1.0, 0.0);
+        let gesture = character_pose(PerformanceState::Gesture, 1.0, 0.0);
+        let react = character_pose(PerformanceState::React, 1.0, 0.0);
+        let hand_idle = rig
+            .world_matrices(&Xform { pos: [0.0; 3], rot: [0.0; 3] }, &idle)
+            .get(&SemanticJoint::LeftHand)
+            .unwrap()
+            .pos;
+        let hand_gesture = rig
+            .world_matrices(&Xform { pos: [0.0; 3], rot: [0.0; 3] }, &gesture)
+            .get(&SemanticJoint::LeftHand)
+            .unwrap()
+            .pos;
+        let head_idle = rig
+            .world_matrices(&Xform { pos: [0.0; 3], rot: [0.0; 3] }, &idle)
+            .get(&SemanticJoint::Head)
+            .unwrap()
+            .pos;
+        let head_react = rig
+            .world_matrices(&Xform { pos: [0.0; 3], rot: [0.0; 3] }, &react)
+            .get(&SemanticJoint::Head)
+            .unwrap()
+            .pos;
+        let d_hand = ((hand_idle[0] - hand_gesture[0]).powi(2)
+            + (hand_idle[1] - hand_gesture[1]).powi(2)
+            + (hand_idle[2] - hand_gesture[2]).powi(2))
+        .sqrt();
+        let d_head = ((head_idle[0] - head_react[0]).powi(2)
+            + (head_idle[1] - head_react[1]).powi(2)
+            + (head_idle[2] - head_react[2]).powi(2))
+        .sqrt();
+        assert!(d_hand > 0.05, "gesture must move the arm/hand (d={d_hand:.3})");
+        assert!(d_head > 0.01, "react must move the head/torso (d={d_head:.3})");
+    }
+
+    #[test]
+    fn locomotion_translates_character_root() {
+        let world = build_default_world();
+        let rigs = build_rigs(&world);
+        let sched = Schedule {
+            duration: 3.0,
+            characters: vec![CharTrack {
+                id: "mara".into(),
+                home: [0.0, 0.0, 0.0],
+                actions: vec![ScheduledAction {
+                    actor: "mara".into(),
+                    action: "move_to".into(),
+                    target: Some("apt_3b_door".into()),
+                    text: None,
+                    start: 0.0,
+                    dur: 3.0,
+                }],
+            }],
+            camera_shots: vec![],
+            dialogue: vec![],
+            captions: vec![],
+            events: vec![],
+            flicker: vec![],
+            prop_attach: vec![],
+            inserts: vec![],
+        };
+        let a = evaluate_at(&sched, &rigs, &world, 0.0);
+        let b = evaluate_at(&sched, &rigs, &world, 1.5);
+        let pa = a.chars[0].0.root.pos;
+        let pb = b.chars[0].0.root.pos;
+        let d = ((pa[0] - pb[0]).powi(2) + (pa[2] - pb[2]).powi(2)).sqrt();
+        assert!(d > 0.2, "move action must translate the character (d={d:.2})");
+    }
+
+    #[test]
+    fn camera_never_produces_spike_triangles_on_performer_at_elevator() {
+        // Regression: a performer standing at the elevator door, framed by a
+        // close shot while facing *away* from the hall, used to push the camera
+        // inside the performer's near plane (clamp_camera_to_hallway parked it at
+        // z=-0.6, only ~0.4 m in front), producing full-frame shard triangles.
+        // The minimum camera-to-subject distance must prevent that.
+        let world = build_default_world();
+        let rigs = build_rigs(&world);
+        let sched = Schedule {
+            duration: 4.0,
+            characters: vec![CharTrack {
+                id: "mara".into(),
+                home: [3.0, 0.0, -1.0],
+                actions: vec![ScheduledAction {
+                    actor: "mara".into(),
+                    action: "turn_toward".into(),
+                    target: Some("hall_center".into()),
+                    text: None,
+                    start: 0.0,
+                    dur: 4.0,
+                }],
+            }],
+            camera_shots: vec![CameraShotSpec {
+                start: 0.0,
+                end: 4.0,
+                intent: "closeup".into(),
+                subject: "mara".into(),
+                reaction: None,
+            }],
+            dialogue: vec![],
+            captions: vec![],
+            events: vec![],
+            flicker: vec![],
+            prop_attach: vec![],
+            inserts: vec![],
+        };
+        let r = StageRenderer::new(200, 356);
+        for i in 0..8 {
+            let t = i as f32 * 0.5;
+            let state = evaluate_at(&sched, &rigs, &world, t);
+            let buf = r.render_buffers(&state, &rigs, &world, None);
+            assert_eq!(
+                buf.stats.implausible_character_triangles, 0,
+                "t={t}: a character triangle filled >60% of the frame (spike/shard)"
+            );
+            assert_eq!(buf.stats.non_finite, 0, "t={t}: non-finite projection");
+        }
+    }
+
+    #[test]
+    fn off_camera_character_does_not_corrupt_frame() {
+        // A character straddling the camera plane (partly in front, partly
+        // behind) used to be clipped only at the near plane, leaving a vertex
+        // with an enormous projected coordinate that painted a full-frame shard.
+        // Frustum side-plane clipping must bound it.
+        let world = build_default_world();
+        let rigs = build_rigs(&world);
+        let state = FrameState {
+            chars: vec![
+                (
+                    CharFrame {
+                        id: "mara".into(),
+                        root: Xform { pos: [0.0, 0.0, 2.0], rot: [0.0, 0.0, 0.0] },
+                        state: PerformanceState::Idle,
+                        walk_phase: 0.0,
+                        speaking: false,
+                    },
+                    Pose::default(),
+                ),
+                (
+                    CharFrame {
+                        // Deliberately *just in front of the lens* (root z = 0.10,
+                        // only ~0.02 m beyond the near plane). Before frustum side
+                        // clipping this produced a vertex with vz ~ 0.1 and a large
+                        // vy, i.e. ndc_y ~ fproj*vy/vz -> an enormous projected
+                        // coordinate: a full-frame shard. After side clipping the
+                        // triangle is bounded to the frustum and contributes only a
+                        // thin sliver, never a shard.
+                        id: "ellis".into(),
+                        root: Xform { pos: [0.0, 0.0, 0.1], rot: [0.0, 0.0, 0.0] },
+                        state: PerformanceState::Idle,
+                        walk_phase: 0.0,
+                        speaking: false,
+                    },
+                    Pose::default(),
+                ),
+            ],
+            camera_eye: [0.0, 1.6, 0.0],
+            camera_look: [0.0, 1.0, 2.0],
+            props: vec![],
+            flicker: false,
+            elevator_open: 0.0,
+        };
+        let r = StageRenderer::new(240, 420);
+        let buf = r.render_buffers(&state, &rigs, &world, None);
+        assert_eq!(
+            buf.stats.implausible_character_triangles, 0,
+            "character at the lens must not produce shard triangles"
+        );
+        assert_eq!(buf.stats.non_finite, 0);
+        // Character ids are assigned from a HashMap (nondeterministic order), so we
+        // count all character pixels (id >= 100) rather than assuming a fixed id.
+        let char_px = buf.id.iter().filter(|&&id| id >= 100).count();
+        assert!(char_px > 100, "on-camera character must be visible");
+        // `implausible_character_triangles == 0` already guarantees no single
+        // triangle covers >60% of the frame, i.e. the lens character cannot paint
+        // a full-frame shard.
     }
 }

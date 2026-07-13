@@ -90,10 +90,12 @@ pub fn validate_plan(world: &WorldState, plan: &EpisodePlan) -> Result<Validated
             errs.push(ValidationError::new("beats", &format!("duplicate beat id '{}'", b.id)));
         }
         if !KNOWN_BEAT_TYPES.contains(&b.beat_type.as_str()) {
-            errs.push(ValidationError::new(
-                "beats",
-                &format!("beat '{}' has unknown type '{}'", b.id, b.beat_type),
-            ));
+            // The deterministic director only emits the canonical beat types, but
+            // an LLM-authored plan may use its own vocabulary. `build_beat_command`
+            // already has a `_` fallback for unknown types and per-beat commands
+            // carry their own actions, so we accept them rather than forcing a
+            // full deterministic fallback.
+            tracing::debug!("beat '{}' uses non-canonical type '{}'", b.id, b.beat_type);
         }
         for e in &b.required_entities {
             if !entity_exists(world, e) {

@@ -281,6 +281,158 @@ pub fn build_schedule(
     }
 }
 
+/// Compress a schedule so it opens with content almost immediately and never
+/// has a long stretch of dead air between lines. This is the Phase-8 watchability
+/// fix: the director spaces beats with `completion` padding that produced 5+ second
+/// silences and a 4-second cold open. We build a piecewise-linear time warp from the
+/// dialogue boundaries and apply it uniformly to every timed element (dialogue,
+/// captions, camera shots, events, flicker, prop attaches, inserts, and character
+/// actions) so the whole episode stays self-consistent.
+///
+/// * The first line is moved to start at `lead` seconds (well within ~1s).
+/// * Every inter-line gap is clamped into `[min_gap, max_gap]`, where `max_gap` is
+///   kept under the configured `max_dead_air` so the silence check passes.
+/// * Trailing silence is trimmed to at most `max_gap`.
+pub fn compact_dead_air(sched: &mut Schedule, max_dead_air: f32) {
+    if sched.dialogue.is_empty() {
+        return;
+    }
+    let lead = 0.6f32;
+    let min_gap = 0.5f32;
+    let max_gap = (max_dead_air - 0.6).clamp(1.5, 3.0);
+
+    // Sorted dialogue boundaries (old space).
+    let mut d: Vec<(f32, f32)> = sched
+        .dialogue
+        .iter()
+        .map(|x| (x.start, x.end.max(x.start)))
+        .collect();
+    d.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+
+    let old_dur = sched.duration;
+
+    // Build control points (old_time, new_time) for the warp.
+    let mut cp: Vec<(f32, f32)> = Vec::new();
+    cp.push((0.0, 0.0));
+    let mut prev_old_end = 0.0f32;
+    let mut prev_new_end = 0.0f32;
+    for (i, (s, e)) in d.iter().enumerate() {
+        let ns = if i == 0 {
+            lead
+        } else {
+            let gap_old = (s - prev_old_end).max(0.0);
+            let gap_new = gap_old.clamp(min_gap, max_gap);
+            prev_new_end + gap_new
+        };
+        let dur = (e - s).max(0.0);
+        let ne = ns + dur;
+        let s_cp = if i == 0 { *s } else { (*s).max(prev_old_end + 1e-3) };
+        cp.push((s_cp, ns));
+        if *e > s_cp + 1e-3 {
+            cp.push((*e, ne));
+        }
+        prev_old_end = e.max(prev_old_end);
+        prev_new_end = ne;
+    }
+    let tail = (old_dur - prev_old_end).clamp(0.0, max_gap);
+    let new_dur = prev_new_end + tail;
+    cp.push((old_dur, new_dur));
+    cp.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+
+    let warp = |t: f32| -> f32 {
+        if t <= cp[0].0 {
+            return cp[0].1;
+        }
+        if t >= cp.last().unwrap().0 {
+            return cp.last().unwrap().1;
+        }
+        for i in 0..cp.len() - 1 {
+            let (o0, n0) = cp[i];
+            let (o1, n1) = cp[i + 1];
+            if t >= o0 && t <= o1 {
+                let k = if o1 - o0 > 1e-6 { (t - o0) / (o1 - o0) } else { 0.0 };
+                return n0 + (n1 - n0) * k;
+            }
+        }
+        cp.last().unwrap().1
+    };
+
+    for x in &mut sched.dialogue {
+        x.start = warp(x.start);
+        x.end = warp(x.end);
+    }
+    for c in &mut sched.captions {
+        c.start = warp(c.start);
+        c.end = warp(c.end);
+    }
+    for ev in &mut sched.events {
+        ev.t = warp(ev.t);
+    }
+    for f in &mut sched.flicker {
+        f.0 = warp(f.0);
+        f.1 = warp(f.1);
+    }
+    for ins in &mut sched.inserts {
+        ins.0 = warp(ins.0);
+    }
+    for pa in &mut sched.prop_attach {
+        pa.start = warp(pa.start);
+        pa.end = warp(pa.end);
+    }
+    for cs in &mut sched.camera_shots {
+        cs.start = warp(cs.start);
+        cs.end = warp(cs.end);
+    }
+    for ct in &mut sched.characters {
+        for a in &mut ct.actions {
+            let ns = warp(a.start);
+            let ne = warp(a.start + a.dur);
+            a.start = ns;
+            a.dur = (ne - ns).max(0.01);
+        }
+    }
+    sched.duration = new_dur;
+}
+
+#[cfg(test)]
+mod timeline_tests {
+    use super::*;
+    use crate::package::DialogueLine;
+
+    #[test]
+    fn compact_dead_air_moves_first_line_and_clamps_gaps() {
+        let mut sched = Schedule {
+            duration: 60.0,
+            characters: vec![],
+            camera_shots: vec![],
+            dialogue: vec![
+                DialogueLine { start: 4.0, end: 7.0, actor: "a".into(), text: "x".into(), voice_id: "a".into() },
+                DialogueLine { start: 14.0, end: 16.0, actor: "b".into(), text: "y".into(), voice_id: "b".into() },
+                DialogueLine { start: 25.0, end: 27.0, actor: "c".into(), text: "z".into(), voice_id: "c".into() },
+            ],
+            captions: vec![],
+            events: vec![],
+            flicker: vec![],
+            prop_attach: vec![],
+            inserts: vec![],
+        };
+        compact_dead_air(&mut sched, 4.0);
+        // First line starts within ~1s (was 4.0s cold open).
+        assert!(sched.dialogue[0].start < 1.0, "first content must start within ~1s");
+        // No inter-line gap exceeds the dead-air limit (max_gap <= 3.5).
+        for i in 1..sched.dialogue.len() {
+            let gap = sched.dialogue[i].start - sched.dialogue[i - 1].end;
+            assert!(gap <= 3.6, "gap {gap} exceeds dead-air limit");
+        }
+        // Timeline shrank (dead air removed).
+        assert!(sched.duration < 40.0, "duration {} not compressed", sched.duration);
+        // Dialogue stays ordered.
+        for i in 1..sched.dialogue.len() {
+            assert!(sched.dialogue[i].start >= sched.dialogue[i - 1].start);
+        }
+    }
+}
+
 // ===========================================================================
 // Frame evaluation
 // ===========================================================================
@@ -307,6 +459,8 @@ pub struct FrameState {
     pub camera_look: [f32; 3],
     pub props: Vec<PropFrame>,
     pub flicker: bool,
+    /// Elevator door open amount in [0,1] (0 = closed, 1 = fully open).
+    pub elevator_open: f32,
 }
 
 /// Compute the world state at absolute time `t` (deterministic).
@@ -416,6 +570,17 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
         .iter()
         .find(|s| t >= s.start && t < s.end)
         .or_else(|| sched.camera_shots.last());
+
+    // Elevator door state: once an `open_elevator` action has started, the doors
+    // stay open for the rest of the episode.
+    let elevator_open = sched
+        .characters
+        .iter()
+        .flat_map(|c| c.actions.iter())
+        .any(|a| a.action == "open_elevator" && a.start <= t)
+        .then(|| 1.0f32)
+        .unwrap_or(0.0);
+
     let (eye, look) = if let Some(shot) = active_shot {
         let subject_char = posed
             .iter()
@@ -433,15 +598,29 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
                     .find(|d| d.start <= t && t < d.end)
                     .map(|d| d.actor.clone())
             })
-            .or_else(|| posed.first().map(|(f, _)| f.id.clone()));
-        let subj_frame = subject_char.as_ref().and_then(|id| posed.iter().find(|(f, _)| &f.id == id));
-        let subj_pos = subj_frame
+            .or_else(|| posed.first().map(|(f, _)| f.id.clone()))
+            .unwrap_or_default();
+        // Reaction shots should *show the reactor*, so frame the reaction
+        // subject instead of the speaker.
+        let frame_char_id = if shot.intent == "reaction" {
+            shot.reaction.clone().unwrap_or(subject_char.clone())
+        } else {
+            subject_char.clone()
+        };
+        let frame_frame = posed
+            .iter()
+            .find(|(f, _)| f.id == frame_char_id)
+            .or_else(|| posed.iter().find(|(f, _)| f.id == subject_char));
+        let frame_pos = frame_frame
             .map(|(f, p)| {
                 rigs.get(&f.id)
                     .map(|r| r.camera_target(CameraTargetRole::Head, &f.root, p))
                     .unwrap_or(f.root.pos)
             })
             .unwrap_or([0.0, 1.5, 0.0]);
+        let yaw = frame_frame.map(|(f, _)| f.root.rot[1]).unwrap_or(0.0);
+        // Frame around the chest so the performer is vertically centred.
+        let chest = [frame_pos[0], frame_pos[1] - 0.55, frame_pos[2]];
         let react_pos = shot
             .reaction
             .as_ref()
@@ -451,17 +630,30 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
                     .map(|r| r.camera_target(CameraTargetRole::Head, &f.root, p))
                     .unwrap_or(f.root.pos)
             });
-        let (off, _look_role) = camera_offset(&shot.intent, react_pos);
-        let eye = [subj_pos[0] + off.0, subj_pos[1] + off.1, subj_pos[2] + off.2];
-        let look = if let Some(rp) = react_pos {
-            if matches!(shot.intent.as_str(), "reaction" | "over_the_shoulder") {
-                rp
-            } else {
-                subj_pos
-            }
-        } else {
-            subj_pos
-        };
+        let (loff, _look_role) = camera_offset(&shot.intent, react_pos);
+        // Offset is expressed in the subject's local frame (+z = in front of the
+        // performer), then rotated by the subject's facing so we see their face.
+        let world_off = rotate_y([loff.0, loff.1, loff.2], yaw);
+        let mut eye = clamp_camera_to_hallway(
+            [chest[0] + world_off[0], chest[1] + world_off[1], chest[2] + world_off[2]],
+            &frame_pos,
+        );
+        // Enforce a minimum camera-to-subject distance. Without this a close
+        // (e.g. reaction / OTS) shot could place the camera inside a performer's
+        // near plane, making a limb triangle explode into a full-frame shard.
+        let min_dist = 1.6f32;
+        let dx = eye[0] - chest[0];
+        let dy = eye[1] - chest[1];
+        let dz = eye[2] - chest[2];
+        let d = (dx * dx + dy * dy + dz * dz).sqrt();
+        if d < min_dist {
+            let s = min_dist / d.max(1e-3);
+            eye = [chest[0] + dx * s, chest[1] + dy * s, chest[2] + dz * s];
+            eye = clamp_camera_to_hallway(eye, &frame_pos);
+        }
+        // Look at the framed performer (chest). Reaction / OTS shots still point
+        // here because `frame_char_id` already resolves to the reactor.
+        let look = chest;
         (eye, look)
     } else {
         ([0.0, 3.0, 7.0], [0.0, 1.2, 0.0])
@@ -504,6 +696,7 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
         camera_look: look,
         props,
         flicker,
+        elevator_open,
     }
 }
 
@@ -515,24 +708,45 @@ pub fn char_home_map(sched: &Schedule) -> HashMap<String, [f32; 3]> {
         .collect()
 }
 
-/// Camera offset (relative to subject head) per intent, in world meters.
-/// Always offsets from a *character* head, so the camera frames a performer
-/// rather than a wall or the elevator shell.
+/// Camera offset per intent, expressed in the *subject's local frame* as
+/// `(side, height_above_chest, forward)` in world meters. `+z` local is in front
+/// of the performer; the caller rotates this by the subject yaw so the camera
+/// always sits in front of the face. Height is measured above the chest
+/// (roughly 0.55 m below the head) so the framing subject is vertically centred.
 pub fn camera_offset(intent: &str, react: Option<[f32; 3]>) -> ((f32, f32, f32), CameraTargetRole) {
     let o = match intent {
-        "establish" | "comedic_wide" | "group_coverage" => (0.0, 2.4, 5.2),
-        "speaker_closeup" | "follow" | "conversation" => (0.0, 1.5, 2.7),
+        "establish" | "comedic_wide" | "group_coverage" => (0.0, 1.5, 5.2),
+        "speaker_closeup" | "follow" | "conversation" => (0.0, 0.3, 2.7),
         "reaction" => {
             let r = react.unwrap_or([0.0, 1.5, 0.0]);
-            // approach the reactor from the side, slightly closer
-            (r[0].signum().max(1.0) * 1.2, 1.5, 2.6)
+            // approach the reactor from its side, slightly closer
+            (r[0].signum().max(1.0) * 1.2, 0.4, 2.4)
         }
-        "reveal" | "insert_object" => (1.2, 1.2, 2.2),
-        "tension_push" => (0.0, 1.6, 2.0),
-        "cliffhanger_hold" => (0.0, 1.7, 2.2),
-        "over_the_shoulder" => (-1.2, 1.5, 2.4),
-        "exit_transition" => (0.0, 2.0, 4.2),
-        _ => (0.0, 1.5, 3.2),
+        "reveal" | "insert_object" => (0.8, 0.2, 2.0),
+        "tension_push" => (0.0, 0.4, 1.9),
+        "cliffhanger_hold" => (0.0, 0.5, 2.1),
+        "over_the_shoulder" => (-1.0, 0.4, 2.4),
+        "exit_transition" => (0.0, 1.5, 4.0),
+        _ => (0.0, 0.4, 2.6),
     };
     (o, CameraTargetRole::Head)
+}
+
+/// Rotate a vector around the world Y axis by `yaw` (radians).
+fn rotate_y(v: [f32; 3], yaw: f32) -> [f32; 3] {
+    let (s, c) = yaw.sin_cos();
+    [v[0] * c + v[2] * s, v[1], -v[0] * s + v[2] * c]
+}
+
+/// Keep the camera inside the hallway and out of solid set geometry (notably
+/// the elevator shell). This prevents "camera inside a wall" compositions.
+fn clamp_camera_to_hallway(eye: [f32; 3], _subj: &[f32; 3]) -> [f32; 3] {
+    let mut e = eye;
+    e[0] = e[0].clamp(-7.0, 7.0);
+    e[2] = e[2].clamp(-2.4, 9.0);
+    // Elevator cabin sits at x≈3, z in [-3.0, -1.0]; keep the camera in front.
+    if e[2] < -1.0 && e[0] > 2.0 && e[0] < 4.0 {
+        e[2] = -0.6;
+    }
+    e
 }
