@@ -7,12 +7,12 @@
 //! the model, degrading to the deterministic director on failure.
 
 use crate::error::Result;
+use crate::package::DialogueLine;
 use crate::protocol::*;
 use crate::rng::SeededRng;
 use crate::timeline::CameraShotSpec;
-use crate::world::WorldState;
-use crate::package::DialogueLine;
 use crate::validation::ValidatedPlan;
+use crate::world::WorldState;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -30,8 +30,12 @@ pub trait Director: Send + Sync {
     /// Produce the overall episode plan (beat *outlines* only).
     fn plan_episode(&self, ctx: &DirectorContext) -> Result<EpisodePlan>;
     /// Produce the detailed command for a single beat.
-    fn plan_beat(&self, ctx: &DirectorContext, plan: &EpisodePlan, beat: &BeatOutline)
-        -> Result<BeatCommand>;
+    fn plan_beat(
+        &self,
+        ctx: &DirectorContext,
+        plan: &EpisodePlan,
+        beat: &BeatOutline,
+    ) -> Result<BeatCommand>;
 }
 
 // ---------------------------------------------------------------------------
@@ -159,11 +163,31 @@ impl Director for DeterministicDirector {
 
 fn build_outline(_s: &Scenario, duration: f32) -> Vec<BeatOutline> {
     let steps: &[(&str, &str, &[&str])] = &[
-        ("hook", "The elevator opens onto a wall while someone inside asks whether this is floor four.", &["elevator", "mara"]),
-        ("complication", "A symbol appears on the floor indicator instead of a number.", &["elevator_indicator", "mara"]),
-        ("escalation", "The lights flicker in disagreement and a door that should not exist hums.", &["flickering_light", "ellis"]),
-        ("reveal", "A tenant who is never seen leaving offers a calm, impossible explanation.", &["nox", "ellis"]),
-        ("payoff", "The inspector cites the nonexistent floor for lacking an emergency exit.", &["voss", "elevator"]),
+        (
+            "hook",
+            "The elevator opens onto a wall while someone inside asks whether this is floor four.",
+            &["elevator", "mara"],
+        ),
+        (
+            "complication",
+            "A symbol appears on the floor indicator instead of a number.",
+            &["elevator_indicator", "mara"],
+        ),
+        (
+            "escalation",
+            "The lights flicker in disagreement and a door that should not exist hums.",
+            &["flickering_light", "ellis"],
+        ),
+        (
+            "reveal",
+            "A tenant who is never seen leaving offers a calm, impossible explanation.",
+            &["nox", "ellis"],
+        ),
+        (
+            "payoff",
+            "The inspector cites the nonexistent floor for lacking an emergency exit.",
+            &["voss", "elevator"],
+        ),
     ];
     let n = steps.len();
     steps
@@ -322,12 +346,18 @@ fn resolve_subject_char(
         return subject.to_string();
     }
     // The subject might be a prop/mark; find whoever is speaking, else first active.
-    if let Some(d) = dialogue.iter().find(|d| d.start <= at_time && at_time < d.end) {
+    if let Some(d) = dialogue
+        .iter()
+        .find(|d| d.start <= at_time && at_time < d.end)
+    {
         if world.character(&d.actor).is_some() {
             return d.actor.clone();
         }
     }
-    active.first().cloned().unwrap_or_else(|| subject.to_string())
+    active
+        .first()
+        .cloned()
+        .unwrap_or_else(|| subject.to_string())
 }
 
 /// Plan the expanded camera coverage for an episode.
@@ -363,9 +393,11 @@ pub fn plan_shots(
         let (b0, b1) = beat_bounds[i];
         let seg = (b1 - b0).max(0.1);
         let speaker = resolve_subject_char(world, &rb.camera_intent.subject, &active, dialogue, b0);
-        let reaction = rb.camera_intent.reaction_subject.clone().filter(|r| {
-            world.character(r).is_some() && *r != speaker
-        });
+        let reaction = rb
+            .camera_intent
+            .reaction_subject
+            .clone()
+            .filter(|r| world.character(r).is_some() && *r != speaker);
 
         let is_hook = rb.outline.beat_type == "hook" || i == 0;
         // Context/group shot length.
@@ -399,7 +431,12 @@ pub fn plan_shots(
             shots.push(CameraShotSpec {
                 start: ctx_end,
                 end: react_start,
-                intent: if is_hook { "speaker_closeup" } else { "speaker_closeup" }.to_string(),
+                intent: if is_hook {
+                    "speaker_closeup"
+                } else {
+                    "speaker_closeup"
+                }
+                .to_string(),
                 subject: speaker.clone(),
                 reaction: reaction.clone(),
             });
@@ -422,7 +459,13 @@ pub fn plan_shots(
     // Insert / reveal close-ups around key prop moments.
     for (time, _prop) in inserts {
         // Find a character active near this time to frame.
-        let subj = resolve_subject_char(world, &active.first().cloned().unwrap_or_default(), &active, dialogue, *time);
+        let subj = resolve_subject_char(
+            world,
+            &active.first().cloned().unwrap_or_default(),
+            &active,
+            dialogue,
+            *time,
+        );
         let start = (*time - 1.0).max(0.0);
         let end = (*time + 1.4).min(duration);
         if end - start >= 1.0 {
@@ -498,7 +541,6 @@ pub fn plan_shots(
         let mut i = 0usize;
         while i + 1 < shots.len() {
             if shots[i].end > shots[i + 1].start + 0.05 {
-                let ns = shots[i].end;
                 shots[i + 1].start = shots[i].end;
                 // If fixing the start collapsed the next shot, drop it.
                 if shots[i + 1].start >= shots[i + 1].end - 0.05 {
@@ -511,5 +553,13 @@ pub fn plan_shots(
             i += 1;
         }
     }
+    // Beat bounds are estimated before measured TTS compaction, so late beat
+    // shots can land past the authoritative episode end. Clamp once more after
+    // all overlap edits and drop anything that collapses at the tail.
+    for shot in &mut shots {
+        shot.start = shot.start.clamp(0.0, duration);
+        shot.end = shot.end.clamp(shot.start, duration);
+    }
+    shots.retain(|shot| shot.end > shot.start + 0.05);
     shots
 }

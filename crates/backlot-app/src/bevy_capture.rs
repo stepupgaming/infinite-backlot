@@ -15,13 +15,13 @@ use std::path::{Path, PathBuf};
 
 use bevy::asset::{AssetApp, RenderAssetUsages};
 use bevy::camera::{ClearColorConfig, PerspectiveProjection, RenderTarget};
-use bevy::render::camera::CameraRenderGraph;
 use bevy::core_pipeline::Core3d;
-use bevy::ecs::error::{BevyError, ErrorContext, FallbackErrorHandler, match_severity};
+use bevy::ecs::error::{match_severity, BevyError, ErrorContext, FallbackErrorHandler};
 use bevy::ecs::observer::On;
 use bevy::log::warn;
 use bevy::math::Vec4;
 use bevy::prelude::*;
+use bevy::render::camera::CameraRenderGraph;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat, TextureUsages};
 use bevy::render::renderer::RenderDevice;
 use bevy::render::view::screenshot::{Screenshot, ScreenshotCaptured};
@@ -29,7 +29,10 @@ use bevy::window::WindowPlugin;
 
 use backlot_core::author::EpisodeAuthor;
 use backlot_core::avatar::{HumanoidRig, SemanticJoint};
-use backlot_core::render::{finalize_production, prepare_production, write_png, ProduceConfig, ProduceReport};
+use backlot_core::render::{
+    finalize_production, prepare_production, write_png, ProduceConfig, ProduceReport,
+    ProductionTimingContext,
+};
 use backlot_core::timeline::{evaluate_at, Schedule};
 use backlot_core::world::WorldState;
 
@@ -52,6 +55,13 @@ struct RigPartTag {
 #[derive(Component)]
 struct PropTag {
     prop_id: String,
+}
+
+/// One sliding elevator-door leaf driven by `FrameState::elevator_open`.
+#[derive(Component)]
+struct ElevatorDoor {
+    closed_x: f32,
+    direction: f32,
 }
 
 /// Marker for the per-frame screenshot entity we spawn to trigger readback.
@@ -82,12 +92,20 @@ pub fn produce_episode_bevy(
     cfg: ProduceConfig,
     author: Box<dyn EpisodeAuthor>,
 ) -> backlot_core::error::Result<ProduceReport> {
-    use backlot_core::package::TimingReport;
     let total_start = std::time::Instant::now();
     let started_at = chrono::Utc::now().to_rfc3339();
-    let ProduceConfig { config, require_llm, world, seed, episode_number, .. } = cfg;
+    let ProduceConfig {
+        config,
+        require_llm,
+        world,
+        seed,
+        episode_number,
+        keep_frames,
+    } = cfg;
     let out_dir = config.runtime.output_dir.clone();
-    let ep_dir = Path::new(&out_dir).join("episodes").join(backlot_core::serial_id("episode", episode_number, 6));
+    let ep_dir = Path::new(&out_dir)
+        .join("episodes")
+        .join(backlot_core::serial_id("episode", episode_number, 6));
     let frames_dir = ep_dir.join("frames");
     std::fs::create_dir_all(&frames_dir).map_err(io_err(&frames_dir))?;
 
@@ -110,15 +128,13 @@ pub fn produce_episode_bevy(
     // is what we actually capture; the primary window only exists so Bevy can
     // initialize the `RenderDevice`. We keep it hidden so production runs
     // headlessly without popping a visible window.
-    app.add_plugins(
-        DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                visible: false,
-                ..default()
-            }),
+    app.add_plugins(DefaultPlugins.set(WindowPlugin {
+        primary_window: Some(Window {
+            visible: false,
             ..default()
         }),
-    )
+        ..default()
+    }))
     .insert_resource(ClearColor(Color::srgb(0.03, 0.03, 0.05)));
 
     // Targeted error handler: tolerate ONLY the transient "Resource does not
@@ -136,7 +152,11 @@ pub fn produce_episode_bevy(
     let cap_handle: Handle<Image> = {
         let mut images = app.world_mut().resource_mut::<Assets<Image>>();
         let mut img = Image::new(
-            Extent3d { width: rw, height: rh, depth_or_array_layers: 1 },
+            Extent3d {
+                width: rw,
+                height: rh,
+                depth_or_array_layers: 1,
+            },
             TextureDimension::D2,
             vec![0u8; (rw * rh * 4) as usize],
             TextureFormat::Rgba8UnormSrgb,
@@ -206,7 +226,10 @@ pub fn produce_episode_bevy(
         guard += 1;
         if guard % 60 == 0 {
             let c = app.world().resource::<CaptureProgress>().captured;
-            tracing::info!("bevy capture progress: requested up to {}, captured {c}/{n_frames}", app.world().resource::<CaptureProgress>().requested);
+            tracing::info!(
+                "bevy capture progress: requested up to {}, captured {c}/{n_frames}",
+                app.world().resource::<CaptureProgress>().requested
+            );
         }
     }
     let bevy_capture_secs = t_capture_start.elapsed().as_secs_f32();
@@ -227,40 +250,25 @@ pub fn produce_episode_bevy(
         effective_fps = effective_fps
     );
 
-    // Stage 3: shared mix/encode/verify/package with timing tracked.
-    let t_pkg_start = std::time::Instant::now();
-    let mut report = finalize_production(&config, require_llm, &prep, &frames_dir, captured, "bevy")?;
-    let packaging_and_mix = t_pkg_start.elapsed().as_secs_f32();
-    let total_end_to_end_secs = total_start.elapsed().as_secs_f32();
-    let ended_at = chrono::Utc::now().to_rfc3339();
+    // Stage 3: shared mix/encode/verify/package. Pass renderer-owned timing in so
+    // diagnostics.json and report.md are generated once from the same values.
+    let timing = ProductionTimingContext {
+        started_at,
+        elapsed_before_finalize_secs: total_start.elapsed().as_secs_f32(),
+        bevy_capture_secs,
+        effective_fps,
+    };
+    let report = finalize_production(
+        &config,
+        require_llm,
+        &prep,
+        &frames_dir,
+        captured,
+        "bevy",
+        Some(&timing),
+    )?;
 
-    // Attach timing to the persisted diagnostics if available, then re-write.
-    {
-        let ep_dir = Path::new(&config.runtime.output_dir).join("episodes").join(&report.episode_id);
-        let diag_path = ep_dir.join("diagnostics.json");
-        if let Ok(raw) = std::fs::read_to_string(&diag_path) {
-            if let Ok(mut diag) = serde_json::from_str::<backlot_core::package::Diagnostics>(&raw) {
-                diag.timing = Some(TimingReport {
-                    llm_authoring_secs: prep.prep_timings.llm_authoring_secs,
-                    tts_generation_secs: prep.prep_timings.tts_generation_secs,
-                    timeline_prep_secs: prep.prep_timings.timeline_prep_secs,
-                    bevy_capture_secs,
-                    audio_mixing_secs: 0.0,
-                    ffmpeg_encode_secs: 0.0,
-                    packaging_secs: packaging_and_mix,
-                    total_end_to_end_secs,
-                    effective_fps,
-                    started_at: started_at.clone(),
-                    ended_at: ended_at.clone(),
-                });
-                let json = serde_json::to_string_pretty(&diag).unwrap_or_default();
-                let _ = std::fs::write(&diag_path, &json);
-                report.issues = diag.issues.clone();
-            }
-        }
-    }
-
-    if !config.runtime.capture_frames && captured > 0 {
+    if !keep_frames && captured > 0 {
         let _ = std::fs::remove_dir_all(&frames_dir);
     }
     Ok(report)
@@ -514,16 +522,23 @@ fn spawn_scene(
         ));
     }
 
-    // Elevator: door panel + glowing floor indicator.
-    bw.spawn((
-        Mesh3d(unit_cube.clone()),
-        MeshMaterial3d(frame_mat.clone()),
-        Transform {
-            translation: Vec3::new(-5.5, 1.4, -4.19),
-            rotation: Quat::IDENTITY,
-            scale: Vec3::new(1.9, 2.6, 0.06),
-        },
-    ));
+    // Elevator: two sliding door leaves + glowing floor indicator. Their motion
+    // is applied from the same authoritative FrameState used by both renderers.
+    for (closed_x, direction) in [(-5.975f32, -1.0f32), (-5.025, 1.0)] {
+        bw.spawn((
+            Mesh3d(unit_cube.clone()),
+            MeshMaterial3d(frame_mat.clone()),
+            ElevatorDoor {
+                closed_x,
+                direction,
+            },
+            Transform {
+                translation: Vec3::new(closed_x, 1.4, -4.19),
+                rotation: Quat::IDENTITY,
+                scale: Vec3::new(0.94, 2.6, 0.06),
+            },
+        ));
+    }
     bw.spawn((
         Mesh3d(unit_cube.clone()),
         MeshMaterial3d(indicator_mat),
@@ -537,7 +552,11 @@ fn spawn_scene(
     // --- Lights ---
     // Key directional light (warm, angled to carve performers from the set).
     bw.spawn((
-        DirectionalLight { illuminance: 2400.0, color: Color::srgb(1.0, 0.95, 0.88), ..default() },
+        DirectionalLight {
+            illuminance: 2400.0,
+            color: Color::srgb(1.0, 0.95, 0.88),
+            ..default()
+        },
         Transform::from_xyz(4.0, 10.0, 6.0).looking_at(Vec3::ZERO, Vec3::Y),
     ));
     // Ambient fill lifts the whole corridor out of near-black.
@@ -628,7 +647,9 @@ fn spawn_scene(
         bw.spawn((
             Mesh3d(sphere.clone()),
             MeshMaterial3d(mat),
-            PropTag { prop_id: p.id.clone() },
+            PropTag {
+                prop_id: p.id.clone(),
+            },
             Transform::IDENTITY,
         ));
     }
@@ -662,9 +683,31 @@ fn apply_frame_system(
     mut commands: Commands,
     plan: Res<CapturePlan>,
     mut progress: ResMut<CaptureProgress>,
-    mut parts: Query<(&RigPartTag, &mut Transform), (Without<PropTag>, Without<Camera3d>)>,
-    mut props: Query<(&PropTag, &mut Transform), (Without<RigPartTag>, Without<Camera3d>)>,
-    mut cam: Query<&mut Transform, (With<Camera3d>, Without<RigPartTag>, Without<PropTag>)>,
+    mut parts: Query<
+        (&RigPartTag, &mut Transform),
+        (Without<PropTag>, Without<ElevatorDoor>, Without<Camera3d>),
+    >,
+    mut props: Query<
+        (&PropTag, &mut Transform),
+        (
+            Without<RigPartTag>,
+            Without<ElevatorDoor>,
+            Without<Camera3d>,
+        ),
+    >,
+    mut elevator_doors: Query<
+        (&ElevatorDoor, &mut Transform),
+        (Without<RigPartTag>, Without<PropTag>, Without<Camera3d>),
+    >,
+    mut cam: Query<
+        &mut Transform,
+        (
+            With<Camera3d>,
+            Without<RigPartTag>,
+            Without<PropTag>,
+            Without<ElevatorDoor>,
+        ),
+    >,
 ) {
     let n = plan.n_frames.max(1);
     let req = progress.requested;
@@ -681,7 +724,9 @@ fn apply_frame_system(
                 if tag.char_id != cf.id {
                     continue;
                 }
-                let Some(rw) = wm.get(&tag.joint) else { continue };
+                let Some(rw) = wm.get(&tag.joint) else {
+                    continue;
+                };
                 let half = rig
                     .parts
                     .iter()
@@ -714,6 +759,12 @@ fn apply_frame_system(
         }
     }
 
+    // Elevator doors.
+    for (door, mut tr) in elevator_doors.iter_mut() {
+        let slide = 0.9 * state.elevator_open.clamp(0.0, 1.0);
+        tr.translation.x = door.closed_x + door.direction * slide;
+    }
+
     // Camera.
     if let Ok(mut cam_tr) = cam.single_mut() {
         cam_tr.translation = Vec3::new(
@@ -722,14 +773,21 @@ fn apply_frame_system(
             state.camera_eye[2],
         );
         cam_tr.look_at(
-            Vec3::new(state.camera_look[0], state.camera_look[1], state.camera_look[2]),
+            Vec3::new(
+                state.camera_look[0],
+                state.camera_look[1],
+                state.camera_look[2],
+            ),
             Vec3::Y,
         );
     }
 
     // Request a capture for this frame (read back on the next update).
     if req < plan.n_frames {
-        commands.spawn((CaptureMarker, Screenshot(RenderTarget::Image(plan.capture_image.clone().into()))));
+        commands.spawn((
+            CaptureMarker,
+            Screenshot(RenderTarget::Image(plan.capture_image.clone().into())),
+        ));
         progress.queue.push_back(req);
         progress.requested = req + 1;
     }

@@ -26,7 +26,11 @@ impl SeededRng {
 
     /// Derive a child source so sub-systems get independent but reproducible streams.
     pub fn derive(&self, salt: u64) -> Self {
-        Self::new(self.seed.wrapping_mul(0x9E3779B97F4A7C15).wrapping_add(salt))
+        Self::new(
+            self.seed
+                .wrapping_mul(0x9E3779B97F4A7C15)
+                .wrapping_add(salt),
+        )
     }
 
     pub fn next_u64(&mut self) -> u64 {

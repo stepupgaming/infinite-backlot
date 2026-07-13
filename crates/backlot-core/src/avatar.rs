@@ -51,9 +51,27 @@ impl SemanticJoint {
     pub fn all() -> &'static [SemanticJoint] {
         use SemanticJoint::*;
         &[
-            Root, Pelvis, Chest, UpperChest, Neck, Head, LeftHand, RightHand,
-            LeftWrist, RightWrist, Jaw, LeftEye, RightEye, Gaze, PropGrip,
-            LeftUpperArm, RightUpperArm, LeftThigh, RightThigh, LeftShin, RightShin,
+            Root,
+            Pelvis,
+            Chest,
+            UpperChest,
+            Neck,
+            Head,
+            LeftHand,
+            RightHand,
+            LeftWrist,
+            RightWrist,
+            Jaw,
+            LeftEye,
+            RightEye,
+            Gaze,
+            PropGrip,
+            LeftUpperArm,
+            RightUpperArm,
+            LeftThigh,
+            RightThigh,
+            LeftShin,
+            RightShin,
         ]
     }
 }
@@ -125,30 +143,160 @@ impl HumanoidRig {
         let thigh = 0.42;
         let shin = 0.42;
         let skin = body_color;
-        let cloth = [body_color[0] * 0.6, body_color[1] * 0.6, body_color[2] * 0.65 + 0.1];
+        let cloth = [
+            body_color[0] * 0.6,
+            body_color[1] * 0.6,
+            body_color[2] * 0.65 + 0.1,
+        ];
         let dark = [0.12, 0.12, 0.14];
         use SemanticJoint::*;
         let parts = vec![
-            RigPart { joint: Pelvis, parent: Root, offset: [0.0, 0.92, 0.0], half: [hw, 0.16, 0.13], color: cloth, is_grip: false },
-            RigPart { joint: Chest, parent: Pelvis, offset: [0.0, 0.30, 0.0], half: [sw, 0.20, 0.16], color: cloth, is_grip: false },
-            RigPart { joint: UpperChest, parent: Chest, offset: [0.0, 0.18, 0.0], half: [sw, 0.10, 0.16], color: cloth, is_grip: false },
-            RigPart { joint: Neck, parent: UpperChest, offset: [0.0, 0.12, 0.0], half: [0.06, 0.07, 0.06], color: skin, is_grip: false },
-            RigPart { joint: Head, parent: Neck, offset: [0.0, 0.16, 0.0], half: [0.12, 0.13, 0.12], color: skin, is_grip: false },
-            RigPart { joint: Jaw, parent: Head, offset: [0.0, -0.07, 0.06], half: [0.06, 0.04, 0.05], color: skin, is_grip: false },
-            RigPart { joint: LeftEye, parent: Head, offset: [-0.05, 0.02, 0.10], half: [0.02, 0.02, 0.01], color: [0.9, 0.9, 0.95], is_grip: false },
-            RigPart { joint: RightEye, parent: Head, offset: [0.05, 0.02, 0.10], half: [0.02, 0.02, 0.01], color: [0.9, 0.9, 0.95], is_grip: false },
-            RigPart { joint: Gaze, parent: Head, offset: [0.0, 0.0, 0.5], half: [0.01, 0.01, 0.01], color: [1.0, 1.0, 1.0], is_grip: false },
+            RigPart {
+                joint: Pelvis,
+                parent: Root,
+                offset: [0.0, 0.92, 0.0],
+                half: [hw, 0.16, 0.13],
+                color: cloth,
+                is_grip: false,
+            },
+            RigPart {
+                joint: Chest,
+                parent: Pelvis,
+                offset: [0.0, 0.30, 0.0],
+                half: [sw, 0.20, 0.16],
+                color: cloth,
+                is_grip: false,
+            },
+            RigPart {
+                joint: UpperChest,
+                parent: Chest,
+                offset: [0.0, 0.18, 0.0],
+                half: [sw, 0.10, 0.16],
+                color: cloth,
+                is_grip: false,
+            },
+            RigPart {
+                joint: Neck,
+                parent: UpperChest,
+                offset: [0.0, 0.12, 0.0],
+                half: [0.06, 0.07, 0.06],
+                color: skin,
+                is_grip: false,
+            },
+            RigPart {
+                joint: Head,
+                parent: Neck,
+                offset: [0.0, 0.16, 0.0],
+                half: [0.12, 0.13, 0.12],
+                color: skin,
+                is_grip: false,
+            },
+            RigPart {
+                joint: Jaw,
+                parent: Head,
+                offset: [0.0, -0.07, 0.06],
+                half: [0.06, 0.04, 0.05],
+                color: skin,
+                is_grip: false,
+            },
+            RigPart {
+                joint: LeftEye,
+                parent: Head,
+                offset: [-0.05, 0.02, 0.10],
+                half: [0.02, 0.02, 0.01],
+                color: [0.9, 0.9, 0.95],
+                is_grip: false,
+            },
+            RigPart {
+                joint: RightEye,
+                parent: Head,
+                offset: [0.05, 0.02, 0.10],
+                half: [0.02, 0.02, 0.01],
+                color: [0.9, 0.9, 0.95],
+                is_grip: false,
+            },
+            RigPart {
+                joint: Gaze,
+                parent: Head,
+                offset: [0.0, 0.0, 0.5],
+                half: [0.01, 0.01, 0.01],
+                color: [1.0, 1.0, 1.0],
+                is_grip: false,
+            },
             // Arms: upper-arm box hangs from upper chest; hand extends it.
-            RigPart { joint: LeftUpperArm, parent: UpperChest, offset: [-sw - 0.02, 0.10, 0.0], half: [0.05, ua, 0.05], color: skin, is_grip: false },
-            RigPart { joint: RightUpperArm, parent: UpperChest, offset: [sw + 0.02, 0.10, 0.0], half: [0.05, ua, 0.05], color: skin, is_grip: false },
-            RigPart { joint: LeftHand, parent: LeftUpperArm, offset: [0.0, -ua - la * 0.5, 0.0], half: [0.05, la * 0.5, 0.05], color: skin, is_grip: true },
-            RigPart { joint: RightHand, parent: RightUpperArm, offset: [0.0, -ua - la * 0.5, 0.0], half: [0.05, la * 0.5, 0.05], color: skin, is_grip: true },
+            RigPart {
+                joint: LeftUpperArm,
+                parent: UpperChest,
+                offset: [-sw - 0.02, 0.10, 0.0],
+                half: [0.05, ua, 0.05],
+                color: skin,
+                is_grip: false,
+            },
+            RigPart {
+                joint: RightUpperArm,
+                parent: UpperChest,
+                offset: [sw + 0.02, 0.10, 0.0],
+                half: [0.05, ua, 0.05],
+                color: skin,
+                is_grip: false,
+            },
+            RigPart {
+                joint: LeftHand,
+                parent: LeftUpperArm,
+                offset: [0.0, -ua - la * 0.5, 0.0],
+                half: [0.05, la * 0.5, 0.05],
+                color: skin,
+                is_grip: true,
+            },
+            RigPart {
+                joint: RightHand,
+                parent: RightUpperArm,
+                offset: [0.0, -ua - la * 0.5, 0.0],
+                half: [0.05, la * 0.5, 0.05],
+                color: skin,
+                is_grip: true,
+            },
             // Legs: thigh box hangs from pelvis; shin + foot extend.
-            RigPart { joint: LeftThigh, parent: Pelvis, offset: [-hw, -0.02, 0.0], half: [0.08, thigh, 0.09], color: dark, is_grip: false },
-            RigPart { joint: RightThigh, parent: Pelvis, offset: [hw, -0.02, 0.0], half: [0.08, thigh, 0.09], color: dark, is_grip: false },
-            RigPart { joint: LeftShin, parent: LeftThigh, offset: [0.0, -thigh - shin * 0.5 + 0.02, 0.04], half: [0.07, shin * 0.5, 0.08], color: dark, is_grip: false },
-            RigPart { joint: RightShin, parent: RightThigh, offset: [0.0, -thigh - shin * 0.5 + 0.02, 0.04], half: [0.07, shin * 0.5, 0.08], color: dark, is_grip: false },
-            RigPart { joint: PropGrip, parent: LeftHand, offset: [0.0, -0.06, 0.06], half: [0.02, 0.02, 0.02], color: [1.0, 0.8, 0.3], is_grip: true },
+            RigPart {
+                joint: LeftThigh,
+                parent: Pelvis,
+                offset: [-hw, -0.02, 0.0],
+                half: [0.08, thigh, 0.09],
+                color: dark,
+                is_grip: false,
+            },
+            RigPart {
+                joint: RightThigh,
+                parent: Pelvis,
+                offset: [hw, -0.02, 0.0],
+                half: [0.08, thigh, 0.09],
+                color: dark,
+                is_grip: false,
+            },
+            RigPart {
+                joint: LeftShin,
+                parent: LeftThigh,
+                offset: [0.0, -thigh - shin * 0.5 + 0.02, 0.04],
+                half: [0.07, shin * 0.5, 0.08],
+                color: dark,
+                is_grip: false,
+            },
+            RigPart {
+                joint: RightShin,
+                parent: RightThigh,
+                offset: [0.0, -thigh - shin * 0.5 + 0.02, 0.04],
+                half: [0.07, shin * 0.5, 0.08],
+                color: dark,
+                is_grip: false,
+            },
+            RigPart {
+                joint: PropGrip,
+                parent: LeftHand,
+                offset: [0.0, -0.06, 0.06],
+                half: [0.02, 0.02, 0.02],
+                color: [1.0, 0.8, 0.3],
+                is_grip: true,
+            },
         ];
         Self {
             character_id: character_id.into(),
@@ -160,43 +308,81 @@ impl HumanoidRig {
 
     /// Compute world transforms (rotation matrix + translation) for every joint
     /// by walking the parent chain. `root` places the character in the world.
-    pub fn world_matrices(
-        &self,
-        root: &Xform,
-        pose: &Pose,
-    ) -> HashMap<SemanticJoint, RigWorld> {
+    pub fn world_matrices(&self, root: &Xform, pose: &Pose) -> HashMap<SemanticJoint, RigWorld> {
         let mut out: HashMap<SemanticJoint, RigWorld> = HashMap::new();
-        out.insert(SemanticJoint::Root, RigWorld { rot: rot3(root.rot), pos: root.pos });
+        out.insert(
+            SemanticJoint::Root,
+            RigWorld {
+                rot: rot3(root.rot),
+                pos: root.pos,
+            },
+        );
         for p in &self.parts {
-            let parent = out.get(&p.parent).cloned().unwrap_or_else(|| RigWorld { rot: rot3(root.rot), pos: root.pos });
-            let local = pose.0.get(&p.joint).cloned().unwrap_or_else(Xform::identity);
+            let parent = out.get(&p.parent).cloned().unwrap_or_else(|| RigWorld {
+                rot: rot3(root.rot),
+                pos: root.pos,
+            });
+            let local = pose
+                .0
+                .get(&p.joint)
+                .cloned()
+                .unwrap_or_else(Xform::identity);
             let local_rot = rot3(local.rot);
             let rot = mul3(parent.rot, local_rot);
             let translation = add3(parent.pos, mul3v(parent.rot, add3(p.offset, local.pos)));
-            out.insert(p.joint, RigWorld { rot, pos: translation });
+            out.insert(
+                p.joint,
+                RigWorld {
+                    rot,
+                    pos: translation,
+                },
+            );
         }
         out
     }
 
     /// World-space position of a semantic joint.
     pub fn joint_world(&self, joint: SemanticJoint, root: &Xform, pose: &Pose) -> [f32; 3] {
-        self.world_matrices(root, pose).get(&joint).map(|w| w.pos).unwrap_or(root.pos)
+        self.world_matrices(root, pose)
+            .get(&joint)
+            .map(|w| w.pos)
+            .unwrap_or(root.pos)
     }
 
     /// Camera-interest target for a semantic role.
     pub fn camera_target(&self, role: CameraTargetRole, root: &Xform, pose: &Pose) -> [f32; 3] {
         let w = self.world_matrices(root, pose);
         match role {
-            CameraTargetRole::Head => w.get(&SemanticJoint::Head).map(|x| [x.pos[0], x.pos[1] + 0.10, x.pos[2]]).unwrap_or(root.pos),
-            CameraTargetRole::Chest => w.get(&SemanticJoint::UpperChest).map(|x| x.pos).or_else(|| w.get(&SemanticJoint::Chest).map(|x| x.pos)).unwrap_or(root.pos),
-            CameraTargetRole::Gaze => w.get(&SemanticJoint::Gaze).map(|x| x.pos).unwrap_or(root.pos),
-            CameraTargetRole::PropGrip => w.get(&SemanticJoint::PropGrip).or_else(|| w.get(&SemanticJoint::LeftHand)).map(|x| x.pos).unwrap_or(root.pos),
+            CameraTargetRole::Head => w
+                .get(&SemanticJoint::Head)
+                .map(|x| [x.pos[0], x.pos[1] + 0.10, x.pos[2]])
+                .unwrap_or(root.pos),
+            CameraTargetRole::Chest => w
+                .get(&SemanticJoint::UpperChest)
+                .map(|x| x.pos)
+                .or_else(|| w.get(&SemanticJoint::Chest).map(|x| x.pos))
+                .unwrap_or(root.pos),
+            CameraTargetRole::Gaze => w
+                .get(&SemanticJoint::Gaze)
+                .map(|x| x.pos)
+                .unwrap_or(root.pos),
+            CameraTargetRole::PropGrip => w
+                .get(&SemanticJoint::PropGrip)
+                .or_else(|| w.get(&SemanticJoint::LeftHand))
+                .map(|x| x.pos)
+                .unwrap_or(root.pos),
         }
     }
 
     /// World transform of a semantic joint (for attaching props via grip).
     pub fn joint_world_xform(&self, joint: SemanticJoint, root: &Xform, pose: &Pose) -> RigWorld {
-        self.world_matrices(root, pose).get(&joint).cloned().unwrap_or_else(|| RigWorld { rot: rot3(root.rot), pos: root.pos })
+        self.world_matrices(root, pose)
+            .get(&joint)
+            .cloned()
+            .unwrap_or_else(|| RigWorld {
+                rot: rot3(root.rot),
+                pos: root.pos,
+            })
     }
 }
 
@@ -225,7 +411,10 @@ pub struct Xform {
 
 impl Xform {
     pub fn identity() -> Self {
-        Self { pos: [0.0; 3], rot: [0.0; 3] }
+        Self {
+            pos: [0.0; 3],
+            rot: [0.0; 3],
+        }
     }
     pub fn from_pos(pos: [f32; 3]) -> Self {
         Self { pos, rot: [0.0; 3] }
@@ -252,7 +441,8 @@ impl Pose {
 // Animation: produce a Pose for a performance state at time `t` (seconds).
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum PerformanceState {
     Idle,
     Walk,
@@ -306,50 +496,194 @@ pub fn character_pose(state: PerformanceState, t: f32, walk_phase: f32) -> Pose 
     match state {
         PerformanceState::Idle => {
             let bob = (t * 1.6).sin() * 0.02;
-            pose.set(Chest, Xform { pos: [0.0, bob, 0.0], rot: [0.0, 0.0, 0.0] });
-            pose.set(LeftUpperArm, Xform { pos: [0.0; 3], rot: [0.05, 0.0, 0.12] });
-            pose.set(RightUpperArm, Xform { pos: [0.0; 3], rot: [0.05, 0.0, -0.12] });
+            pose.set(
+                Chest,
+                Xform {
+                    pos: [0.0, bob, 0.0],
+                    rot: [0.0, 0.0, 0.0],
+                },
+            );
+            pose.set(
+                LeftUpperArm,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.05, 0.0, 0.12],
+                },
+            );
+            pose.set(
+                RightUpperArm,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.05, 0.0, -0.12],
+                },
+            );
         }
         PerformanceState::Walk => {
             let s = (walk_phase * 6.0).sin();
             let c = (walk_phase * 6.0).cos();
-            pose.set(lsh, Xform { pos: [0.0; 3], rot: [0.4 + s * 0.5, 0.0, 0.12] });
-            pose.set(rsh, Xform { pos: [0.0; 3], rot: [0.4 - s * 0.5, 0.0, -0.12] });
-            pose.set(LeftThigh, Xform { pos: [0.0; 3], rot: [c * 0.5, 0.0, 0.0] });
-            pose.set(RightThigh, Xform { pos: [0.0; 3], rot: [-c * 0.5, 0.0, 0.0] });
+            pose.set(
+                lsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.4 + s * 0.5, 0.0, 0.12],
+                },
+            );
+            pose.set(
+                rsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.4 - s * 0.5, 0.0, -0.12],
+                },
+            );
+            pose.set(
+                LeftThigh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [c * 0.5, 0.0, 0.0],
+                },
+            );
+            pose.set(
+                RightThigh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [-c * 0.5, 0.0, 0.0],
+                },
+            );
             let bob = (walk_phase * 6.0).abs().sin() * 0.04;
-            pose.set(Chest, Xform { pos: [0.0, bob, 0.0], rot: [0.05, 0.0, 0.0] });
+            pose.set(
+                Chest,
+                Xform {
+                    pos: [0.0, bob, 0.0],
+                    rot: [0.05, 0.0, 0.0],
+                },
+            );
         }
         PerformanceState::Talk => {
             let nod = (t * 4.0).sin() * 0.08;
-            pose.set(Head, Xform { pos: [0.0; 3], rot: [nod, 0.0, 0.0] });
-            pose.set(rsh, Xform { pos: [0.0; 3], rot: [-0.3 + (t * 3.0).sin() * 0.25, 0.0, -0.5] });
-            pose.set(lsh, Xform { pos: [0.0; 3], rot: [0.1, 0.0, 0.15] });
+            pose.set(
+                Head,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [nod, 0.0, 0.0],
+                },
+            );
+            pose.set(
+                rsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [-0.3 + (t * 3.0).sin() * 0.25, 0.0, -0.5],
+                },
+            );
+            pose.set(
+                lsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.1, 0.0, 0.15],
+                },
+            );
         }
         PerformanceState::Listen => {
-            pose.set(Head, Xform { pos: [0.0; 3], rot: [0.0, 0.15, 0.0] });
-            pose.set(lsh, Xform { pos: [0.0; 3], rot: [0.2, 0.0, 0.2] });
-            pose.set(rsh, Xform { pos: [0.0; 3], rot: [0.2, 0.0, -0.2] });
+            pose.set(
+                Head,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.0, 0.15, 0.0],
+                },
+            );
+            pose.set(
+                lsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.2, 0.0, 0.2],
+                },
+            );
+            pose.set(
+                rsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.2, 0.0, -0.2],
+                },
+            );
         }
         PerformanceState::React => {
             let k = ((t * 9.0).sin() * (1.0 - (t * 2.0).min(1.0))).clamp(-1.0, 1.0);
-            pose.set(Head, Xform { pos: [0.0; 3], rot: [-0.25 * k, 0.1 * k, 0.0] });
-            pose.set(Chest, Xform { pos: [0.0, 0.03 * k, 0.0], rot: [-0.15 * k, 0.0, 0.0] });
-            pose.set(lsh, Xform { pos: [0.0; 3], rot: [0.6 * k, 0.0, 0.2] });
-            pose.set(rsh, Xform { pos: [0.0; 3], rot: [0.6 * k, 0.0, -0.2] });
+            pose.set(
+                Head,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [-0.25 * k, 0.1 * k, 0.0],
+                },
+            );
+            pose.set(
+                Chest,
+                Xform {
+                    pos: [0.0, 0.03 * k, 0.0],
+                    rot: [-0.15 * k, 0.0, 0.0],
+                },
+            );
+            pose.set(
+                lsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.6 * k, 0.0, 0.2],
+                },
+            );
+            pose.set(
+                rsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.6 * k, 0.0, -0.2],
+                },
+            );
         }
         PerformanceState::Gesture => {
             let w = (t * 3.0).sin() * 0.4;
-            pose.set(rsh, Xform { pos: [0.0; 3], rot: [-1.0, 0.0, -0.3 + w] });
-            pose.set(lsh, Xform { pos: [0.0; 3], rot: [-0.6, 0.0, 0.4] });
-            pose.set(Head, Xform { pos: [0.0; 3], rot: [0.05, -0.1, 0.0] });
+            pose.set(
+                rsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [-1.0, 0.0, -0.3 + w],
+                },
+            );
+            pose.set(
+                lsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [-0.6, 0.0, 0.4],
+                },
+            );
+            pose.set(
+                Head,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.05, -0.1, 0.0],
+                },
+            );
         }
         PerformanceState::Point => {
-            pose.set(rsh, Xform { pos: [0.0; 3], rot: [-1.3, 0.0, -0.1] });
-            pose.set(Head, Xform { pos: [0.0; 3], rot: [0.0, 0.2, 0.0] });
+            pose.set(
+                rsh,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [-1.3, 0.0, -0.1],
+                },
+            );
+            pose.set(
+                Head,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.0, 0.2, 0.0],
+                },
+            );
         }
         PerformanceState::Look => {
-            pose.set(Head, Xform { pos: [0.0; 3], rot: [0.0, 0.3, 0.0] });
+            pose.set(
+                Head,
+                Xform {
+                    pos: [0.0; 3],
+                    rot: [0.0, 0.3, 0.0],
+                },
+            );
         }
     }
     pose

@@ -171,7 +171,11 @@ pub fn build_default_world() -> WorldState {
         dims.insert("affection".into(), aff);
         dims.insert("suspicion".into(), susp);
         dims.insert("familiarity".into(), fam);
-        (a.to_string(), b.to_string(), Relationship { dimensions: dims })
+        (
+            a.to_string(),
+            b.to_string(),
+            Relationship { dimensions: dims },
+        )
     };
 
     let mut mara_rels = HashMap::new();
@@ -190,7 +194,10 @@ pub fn build_default_world() -> WorldState {
             role: "building superintendent".into(),
             color_hex: "#4fa3ff".into(),
             personality: vec!["exhausted".into(), "pragmatic".into(), "secretive".into()],
-            motivations: vec!["keep the building running".into(), "hide the impossible floor".into()],
+            motivations: vec![
+                "keep the building running".into(),
+                "hide the impossible floor".into(),
+            ],
             fears: vec!["inspections".into(), "the elevator being traced".into()],
             voice_id: "mara".into(),
             emotion: vec!["strained".into()],
@@ -199,9 +206,18 @@ pub fn build_default_world() -> WorldState {
             believed_facts: vec!["ellis_is_ordinary".into()],
             relationships: mara_rels,
             allowed_actions: vec![
-                "move_to".into(), "speak".into(), "inspect".into(), "conceal_object".into(),
-                "flicker_lights".into(), "sigh".into(), "gesture".into(), "open".into(),
-                "close".into(), "activate".into(), "deactivate".into(), "look_at".into(),
+                "move_to".into(),
+                "speak".into(),
+                "inspect".into(),
+                "conceal_object".into(),
+                "flicker_lights".into(),
+                "sigh".into(),
+                "gesture".into(),
+                "open".into(),
+                "close".into(),
+                "activate".into(),
+                "deactivate".into(),
+                "look_at".into(),
             ],
             preferred_speech: Some("clipped, tired, deflecting".into()),
             home_location: Some("maintenance_room".into()),
@@ -221,13 +237,21 @@ pub fn build_default_world() -> WorldState {
             voice_id: "ellis".into(),
             emotion: vec!["eager".into()],
             current_goal: Some("investigate the strange elevator".into()),
-            known_facts: vec![], 
+            known_facts: vec![],
             believed_facts: vec!["building_is_normal".into()],
             relationships: HashMap::new(),
             allowed_actions: vec![
-                "move_to".into(), "speak".into(), "inspect".into(), "knock_on".into(),
-                "pick_up".into(), "point_at".into(), "whisper".into(), "react".into(),
-                "look_at".into(), "open".into(), "enter_room".into(),
+                "move_to".into(),
+                "speak".into(),
+                "inspect".into(),
+                "knock_on".into(),
+                "pick_up".into(),
+                "point_at".into(),
+                "whisper".into(),
+                "react".into(),
+                "look_at".into(),
+                "open".into(),
+                "enter_room".into(),
             ],
             preferred_speech: Some("rapid, full of questions".into()),
             home_location: Some("apartment_3b".into()),
@@ -251,8 +275,14 @@ pub fn build_default_world() -> WorldState {
             believed_facts: vec!["all_floors_are_documented".into()],
             relationships: HashMap::new(),
             allowed_actions: vec![
-                "move_to".into(), "speak".into(), "inspect".into(), "point_at".into(),
-                "write_note".into(), "react".into(), "look_at".into(), "open".into(),
+                "move_to".into(),
+                "speak".into(),
+                "inspect".into(),
+                "point_at".into(),
+                "write_note".into(),
+                "react".into(),
+                "look_at".into(),
+                "open".into(),
                 "ring_alarm".into(),
             ],
             preferred_speech: Some("formal, citation-heavy".into()),
@@ -277,8 +307,14 @@ pub fn build_default_world() -> WorldState {
             believed_facts: vec!["mara_knows".into()],
             relationships: HashMap::new(),
             allowed_actions: vec![
-                "move_to".into(), "speak".into(), "react".into(), "look_at".into(),
-                "flicker_lights".into(), "conceal_object".into(), "pause".into(), "gesture".into(),
+                "move_to".into(),
+                "speak".into(),
+                "react".into(),
+                "look_at".into(),
+                "flicker_lights".into(),
+                "conceal_object".into(),
+                "pause".into(),
+                "gesture".into(),
             ],
             preferred_speech: Some("calm, slightly delayed".into()),
             home_location: Some("apartment_4a".into()),
@@ -299,20 +335,49 @@ pub fn build_default_world() -> WorldState {
                 .into(),
             tags: vec!["hallway".into(), "primary".into()],
             staging_marks: vec![
-                StagingMark { id: "hall_center".into(), position: [0.0, 0.0, 0.0] },
-                StagingMark { id: "elevator_door".into(), position: [3.0, 0.0, -1.0] },
-                StagingMark { id: "apt_3b_door".into(), position: [-3.0, 0.0, -1.0] },
-                StagingMark { id: "apt_4a_door".into(), position: [-5.0, 0.0, -1.0] },
-                StagingMark { id: "maintenance_panel".into(), position: [1.5, 0.0, -1.0] },
+                StagingMark {
+                    id: "hall_center".into(),
+                    position: [0.0, 0.0, 0.0],
+                },
+                StagingMark {
+                    id: "elevator_door".into(),
+                    position: [3.0, 0.0, -1.0],
+                },
+                StagingMark {
+                    id: "apt_3b_door".into(),
+                    position: [-3.0, 0.0, -1.0],
+                },
+                StagingMark {
+                    id: "apt_4a_door".into(),
+                    position: [-5.0, 0.0, -1.0],
+                },
+                StagingMark {
+                    id: "maintenance_panel".into(),
+                    position: [1.5, 0.0, -1.0],
+                },
             ],
             camera_anchors: vec![
-                CameraAnchor { id: "hall_wide".into(), position: [0.0, 3.0, 7.0], look_at: [0.0, 1.0, 0.0] },
-                CameraAnchor { id: "hall_elevator".into(), position: [3.0, 1.8, 4.0], look_at: [3.0, 1.0, -1.0] },
-                CameraAnchor { id: "hall_panel".into(), position: [1.5, 1.8, 4.0], look_at: [1.5, 1.0, -1.0] },
+                CameraAnchor {
+                    id: "hall_wide".into(),
+                    position: [0.0, 3.0, 7.0],
+                    look_at: [0.0, 1.0, 0.0],
+                },
+                CameraAnchor {
+                    id: "hall_elevator".into(),
+                    position: [3.0, 1.8, 4.0],
+                    look_at: [3.0, 1.0, -1.0],
+                },
+                CameraAnchor {
+                    id: "hall_panel".into(),
+                    position: [1.5, 1.8, 4.0],
+                    look_at: [1.5, 1.0, -1.0],
+                },
             ],
             available_interactions: vec![
-                "use_elevator".into(), "open_maintenance_panel".into(),
-                "knock_on_doors".into(), "control_hallway_lights".into(),
+                "use_elevator".into(),
+                "open_maintenance_panel".into(),
+                "knock_on_doors".into(),
+                "control_hallway_lights".into(),
             ],
             room_state: "normal".into(),
         },
@@ -331,12 +396,20 @@ pub fn build_default_world() -> WorldState {
                 description: format!("{name}, a small but opinionated room."),
                 tags: vec!["apartment".into()],
                 staging_marks: vec![
-                    StagingMark { id: format!("{id}_door"), position: [pos[0], 0.0, -1.0] },
-                    StagingMark { id: format!("{id}_center"), position: [pos[0], 0.0, pos[2] + 1.5] },
+                    StagingMark {
+                        id: format!("{id}_door"),
+                        position: [pos[0], 0.0, -1.0],
+                    },
+                    StagingMark {
+                        id: format!("{id}_center"),
+                        position: [pos[0], 0.0, pos[2] + 1.5],
+                    },
                 ],
-                camera_anchors: vec![
-                    CameraAnchor { id: format!("{id}_wide"), position: [pos[0], 2.6, pos[2] + 5.0], look_at: [pos[0], 1.0, pos[2]] },
-                ],
+                camera_anchors: vec![CameraAnchor {
+                    id: format!("{id}_wide"),
+                    position: [pos[0], 2.6, pos[2] + 5.0],
+                    look_at: [pos[0], 1.0, pos[2]],
+                }],
                 available_interactions: vec!["enter_room".into(), "inspect".into()],
                 room_state: "normal".into(),
             },
@@ -354,22 +427,130 @@ pub fn build_default_world() -> WorldState {
         home_mark: mark.into(),
         story_state: "idle".into(),
     };
-    props.insert("elevator".into(), prop("elevator", "Elevator", "floor_3_hallway", "elevator_door", vec!["ride", "open", "reach_unknown_floor"]));
-    props.insert("elevator_indicator".into(), prop("elevator_indicator", "Elevator Indicator", "floor_3_hallway", "elevator_door", vec!["display_symbol"]));
+    props.insert(
+        "elevator".into(),
+        prop(
+            "elevator",
+            "Elevator",
+            "floor_3_hallway",
+            "elevator_door",
+            vec!["ride", "open", "reach_unknown_floor"],
+        ),
+    );
+    props.insert(
+        "elevator_indicator".into(),
+        prop(
+            "elevator_indicator",
+            "Elevator Indicator",
+            "floor_3_hallway",
+            "elevator_door",
+            vec!["display_symbol"],
+        ),
+    );
     // Interaction surface props (control panel, door, frame, button) so that
     // the LLM can reference concrete targets like elevator_doors, elevator_panel,
     // maintenance_panel, etc. All are backed by real staging marks so they
     // resolve to actual world positions.
-    props.insert("elevator_doors".into(), prop("elevator_doors", "Elevator Doors", "floor_3_hallway", "elevator_door", vec!["open", "close"]));
-    props.insert("elevator_panel".into(), prop("elevator_panel", "Elevator Control Panel", "floor_3_hallway", "elevator_door", vec!["activate", "inspect"]));
-    props.insert("elevator_frame".into(), prop("elevator_frame", "Elevator Frame", "floor_3_hallway", "elevator_door", vec!["inspect"]));
-    props.insert("control_panel".into(), prop("control_panel", "Elevator Control Panel (alias)", "floor_3_hallway", "maintenance_panel", vec!["activate", "inspect"]));
-    props.insert("maintenance_panel".into(), prop("maintenance_panel", "Maintenance Panel", "floor_3_hallway", "maintenance_panel", vec!["open", "activate", "inspect"]));
-    props.insert("hallway_light".into(), prop("hallway_light", "Hallway Light", "floor_3_hallway", "hall_center", vec!["flicker"]));
-    props.insert("maintenance_override_key".into(), prop("maintenance_override_key", "Maintenance Override Key", "maintenance_room", "maintenance_room_center", vec!["conceal", "reveal"]));
-    props.insert("inspection_clipboard".into(), prop("inspection_clipboard", "Inspection Clipboard", "floor_3_hallway", "hall_center", vec!["write", "cite"]));
-    props.insert("flickering_light".into(), prop("flickering_light", "Flickering Light", "floor_3_hallway", "hall_center", vec!["flicker"]));
-    props.insert("strange_plant".into(), prop("strange_plant", "Strange Plant", "apartment_4a", "apartment_4a_center", vec!["observer", "uncanny"]));
+    props.insert(
+        "elevator_doors".into(),
+        prop(
+            "elevator_doors",
+            "Elevator Doors",
+            "floor_3_hallway",
+            "elevator_door",
+            vec!["open", "close"],
+        ),
+    );
+    props.insert(
+        "elevator_panel".into(),
+        prop(
+            "elevator_panel",
+            "Elevator Control Panel",
+            "floor_3_hallway",
+            "elevator_door",
+            vec!["activate", "inspect"],
+        ),
+    );
+    props.insert(
+        "elevator_frame".into(),
+        prop(
+            "elevator_frame",
+            "Elevator Frame",
+            "floor_3_hallway",
+            "elevator_door",
+            vec!["inspect"],
+        ),
+    );
+    props.insert(
+        "control_panel".into(),
+        prop(
+            "control_panel",
+            "Elevator Control Panel (alias)",
+            "floor_3_hallway",
+            "maintenance_panel",
+            vec!["activate", "inspect"],
+        ),
+    );
+    props.insert(
+        "maintenance_panel".into(),
+        prop(
+            "maintenance_panel",
+            "Maintenance Panel",
+            "floor_3_hallway",
+            "maintenance_panel",
+            vec!["open", "activate", "inspect"],
+        ),
+    );
+    props.insert(
+        "hallway_light".into(),
+        prop(
+            "hallway_light",
+            "Hallway Light",
+            "floor_3_hallway",
+            "hall_center",
+            vec!["flicker"],
+        ),
+    );
+    props.insert(
+        "maintenance_override_key".into(),
+        prop(
+            "maintenance_override_key",
+            "Maintenance Override Key",
+            "maintenance_room",
+            "maintenance_room_center",
+            vec!["conceal", "reveal"],
+        ),
+    );
+    props.insert(
+        "inspection_clipboard".into(),
+        prop(
+            "inspection_clipboard",
+            "Inspection Clipboard",
+            "floor_3_hallway",
+            "hall_center",
+            vec!["write", "cite"],
+        ),
+    );
+    props.insert(
+        "flickering_light".into(),
+        prop(
+            "flickering_light",
+            "Flickering Light",
+            "floor_3_hallway",
+            "hall_center",
+            vec!["flicker"],
+        ),
+    );
+    props.insert(
+        "strange_plant".into(),
+        prop(
+            "strange_plant",
+            "Strange Plant",
+            "apartment_4a",
+            "apartment_4a_center",
+            vec!["observer", "uncanny"],
+        ),
+    );
 
     // --- Story threads ---
     let mut threads = HashMap::new();
@@ -377,7 +558,8 @@ pub fn build_default_world() -> WorldState {
         "unknown_floor".into(),
         StoryThread {
             id: "unknown_floor".into(),
-            summary: "The elevator intermittently reaches a floor absent from building records.".into(),
+            summary: "The elevator intermittently reaches a floor absent from building records."
+                .into(),
             characters: vec!["mara".into(), "ellis".into(), "nox".into()],
             locations: vec!["floor_3_hallway".into()],
             importance: 0.9,
@@ -407,7 +589,9 @@ pub fn build_default_world() -> WorldState {
         "inspection".into(),
         StoryThread {
             id: "inspection".into(),
-            summary: "Inspector Voss is conducting a building inspection that could expose anomalies.".into(),
+            summary:
+                "Inspector Voss is conducting a building inspection that could expose anomalies."
+                    .into(),
             characters: vec!["voss".into(), "mara".into()],
             locations: vec!["floor_3_hallway".into()],
             importance: 0.7,

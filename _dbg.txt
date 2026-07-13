@@ -1,0 +1,113 @@
+   Compiling backlot-core v0.1.0 (C:\Projects\bevy-infinite\crates\backlot-core)
+warning: unused imports: `validate_beat_command` and `validate_plan`
+  --> crates\backlot-core\src\timeline.rs:13:25
+   |
+13 | use crate::validation::{validate_beat_command, validate_plan, ValidatedPlan};
+   |                         ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Deserialize` and `Serialize`
+  --> crates\backlot-core\src\timeline.rs:15:13
+   |
+15 | use serde::{Deserialize, Serialize};
+   |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused imports: `CameraTargetRole`, `PerformanceState`, `Pose`, and `Xform`
+  --> crates\backlot-core\src\render.rs:15:35
+   |
+15 |     character_pose, part_corners, CameraTargetRole, HumanoidRig, PerformanceState, Pose, Xform,
+   |                                   ^^^^^^^^^^^^^^^^               ^^^^^^^^^^^^^^^^  ^^^^  ^^^^^
+
+warning: unused import: `TimedEvent`
+  --> crates\backlot-core\src\render.rs:20:5
+   |
+20 |     TimedEvent,
+   |     ^^^^^^^^^^
+
+warning: unnecessary parentheses around `if` condition
+   --> crates\backlot-core\src\render.rs:763:16
+    |
+763 |             if (w0 >= -0.001 && w1 >= -0.001 && w2 >= -0.001) {
+    |                ^                                            ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+763 -             if (w0 >= -0.001 && w1 >= -0.001 && w2 >= -0.001) {
+763 +             if w0 >= -0.001 && w1 >= -0.001 && w2 >= -0.001 {
+    |
+
+warning: value assigned to `camera_shots` is never read
+   --> crates\backlot-core\src\timeline.rs:175:49
+    |
+175 |     let mut camera_shots: Vec<CameraShotSpec> = Vec::new();
+    |                                                 ^^^^^^^^^^ this value is reassigned later and never used
+...
+269 |     camera_shots = plan_shots(world, validated, &home_of, &dialogue, &inserts, clock.max(1.0));
+    |     ------------ `camera_shots` is overwritten here before the previous value is read
+    |
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> crates\backlot-core\src\director.rs:455:13
+    |
+455 |         let mut extra = shots.clone();
+    |             ----^^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `home_of`
+   --> crates\backlot-core\src\director.rs:328:5
+    |
+328 |     home_of: &HashMap<String, [f32; 3]>,
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_home_of`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `require_llm`
+    --> crates\backlot-core\src\render.rs:1523:5
+     |
+1523 |     require_llm: bool,
+     |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_require_llm`
+
+warning: field `sample_rate` is never read
+  --> crates\backlot-core\src\tts.rs:67:5
+   |
+65 | pub struct EspeakTts {
+   |            --------- field in this struct
+66 |     exe: String,
+67 |     sample_rate: u32,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: linker stdout: LINK : warning LNK4044: unrecognized option '/fuse-ld=lld'; ignored
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `backlot-core` (lib test) generated 11 warnings (run `cargo fix --lib -p backlot-core --tests` to apply 8 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.89s
+     Running unittests src\lib.rs (target\debug\deps\backlot_core-e600802c20c5284b.exe)
+
+running 1 test
+test render::review_tests::character_does_not_vanish_into_elevator ... FAILED
+
+failures:
+
+---- render::review_tests::character_does_not_vanish_into_elevator stdout ----
+DEBUG elevator mask: subj=21991 occ=43276 grd=35533 total=100800
+
+thread 'render::review_tests::character_does_not_vanish_into_elevator' (29812) panicked at crates\backlot-core\src\render.rs:2326:9:
+closed elevator must not occlude the performer (occ=0.66)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    render::review_tests::character_does_not_vanish_into_elevator
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p backlot-core --lib`

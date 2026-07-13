@@ -1,0 +1,243 @@
+{
+  "active_characters": [
+    "ellis",
+    "mara",
+    "voss"
+  ],
+  "beats": [
+    {
+      "actions": [
+        {
+          "action": "look_at",
+          "actor": "ellis",
+          "target": "elevator"
+        },
+        {
+          "action": "speak",
+          "actor": "ellis",
+          "text": "Does the elevator always hum in B-flat?"
+        },
+        {
+          "action": "speak",
+          "actor": "mara",
+          "text": "It's a plumbing issue, Ellis. Go back to 3B."
+        }
+      ],
+      "blocking": "Ellis crouched by the elevator; Mara enters from the hallway.",
+      "camera_intent": {
+        "subject": "ellis",
+        "type": "comedic_wide"
+      },
+      "camera_purpose": "establish the confrontation",
+      "completion_condition": {
+        "type": "dialogue_finished"
+      },
+      "id": "beat_1",
+      "intended_reaction": "Ellis looks startled; Mara looks annoyed.",
+      "narrative_purpose": "Hook: Ellis is caught spying on the elevator.",
+      "performance_intent": "eager, strained",
+      "target_start_second": 0.0,
+      "visible_action": "Ellis jumps back; Mara stops abruptly."
+    },
+    {
+      "actions": [
+        {
+          "action": "enter_room",
+          "actor": "voss"
+        },
+        {
+          "action": "approach",
+          "actor": "voss",
+          "target": "mara"
+        },
+        {
+          "action": "speak",
+          "actor": "voss",
+          "text": "Superintendent. I'm here for the structural audit."
+        },
+        {
+          "action": "speak",
+          "actor": "mara",
+          "text": "Mr. Voss. You're early."
+        }
+      ],
+      "blocking": "Voss enters the frame carrying a clipboard.",
+      "camera_intent": {
+        "subject": "voss",
+        "type": "tension_push"
+      },
+      "camera_purpose": "reveal the antagonist",
+      "completion_condition": {
+        "type": "dialogue_finished"
+      },
+      "id": "beat_2",
+      "intended_reaction": "Mara tenses; Voss remains stoic.",
+      "narrative_purpose": "Voss enters to create tension.",
+      "performance_intent": "bureaucratic, cold",
+      "target_start_second": 8.0,
+      "visible_action": "Voss approaches Mara; Ellis retreats behind a pillar."
+    },
+    {
+      "actions": [
+        {
+          "action": "approach",
+          "actor": "ellis",
+          "target": "elevator"
+        },
+        {
+          "action": "point_at",
+          "actor": "voss",
+          "target": "ellis"
+        },
+        {
+          "action": "speak",
+          "actor": "voss",
+          "text": "And who is this unauthorized observer?"
+        },
+        {
+          "action": "speak",
+          "actor": "ellis",
+          "text": "Just... checking the lightbulb!"
+        }
+      ],
+      "blocking": "Ellis moves toward the elevator; Voss turns to face him.",
+      "camera_intent": {
+        "reaction_subject": "ellis",
+        "subject": "voss",
+        "type": "over_the_shoulder"
+      },
+      "camera_purpose": "focus on the intruder",
+      "completion_condition": {
+        "type": "dialogue_finished"
+      },
+      "id": "beat_3",
+      "intended_reaction": "Ellis looks guilty; Voss looks suspicious.",
+      "narrative_purpose": "Ellis tries to sneak past them.",
+      "performance_intent": "sneaky, suspicious",
+      "target_start_second": 16.0,
+      "visible_action": "Ellis freezes; Voss points at him."
+    },
+    {
+      "actions": [
+        {
+          "action": "flicker_lights",
+          "actor": "mara"
+        },
+        {
+          "action": "speak",
+          "actor": "mara",
+          "text": "Not now. Please, not now."
+        },
+        {
+          "action": "inspect",
+          "actor": "voss",
+          "target": "elevator"
+        },
+        {
+          "action": "speak",
+          "actor": "voss",
+          "text": "The floor indicator is displaying non-standard glyphs."
+        }
+      ],
+      "blocking": "The elevator doors open; the lights flicker.",
+      "camera_intent": {
+        "subject": "elevator",
+        "type": "insert_object"
+      },
+      "camera_purpose": "highlight the anomaly",
+      "completion_condition": {
+        "type": "event_done"
+      },
+      "id": "beat_4",
+      "intended_reaction": "Voss leans in; Ellis stares in awe.",
+      "narrative_purpose": "The elevator malfunctions/reaches unknown floor.",
+      "performance_intent": "chaotic, alarming",
+      "target_start_second": 25.0,
+      "visible_action": "The elevator indicator changes to '??'; Mara gasps."
+    },
+    {
+      "actions": [
+        {
+          "action": "flee_to",
+          "actor": "ellis",
+          "target": "elevator"
+        },
+        {
+          "action": "speak",
+          "actor": "mara",
+          "text": "Get back! It's not safe!"
+        },
+        {
+          "action": "shout",
+          "actor": "ellis",
+          "text": "It's calling my name!"
+        },
+        {
+          "action": "speak",
+          "actor": "voss",
+          "text": "This is a major code violation!"
+        }
+      ],
+      "blocking": "The elevator doors pull open wide; Ellis is sucked toward it.",
+      "camera_intent": {
+        "subject": "ellis",
+        "type": "comedic_wide"
+      },
+      "camera_purpose": "capture the physical chaos",
+      "completion_condition": {
+        "type": "dialogue_finished"
+      },
+      "id": "beat_5",
+      "intended_reaction": "Ellis panics; Mara struggles.",
+      "narrative_purpose": "Escalation: The elevator pulls them in.",
+      "performance_intent": "panicked, desperate",
+      "target_start_second": 35.0,
+      "visible_action": "Ellis stumbles toward the door; Mara grabs his arm."
+    },
+    {
+      "actions": [
+        {
+          "action": "close_elevator",
+          "actor": "mara"
+        },
+        {
+          "action": "speak",
+          "actor": "voss",
+          "text": "I'll need to see the maintenance logs for this."
+        },
+        {
+          "action": "sigh",
+          "actor": "voss"
+        }
+      ],
+      "blocking": "The elevator doors close; the hallway goes quiet.",
+      "camera_intent": {
+        "subject": "voss",
+        "type": "cliffhanger_hold"
+      },
+      "camera_purpose": "final comedic beat",
+      "completion_condition": {
+        "type": "event_done"
+      },
+      "id": "beat_6",
+      "intended_reaction": "Voss looks confused; Mara is gone.",
+      "narrative_purpose": "Payoff: The elevator doors slam shut on the inspector.",
+      "performance_intent": "deadpan",
+      "target_start_second": 44.0,
+      "visible_action": "The doors slam shut; Voss is left standing alone."
+    }
+  ],
+  "central_goal": {
+    "character": "ellis",
+    "goal": "investigate the strange elevator"
+  },
+  "episode_title": "The Zero-Floor Glitch",
+  "logline": "Ellis tries to sneak into the elevator just as Voss begins an inspection and the elevator hits a non-existent floor.",
+  "payoff": "The elevator doors slam shut, leaving a very confused Inspector Voss alone in the hallway.",
+  "primary_location": "floor_3_hallway",
+  "target_duration_seconds": 50.0,
+  "tone": [
+    "surreal",
+    "comedy"
+  ]
+}

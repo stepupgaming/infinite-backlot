@@ -1,0 +1,358 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "AuthoredAction": {
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "duration_override": {
+          "default": null,
+          "description": "Override the default estimated duration (seconds).",
+          "format": "float",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "intensity": {
+          "default": null,
+          "format": "float",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "performance_intent": {
+          "default": null,
+          "description": "Playable acting direction for this action, such as \"restrained\" or \"startled\". It remains optional so cached authored episodes replay.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "default": null,
+          "description": "Required for `speak` and similar performance actions.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "actor"
+      ],
+      "type": "object"
+    },
+    "AuthoredBeat": {
+      "properties": {
+        "actions": {
+          "items": {
+            "$ref": "#/definitions/AuthoredAction"
+          },
+          "type": "array"
+        },
+        "blocking": {
+          "default": null,
+          "description": "Short staging/blocking description so the runtime can preserve what the beat is supposed to look like even when the action list stays lean.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "camera_intent": {
+          "$ref": "#/definitions/AuthoredCameraIntent"
+        },
+        "camera_purpose": {
+          "default": null,
+          "description": "Why this camera setup exists (speaker, reaction, prop, payoff, etc.).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "completion_condition": {
+          "$ref": "#/definitions/AuthoredCompletion"
+        },
+        "expected_state_changes": {
+          "default": [],
+          "items": {
+            "$ref": "#/definitions/ExpectedStateChange"
+          },
+          "type": "array"
+        },
+        "fallback": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "description": "The ONLY beat identifier. Internal `beat_id` is derived from this.",
+          "type": "string"
+        },
+        "intended_reaction": {
+          "default": null,
+          "description": "The important reaction to catch during or after the beat.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "narrative_purpose": {
+          "description": "Narrative purpose / dramatic function of the beat (free text).",
+          "type": "string"
+        },
+        "notes": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "performance_intent": {
+          "default": null,
+          "description": "Playable acting direction for the beat as a whole.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target_start_second": {
+          "description": "Approximate start time (seconds). Used only as an ordering hint; the adaptation phase re-derives a strictly increasing timeline.",
+          "format": "float",
+          "type": "number"
+        },
+        "visible_action": {
+          "default": null,
+          "description": "The most important on-screen business for this beat.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "actions",
+        "camera_intent",
+        "completion_condition",
+        "id",
+        "narrative_purpose",
+        "target_start_second"
+      ],
+      "type": "object"
+    },
+    "AuthoredCameraIntent": {
+      "properties": {
+        "reaction_subject": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subject": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject",
+        "type"
+      ],
+      "type": "object"
+    },
+    "AuthoredCompletion": {
+      "properties": {
+        "actor": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "seconds": {
+          "default": null,
+          "format": "float",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "CentralGoal": {
+      "properties": {
+        "character": {
+          "type": "string"
+        },
+        "goal": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "character",
+        "goal"
+      ],
+      "type": "object"
+    },
+    "ExpectedStateChange": {
+      "properties": {
+        "amount": {
+          "default": null,
+          "format": "float",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "field": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "value": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "field",
+        "operation",
+        "target"
+      ],
+      "type": "object"
+    },
+    "PersistentChange": {
+      "properties": {
+        "amount": {
+          "default": null,
+          "format": "float",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "field": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "operation": {
+          "description": "add_fact | remove_fact | add_belief | change_relationship | resolve_thread | create_thread | change_location_condition ...",
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "value": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation",
+        "target"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "active_characters": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "beats": {
+      "items": {
+        "$ref": "#/definitions/AuthoredBeat"
+      },
+      "type": "array"
+    },
+    "central_goal": {
+      "$ref": "#/definitions/CentralGoal"
+    },
+    "episode_title": {
+      "type": "string"
+    },
+    "logline": {
+      "type": "string"
+    },
+    "notes": {
+      "default": null,
+      "description": "Free-form reasoning notes (allowed prose).",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "payoff": {
+      "type": "string"
+    },
+    "persistent_changes": {
+      "default": [],
+      "items": {
+        "$ref": "#/definitions/PersistentChange"
+      },
+      "type": "array"
+    },
+    "primary_location": {
+      "type": "string"
+    },
+    "target_duration_seconds": {
+      "format": "float",
+      "type": "number"
+    },
+    "tone": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "active_characters",
+    "beats",
+    "central_goal",
+    "episode_title",
+    "logline",
+    "payoff",
+    "primary_location",
+    "target_duration_seconds"
+  ],
+  "title": "AuthoredEpisode",
+  "type": "object"
+}

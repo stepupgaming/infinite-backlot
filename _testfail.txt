@@ -1,0 +1,30 @@
+test render::review_tests::build_ass_subtitles_is_valid_and_per_caption ... FAILED
+test render::review_tests::clip_near_rejects_geometry_behind_camera ... ok
+test render::review_tests::escape_ass_reserves_backslash_comma_newline ... FAILED
+test render::review_tests::frame_motion_detects_change_and_identity ... ok
+test render::review_tests::shot_legibility_rejects_bad_framing ... ok
+test render::review_tests::rig_articulation_states_differ ... FAILED
+test render::review_tests::rig_hierarchy_head_above_feet_and_connected ... FAILED
+test render::review_tests::locomotion_translates_character_root ... ok
+test render::review_tests::elevator_open_changes_geometry ... FAILED
+test render::review_tests::renderer_pipeline_no_nan_no_spikes ... ok
+test render::review_tests::character_does_not_vanish_into_elevator ... FAILED
+test render::review_tests::review_detects_articulation_on_talking_character ... ok
+
+failures:
+
+---- render::review_tests::build_ass_subtitles_is_valid_and_per_caption stdout ----
+
+thread 'render::review_tests::build_ass_subtitles_is_valid_and_per_caption' (43664) panicked at crates\backlot-core\src\render.rs:2171:9:
+assertion failed: !ass.contains("elevator's feeling warm")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- render::review_tests::escape_ass_reserves_backslash_comma_newline stdout ----
+
+thread 'render::review_tests::escape_ass_reserves_backslash_comma_newline' (16208) panicked at crates\backlot-core\src\render.rs:2152:9:
+assertion `left == right` failed
+  left: "line1 line2"
+--
+test result: FAILED. 9 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+error: test failed, to rerun pass `-p backlot-core --lib`

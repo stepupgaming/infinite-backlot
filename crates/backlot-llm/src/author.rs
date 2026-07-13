@@ -13,24 +13,22 @@
 //! action is ever invented locally, and `require_llm` makes any failure fatal so
 //! a fallback episode is never mislabeled as LLM-authored.
 
+use backlot_core::author::DeterministicAuthor;
 use backlot_core::author::{
     AuthorSource, BeatAuthorship, EpisodeAuthor, PlanAuthorship, PlannedEpisode,
 };
-use backlot_core::author::DeterministicAuthor;
 use backlot_core::config::{Config, DirectorConfig, TtsConfig};
 use backlot_core::director::{DeterministicDirector, Director, DirectorContext};
 use backlot_core::error::{CoreError, Result};
-use backlot_core::protocol::{
-    AuthoredEpisode, KNOWN_ACTIONS, KNOWN_CAMERA_INTENTS, WorldDigest,
-};
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
-use serde::Serialize;
+use backlot_core::protocol::{AuthoredEpisode, WorldDigest, KNOWN_ACTIONS, KNOWN_CAMERA_INTENTS};
 use backlot_core::schema::authored_episode_schema;
 use backlot_core::validation::{
     adapt_authored_episode, estimate_action_duration, validate_beat_command, validate_plan,
 };
 use backlot_core::world::WorldState;
+use serde::Serialize;
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use crate::client::{CapturedResponse, LlmClient, LlmMetrics};
@@ -181,7 +179,8 @@ impl LlmAuthor {
         let mut a = Self::new(config, director)?;
         a.diagnostic = true;
         a.capture_dir = Some(capture_dir.clone());
-        a.client.set_trace_path(capture_dir.join("authoring_trace.jsonl"));
+        a.client
+            .set_trace_path(capture_dir.join("authoring_trace.jsonl"));
         Ok(a)
     }
 
@@ -199,13 +198,27 @@ impl LlmAuthor {
     }
 
     /// Diagnostic accessors for the static server/model configuration.
-    pub fn config_base_url(&self) -> &str { self.client.config_base_url() }
-    pub fn config_temperature(&self) -> f32 { self.client.config_temperature() }
-    pub fn config_max_tokens(&self) -> u32 { self.client.config_max_tokens() }
-    pub fn config_timeout(&self) -> f32 { self.client.config_timeout() }
-    pub fn config_llm_max_retries(&self) -> u32 { self.client.config_llm_max_retries() }
-    pub fn config_stream(&self) -> bool { self.client.config_stream() }
-    pub fn model_name(&self) -> &str { self.client.model_name() }
+    pub fn config_base_url(&self) -> &str {
+        self.client.config_base_url()
+    }
+    pub fn config_temperature(&self) -> f32 {
+        self.client.config_temperature()
+    }
+    pub fn config_max_tokens(&self) -> u32 {
+        self.client.config_max_tokens()
+    }
+    pub fn config_timeout(&self) -> f32 {
+        self.client.config_timeout()
+    }
+    pub fn config_llm_max_retries(&self) -> u32 {
+        self.client.config_llm_max_retries()
+    }
+    pub fn config_stream(&self) -> bool {
+        self.client.config_stream()
+    }
+    pub fn model_name(&self) -> &str {
+        self.client.model_name()
+    }
 
     pub fn health(&self) -> Result<bool> {
         self.runtime.block_on(self.client.health_check())
@@ -255,8 +268,13 @@ impl LlmAuthor {
             if let Some(out) = self.load_reused(ctx, path) {
                 return Ok(out);
             }
-            // If the cached episode is unusable (stale / out of range / invalid)
-            // we fall through to fresh authoring rather than silently failing.
+            // A requested replay must never silently become a new model call.
+            // That would invalidate the zero-call replay proof and overwrite the
+            // cached artifact with different authored content.
+            return Err(CoreError::Llm(format!(
+                "reused episode at '{}' is missing, invalid, or outside 45-60s; refusing a fresh LLM call",
+                path.display()
+            )));
         }
 
         let digest = WorldDigest::for_episode(
@@ -296,7 +314,11 @@ impl LlmAuthor {
                 &system,
                 &user1,
                 c,
-                if accepted1 { "ok" } else { "duration_out_of_range" },
+                if accepted1 {
+                    "ok"
+                } else {
+                    "duration_out_of_range"
+                },
                 accepted1,
                 false,
                 Some(secs1),
@@ -304,8 +326,7 @@ impl LlmAuthor {
             );
         }
         if accepted1 {
-            let (planned, auth) =
-                self.build_authorship(plan_cmds1, &before, false, None, None);
+            let (planned, auth) = self.build_authorship(plan_cmds1, &before, false, None, None);
             return Ok((planned, auth, Some(authored1)));
         }
 
@@ -314,7 +335,14 @@ impl LlmAuthor {
             direction_aware_feedback(&plan_cmds1.0, &plan_cmds1.1, duration, secs1);
         let accepted_json = serde_json::to_string_pretty(&authored1).unwrap_or_default();
         let (authored2, cap2, user2) = match self
-            .request_whole_episode(ctx, &digest, &system, &schema, Some(&feedback), Some(&accepted_json))
+            .request_whole_episode(
+                ctx,
+                &digest,
+                &system,
+                &schema,
+                Some(&feedback),
+                Some(&accepted_json),
+            )
             .await
         {
             Ok(v) => v,
@@ -339,7 +367,11 @@ impl LlmAuthor {
                 &system,
                 &user2,
                 c,
-                if accepted2 { "ok" } else { "duration_out_of_range" },
+                if accepted2 {
+                    "ok"
+                } else {
+                    "duration_out_of_range"
+                },
                 accepted2,
                 true,
                 Some(secs2),
@@ -348,8 +380,7 @@ impl LlmAuthor {
         }
         if accepted2 {
             let dir_label = Some(direction.as_str());
-            let (planned, auth) =
-                self.build_authorship(plan_cmds2, &before, true, dir_label, None);
+            let (planned, auth) = self.build_authorship(plan_cmds2, &before, true, dir_label, None);
             return Ok((planned, auth, Some(authored2)));
         }
 
@@ -360,8 +391,7 @@ impl LlmAuthor {
             )));
         }
         tracing::warn!("LLM authoring out of range after repair; using fallback");
-        self.fallback_plan(ctx)
-            .map(|(p, a)| (p, a, None))
+        self.fallback_plan(ctx).map(|(p, a)| (p, a, None))
     }
 
     /// Replay a previously authored + validated episode with no new LLM calls.
@@ -410,7 +440,8 @@ impl LlmAuthor {
         let mut last_error: Option<String> = None;
         for attempt in 0..=self.max_repairs {
             let correction = last_error.as_deref();
-            let user = whole_episode_user_prompt(ctx, digest, repair_feedback, accepted_json, correction);
+            let user =
+                whole_episode_user_prompt(ctx, digest, repair_feedback, accepted_json, correction);
             let (content, cap): (String, Option<CapturedResponse>) = if self.diagnostic {
                 let purpose = if repair_feedback.is_some() {
                     "whole-episode-repair"
@@ -419,13 +450,26 @@ impl LlmAuthor {
                 };
                 let (c, cap) = self
                     .client
-                    .chat_structured_capture(system, &user, "AuthoredEpisode", schema_json, self.max_repairs, purpose)
+                    .chat_structured_capture(
+                        system,
+                        &user,
+                        "AuthoredEpisode",
+                        schema_json,
+                        self.max_repairs,
+                        purpose,
+                    )
                     .await?;
                 (c, Some(cap))
             } else {
                 (
                     self.client
-                        .chat_structured(system, &user, "AuthoredEpisode", schema_json, self.max_repairs)
+                        .chat_structured(
+                            system,
+                            &user,
+                            "AuthoredEpisode",
+                            schema_json,
+                            self.max_repairs,
+                        )
                         .await?,
                     None,
                 )
@@ -467,9 +511,15 @@ impl LlmAuthor {
         &self,
         world: &WorldState,
         ep: &AuthoredEpisode,
-    ) -> std::result::Result<(EpisodePlanOwned, HashMap<String, backlot_core::protocol::BeatCommand>), String> {
-        let (plan, commands) = adapt_authored_episode(ep, world)
-            .map_err(|errs| format_validation(errs))?;
+    ) -> std::result::Result<
+        (
+            EpisodePlanOwned,
+            HashMap<String, backlot_core::protocol::BeatCommand>,
+        ),
+        String,
+    > {
+        let (plan, commands) =
+            adapt_authored_episode(ep, world).map_err(|errs| format_validation(errs))?;
         validate_plan(world, &plan).map_err(|errs| format_validation(errs))?;
         for cmd in commands.values() {
             validate_beat_command(world, &plan, cmd).map_err(|errs| format_validation(errs))?;
@@ -479,25 +529,33 @@ impl LlmAuthor {
 
     fn build_authorship(
         &self,
-        plan_cmds: (EpisodePlanOwned, HashMap<String, backlot_core::protocol::BeatCommand>),
+        plan_cmds: (
+            EpisodePlanOwned,
+            HashMap<String, backlot_core::protocol::BeatCommand>,
+        ),
         before: &LlmMetrics,
         repaired: bool,
         direction: Option<&str>,
         model_override: Option<&str>,
     ) -> (PlannedEpisode, PlanAuthorship) {
         let after = self.delta(before);
-        let model = model_override.unwrap_or_else(|| self.client.model_name()).to_string();
-        let status = if repaired {
+        let model = model_override
+            .unwrap_or_else(|| self.client.model_name())
+            .to_string();
+        let status = if direction == Some("reused") {
+            "reused"
+        } else if repaired {
             match direction {
                 Some("lengthen") => "duration_repaired_lengthen",
                 Some("shorten") => "duration_repaired_shorten",
-                Some("reused") => "reused",
                 _ => "duration_repaired",
             }
         } else {
             "ok"
         };
-        let beat_status = if repaired && direction != Some("reused") {
+        let beat_status = if direction == Some("reused") {
+            "reused"
+        } else if repaired {
             "duration_repaired"
         } else {
             "ok"
@@ -524,7 +582,13 @@ impl LlmAuthor {
             validation_status: status.into(),
             beats,
         };
-        (PlannedEpisode { plan: plan_cmds.0, commands: plan_cmds.1 }, auth)
+        (
+            PlannedEpisode {
+                plan: plan_cmds.0,
+                commands: plan_cmds.1,
+            },
+            auth,
+        )
     }
 
     fn author_failed(
@@ -561,7 +625,13 @@ impl LlmAuthor {
         plan: &EpisodePlanOwned,
         commands: &HashMap<String, backlot_core::protocol::BeatCommand>,
     ) -> f32 {
-        match backlot_core::render::measure_runtime(world, plan, commands, &self.tts, self.max_dead_air) {
+        match backlot_core::render::measure_runtime(
+            world,
+            plan,
+            commands,
+            &self.tts,
+            self.max_dead_air,
+        ) {
             Ok(s) => s,
             Err(_) => estimate_whole_episode(plan, commands),
         }
@@ -603,8 +673,16 @@ impl LlmAuthor {
         drop(log);
 
         // Logical trace line (single per structured call).
-        let prompt_tokens = cap.usage.as_ref().and_then(|u| u.get("prompt_tokens").and_then(|v| v.as_u64())).unwrap_or(0);
-        let completion_tokens = cap.usage.as_ref().and_then(|u| u.get("completion_tokens").and_then(|v| v.as_u64())).unwrap_or(0);
+        let prompt_tokens = cap
+            .usage
+            .as_ref()
+            .and_then(|u| u.get("prompt_tokens").and_then(|v| v.as_u64()))
+            .unwrap_or(0);
+        let completion_tokens = cap
+            .usage
+            .as_ref()
+            .and_then(|u| u.get("completion_tokens").and_then(|v| v.as_u64()))
+            .unwrap_or(0);
         self.client.append_trace_event(serde_json::json!({
             "seq": idx + 1,
             "purpose": purpose,
@@ -620,7 +698,12 @@ impl LlmAuthor {
 
         if let Some(dir) = &self.capture_dir {
             let safe = purpose.replace(':', "_");
-            let tag = format!("{:02}_{}_{}", idx + 1, safe, if accepted { "ok" } else { "rej" });
+            let tag = format!(
+                "{:02}_{}_{}",
+                idx + 1,
+                safe,
+                if accepted { "ok" } else { "rej" }
+            );
             write_json_file(
                 &dir.join(format!("{tag}_request.json")),
                 &serde_json::json!({"system": system, "user": user}),
@@ -647,7 +730,12 @@ impl LlmAuthor {
         std::fs::create_dir_all(out_dir).ok();
         let diag_result = self.author_async_inner(ctx).await;
         let (plan_opt, cmds_opt, authored_opt, err_opt) = match &diag_result {
-            Ok((planned, _auth, ep)) => (Some(&planned.plan), Some(&planned.commands), ep.clone(), None),
+            Ok((planned, _auth, ep)) => (
+                Some(&planned.plan),
+                Some(&planned.commands),
+                ep.clone(),
+                None,
+            ),
             Err(e) => (None, None, None, Some(e.to_string())),
         };
 
@@ -664,26 +752,50 @@ impl LlmAuthor {
             &serde_json::to_value(&caps).unwrap_or(serde_json::Value::Null),
         );
         if let (Some(plan), Some(cmds)) = (plan_opt, cmds_opt) {
-            write_json_file(&out_dir.join("final_plan.json"), &serde_json::to_value(plan).unwrap_or(serde_json::Value::Null));
-            write_json_file(&out_dir.join("final_commands.json"), &serde_json::to_value(cmds).unwrap_or(serde_json::Value::Null));
+            write_json_file(
+                &out_dir.join("final_plan.json"),
+                &serde_json::to_value(plan).unwrap_or(serde_json::Value::Null),
+            );
+            write_json_file(
+                &out_dir.join("final_commands.json"),
+                &serde_json::to_value(cmds).unwrap_or(serde_json::Value::Null),
+            );
         }
         if let Some(ep) = &authored_opt {
-            write_json_file(&out_dir.join("final_authored_episode.json"), &serde_json::to_value(ep).unwrap_or(serde_json::Value::Null));
+            write_json_file(
+                &out_dir.join("final_authored_episode.json"),
+                &serde_json::to_value(ep).unwrap_or(serde_json::Value::Null),
+            );
             // Cache the validated episode so production can replay it with zero
             // new LLM calls.
             if let Some(d) = &self.capture_dir {
-                let _ = write_json_file(&d.join("last_authored_episode.json"), &serde_json::to_value(ep).unwrap_or(serde_json::Value::Null));
+                let _ = write_json_file(
+                    &d.join("last_authored_episode.json"),
+                    &serde_json::to_value(ep).unwrap_or(serde_json::Value::Null),
+                );
             }
-            let _ = std::fs::write(REUSE_CACHE_PATH, serde_json::to_string_pretty(ep).unwrap_or_default());
+            let _ = std::fs::write(
+                REUSE_CACHE_PATH,
+                serde_json::to_string_pretty(ep).unwrap_or_default(),
+            );
         }
 
         let duration = if let (Some(plan), Some(cmds)) = (plan_opt, cmds_opt) {
-            backlot_core::render::measure_runtime(&ctx.world, plan, cmds, &self.tts, self.max_dead_air).ok()
+            backlot_core::render::measure_runtime(
+                &ctx.world,
+                plan,
+                cmds,
+                &self.tts,
+                self.max_dead_air,
+            )
+            .ok()
         } else {
             None
         };
         let duration_status = match duration {
-            Some(d) => DurationPolicy::for_request(ctx.target_duration).status_for(d).to_string(),
+            Some(d) => DurationPolicy::for_request(ctx.target_duration)
+                .status_for(d)
+                .to_string(),
             None => "n/a".into(),
         };
         let breakdown = duration_breakdown(plan_opt, cmds_opt);
@@ -708,8 +820,13 @@ impl LlmAuthor {
         };
         let prompt_tokens: u64 = wire.iter().map(|w| w.prompt_tokens as u64).sum();
         let completion_tokens: u64 = wire.iter().map(|w| w.completion_tokens as u64).sum();
-        let finish_reasons: Vec<String> = wire.iter().filter_map(|w| w.finish_reason.clone()).collect();
-        let any_length = wire.iter().any(|w| w.finish_reason.as_deref() == Some("length"));
+        let finish_reasons: Vec<String> = wire
+            .iter()
+            .filter_map(|w| w.finish_reason.clone())
+            .collect();
+        let any_length = wire
+            .iter()
+            .any(|w| w.finish_reason.as_deref() == Some("length"));
         let produced = plan_opt.is_some();
         let plan_title = plan_opt.map(|p| p.episode_title.clone());
         let beat_count = plan_opt.map(|p| p.beats.len()).unwrap_or(0);
@@ -772,7 +889,10 @@ fn write_json_file(path: &Path, v: &serde_json::Value) {
     if let Some(parent) = path.parent() {
         let _ = std::fs::create_dir_all(parent);
     }
-    let _ = std::fs::write(path, serde_json::to_string_pretty(v).unwrap_or_else(|_| "null".into()));
+    let _ = std::fs::write(
+        path,
+        serde_json::to_string_pretty(v).unwrap_or_else(|_| "null".into()),
+    );
 }
 
 /// Combine validation errors into one readable string.
@@ -809,7 +929,10 @@ fn estimate_whole_episode(
 }
 
 /// Rough spoken-vs-action breakdown for the diagnostic duration section.
-fn duration_breakdown(plan: Option<&EpisodePlanOwned>, cmds: Option<&HashMap<String, backlot_core::protocol::BeatCommand>>) -> serde_json::Value {
+fn duration_breakdown(
+    plan: Option<&EpisodePlanOwned>,
+    cmds: Option<&HashMap<String, backlot_core::protocol::BeatCommand>>,
+) -> serde_json::Value {
     if let (Some(plan), Some(cmds)) = (plan, cmds) {
         let mut spoken_lines = 0u32;
         let mut spoken_chars = 0u32;
@@ -822,7 +945,9 @@ fn duration_breakdown(plan: Option<&EpisodePlanOwned>, cmds: Option<&HashMap<Str
                         spoken_chars += t.chars().count() as u32;
                     }
                 }
-                action_secs += a.duration_override.unwrap_or_else(|| estimate_action_duration(&a.action, a.text.as_deref()));
+                action_secs += a
+                    .duration_override
+                    .unwrap_or_else(|| estimate_action_duration(&a.action, a.text.as_deref()));
             }
         }
         let spoken_secs_est = spoken_chars as f32 * 0.055 + spoken_lines as f32 * 0.3;
@@ -896,7 +1021,9 @@ fn build_packet_markdown(
     // ---- 3. Rendered prompts ----
     s.push_str("## 3. Fully rendered real prompts\n\n");
     s.push_str("Saved as separate UTF-8 files in this directory:\n\n");
-    s.push_str("- `NN_whole-episode_*_request.json` — initial whole-episode request (system + user).\n");
+    s.push_str(
+        "- `NN_whole-episode_*_request.json` — initial whole-episode request (system + user).\n",
+    );
     s.push_str("- `NN_whole-episode-repair_*_request.json` — direction-aware repair request (stage `duration-repair`).\n\n");
     s.push_str("Each request file contains the exact `system` and `user` messages sent (no secrets; the API key is empty).\n\n");
 
@@ -906,14 +1033,22 @@ fn build_packet_markdown(
     if caps.is_empty() {
         s.push_str("_No captured calls (diagnostic capture path not engaged)._\n\n");
     } else {
-        s.push_str(&format!("_Logical calls captured: {}. (wire calls: {})_\n\n", caps.len(), total_wire));
+        s.push_str(&format!(
+            "_Logical calls captured: {}. (wire calls: {})_\n\n",
+            caps.len(),
+            total_wire
+        ));
         for c in caps.iter() {
             s.push_str(&format!(
                 "- `{}` [{}] accepted={} validation={} measured={:?}s direction={:?}\n",
                 c.purpose,
                 c.stage,
                 c.accepted,
-                if c.validation.len() > 80 { format!("{}…", &c.validation[..80]) } else { c.validation.clone() },
+                if c.validation.len() > 80 {
+                    format!("{}…", &c.validation[..80])
+                } else {
+                    c.validation.clone()
+                },
                 c.measured_duration,
                 c.repair_direction,
             ));
@@ -932,7 +1067,14 @@ fn build_packet_markdown(
     for w in wire.iter() {
         s.push_str(&format!(
             "| {} | {} | {} | {:.1} | {} | {} | {:?} | {} |\n",
-            w.seq, w.purpose, w.format, w.wall_ms as f32 / 1000.0, w.prompt_tokens, w.completion_tokens, w.finish_reason, w.ok
+            w.seq,
+            w.purpose,
+            w.format,
+            w.wall_ms as f32 / 1000.0,
+            w.prompt_tokens,
+            w.completion_tokens,
+            w.finish_reason,
+            w.ok
         ));
     }
     for c in caps.iter() {
@@ -940,8 +1082,16 @@ fn build_packet_markdown(
             "| {} | {} (logical) | - | - | {} | {} | {:?} | {} |\n",
             c.call_index + 1,
             c.purpose,
-            c.response.usage.as_ref().and_then(|u| u.get("prompt_tokens").and_then(|v| v.as_u64())).unwrap_or(0),
-            c.response.usage.as_ref().and_then(|u| u.get("completion_tokens").and_then(|v| v.as_u64())).unwrap_or(0),
+            c.response
+                .usage
+                .as_ref()
+                .and_then(|u| u.get("prompt_tokens").and_then(|v| v.as_u64()))
+                .unwrap_or(0),
+            c.response
+                .usage
+                .as_ref()
+                .and_then(|u| u.get("completion_tokens").and_then(|v| v.as_u64()))
+                .unwrap_or(0),
             c.response.finish_reason,
             c.accepted,
         ));
@@ -965,7 +1115,10 @@ fn build_packet_markdown(
     } else {
         let ok = caps.iter().filter(|c| c.accepted).count();
         let rej = caps.len() - ok;
-        s.push_str(&format!("- accepted logical calls: {}\n- rejected (schema repair triggered): {}\n", ok, rej));
+        s.push_str(&format!(
+            "- accepted logical calls: {}\n- rejected (schema repair triggered): {}\n",
+            ok, rej
+        ));
         s.push_str("\n");
     }
 
@@ -1033,19 +1186,37 @@ fn build_packet_markdown(
         "- **Calls consuming the most time:** ONE initial whole-episode call (at most 1+`max_repairs` wire calls) and at most ONE direction-aware repair call. Worst case wire calls ≈ 2 × (1 + `max_repairs`) = {} (vs 28 before).\n",
         2 * (1 + a.max_repairs as usize)
     ));
-    let any_reason = caps.iter().any(|c| c.response.reasoning_content.as_ref().map(|r| !r.is_empty()).unwrap_or(false));
+    let any_reason = caps.iter().any(|c| {
+        c.response
+            .reasoning_content
+            .as_ref()
+            .map(|r| !r.is_empty())
+            .unwrap_or(false)
+    });
     s.push_str(&format!(
         "- **Excessive reasoning?** reasoning_content present in {} of {} captured calls{}.\n",
-        caps.iter().filter(|c| c.response.reasoning_content.as_ref().map(|r| !r.is_empty()).unwrap_or(false)).count(),
+        caps.iter()
+            .filter(|c| c
+                .response
+                .reasoning_content
+                .as_ref()
+                .map(|r| !r.is_empty())
+                .unwrap_or(false))
+            .count(),
         caps.len(),
         if any_reason { "" } else { " — none observed" }
     ));
     s.push_str("- **Schema constrains vocabulary now?** Yes — `action`/`camera_intent.type`/`completion_condition.type` are real JSON Schema `enum`s, so out-of-vocab tokens are blocked at the schema level (Rust validation still the final authority).\n");
-    s.push_str("- **Per-beat calls?** Eliminated. All beats arrive in one `AuthoredEpisode` response.\n");
+    s.push_str(
+        "- **Per-beat calls?** Eliminated. All beats arrive in one `AuthoredEpisode` response.\n",
+    );
     s.push_str("- **Duration repair = targeted edit or restart?** Targeted, direction-aware whole-episode revision that includes the accepted episode JSON. Never a blind restart, never \"add more\" when too long.\n");
     s.push_str("- **One whole-episode call feasible?** Yes — proven by this run (see §4/§5).\n\n");
     if let Some(e) = err {
-        s.push_str(&format!("**Authoring error (require_llm mode):** `{}`\n\n", e));
+        s.push_str(&format!(
+            "**Authoring error (require_llm mode):** `{}`\n\n",
+            e
+        ));
     }
     s.push_str(&format!(
         "**Outcome:** produced complete valid episode = {}. Estimated duration = {}. Single biggest fix applied: collapsed 7+ calls into 1–2 and replaced the direction-blind duration repair (which caused the 83.3s overrun) with a direction-aware one.\n",
@@ -1188,9 +1359,9 @@ fn whole_episode_user_prompt(
          Every beat MUST include a concrete blocking description, one readable visible action, an intended reaction, camera purpose, and performance intent. Use actual staging marks, props, the elevator, panel, indicator, doors, or another valid entity as targets whenever the beat needs physical business.\n\n",
     );
     p.push_str(
-        "DURATION (the only hard runtime constraint): the rendered episode must run 45-60 seconds, measured from REAL spoken dialogue plus action timing. Build that time from concise dialogue AND visible business; do not solve duration with monologues.\n\
+        "DURATION (the only hard runtime constraint): the rendered episode must run 45-60 seconds, measured from REAL spoken dialogue plus action timing. Build that time from dialogue AND visible business; no padding, no silence.\n\
          - Use exactly 6 beats.\n\
-         - Include 14-18 spoken lines total (roughly 2-3 short exchanges per beat), so dialogue fills 35-45 seconds, the rest visible actions/reactions/transitions. At least 14 lines required.\n\
+         - Include EXACTLY 14-20 spoken lines (count every speak/shout/whisper action). Each line must have 8-16 words (no one-word lines). Dialogue fills 35-50 seconds; the rest is actions/reactions/transitions. At least 14 lines required; 10 or fewer will be rejected.\n\
          - Every beat needs at least one non-speech action. Across the episode include a staging change, a prop or environment interaction, two distinct reactions, a physical escalation, and a final visible payoff.\n\
          - Make at least one character walk to a new staging mark, turn or look toward a relevant subject, and return to a neutral pose after a gesture or reaction.\n\
          - Treat gestures as short actions: preparation, main gesture, brief hold, recovery. Do not leave arms raised through a scene.\n\

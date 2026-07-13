@@ -1,0 +1,399 @@
+{
+  "episode_title": "The Floor That Isn't",
+  "logline": "Voss attempts to document the elevator's illogical behavior while Mara desperately tries to maintain the facade of normalcy.",
+  "tone": [
+    "surreal",
+    "comedy"
+  ],
+  "target_duration_seconds": 50.0,
+  "active_characters": [
+    "voss",
+    "mara",
+    "ellis"
+  ],
+  "primary_location": "floor_3_hallway",
+  "central_goal": {
+    "character": "voss",
+    "goal": "find a code violation"
+  },
+  "beats": [
+    {
+      "id": "beat_1",
+      "narrative_purpose": "Hook: The elevator dings and lights flicker aggressively.",
+      "target_start_second": 0.0,
+      "actions": [
+        {
+          "actor": "voss",
+          "action": "look_at",
+          "target": "elevator",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "This elevator just announced arrival at Floor Negative Twelve. That is highly irregular.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "flicker_lights",
+          "target": null,
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "speak",
+          "target": null,
+          "text": "The wiring in this building is ancient and prone to very strange glitches.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "establish",
+        "subject": "voss",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "Voss stands at the elevator doors; Mara stands by the maintenance panel.",
+      "visible_action": "The hallway lights flicker rapidly as the elevator dings.",
+      "intended_reaction": "Voss looks up in confusion; Mara sighs heavily.",
+      "camera_purpose": "establish the impossible event",
+      "performance_intent": "bureaucratic confusion",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    },
+    {
+      "id": "beat_2",
+      "narrative_purpose": "Ellis enters to escalate the curiosity.",
+      "target_start_second": 8.0,
+      "actions": [
+        {
+          "actor": "ellis",
+          "action": "enter_room",
+          "target": null,
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "ellis",
+          "action": "approach",
+          "target": "elevator",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "ellis",
+          "action": "speak",
+          "target": null,
+          "text": "Did you hear that? The elevator is singing in a language I don't know!",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "turn_toward",
+          "target": "ellis",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "Singing is not a recognized feature in the standard building occupancy code.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "conversation",
+        "subject": "ellis",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "Ellis enters from apartment 3b; Voss turns toward him.",
+      "visible_action": "Ellis rushes toward the elevator doors with intense curiosity.",
+      "intended_reaction": "Voss steps back to make room; Mara looks stressed.",
+      "camera_purpose": "introduce new character and tension",
+      "performance_intent": "eager, frantic",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    },
+    {
+      "id": "beat_3",
+      "narrative_purpose": "Mara tries to deflect the investigation.",
+      "target_start_second": 18.0,
+      "actions": [
+        {
+          "actor": "mara",
+          "action": "move_to",
+          "target": "ellis",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "speak",
+          "target": null,
+          "text": "It is just air pressure escaping the shaft. Please stop bothering the inspector.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "pick_up",
+          "target": null,
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "Air pressure does not typically recite epic poetry in a minor key, Madam.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "speaker_closeup",
+        "subject": "mara",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "Mara moves toward Ellis to block his view of the elevator.",
+      "visible_action": "Mara gestures wildly toward the maintenance panel.",
+      "intended_reaction": "Ellis leans around her; Voss takes out a notepad.",
+      "camera_purpose": "focus on Mara's evasion",
+      "performance_intent": "desperate, strained",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    },
+    {
+      "id": "beat_4",
+      "narrative_purpose": "Physical escalation: the elevator doors open.",
+      "target_start_second": 28.0,
+      "actions": [
+        {
+          "actor": "ellis",
+          "action": "shout",
+          "target": null,
+          "text": "Look! The interior looks like a nebula made of liquid grape soda!",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "inspect",
+          "target": "elevator",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "I am marking this down as an unauthorized atmospheric modification in the hallway.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "speak",
+          "target": null,
+          "text": "It is just a very aggressive mood lighting installation for the lobby.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "reveal",
+        "subject": "elevator",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "The elevator doors open to reveal a glowing purple light.",
+      "visible_action": "The elevator doors slide open with a heavy thud.",
+      "intended_reaction": "Voss stares blankly; Ellis gasps loudly.",
+      "camera_purpose": "reveal the anomaly",
+      "performance_intent": "shocked",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    },
+    {
+      "id": "beat_5",
+      "narrative_purpose": "Voss pushes for a violation.",
+      "target_start_second": 38.0,
+      "actions": [
+        {
+          "actor": "voss",
+          "action": "point_at",
+          "target": "elevator",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "This violates section four regarding non-standard dimensions in public transit areas.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "speak",
+          "target": null,
+          "text": "We can fix the dimensions by Monday if you just sign this waiver.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "ellis",
+          "action": "speak",
+          "target": null,
+          "text": "Can I go inside? I want to see if it tastes like grapes!",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "tension_push",
+        "subject": "voss",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "Voss approaches the elevator; Mara follows him closely.",
+      "visible_action": "Voss points a pen at the glowing elevator interior.",
+      "intended_reaction": "Mara winces; Ellis tries to peek closer.",
+      "camera_purpose": "tension push on the confrontation",
+      "performance_intent": "determined, bureaucratic",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    },
+    {
+      "id": "beat_6",
+      "narrative_purpose": "Payoff: The elevator pulls them in or slams shut.",
+      "target_start_second": 46.0,
+      "actions": [
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "My clipboard! The elevator has consumed my official documentation and my dignity!",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "speak",
+          "target": null,
+          "text": "I told you the maintenance was going to be a real nightmare today.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "ellis",
+          "action": "speak",
+          "target": null,
+          "text": "At least the grape soda smell is actually quite pleasant, don't you think?",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "sigh",
+          "target": null,
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "cliffhanger_hold",
+        "subject": "mara",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "The elevator doors slam shut on Voss's notepad.",
+      "visible_action": "The elevator doors close violently; the lights flicker one last time.",
+      "intended_reaction": "Voss looks at his empty hands; Mara facepalms.",
+      "camera_purpose": "cliffhanger hold",
+      "performance_intent": "exhausted",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    }
+  ],
+  "payoff": "The elevator doors slam shut, leaving Voss without his clipboard and Mara contemplating her life choices.",
+  "persistent_changes": [],
+  "notes": null
+}

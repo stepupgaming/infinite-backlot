@@ -4,13 +4,11 @@
 use crate::scene::Hud;
 use crate::state::*;
 use backlot_core::author::{AuthorSource, DeterministicAuthor, EpisodeAuthor, PlannedEpisode};
-use backlot_core::package::{
-    Diagnostics, EpisodeMetrics, EpisodePackage, GemmyManifest,
-};
+use backlot_core::package::{Diagnostics, EpisodeMetrics, EpisodePackage, GemmyManifest};
+use backlot_core::serial_id;
 use backlot_core::story::apply_persistent_changes;
 use backlot_core::validation::{validate_beat_command, validate_plan, ValidatedPlan};
 use backlot_core::world::WorldState;
-use backlot_core::serial_id;
 use bevy::prelude::*;
 
 // ---------------------------------------------------------------------------
@@ -80,7 +78,11 @@ pub fn request_plan_system(
     let msg = DirectorContextMsg {
         world: world.0.clone(),
         episode_number: current.episode_number,
-        seed: run.config.runtime.base_seed.wrapping_add(current.episode_number * 2654435761),
+        seed: run
+            .config
+            .runtime
+            .base_seed
+            .wrapping_add(current.episode_number * 2654435761),
         target_duration: run.config.runtime.target_duration_secs,
         recent_summaries: run.recent_summaries.clone(),
         tone: vec!["surreal".into(), "comedy".into()],
@@ -89,7 +91,11 @@ pub fn request_plan_system(
         handle.pending = true;
         println!(
             "▶ Requesting episode plan from {} director…",
-            if handle.using_llm { "LLM" } else { "deterministic" }
+            if handle.using_llm {
+                "LLM"
+            } else {
+                "deterministic"
+            }
         );
     }
 }
@@ -154,10 +160,7 @@ fn build_validated(world: &WorldState, planned: &PlannedEpisode) -> Option<Valid
 // Validation gate + error recovery
 // ---------------------------------------------------------------------------
 
-pub fn plan_validation_system(
-    current: Res<CurrentEpisode>,
-    mut next: ResMut<NextState<AppState>>,
-) {
+pub fn plan_validation_system(current: Res<CurrentEpisode>, mut next: ResMut<NextState<AppState>>) {
     if current.validated.is_some() && current.planned.is_some() {
         next.set(AppState::Rehearsing);
     } else {
@@ -229,10 +232,7 @@ pub fn start_rehearsal_system(
     println!("● Rehearsing episode…");
 }
 
-pub fn start_render_system(
-    mut player: ResMut<Player>,
-    mut clock: ResMut<EpisodeClock>,
-) {
+pub fn start_render_system(mut player: ResMut<Player>, mut clock: ResMut<EpisodeClock>) {
     player.active = true;
     player.render_pass = true;
     player.beat_index = 0;
@@ -274,7 +274,10 @@ pub fn commit_system(
     let plan = planned.plan.clone();
 
     // Apply persistent changes to a working copy of the world.
-    let mut after = current.world_before.clone().unwrap_or_else(WorldState::default);
+    let mut after = current
+        .world_before
+        .clone()
+        .unwrap_or_else(WorldState::default);
     let delta = apply_persistent_changes(&mut after, &plan.persistent_changes);
     let _ = &delta;
 
@@ -291,13 +294,21 @@ pub fn commit_system(
     } else {
         log.camera.iter().map(|c| c.end - c.start).sum::<f32>() / log.camera.len() as f32
     };
-    m.longest_shot_duration = log.camera.iter().map(|c| c.end - c.start).fold(0.0_f32, f32::max);
+    m.longest_shot_duration = log
+        .camera
+        .iter()
+        .map(|c| c.end - c.start)
+        .fold(0.0_f32, f32::max);
     m.visual_changes_per_min = log.visual_changes as f32 / (dur / 60.0);
     m.story_changes_per_min = log.story_changes as f32 / (dur / 60.0);
     m.deterministic_repairs = log.repairs;
     m.payoff_complete = !plan.payoff.trim().is_empty();
     m.persistent_consequence = !plan.persistent_changes.is_empty();
-    m.model_validation_failures = handle.metrics.as_ref().map(|mt| mt.lock().unwrap().schema_repairs).unwrap_or(0);
+    m.model_validation_failures = handle
+        .metrics
+        .as_ref()
+        .map(|mt| mt.lock().unwrap().schema_repairs)
+        .unwrap_or(0);
 
     // Truthful director/author-source resolution (never claim LLM on fallback).
     let (director_name, plan_source, llm_used, llm_reqs, llm_fails) = match &current.auth {
@@ -317,10 +328,20 @@ pub fn commit_system(
                 .iter()
                 .filter(|b| b.source == AuthorSource::DeterministicFallback)
                 .count() as u32;
-            (label.to_string(), a.plan_source.as_str().to_string(), used, reqs, fails)
+            (
+                label.to_string(),
+                a.plan_source.as_str().to_string(),
+                used,
+                reqs,
+                fails,
+            )
         }
         None => {
-            let l = if handle.using_llm { "llm" } else { "deterministic" };
+            let l = if handle.using_llm {
+                "llm"
+            } else {
+                "deterministic"
+            };
             let reqs = handle
                 .metrics
                 .as_ref()
@@ -345,7 +366,11 @@ pub fn commit_system(
     let gemmy = GemmyManifest {
         title: plan.episode_title.clone(),
         summary: plan.logline.clone(),
-        hook_text: log.captions.first().map(|c| c.text.clone()).unwrap_or_default(),
+        hook_text: log
+            .captions
+            .first()
+            .map(|c| c.text.clone())
+            .unwrap_or_default(),
         duration_secs: dur,
         characters: plan.active_characters.clone(),
         transcript: transcript.clone(),
@@ -485,7 +510,10 @@ pub fn review_input_system(
         if run.episodes_to_run == 0 || run.episodes_done < run.episodes_to_run {
             next.set(AppState::EpisodeSelecting);
         } else {
-            println!("✓ Reached configured episode limit ({}).", run.episodes_to_run);
+            println!(
+                "✓ Reached configured episode limit ({}).",
+                run.episodes_to_run
+            );
             next.set(AppState::Shutdown);
             exit.write(AppExit::Success);
         }

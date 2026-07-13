@@ -197,11 +197,18 @@ impl EpisodePackage {
             path: dir.clone(),
             source,
         })?;
+        std::fs::create_dir_all(&dir.join("review")).map_err(|source| CoreError::Io {
+            path: dir.clone(),
+            source,
+        })?;
 
-        write_json(&dir.join("episode.json"), &serde_json::json!({
-            "id": self.id, "title": self.title, "logline": self.logline,
-            "duration_secs": self.duration_secs, "canonical": self.canonical,
-        }))?;
+        write_json(
+            &dir.join("episode.json"),
+            &serde_json::json!({
+                "id": self.id, "title": self.title, "logline": self.logline,
+                "duration_secs": self.duration_secs, "canonical": self.canonical,
+            }),
+        )?;
         write_json(&dir.join("plan.json"), &self.plan)?;
         write_json(&dir.join("world_before.json"), &self.world_before)?;
         write_json(&dir.join("world_after.json"), &self.world_after)?;
@@ -209,13 +216,18 @@ impl EpisodePackage {
         write_json(&dir.join("dialogue.json"), &self.dialogue)?;
         write_json(&dir.join("captions.json"), &self.captions)?;
         write_json(&dir.join("camera_plan.json"), &self.camera_plan)?;
-        write_json(&dir.join("render_manifest.json"), &serde_json::json!({
-            "vertical_captioned": format!("output/vertical_captioned.mp4"),
-            "vertical_clean": format!("output/vertical_clean.mp4"),
-            "horizontal_clean": format!("output/horizontal_clean.mp4"),
-            "thumbnail_01": format!("output/thumbnail_01.png"),
-            "frames_dir": "frames",
-        }))?;
+        write_json(
+            &dir.join("render_manifest.json"),
+            &serde_json::json!({
+                "vertical_captioned": "output/vertical_captioned.mp4",
+                "vertical_clean": "output/vertical_clean.mp4",
+                "frames_dir": "frames",
+                "review_frame_index": "review/frame_index.json",
+                "contact_sheet": "review/contact_sheet.jpg",
+                "animation_state_timeline": "review/animation_state_timeline.json",
+                "review_handoff": "REVIEW_HANDOFF.md",
+            }),
+        )?;
         write_json(&dir.join("diagnostics.json"), &self.diagnostics)?;
         write_json(&dir.join("gemmy_manifest.json"), &self.gemmy)?;
         std::fs::write(dir.join("report.md"), &self.report_md).map_err(|source| CoreError::Io {
@@ -253,7 +265,10 @@ impl EpisodePackage {
                 f = t.ffmpeg_encode_secs,
                 g = t.packaging_secs,
                 h = t.total_end_to_end_secs,
-                fps = t.effective_fps.map(|v| format!("{v:.1}")).unwrap_or_else(|| "n/a".into()),
+                fps = t
+                    .effective_fps
+                    .map(|v| format!("{v:.1}"))
+                    .unwrap_or_else(|| "n/a".into()),
                 st = t.started_at,
                 en = t.ended_at,
             )

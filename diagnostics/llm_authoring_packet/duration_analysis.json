@@ -1,0 +1,12 @@
+{
+  "breakdown": {
+    "beats": 6,
+    "est_action_secs": "86.9",
+    "est_spoken_secs_from_chars": "65.3",
+    "spoken_chars": 1105,
+    "spoken_lines": 15,
+    "target_duration_seconds": 50.0
+  },
+  "estimated_duration_secs": 59.9522590637207,
+  "status": "ok"
+}

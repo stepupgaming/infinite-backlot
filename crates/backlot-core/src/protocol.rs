@@ -15,39 +15,110 @@ use serde::{Deserialize, Serialize};
 
 pub const KNOWN_ACTIONS: &[&str] = &[
     // Movement
-    "move_to", "enter_room", "exit_room", "approach", "retreat_from", "follow",
-    "flee_to", "turn_toward", "look_at", "sit_at", "stand_at",
+    "move_to",
+    "enter_room",
+    "exit_room",
+    "approach",
+    "retreat_from",
+    "follow",
+    "flee_to",
+    "turn_toward",
+    "look_at",
+    "sit_at",
+    "stand_at",
     // Object interaction
-    "pick_up", "put_down", "give", "take", "inspect", "open", "close", "activate",
-    "deactivate", "hide_object", "reveal_object", "carry", "drop", "throw_safe",
-    "knock_on", "conceal_object",
+    "pick_up",
+    "put_down",
+    "give",
+    "take",
+    "inspect",
+    "open",
+    "close",
+    "activate",
+    "deactivate",
+    "hide_object",
+    "reveal_object",
+    "carry",
+    "drop",
+    "throw_safe",
+    "knock_on",
+    "conceal_object",
     // Character performance
-    "speak", "react", "gesture", "pause", "interrupt", "laugh", "sigh", "whisper",
-    "shout", "point_at", "conceal_emotion", "display_emotion", "write_note",
+    "speak",
+    "react",
+    "gesture",
+    "pause",
+    "interrupt",
+    "laugh",
+    "sigh",
+    "whisper",
+    "shout",
+    "point_at",
+    "conceal_emotion",
+    "display_emotion",
+    "write_note",
     // World events
-    "flicker_lights", "cut_power", "ring_alarm", "open_elevator", "close_elevator",
-    "spawn_authorized_prop", "move_authorized_prop", "change_room_state",
-    "play_environment_effect", "trigger_safe_physics_event",
+    "flicker_lights",
+    "cut_power",
+    "ring_alarm",
+    "open_elevator",
+    "close_elevator",
+    "spawn_authorized_prop",
+    "move_authorized_prop",
+    "change_room_state",
+    "play_environment_effect",
+    "trigger_safe_physics_event",
     // Narrative state
-    "add_fact", "remove_false_belief", "create_rumor", "resolve_thread",
-    "create_thread", "change_relationship", "assign_secret", "schedule_future_event",
+    "add_fact",
+    "remove_false_belief",
+    "create_rumor",
+    "resolve_thread",
+    "create_thread",
+    "change_relationship",
+    "assign_secret",
+    "schedule_future_event",
     "change_location_condition",
 ];
 
 pub const KNOWN_CAMERA_INTENTS: &[&str] = &[
-    "establish", "follow", "conversation", "speaker_closeup", "reaction", "reveal",
-    "insert_object", "comedic_wide", "tension_push", "over_the_shoulder",
-    "group_coverage", "exit_transition", "cliffhanger_hold",
+    "establish",
+    "follow",
+    "conversation",
+    "speaker_closeup",
+    "reaction",
+    "reveal",
+    "insert_object",
+    "comedic_wide",
+    "tension_push",
+    "over_the_shoulder",
+    "group_coverage",
+    "exit_transition",
+    "cliffhanger_hold",
 ];
 
 pub const KNOWN_EMOTIONS: &[&str] = &[
-    "neutral", "happy", "sad", "angry", "fear", "suspicion", "confusion",
-    "frustration", "surprise", "serene", "strained", "eager",
+    "neutral",
+    "happy",
+    "sad",
+    "angry",
+    "fear",
+    "suspicion",
+    "confusion",
+    "frustration",
+    "surprise",
+    "serene",
+    "strained",
+    "eager",
 ];
 
 pub const KNOWN_WORLD_EVENTS: &[&str] = &[
-    "flicker_lights", "cut_power", "ring_alarm", "open_elevator", "close_elevator",
-    "play_environment_effect", "trigger_safe_physics_event",
+    "flicker_lights",
+    "cut_power",
+    "ring_alarm",
+    "open_elevator",
+    "close_elevator",
+    "play_environment_effect",
+    "trigger_safe_physics_event",
 ];
 
 pub const KNOWN_COMPLETION_TYPES: &[&str] = &[
@@ -331,7 +402,11 @@ pub struct AuthoredCompletion {
 
 impl WorldDigest {
     /// Build a compact digest for the active location + characters.
-    pub fn for_episode(world: &WorldState, location_id: &str, characters: &[String]) -> WorldDigest {
+    pub fn for_episode(
+        world: &WorldState,
+        location_id: &str,
+        characters: &[String],
+    ) -> WorldDigest {
         let loc = world.location(location_id);
         let location = match loc {
             Some(l) => DigestLocation {
@@ -351,7 +426,11 @@ impl WorldDigest {
             .map(|c| DigestCharacter {
                 id: c.id.clone(),
                 role: c.role.clone(),
-                mood: c.emotion.first().cloned().unwrap_or_else(|| "neutral".into()),
+                mood: c
+                    .emotion
+                    .first()
+                    .cloned()
+                    .unwrap_or_else(|| "neutral".into()),
                 goal: c.current_goal.clone(),
                 knows: c.known_facts.clone(),
                 does_not_know: c.believed_facts.clone(),

@@ -12,12 +12,14 @@ mod state;
 
 use backlot_core::author::{DeterministicAuthor, EpisodeAuthor};
 use backlot_core::config::Config;
+use backlot_core::director::DirectorContext;
 use backlot_core::render::{produce_episode, ProduceConfig};
 use backlot_core::world::build_default_world;
 use backlot_llm::{LlmAuthor, LlmMetrics};
 use bevy::prelude::*;
 use bevy::window::{Window, WindowPlugin, WindowResolution};
-use std::sync::{Arc, Mutex, mpsc};
+use std::path::PathBuf;
+use std::sync::{mpsc, Arc, Mutex};
 
 use crate::scene::Hud;
 use state::*;
@@ -36,11 +38,72 @@ fn main() {
     let cli_args: Vec<String> = std::env::args().collect();
     let produce_one = cli_args.iter().any(|a| a == "--produce-one");
     let require_llm = cli_args.iter().any(|a| a == "--require-llm");
+    let reuse_authored = cli_args.iter().any(|a| a == "--reuse-authored");
     let render_backend = cli_args
         .iter()
         .position(|a| a == "--render-backend")
         .and_then(|i| cli_args.get(i + 1).cloned())
         .unwrap_or_else(|| "cpu".to_string());
+    // --- Authoring-only diagnostic (no rendering) ---
+    if cli_args.iter().any(|a| a == "--diagnostic-authoring") {
+        eprintln!("AUTHORING DIAGNOSTIC (no render)");
+        let mut dir = config.director.clone();
+        dir.require_llm = true;
+        let out_dir = PathBuf::from("diagnostics/llm_authoring_packet");
+        let author = match LlmAuthor::new_diagnostic(&config, dir, out_dir.clone()) {
+            Ok(a) => a,
+            Err(e) => {
+                eprintln!("diagnostic init failed: {e}");
+                std::process::exit(2);
+            }
+        };
+        let ctx = DirectorContext {
+            world: world.clone(),
+            episode_number: 1,
+            seed: config.runtime.base_seed,
+            target_duration: config.runtime.target_duration_secs,
+            recent_summaries: vec![],
+            tone: vec!["surreal".into(), "comedy".into()],
+        };
+        match author
+            .runtime()
+            .block_on(author.author_diagnostic(&ctx, &out_dir))
+        {
+            Ok(s) => {
+                println!("DIAGNOSTIC COMPLETE");
+                println!(
+                    "  packet: {}",
+                    out_dir.join("LLM_AUTHORING_DIAGNOSTIC_PACKET.md").display()
+                );
+                println!(
+                    "  total_wire_calls={} total_logical_calls={}",
+                    s.total_wire_calls, s.total_logical_calls
+                );
+                println!(
+                    "  wall_ms={} prompt_tokens={} completion_tokens={}",
+                    s.total_wall_ms, s.prompt_tokens, s.completion_tokens
+                );
+                println!(
+                    "  produced={} estimated_duration={:?} status={}",
+                    s.produced, s.estimated_duration_secs, s.duration_status
+                );
+                println!(
+                    "  finish_reasons={:?} any_length_truncated={}",
+                    s.finish_reasons, s.any_length_truncated
+                );
+                println!(
+                    "  schema_repairs={} plan_title={:?} beats={}",
+                    s.schema_repairs, s.plan_title, s.beat_count
+                );
+            }
+            Err(e) => {
+                eprintln!("DIAGNOSTIC FAILED: {e}");
+                std::process::exit(1);
+            }
+        }
+        return;
+    }
+
     if produce_one {
         let author: Box<dyn EpisodeAuthor> = if require_llm {
             // CLI flag overrides the config file: in REQUIRE-LLM production mode
@@ -49,8 +112,13 @@ fn main() {
             // `author()` returns an error instead of a fallback plan.
             let mut dir = config.director.clone();
             dir.require_llm = true;
-            match LlmAuthor::new(config.llm.clone(), dir) {
-                Ok(a) => Box::new(a),
+            match LlmAuthor::new(&config, dir) {
+                Ok(mut a) => {
+                    if reuse_authored {
+                        a.set_reuse_path(PathBuf::from("data/last_authored_episode.json"));
+                    }
+                    Box::new(a)
+                }
                 Err(e) => {
                     eprintln!("REQUIRE-LLM mode: LLM client could not be initialized: {e}");
                     std::process::exit(2);
@@ -59,8 +127,13 @@ fn main() {
         } else if config.director.force_fallback {
             Box::new(DeterministicAuthor)
         } else {
-            match LlmAuthor::new(config.llm.clone(), config.director.clone()) {
-                Ok(a) => Box::new(a),
+            match LlmAuthor::new(&config, config.director.clone()) {
+                Ok(mut a) => {
+                    if reuse_authored {
+                        a.set_reuse_path(PathBuf::from("data/last_authored_episode.json"));
+                    }
+                    Box::new(a)
+                }
                 Err(_) => Box::new(DeterministicAuthor),
             }
         };
@@ -89,7 +162,10 @@ fn main() {
                 println!("  require_llm: {}", report.require_llm);
                 println!("  plan_src   : {}", report.plan_author_source);
                 println!("  llm_used   : {}", report.llm_used);
-                println!("  tts        : {} (real={})", report.tts_provider, report.tts_real);
+                println!(
+                    "  tts        : {} (real={})",
+                    report.tts_provider, report.tts_real
+                );
                 println!("  mp4_ok     : {}", report.mp4_produced);
                 println!("  ffprobe_ok : {}", report.ffprobe_ok);
                 if !report.issues.is_empty() {
@@ -113,7 +189,7 @@ fn main() {
     let author: Arc<dyn EpisodeAuthor + Send + Sync> = if config.director.force_fallback {
         Arc::new(DeterministicAuthor)
     } else {
-        match LlmAuthor::new(config.llm.clone(), config.director.clone()) {
+        match LlmAuthor::new(&config, config.director.clone()) {
             Ok(a) => {
                 using_llm = true;
                 metrics = Some(a.metrics_arc());
@@ -182,17 +258,38 @@ fn main() {
             OnEnter(AppState::AssetLoading),
             pipeline::asset_loading_system,
         )
-        .add_systems(Update, pipeline::idle_to_selecting.run_if(in_state(AppState::Idle)))
-        .add_systems(OnEnter(AppState::EpisodeSelecting), pipeline::episode_selecting_system)
-        .add_systems(OnEnter(AppState::EpisodePlanning), pipeline::request_plan_system)
+        .add_systems(
+            Update,
+            pipeline::idle_to_selecting.run_if(in_state(AppState::Idle)),
+        )
+        .add_systems(
+            OnEnter(AppState::EpisodeSelecting),
+            pipeline::episode_selecting_system,
+        )
+        .add_systems(
+            OnEnter(AppState::EpisodePlanning),
+            pipeline::request_plan_system,
+        )
         .add_systems(
             Update,
             pipeline::poll_plan_system.run_if(in_state(AppState::EpisodePlanning)),
         )
-        .add_systems(OnEnter(AppState::PlanValidation), pipeline::plan_validation_system)
-        .add_systems(OnEnter(AppState::ErrorRecovery), pipeline::error_recovery_system)
-        .add_systems(OnEnter(AppState::Rehearsing), pipeline::start_rehearsal_system)
-        .add_systems(OnEnter(AppState::EpisodeReady), pipeline::episode_ready_system)
+        .add_systems(
+            OnEnter(AppState::PlanValidation),
+            pipeline::plan_validation_system,
+        )
+        .add_systems(
+            OnEnter(AppState::ErrorRecovery),
+            pipeline::error_recovery_system,
+        )
+        .add_systems(
+            OnEnter(AppState::Rehearsing),
+            pipeline::start_rehearsal_system,
+        )
+        .add_systems(
+            OnEnter(AppState::EpisodeReady),
+            pipeline::episode_ready_system,
+        )
         .add_systems(OnEnter(AppState::Rendering), pipeline::start_render_system)
         .add_systems(OnEnter(AppState::Committing), pipeline::commit_system)
         .add_systems(OnEnter(AppState::Reviewing), pipeline::review_enter_system)

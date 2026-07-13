@@ -8,7 +8,7 @@
 //!   * TTS durations are *measured* from the audio, and TTS downgrades honestly,
 //!   * the full offline producer yields a real, ffprobe-verifiable MP4.
 
-use backlot_core::author::{DeterministicAuthor, EpisodeAuthor, AuthorSource};
+use backlot_core::author::{AuthorSource, DeterministicAuthor, EpisodeAuthor};
 use backlot_core::avatar::{HumanoidRig, SemanticJoint};
 use backlot_core::config::TtsConfig;
 use backlot_core::director::DirectorContext;
@@ -53,11 +53,16 @@ fn humanoid_rig_parts_have_unique_joint_keys() {
 #[test]
 fn deterministic_plan_validates_cleanly() {
     let c = ctx();
-    let (planned, _) = DeterministicAuthor.author(&c).expect("deterministic author");
+    let (planned, _) = DeterministicAuthor
+        .author(&c)
+        .expect("deterministic author");
     assert!(!planned.commands.is_empty());
     for (id, cmd) in &planned.commands {
         let rb = validate_beat_command(&c.world, &planned.plan, cmd);
-        assert!(rb.is_ok(), "deterministic beat {id} should validate: {rb:?}");
+        assert!(
+            rb.is_ok(),
+            "deterministic beat {id} should validate: {rb:?}"
+        );
     }
 }
 

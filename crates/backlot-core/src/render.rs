@@ -11,21 +11,18 @@
 //! frame-capture, and MP4 verification are all recorded in the diagnostics.
 
 use crate::author::{AuthorSource, EpisodeAuthor, PlanAuthorship, PlannedEpisode};
-use crate::avatar::{
-    character_pose, part_corners, CameraTargetRole, HumanoidRig, PerformanceState, Pose, Xform,
-};
+use crate::avatar::{part_corners, HumanoidRig, PerformanceState};
 use crate::config::{Config, TtsConfig};
-use crate::{BeatCommand, EpisodePlan};
 use crate::package::{
-    Caption, CameraShot, Diagnostics, DialogueLine, EpisodeMetrics, EpisodePackage, GemmyManifest,
-    TimedEvent,
+    CameraShot, Caption, Diagnostics, DialogueLine, EpisodeMetrics, EpisodePackage, GemmyManifest,
 };
+use crate::serial_id;
 use crate::story::apply_persistent_changes;
+use crate::timeline::*;
 use crate::tts::build_tts;
 use crate::validation::{validate_beat_command, validate_plan, ValidatedPlan};
 use crate::world::WorldState;
-use crate::timeline::*;
-use crate::serial_id;
+use crate::{BeatCommand, EpisodePlan};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
@@ -49,6 +46,15 @@ pub struct ProduceConfig {
     pub episode_number: u64,
     /// Keep captured frames on disk after encoding (costs disk space).
     pub keep_frames: bool,
+}
+
+/// Renderer-owned timing known before shared mixing/encoding begins.
+#[derive(Debug, Clone)]
+pub struct ProductionTimingContext {
+    pub started_at: String,
+    pub elapsed_before_finalize_secs: f32,
+    pub bevy_capture_secs: f32,
+    pub effective_fps: Option<f32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -129,7 +135,11 @@ struct Buffers {
 
 impl StageRenderer {
     fn new(w: u32, h: u32) -> Self {
-        Self { w, h, fov_y: 45.0_f32.to_radians() }
+        Self {
+            w,
+            h,
+            fov_y: 45.0_f32.to_radians(),
+        }
     }
 
     fn blank(&self, top: [u8; 3], bottom: [u8; 3]) -> Buffers {
@@ -160,7 +170,12 @@ impl StageRenderer {
 
     /// Render one frame to an RGBA buffer (color only). Geometry-correctness
     /// diagnostics are captured by [`StageRenderer::render_buffers`].
-    fn render(&self, state: &FrameState, rigs: &HashMap<String, HumanoidRig>, world: &WorldState) -> Vec<u8> {
+    fn render(
+        &self,
+        state: &FrameState,
+        rigs: &HashMap<String, HumanoidRig>,
+        world: &WorldState,
+    ) -> Vec<u8> {
         self.render_buffers(state, rigs, world, None).color
     }
 
@@ -212,16 +227,40 @@ impl StageRenderer {
         let fx1 = 12.0;
         let fz0 = -10.0;
         let fz1 = 8.0;
-        tris.push(SceneTri { v: [[fx0, fy, fz0], [fx1, fy, fz0], [fx1, fy, fz1]], col: [0.16, 0.16, 0.2], id: GROUND_ID });
-        tris.push(SceneTri { v: [[fx0, fy, fz0], [fx1, fy, fz1], [fx0, fy, fz1]], col: [0.16, 0.16, 0.2], id: GROUND_ID });
+        tris.push(SceneTri {
+            v: [[fx0, fy, fz0], [fx1, fy, fz0], [fx1, fy, fz1]],
+            col: [0.16, 0.16, 0.2],
+            id: GROUND_ID,
+        });
+        tris.push(SceneTri {
+            v: [[fx0, fy, fz0], [fx1, fy, fz1], [fx0, fy, fz1]],
+            col: [0.16, 0.16, 0.2],
+            id: GROUND_ID,
+        });
 
         // back wall + side walls
         let wall_col = [0.28, 0.28, 0.34];
-        tris.push(SceneTri { v: [[-8.0, 0.0, -3.2], [8.0, 0.0, -3.2], [8.0, 4.0, -3.2]], col: wall_col, id: set });
-        tris.push(SceneTri { v: [[-8.0, 0.0, -3.2], [8.0, 4.0, -3.2], [-8.0, 4.0, -3.2]], col: wall_col, id: set });
+        tris.push(SceneTri {
+            v: [[-8.0, 0.0, -3.2], [8.0, 0.0, -3.2], [8.0, 4.0, -3.2]],
+            col: wall_col,
+            id: set,
+        });
+        tris.push(SceneTri {
+            v: [[-8.0, 0.0, -3.2], [8.0, 4.0, -3.2], [-8.0, 4.0, -3.2]],
+            col: wall_col,
+            id: set,
+        });
         for sx in [-8.0f32, 8.0] {
-            tris.push(SceneTri { v: [[sx, 0.0, -3.2], [sx, 4.0, -3.2], [sx, 4.0, 8.0]], col: wall_col, id: set });
-            tris.push(SceneTri { v: [[sx, 0.0, -3.2], [sx, 4.0, 8.0], [sx, 0.0, 8.0]], col: wall_col, id: set });
+            tris.push(SceneTri {
+                v: [[sx, 0.0, -3.2], [sx, 4.0, -3.2], [sx, 4.0, 8.0]],
+                col: wall_col,
+                id: set,
+            });
+            tris.push(SceneTri {
+                v: [[sx, 0.0, -3.2], [sx, 4.0, 8.0], [sx, 0.0, 8.0]],
+                col: wall_col,
+                id: set,
+            });
         }
 
         // openable, non-blocking elevator
@@ -229,7 +268,13 @@ impl StageRenderer {
 
         // props
         for pf in &state.props {
-            push_box(&mut tris, [pf.pos[0], pf.pos[1], pf.pos[2]], [0.22, 0.22, 0.22], [0.9, 0.75, 0.3], prop_id);
+            push_box(
+                &mut tris,
+                [pf.pos[0], pf.pos[1], pf.pos[2]],
+                [0.22, 0.22, 0.22],
+                [0.9, 0.75, 0.3],
+                prop_id,
+            );
         }
 
         // characters: each rig part as a box, tagged with a stable char id
@@ -241,7 +286,10 @@ impl StageRenderer {
                     let w = wm
                         .get(&part.joint)
                         .cloned()
-                        .unwrap_or(crate::avatar::RigWorld { rot: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], pos: cf.root.pos });
+                        .unwrap_or(crate::avatar::RigWorld {
+                            rot: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                            pos: cf.root.pos,
+                        });
                     let corners = part_corners(part, &w);
                     push_box_corners(&mut tris, &corners, part.color, cid);
                 }
@@ -455,8 +503,8 @@ pub fn frame_luminance_and_fg(p: &[u8], w: u32, h: u32) -> (f32, f32) {
     }
     // Static stage colours (walls / floor / elevator) — excluded from "figure".
     let statics: [[f32; 3]; 3] = [
-        [71.0, 71.0, 87.0],   // walls
-        [41.0, 41.0, 51.0],   // floor
+        [71.0, 71.0, 87.0],    // walls
+        [41.0, 41.0, 51.0],    // floor
         [115.0, 120.0, 128.0], // elevator
     ];
     let mut lum = 0.0f32;
@@ -643,7 +691,10 @@ fn evaluate_shot_legibility(
         return (true, format!("subject occluded {:.0}%", occlusion * 100.0));
     }
     if set_frac > 0.65 {
-        return (true, format!("blank/set dominates {:.0}%", set_frac * 100.0));
+        return (
+            true,
+            format!("blank/set dominates {:.0}%", set_frac * 100.0),
+        );
     }
     (false, String::new())
 }
@@ -661,7 +712,12 @@ pub fn analyze_schedule(
     for shot in &sched.camera_shots {
         let t = (shot.start + shot.end) / 2.0;
         let state = evaluate_at(sched, rigs, world, t);
-        let mut a = analyze_frame(&state, rigs, world, w, h, &shot.subject);
+        let analyzed_subject = if shot.intent == "reaction" {
+            shot.reaction.as_deref().unwrap_or(&shot.subject)
+        } else {
+            &shot.subject
+        };
+        let mut a = analyze_frame(&state, rigs, world, w, h, analyzed_subject);
         a.start = shot.start;
         a.end = shot.end;
         a.intent = shot.intent.clone();
@@ -672,14 +728,46 @@ pub fn analyze_schedule(
 
 fn push_box(tris: &mut Vec<SceneTri>, center: [f32; 3], half: [f32; 3], col: [f32; 3], id: u32) {
     let c = [
-        [center[0] - half[0], center[1] - half[1], center[2] - half[2]],
-        [center[0] + half[0], center[1] - half[1], center[2] - half[2]],
-        [center[0] + half[0], center[1] + half[1], center[2] - half[2]],
-        [center[0] - half[0], center[1] + half[1], center[2] - half[2]],
-        [center[0] - half[0], center[1] - half[1], center[2] + half[2]],
-        [center[0] + half[0], center[1] - half[1], center[2] + half[2]],
-        [center[0] + half[0], center[1] + half[1], center[2] + half[2]],
-        [center[0] - half[0], center[1] + half[1], center[2] + half[2]],
+        [
+            center[0] - half[0],
+            center[1] - half[1],
+            center[2] - half[2],
+        ],
+        [
+            center[0] + half[0],
+            center[1] - half[1],
+            center[2] - half[2],
+        ],
+        [
+            center[0] + half[0],
+            center[1] + half[1],
+            center[2] - half[2],
+        ],
+        [
+            center[0] - half[0],
+            center[1] + half[1],
+            center[2] - half[2],
+        ],
+        [
+            center[0] - half[0],
+            center[1] - half[1],
+            center[2] + half[2],
+        ],
+        [
+            center[0] + half[0],
+            center[1] - half[1],
+            center[2] + half[2],
+        ],
+        [
+            center[0] + half[0],
+            center[1] + half[1],
+            center[2] + half[2],
+        ],
+        [
+            center[0] - half[0],
+            center[1] + half[1],
+            center[2] + half[2],
+        ],
     ];
     push_box_corners(tris, &c, col, id);
 }
@@ -694,8 +782,16 @@ fn push_box_corners(tris: &mut Vec<SceneTri>, c: &[[f32; 3]; 8], col: [f32; 3], 
         (0, 3, 7, 4),
     ];
     for (i0, i1, i2, i3) in faces {
-        tris.push(SceneTri { v: [c[i0], c[i1], c[i2]], col, id });
-        tris.push(SceneTri { v: [c[i0], c[i2], c[i3]], col, id });
+        tris.push(SceneTri {
+            v: [c[i0], c[i1], c[i2]],
+            col,
+            id,
+        });
+        tris.push(SceneTri {
+            v: [c[i0], c[i2], c[i3]],
+            col,
+            id,
+        });
     }
 }
 
@@ -728,19 +824,73 @@ fn push_elevator(tris: &mut Vec<SceneTri>, world: &WorldState, open: f32) {
     let interior = [0.22, 0.23, 0.27];
 
     // interior back wall
-    push_box(tris, [cx, height / 2.0, back_z - 0.04], [half_w, height / 2.0, 0.04], interior, 1);
+    push_box(
+        tris,
+        [cx, height / 2.0, back_z - 0.04],
+        [half_w, height / 2.0, 0.04],
+        interior,
+        1,
+    );
     // interior side walls
-    push_box(tris, [cx - half_w, height / 2.0, midz], [0.05, height / 2.0, depth_h], interior, 1);
-    push_box(tris, [cx + half_w, height / 2.0, midz], [0.05, height / 2.0, depth_h], interior, 1);
+    push_box(
+        tris,
+        [cx - half_w, height / 2.0, midz],
+        [0.05, height / 2.0, depth_h],
+        interior,
+        1,
+    );
+    push_box(
+        tris,
+        [cx + half_w, height / 2.0, midz],
+        [0.05, height / 2.0, depth_h],
+        interior,
+        1,
+    );
     // ceiling + floor
-    push_box(tris, [cx, height + 0.03, midz], [half_w, 0.03, depth_h], shell, 1);
-    push_box(tris, [cx, 0.02, midz], [half_w, 0.02, depth_h], [0.12, 0.12, 0.15], 1);
+    push_box(
+        tris,
+        [cx, height + 0.03, midz],
+        [half_w, 0.03, depth_h],
+        shell,
+        1,
+    );
+    push_box(
+        tris,
+        [cx, 0.02, midz],
+        [half_w, 0.02, depth_h],
+        [0.12, 0.12, 0.15],
+        1,
+    );
     // exterior side frames (visible in the hallway)
-    push_box(tris, [cx - half_w - 0.06, height / 2.0, front_z + 0.1], [0.06, height / 2.0, 0.18], shell, 1);
-    push_box(tris, [cx + half_w + 0.06, height / 2.0, front_z + 0.1], [0.06, height / 2.0, 0.18], shell, 1);
+    push_box(
+        tris,
+        [cx - half_w - 0.06, height / 2.0, front_z + 0.1],
+        [0.06, height / 2.0, 0.18],
+        shell,
+        1,
+    );
+    push_box(
+        tris,
+        [cx + half_w + 0.06, height / 2.0, front_z + 0.1],
+        [0.06, height / 2.0, 0.18],
+        shell,
+        1,
+    );
     // control panel + floor indicator (semantic, on the right jamb)
-    push_box(tris, [cx + half_w + 0.10, 1.15, front_z + 0.06], [0.05, 0.18, 0.04], [0.3, 0.32, 0.36], 1);
-    push_box(tris, [cx, height - 0.18, front_z + 0.02], [0.16, 0.06, 0.03], [0.9, 0.8, 0.2], 1);
+    push_box(
+        tris,
+        [cx + half_w + 0.10, 1.15, front_z + 0.06],
+        [0.05, 0.18, 0.04],
+        [0.3, 0.32, 0.36],
+        1,
+    );
+    push_box(
+        tris,
+        [cx, height - 0.18, front_z + 0.02],
+        [0.16, 0.06, 0.03],
+        [0.9, 0.8, 0.2],
+        1,
+    );
 
     // sliding door panels (slide apart as `open` -> 1), revealing the interior
     let slide = 0.9 * open.clamp(0.0, 1.0);
@@ -749,8 +899,20 @@ fn push_elevator(tris: &mut Vec<SceneTri>, world: &WorldState, open: f32) {
     let right_cx = (cx + half_w / 2.0) + slide;
     // When fully open the panels tuck beside the jambs; while closed they cover
     // the doorway. Draw them at the front plane regardless (thin panels).
-    push_box(tris, [left_cx, height / 2.0, front_z], [door_w, height / 2.0, 0.04], door_col, 1);
-    push_box(tris, [right_cx, height / 2.0, front_z], [door_w, height / 2.0, 0.04], door_col, 1);
+    push_box(
+        tris,
+        [left_cx, height / 2.0, front_z],
+        [door_w, height / 2.0, 0.04],
+        door_col,
+        1,
+    );
+    push_box(
+        tris,
+        [right_cx, height / 2.0, front_z],
+        [door_w, height / 2.0, 0.04],
+        door_col,
+        1,
+    );
 }
 
 fn draw_triangle(
@@ -764,10 +926,18 @@ fn draw_triangle(
     let (ax, ay, az) = a;
     let (bx, by, bz) = b;
     let (cx, cy, cz) = c;
-    let minx = (ax.min(bx).min(cx).floor() as i32).max(0).min(buf.w as i32 - 1);
-    let maxx = (ax.max(bx).max(cx).ceil() as i32).max(0).min(buf.w as i32 - 1);
-    let miny = (ay.min(by).min(cy).floor() as i32).max(0).min(buf.h as i32 - 1);
-    let maxy = (ay.max(by).max(cy).ceil() as i32).max(0).min(buf.h as i32 - 1);
+    let minx = (ax.min(bx).min(cx).floor() as i32)
+        .max(0)
+        .min(buf.w as i32 - 1);
+    let maxx = (ax.max(bx).max(cx).ceil() as i32)
+        .max(0)
+        .min(buf.w as i32 - 1);
+    let miny = (ay.min(by).min(cy).floor() as i32)
+        .max(0)
+        .min(buf.h as i32 - 1);
+    let maxy = (ay.max(by).max(cy).ceil() as i32)
+        .max(0)
+        .min(buf.h as i32 - 1);
     let area = (bx - ax) * (cy - ay) - (cx - ax) * (by - ay);
     if area.abs() < 1e-6 {
         return;
@@ -956,7 +1126,9 @@ pub fn encode_mp4(
     // ASS file cannot be written.
     let captions_filter = if captions.is_empty() {
         String::new()
-    } else if let Some(ass_rel) = stage_ass_for_ffmpeg(&frames_dir, &build_ass_subtitles(captions, resolution)) {
+    } else if let Some(ass_rel) =
+        stage_ass_for_ffmpeg(&frames_dir, &build_ass_subtitles(captions, resolution))
+    {
         format!(",subtitles='{ass_rel}'")
     } else {
         let font = resolve_font(&cfg.runtime.font_path);
@@ -1021,9 +1193,7 @@ pub fn encode_mp4(
 }
 
 fn run_ffmpeg(ff: &str, args: &[String]) -> std::result::Result<bool, crate::error::CoreError> {
-    let out = std::process::Command::new(ff)
-        .args(args)
-        .output();
+    let out = std::process::Command::new(ff).args(args).output();
     match out {
         Ok(o) => {
             if !o.status.success() {
@@ -1041,7 +1211,11 @@ fn run_ffmpeg(ff: &str, args: &[String]) -> std::result::Result<bool, crate::err
     }
 }
 
-pub fn build_caption_filter(captions: &[Caption], font_ref: &str, resolution: (u32, u32)) -> String {
+pub fn build_caption_filter(
+    captions: &[Caption],
+    font_ref: &str,
+    resolution: (u32, u32),
+) -> String {
     if captions.is_empty() {
         return String::new();
     }
@@ -1100,7 +1274,6 @@ pub fn stage_font_for_ffmpeg(frames_dir: &str, font_abs: &str) -> String {
     format!(":fontfile='{rel}'")
 }
 
-
 pub fn wrap_caption(text: &str) -> String {
     // Phone-readable: tighter wrap for 1080 vertical with 8% horizontal margins.
     let words: Vec<&str> = text.split_whitespace().collect();
@@ -1125,8 +1298,9 @@ pub fn wrap_caption(text: &str) -> String {
     lines.join("\\n")
 }
 
-/// Greedy word-wrap into <=2 lines of at most `max_chars` characters each, used
-/// by the caption bounds validator to approximate the rendered ASS layout.
+/// Greedy word-wrap into lines of at most `max_chars` characters each, used by
+/// both ASS generation and bounds validation. The caller decides whether more
+/// than two lines is acceptable; retaining every line prevents hidden overflow.
 pub fn wrap_caption_lines(text: &str, max_chars: usize) -> Vec<String> {
     let cap = max_chars.max(1);
     let words: Vec<&str> = text.split_whitespace().collect();
@@ -1144,7 +1318,6 @@ pub fn wrap_caption_lines(text: &str, max_chars: usize) -> Vec<String> {
     if !cur.is_empty() {
         lines.push(cur);
     }
-    lines.truncate(2);
     lines
 }
 
@@ -1217,9 +1390,11 @@ fn ass_timecode(sec: f32) -> String {
 /// bottom-edge unsafe zone and away from typical face/interaction framing.
 pub fn build_ass_subtitles(captions: &[Caption], resolution: (u32, u32)) -> String {
     let (w, h) = resolution;
-    let fontsize = ((h as f32 * 0.034).round() as u32).clamp(42, 64);
+    let fontsize = ((h as f32 * 0.027).round() as u32).clamp(42, 54);
     // Generous horizontal safe margins for 9:16 phone readability.
     let margin_h = ((w as f32 * 0.08).round() as u32).clamp(80, 140);
+    let safe_w = w.saturating_sub(2 * margin_h) as f32;
+    let wrap_chars = (safe_w / (fontsize as f32 * 0.55)).floor().max(1.0) as usize;
     // Vertical margin from the bottom: keep captions in the lower-middle band.
     let margin_v = ((h as f32 * 0.22).round() as u32).clamp(320, 520);
     let mut s = String::new();
@@ -1244,7 +1419,14 @@ pub fn build_ass_subtitles(captions: &[Caption], resolution: (u32, u32)) -> Stri
     s.push_str("[Events]\n");
     s.push_str("Format: Layer, Start, End, Style, Text\n");
     for c in captions {
-        let text = escape_ass(&c.text);
+        let normalized = normalize_caption_text(&c.text);
+        // Explicit wrapping makes the encoded layout match validation instead
+        // of relying on libass to choose different break points.
+        let text = wrap_caption_lines(&normalized, wrap_chars)
+            .into_iter()
+            .map(|line| escape_ass(&line))
+            .collect::<Vec<_>>()
+            .join("\\N");
         s.push_str(&format!(
             "Dialogue: 0,{},{},Default,{}\n",
             ass_timecode(c.start),
@@ -1385,7 +1567,11 @@ pub fn mix_audio(
         }
     }
     // normalize to avoid clipping
-    let peak = mixed.iter().map(|s| s.abs()).fold(0.0f32, f32::max).max(1e-6);
+    let peak = mixed
+        .iter()
+        .map(|s| s.abs())
+        .fold(0.0f32, f32::max)
+        .max(1e-6);
     let gain = if peak > 0.9 { 0.9 / peak } else { 1.0 };
     let mut pcm: Vec<i16> = Vec::with_capacity(total);
     for s in &mixed {
@@ -1408,7 +1594,8 @@ fn read_wav_mono_f32(path: &str) -> Option<Vec<f32>> {
     let mut data: Option<(usize, usize)> = None;
     while i + 8 <= bytes.len() {
         let id = &bytes[i..i + 4];
-        let size = u32::from_le_bytes([bytes[i + 4], bytes[i + 5], bytes[i + 6], bytes[i + 7]]) as usize;
+        let size =
+            u32::from_le_bytes([bytes[i + 4], bytes[i + 5], bytes[i + 6], bytes[i + 7]]) as usize;
         if id == b"data" {
             data = Some((i + 8, size));
             break;
@@ -1614,17 +1801,19 @@ fn trim_wav_silence_in_place(path: &str, sr: u32, rms_thresh: f32) -> f32 {
     }
     let trimmed: Vec<i16> = samples[a..=b]
         .iter()
-        .map(|s| (s.clamp(-1.0, 1.0) * 32767.0).round().clamp(-32768.0, 32767.0) as i16)
+        .map(|s| {
+            (s.clamp(-1.0, 1.0) * 32767.0)
+                .round()
+                .clamp(-32768.0, 32767.0) as i16
+        })
         .collect();
     write_wav(path, sr, &trimmed);
     ((b - a + 1) as f32) / sr.max(1) as f32
 }
 
-
 // ===========================================================================
 // Produce one episode end-to-end
 // ===========================================================================
-
 
 /// Result of the shared preparation stage (authoring + validation + TTS +
 /// schedule + rigs). Both renderers consume this; neither re-derives state.
@@ -1676,8 +1865,8 @@ pub fn measure_runtime(
         plan: plan.clone(),
         commands: commands.clone(),
     };
-    let validated = build_validated(world, &planned)
-        .ok_or_else(|| crate::error::CoreError::EmptyPlan)?;
+    let validated =
+        build_validated(world, &planned).ok_or_else(|| crate::error::CoreError::EmptyPlan)?;
     let tts = build_tts(tts_cfg);
     let mut tts_durations: HashMap<(String, String), f32> = HashMap::new();
     for ra in validated
@@ -1731,15 +1920,19 @@ pub fn prepare_production(
     let (planned, auth) = author.author(&ctx)?;
     let llm_authoring_secs = t_llm.elapsed().as_secs_f32();
     let t_tts_start = std::time::Instant::now();
-    let validated = build_validated(world, &planned)
-        .ok_or_else(|| crate::error::CoreError::EmptyPlan)?;
+    let validated =
+        build_validated(world, &planned).ok_or_else(|| crate::error::CoreError::EmptyPlan)?;
 
     let tts = build_tts(&config.tts);
     let provider = tts.provider_name().to_string();
     let mut tts_durations: HashMap<(String, String), f32> = HashMap::new();
     let mut clips: Vec<(String, f32, f32)> = Vec::new();
     let mut any_real = false;
-    for ra in validated.resolved_beats.iter().flat_map(|b| b.resolved_actions.iter()) {
+    for ra in validated
+        .resolved_beats
+        .iter()
+        .flat_map(|b| b.resolved_actions.iter())
+    {
         if matches!(action_kind(&ra.action), ActionKind::Speak) {
             let text = ra.text.clone().unwrap_or_default();
             let voice = world
@@ -1754,7 +1947,11 @@ pub fn prepare_production(
             // real spoken length (and the cached mix clip carries no padding).
             let dur = if let Some(p) = &res.audio_path {
                 let t = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
-                if t > 0.0 { t } else { res.duration }
+                if t > 0.0 {
+                    t
+                } else {
+                    res.duration
+                }
             } else {
                 res.duration
             };
@@ -1768,7 +1965,8 @@ pub fn prepare_production(
     // inter-line gap exceeds the dead-air limit.
     compact_dead_air(&mut sched, config.runtime.max_dead_air_secs);
     let timeline_prep_secs = t_timeline.elapsed().as_secs_f32();
-    let (min_duration, max_duration) = duration_acceptance_window(config.runtime.target_duration_secs);
+    let (min_duration, max_duration) =
+        duration_acceptance_window(config.runtime.target_duration_secs);
     if sched.duration < min_duration || sched.duration > max_duration {
         let msg = format!(
             "authored episode runtime {:.1}s outside required {:.1}-{:.1}s after measured TTS and dead-air compaction",
@@ -1805,7 +2003,11 @@ pub fn prepare_production(
         any_real,
         tts_provider: provider,
         world_before: world.clone(),
-        prep_timings: PrepTimings { llm_authoring_secs, tts_generation_secs, timeline_prep_secs },
+        prep_timings: PrepTimings {
+            llm_authoring_secs,
+            tts_generation_secs,
+            timeline_prep_secs,
+        },
     })
 }
 
@@ -1833,6 +2035,300 @@ pub fn build_camera_plan(
         .collect()
 }
 
+#[derive(Debug, Serialize)]
+struct AnimationStateSample {
+    time: f32,
+    characters: Vec<AnimationCharacterSample>,
+    camera_intent: Option<String>,
+    camera_subject: Option<String>,
+    flicker: bool,
+    elevator_open: f32,
+}
+
+#[derive(Debug, Serialize)]
+struct AnimationCharacterSample {
+    id: String,
+    state: PerformanceState,
+    speaking: bool,
+    position: [f32; 3],
+    yaw: f32,
+}
+
+fn write_animation_state_timeline(
+    review_dir: &Path,
+    sched: &Schedule,
+    rigs: &HashMap<String, HumanoidRig>,
+    world: &WorldState,
+) -> crate::error::Result<()> {
+    let mut times = vec![0.0f32, sched.duration];
+    for track in &sched.characters {
+        for action in &track.actions {
+            times.push(action.start);
+            times.push((action.start + action.dur).min(sched.duration));
+        }
+    }
+    for shot in &sched.camera_shots {
+        times.push(shot.start);
+        times.push(shot.end.min(sched.duration));
+    }
+    for caption in &sched.captions {
+        times.push(caption.start);
+        times.push(caption.end.min(sched.duration));
+    }
+    let mut t = 0.0f32;
+    while t <= sched.duration {
+        times.push(t);
+        t += 0.5;
+    }
+    times.sort_by(|a, b| a.total_cmp(b));
+    times.dedup_by(|a, b| (*a - *b).abs() < 0.01);
+
+    let samples: Vec<AnimationStateSample> = times
+        .into_iter()
+        .map(|time| {
+            let state = evaluate_at(sched, rigs, world, time.min(sched.duration));
+            let active_shot = sched
+                .camera_shots
+                .iter()
+                .find(|shot| time >= shot.start && time < shot.end)
+                .or_else(|| sched.camera_shots.last());
+            AnimationStateSample {
+                time,
+                characters: state
+                    .chars
+                    .iter()
+                    .map(|(frame, _)| AnimationCharacterSample {
+                        id: frame.id.clone(),
+                        state: frame.state,
+                        speaking: frame.speaking,
+                        position: frame.root.pos,
+                        yaw: frame.root.rot[1],
+                    })
+                    .collect(),
+                camera_intent: active_shot.map(|shot| shot.intent.clone()),
+                camera_subject: active_shot.map(|shot| {
+                    if shot.intent == "reaction" {
+                        shot.reaction
+                            .clone()
+                            .unwrap_or_else(|| shot.subject.clone())
+                    } else {
+                        shot.subject.clone()
+                    }
+                }),
+                flicker: state.flicker,
+                elevator_open: state.elevator_open,
+            }
+        })
+        .collect();
+    let path = review_dir.join("animation_state_timeline.json");
+    let json = serde_json::to_string_pretty(&samples)?;
+    std::fs::write(&path, json).map_err(io_err(&path))?;
+    Ok(())
+}
+
+#[derive(Debug, Serialize)]
+struct ReviewFrameEntry {
+    category: String,
+    timestamp: f32,
+    source: String,
+    file: String,
+    label: String,
+}
+
+fn package_review_frames(
+    config: &Config,
+    ep_dir: &Path,
+    frames_dir: &Path,
+    sched: &Schedule,
+) -> crate::error::Result<Vec<ReviewFrameEntry>> {
+    let review_frames = ep_dir.join("review").join("frames");
+    let sheet_frames = ep_dir.join("review").join("contact_sheet_frames");
+    std::fs::create_dir_all(&review_frames).map_err(io_err(&review_frames))?;
+    std::fs::create_dir_all(&sheet_frames).map_err(io_err(&sheet_frames))?;
+    let fps = config.runtime.frame_rate.max(1);
+    let mut requests: Vec<(String, f32, String, bool)> = Vec::new();
+
+    let mut t = 0.0f32;
+    while t <= sched.duration {
+        requests.push(("periodic".into(), t, format!("{t:.1}s"), false));
+        t += 2.0;
+    }
+    for (index, shot) in sched.camera_shots.iter().enumerate() {
+        let mid = (shot.start + shot.end) * 0.5;
+        requests.push((
+            "shot".into(),
+            mid,
+            format!("shot {:02} {}", index + 1, shot.intent),
+            false,
+        ));
+        if shot.intent == "reaction" {
+            requests.push((
+                "reaction".into(),
+                mid,
+                format!(
+                    "reaction {}",
+                    shot.reaction.as_deref().unwrap_or(&shot.subject)
+                ),
+                false,
+            ));
+        }
+    }
+    for (index, (time, target)) in sched.inserts.iter().enumerate() {
+        requests.push((
+            "interaction".into(),
+            *time,
+            format!("interaction {:02} {target}", index + 1),
+            false,
+        ));
+    }
+    for (index, caption) in sched.captions.iter().enumerate() {
+        requests.push((
+            "caption".into(),
+            (caption.start + caption.end) * 0.5,
+            format!("caption {:02}", index + 1),
+            true,
+        ));
+    }
+
+    let mut entries = Vec::new();
+    let captioned_video = ep_dir.join("output").join("vertical_captioned.mp4");
+    for (index, (category, timestamp, label, captioned)) in requests.into_iter().enumerate() {
+        let safe_time = timestamp.clamp(0.0, (sched.duration - 0.001).max(0.0));
+        let file_name = format!(
+            "{:03}_{}_{}.png",
+            index + 1,
+            category,
+            (safe_time * 100.0).round() as u32
+        );
+        let output = review_frames.join(&file_name);
+        let copied = if captioned {
+            let args = vec![
+                "-y".into(),
+                "-ss".into(),
+                format!("{safe_time:.3}"),
+                "-i".into(),
+                captioned_video.to_string_lossy().replace('\\', "/"),
+                "-frames:v".into(),
+                "1".into(),
+                output.to_string_lossy().replace('\\', "/"),
+            ];
+            run_ffmpeg(&config.runtime.ffmpeg_path, &args)?
+        } else {
+            let frame_number = ((safe_time * fps as f32).round() as u32 + 1).max(1);
+            let source = frames_dir.join(format!("frame_{frame_number:06}.png"));
+            std::fs::copy(&source, &output).is_ok()
+        };
+        if copied {
+            entries.push(ReviewFrameEntry {
+                category,
+                timestamp: safe_time,
+                source: if captioned {
+                    "captioned_mp4".into()
+                } else {
+                    "bevy_capture_frame".into()
+                },
+                file: format!("review/frames/{file_name}"),
+                label,
+            });
+        }
+    }
+
+    let periodic: Vec<&ReviewFrameEntry> = entries
+        .iter()
+        .filter(|entry| entry.category == "periodic")
+        .collect();
+    for (index, entry) in periodic.iter().enumerate() {
+        let source = ep_dir.join(&entry.file);
+        let target = sheet_frames.join(format!("sheet_{:03}.png", index + 1));
+        std::fs::copy(source, target).map_err(io_err(&sheet_frames))?;
+    }
+    if !periodic.is_empty() {
+        let pattern = sheet_frames
+            .join("sheet_%03d.png")
+            .to_string_lossy()
+            .replace('\\', "/");
+        let output = ep_dir
+            .join("review")
+            .join("contact_sheet.jpg")
+            .to_string_lossy()
+            .replace('\\', "/");
+        let args = vec![
+            "-y".into(),
+            "-framerate".into(),
+            "1".into(),
+            "-i".into(),
+            pattern,
+            "-vf".into(),
+            "scale=216:384,tile=5x6".into(),
+            "-frames:v".into(),
+            "1".into(),
+            output,
+        ];
+        if !run_ffmpeg(&config.runtime.ffmpeg_path, &args)? {
+            return Err(crate::error::CoreError::Msg(
+                "failed to generate review contact sheet".into(),
+            ));
+        }
+    }
+    let _ = std::fs::remove_dir_all(&sheet_frames);
+
+    let index_path = ep_dir.join("review").join("frame_index.json");
+    let json = serde_json::to_string_pretty(&entries)?;
+    std::fs::write(&index_path, json).map_err(io_err(&index_path))?;
+    Ok(entries)
+}
+
+fn write_review_handoff(
+    ep_dir: &Path,
+    plan: &EpisodePlan,
+    provider: &str,
+    render_backend: &str,
+    entries: &[ReviewFrameEntry],
+    issues: &[String],
+) -> crate::error::Result<()> {
+    let mut body = format!(
+        "# External Visual Review Handoff\n\n\
+         **Candidate:** {}\n\
+         **Renderer:** {}\n\
+         **TTS provider:** {}\n\n\
+         This MP4 is a candidate for external visual review. No automated result in this package is a claim that it looks good.\n\n\
+         ## Review assets\n\
+         - Captioned candidate: `output/vertical_captioned.mp4`\n\
+         - Clean candidate: `output/vertical_clean.mp4`\n\
+         - Review-frame index: `review/frame_index.json` ({} frames)\n\
+         - Periodic contact sheet: `review/contact_sheet.jpg`\n\
+         - Animation timeline: `review/animation_state_timeline.json`\n\
+         - Camera diagnostics: `review/framing_report.json`\n\
+         - Silence diagnostics: `review/silence_report.json`\n\n\
+         ## Automated issues\n",
+        plan.episode_title,
+        render_backend,
+        provider,
+        entries.len(),
+    );
+    if issues.is_empty() {
+        body.push_str(
+            "- No automated failures were reported. External visual judgment is still required.\n",
+        );
+    } else {
+        for issue in issues {
+            body.push_str(&format!("- {issue}\n"));
+        }
+    }
+    body.push_str(
+        "\n## Reviewer checklist\n\
+         - Character motion, gesture recovery, gaze, and listener reactions\n\
+         - Shot purpose, occlusion, continuity, and interaction readability\n\
+         - Hallway/elevator exposure, material separation, and door movement\n\
+         - Caption clipping, wrapping, phone readability, and action overlap\n\
+         - Dialogue intelligibility, voice quality, ambience, and sync\n\
+         - Escalation, payoff, and final hold\n",
+    );
+    let path = ep_dir.join("REVIEW_HANDOFF.md");
+    std::fs::write(&path, body).map_err(io_err(&path))?;
+    Ok(())
+}
+
 /// Stage 3 (shared): mix audio, encode MP4, verify, package, and write truthful
 /// logs. `render_backend` is recorded in the diagnostics so the artifact never
 /// lies about which renderer produced the imagery.
@@ -1843,13 +2339,16 @@ pub fn finalize_production(
     frames_dir: &Path,
     captured: u32,
     render_backend: &str,
+    timing_context: Option<&ProductionTimingContext>,
 ) -> crate::error::Result<ProduceReport> {
     let out_dir = &config.runtime.output_dir;
     let ep_dir = Path::new(out_dir).join("episodes").join(&prep.episode_id);
     let audio_dir = ep_dir.join("audio");
     let llm_dir = ep_dir.join("llm");
+    let review_dir = ep_dir.join("review");
     std::fs::create_dir_all(&audio_dir).map_err(io_err(&ep_dir))?;
     std::fs::create_dir_all(&llm_dir).map_err(io_err(&ep_dir))?;
+    std::fs::create_dir_all(&review_dir).map_err(io_err(&ep_dir))?;
 
     let sched = &prep.schedule;
     let rigs = &prep.rigs;
@@ -1903,7 +2402,8 @@ pub fn finalize_production(
 
     // Package
     let t_pack = std::time::Instant::now();
-    let mut world_after = world.clone();    let _delta = apply_persistent_changes(&mut world_after, &plan.persistent_changes);
+    let mut world_after = world.clone();
+    let _delta = apply_persistent_changes(&mut world_after, &plan.persistent_changes);
 
     let llm_used = auth.plan_source == AuthorSource::Llm
         || auth.beats.iter().any(|b| b.source == AuthorSource::Llm);
@@ -1920,7 +2420,12 @@ pub fn finalize_production(
     m.avg_shot_duration = if sched.camera_shots.is_empty() {
         0.0
     } else {
-        sched.camera_shots.iter().map(|s| s.end - s.start).sum::<f32>() / sched.camera_shots.len() as f32
+        sched
+            .camera_shots
+            .iter()
+            .map(|s| s.end - s.start)
+            .sum::<f32>()
+            / sched.camera_shots.len() as f32
     };
     m.longest_shot_duration = sched
         .camera_shots
@@ -1931,25 +2436,29 @@ pub fn finalize_production(
     m.payoff_complete = !plan.payoff.trim().is_empty();
     m.persistent_consequence = !plan.persistent_changes.is_empty();
 
-    // Caption safety: approximate rendered bounds from ASS layout assumptions.
-    // Each caption is wrapped to <=2 lines; we estimate pixel width per line at
-    // ~0.55 * fontsize per character and verify both lines fit the safe band.
+    // Caption safety: validate the exact explicit ASS wrap against the configured
+    // safe band. Three short lines are permitted for long 8-16 word dialogue.
     let (cw, ch) = (config.runtime.resolution.0, config.runtime.resolution.1);
-    let fontsize = ((ch as f32 * 0.034).round() as u32).clamp(42, 64) as f32;
+    let fontsize = ((ch as f32 * 0.027).round() as u32).clamp(42, 54) as f32;
     let margin_h = ((cw as f32 * 0.08).round() as u32).clamp(80, 140) as f32;
     let safe_w = cw as f32 - 2.0 * margin_h;
+    let wrap_chars = (safe_w / (fontsize * 0.55)).floor().max(1.0) as usize;
     let mut safe_count = 0u32;
     let mut unsafe_captions: Vec<String> = Vec::new();
     for c in &sched.captions {
         let normalized = normalize_caption_text(&c.text);
-        let lines = wrap_caption_lines(&normalized, (safe_w / (fontsize * 0.55)).round() as usize);
-        let widest = lines.iter().map(|l| l.chars().count()).max().unwrap_or(0) as f32 * fontsize * 0.55;
-        if lines.len() <= 2 && widest <= safe_w {
+        let lines = wrap_caption_lines(&normalized, wrap_chars);
+        let widest =
+            lines.iter().map(|l| l.chars().count()).max().unwrap_or(0) as f32 * fontsize * 0.55;
+        if lines.len() <= 3 && widest <= safe_w {
             safe_count += 1;
         } else {
             unsafe_captions.push(format!(
                 "[{:.1}-{:.1}] {} line(s), ~{:.0}px wide",
-                c.start, c.end, lines.len(), widest
+                c.start,
+                c.end,
+                lines.len(),
+                widest
             ));
         }
     }
@@ -1982,7 +2491,10 @@ pub fn finalize_production(
     // Objective, image-free proof that each shot frames a real, visible,
     // un-occluded performer. Re-renders each shot midpoint through the same
     // software renderer and reads the object-id + depth buffers.
-    let (rw, rh) = (config.runtime.resolution.0 / 2, config.runtime.resolution.1 / 2);
+    let (rw, rh) = (
+        config.runtime.resolution.0 / 2,
+        config.runtime.resolution.1 / 2,
+    );
     let cam_analysis = analyze_schedule(sched, rigs, world, rw, rh);
     let rejected: Vec<&ShotAnalysis> = cam_analysis.iter().filter(|a| a.rejected).collect();
     let means = |sel: fn(&ShotAnalysis) -> f32| {
@@ -2032,9 +2544,13 @@ pub fn finalize_production(
         serde_json::to_string_pretty(&silence_report).unwrap_or_default(),
     );
 
+    write_animation_state_timeline(&review_dir, sched, rigs, world)?;
+    let review_frames = package_review_frames(config, &ep_dir, frames_dir, sched)?;
+
     let diagnostics = {
         let mut issues: Vec<String> = Vec::new();
-        let rejected_shots: Vec<&ShotAnalysis> = cam_analysis.iter().filter(|a| a.rejected).collect();
+        let rejected_shots: Vec<&ShotAnalysis> =
+            cam_analysis.iter().filter(|a| a.rejected).collect();
         if !rejected_shots.is_empty() {
             issues.push(format!(
                 "camera: {} of {} shots rejected by framing analysis ({})",
@@ -2047,9 +2563,14 @@ pub fn finalize_production(
                     .join("; ")
             ));
         }
-        let zero_len = camera_plan.iter().filter(|s| s.end - s.start <= 0.05).count();
+        let zero_len = camera_plan
+            .iter()
+            .filter(|s| s.end - s.start <= 0.05)
+            .count();
         if zero_len > 0 {
-            issues.push(format!("camera: {zero_len} zero-length shots in camera plan"));
+            issues.push(format!(
+                "camera: {zero_len} zero-length shots in camera plan"
+            ));
         }
         if max_gap > config.runtime.max_dead_air_secs {
             issues.push(format!(
@@ -2099,11 +2620,22 @@ pub fn finalize_production(
             mp4_produced: enc_ok,
             ffmpeg_command: Some(cmd.clone()),
             ffprobe_ok,
-            replay_no_llm: true,
+            replay_no_llm: auth.validation_status.contains("reused")
+                && auth.attempts == 0
+                && auth.beats.iter().all(|beat| beat.attempts == 0),
             render_backend: render_backend.to_string(),
             timing: None,
         }
     };
+
+    write_review_handoff(
+        &ep_dir,
+        &plan,
+        &prep.tts_provider,
+        render_backend,
+        &review_frames,
+        &diagnostics.issues,
+    )?;
 
     let gemmy = GemmyManifest {
         title: plan.episode_title.clone(),
@@ -2121,37 +2653,53 @@ pub fn finalize_production(
             "output/vertical_captioned.mp4".into(),
             "output/vertical_clean.mp4".into(),
         ],
-        thumbnail_candidates: vec!["output/thumbnail_01.png".into()],
+        thumbnail_candidates: review_frames
+            .iter()
+            .find(|entry| entry.category == "periodic")
+            .map(|entry| entry.file.clone())
+            .into_iter()
+            .collect(),
         story_tags: plan.tone.clone(),
         quality_scores: Default::default(),
-        detected_issues: vec![],
+        detected_issues: diagnostics.issues.clone(),
         canonical: true,
         suggested_posting_caption: format!("{} #shorts", plan.episode_title),
         suggested_compilation_category: "surreal-comedy".into(),
     };
 
-    // Finish packaging timing and attach timing to diagnostics immediately so
-    // even the CPU/offline path has a breakdown (Bevy path overwrites with
-    // additional bevy_capture/effective_fps data afterwards).
+    // Attach one authoritative timing report before building either persisted
+    // report. Renderer-owned capture timing and shared mix/encode timing must
+    // never be written in separate passes because that makes the artifacts drift.
     let packaging_secs = t_pack.elapsed().as_secs_f32();
+    let ended_at = chrono::Utc::now().to_rfc3339();
+    let default_total = prep.prep_timings.llm_authoring_secs
+        + prep.prep_timings.tts_generation_secs
+        + prep.prep_timings.timeline_prep_secs
+        + audio_mixing_secs
+        + ffmpeg_encode_secs
+        + packaging_secs;
     let mut diagnostics_with_timing = diagnostics.clone();
     diagnostics_with_timing.timing = Some(crate::package::TimingReport {
         llm_authoring_secs: prep.prep_timings.llm_authoring_secs,
         tts_generation_secs: prep.prep_timings.tts_generation_secs,
         timeline_prep_secs: prep.prep_timings.timeline_prep_secs,
-        bevy_capture_secs: 0.0,
+        bevy_capture_secs: timing_context.map(|t| t.bevy_capture_secs).unwrap_or(0.0),
         audio_mixing_secs,
         ffmpeg_encode_secs,
         packaging_secs,
-        total_end_to_end_secs: prep.prep_timings.llm_authoring_secs
-            + prep.prep_timings.tts_generation_secs
-            + prep.prep_timings.timeline_prep_secs
-            + audio_mixing_secs
-            + ffmpeg_encode_secs
-            + packaging_secs,
-        effective_fps: None,
-        started_at: chrono::Utc::now().to_rfc3339(),
-        ended_at: chrono::Utc::now().to_rfc3339(),
+        total_end_to_end_secs: timing_context
+            .map(|t| {
+                t.elapsed_before_finalize_secs
+                    + audio_mixing_secs
+                    + ffmpeg_encode_secs
+                    + packaging_secs
+            })
+            .unwrap_or(default_total),
+        effective_fps: timing_context.and_then(|t| t.effective_fps),
+        started_at: timing_context
+            .map(|t| t.started_at.clone())
+            .unwrap_or_else(|| chrono::Utc::now().to_rfc3339()),
+        ended_at,
     });
 
     let mut pkg = EpisodePackage {
@@ -2184,7 +2732,12 @@ pub fn finalize_production(
         clean_out.to_str().unwrap(),
         sched.duration,
     );
-    write_tts_manifest(&audio_dir, &prep.clips, prep.tts_provider.clone(), prep.any_real);
+    write_tts_manifest(
+        &audio_dir,
+        &prep.clips,
+        prep.tts_provider.clone(),
+        prep.any_real,
+    );
 
     Ok(ProduceReport {
         episode_id: prep.episode_id.clone(),
@@ -2212,9 +2765,18 @@ pub fn produce_episode(
     cfg: ProduceConfig,
     author: Box<dyn EpisodeAuthor>,
 ) -> crate::error::Result<ProduceReport> {
-    let ProduceConfig { config, require_llm, world, seed, episode_number, keep_frames } = cfg;
+    let ProduceConfig {
+        config,
+        require_llm,
+        world,
+        seed,
+        episode_number,
+        keep_frames,
+    } = cfg;
     let out_dir = config.runtime.output_dir.clone();
-    let ep_dir = Path::new(&out_dir).join("episodes").join(serial_id("episode", episode_number, 6));
+    let ep_dir = Path::new(&out_dir)
+        .join("episodes")
+        .join(serial_id("episode", episode_number, 6));
     let frames_dir = ep_dir.join("frames");
     std::fs::create_dir_all(&frames_dir).map_err(io_err(&ep_dir))?;
 
@@ -2222,7 +2784,10 @@ pub fn produce_episode(
 
     // CPU software-rasterizer frame capture (deterministic, no LLM).
     let fps = config.runtime.frame_rate.max(1);
-    let (rw, rh) = (config.runtime.resolution.0 / 2, config.runtime.resolution.1 / 2);
+    let (rw, rh) = (
+        config.runtime.resolution.0 / 2,
+        config.runtime.resolution.1 / 2,
+    );
     let renderer = StageRenderer::new(rw.max(2), rh.max(2));
     let n_frames = (prep.schedule.duration * fps as f32).ceil() as u32;
     let mut captured = 0u32;
@@ -2238,7 +2803,9 @@ pub fn produce_episode(
         geo.non_finite += fstats.non_finite;
         geo.clipped_near += fstats.clipped_near;
         geo.implausible_character_triangles += fstats.implausible_character_triangles;
-        geo.max_triangle_screen_fraction = geo.max_triangle_screen_fraction.max(fstats.max_triangle_screen_fraction);
+        geo.max_triangle_screen_fraction = geo
+            .max_triangle_screen_fraction
+            .max(fstats.max_triangle_screen_fraction);
         let path = frames_dir.join(format!("frame_{:06}.png", i + 1));
         if write_png(&path, rw, rh, rgba).is_err() {
             tracing::warn!("frame write failed");
@@ -2254,7 +2821,15 @@ pub fn produce_episode(
         serde_json::to_string_pretty(&geo).unwrap_or_default(),
     );
 
-    let report = finalize_production(&config, require_llm, &prep, &frames_dir, captured, "cpu_software")?;
+    let report = finalize_production(
+        &config,
+        require_llm,
+        &prep,
+        &frames_dir,
+        captured,
+        "cpu_software",
+        None,
+    )?;
 
     if !keep_frames && captured > 0 {
         let _ = std::fs::remove_dir_all(&frames_dir);
@@ -2265,7 +2840,10 @@ pub fn produce_episode(
 // ---- helpers for produce ----
 
 fn io_err<'a>(p: &'a Path) -> impl FnOnce(std::io::Error) -> crate::error::CoreError + 'a {
-    move |source| crate::error::CoreError::Io { path: p.to_path_buf(), source }
+    move |source| crate::error::CoreError::Io {
+        path: p.to_path_buf(),
+        source,
+    }
 }
 
 fn build_validated(world: &WorldState, planned: &PlannedEpisode) -> Option<ValidatedPlan> {
@@ -2280,14 +2858,20 @@ fn build_validated(world: &WorldState, planned: &PlannedEpisode) -> Option<Valid
             }
         }
     }
-    Some(ValidatedPlan { plan: planned.plan.clone(), resolved_beats: resolved })
+    Some(ValidatedPlan {
+        plan: planned.plan.clone(),
+        resolved_beats: resolved,
+    })
 }
 
 pub fn build_rigs(world: &WorldState) -> HashMap<String, HumanoidRig> {
     let mut m = HashMap::new();
     for c in world.characters.values() {
         let col = hex_rgb(&c.color_hex);
-        m.insert(c.id.clone(), HumanoidRig::default_humanoid(&c.id, &c.voice_id, col));
+        m.insert(
+            c.id.clone(),
+            HumanoidRig::default_humanoid(&c.id, &c.voice_id, col),
+        );
     }
     m
 }
@@ -2319,7 +2903,9 @@ pub fn write_png(path: &Path, w: u32, h: u32, rgba: &[u8]) -> crate::error::Resu
     let mut enc = png::Encoder::new(file, w, h);
     enc.set_color(png::ColorType::Rgba);
     enc.set_depth(png::BitDepth::Eight);
-    let mut writer = enc.write_header().map_err(|e| crate::error::CoreError::Llm(format!("png header: {e}")))?;
+    let mut writer = enc
+        .write_header()
+        .map_err(|e| crate::error::CoreError::Llm(format!("png header: {e}")))?;
     writer
         .write_image_data(rgba)
         .map_err(|e| crate::error::CoreError::Llm(format!("png write: {e}")))?;
@@ -2352,12 +2938,22 @@ fn write_llm_logs(
     let mut resps = String::new();
     for b in &planned.plan.beats {
         let cmd = planned.commands.get(&b.id);
-        let src = auth.beats.iter().find(|x| x.beat_id == b.id).map(|x| x.source.as_str()).unwrap_or("unknown");
-        reqs.push_str(&serde_json::to_string(&serde_json::json!({
-            "beat_id": b.id, "source": src, "request": "BeatCommand request"
-        })).unwrap_or_default());
+        let src = auth
+            .beats
+            .iter()
+            .find(|x| x.beat_id == b.id)
+            .map(|x| x.source.as_str())
+            .unwrap_or("unknown");
+        reqs.push_str(
+            &serde_json::to_string(&serde_json::json!({
+                "beat_id": b.id, "source": src, "request": "BeatCommand request"
+            }))
+            .unwrap_or_default(),
+        );
         reqs.push('\n');
-        let resp = cmd.map(|c| serde_json::to_string(c).unwrap_or_default()).unwrap_or_else(|| format!("{{\"source\":\"{src}\"}}"));
+        let resp = cmd
+            .map(|c| serde_json::to_string(c).unwrap_or_default())
+            .unwrap_or_else(|| format!("{{\"source\":\"{src}\"}}"));
         resps.push_str(&resp);
         resps.push('\n');
     }
@@ -2407,13 +3003,15 @@ fn write_tts_manifest(dir: &Path, clips: &[(String, f32, f32)], provider: String
 
 #[cfg(test)]
 mod review_tests {
-    use crate::timeline::{
-        CameraShotSpec, CharFrame, CharTrack, FrameState, Schedule, ScheduledAction, evaluate_at,
+    use super::*;
+    use crate::avatar::{
+        character_pose, HumanoidRig, PerformanceState, Pose, SemanticJoint, Xform,
     };
-    use crate::avatar::{HumanoidRig, PerformanceState, Pose, SemanticJoint, Xform};
+    use crate::timeline::{
+        evaluate_at, CameraShotSpec, CharFrame, CharTrack, FrameState, Schedule, ScheduledAction,
+    };
     use crate::world::build_default_world;
     use std::collections::HashMap;
-    use super::*;
 
     #[test]
     fn frame_motion_detects_change_and_identity() {
@@ -2423,8 +3021,15 @@ mod review_tests {
         diff[mid] = 220;
         diff[mid + 1] = 220;
         diff[mid + 2] = 220;
-        assert!(frame_motion(&blank, &diff) > 0.0, "changed frame must show motion");
-        assert_eq!(frame_motion(&blank, &blank), 0.0, "identical frames show no motion");
+        assert!(
+            frame_motion(&blank, &diff) > 0.0,
+            "changed frame must show motion"
+        );
+        assert_eq!(
+            frame_motion(&blank, &blank),
+            0.0,
+            "identical frames show no motion"
+        );
     }
 
     #[test]
@@ -2508,8 +3113,16 @@ mod review_tests {
     #[test]
     fn build_ass_subtitles_is_valid_and_per_caption() {
         let caps = vec![
-            Caption { start: 0.5, end: 2.0, text: "The\nelevator's feeling warm".into() },
-            Caption { start: 2.5, end: 4.0, text: "Don't crowd the door".into() },
+            Caption {
+                start: 0.5,
+                end: 2.0,
+                text: "The\nelevator's feeling warm".into(),
+            },
+            Caption {
+                start: 2.5,
+                end: 4.0,
+                text: "Don't crowd the door".into(),
+            },
         ];
         let ass = build_ass_subtitles(&caps, (1080, 1920));
         assert!(ass.contains("[Script Info]"));
@@ -2545,7 +3158,11 @@ mod review_tests {
         let out = clip_near(&straddle, 0.08);
         assert!(!out.is_empty(), "clipped polygon must not vanish");
         for v in &out {
-            assert!(v[2] >= 0.08 - 1e-5, "vertex behind near plane after clip: {:?}", v);
+            assert!(
+                v[2] >= 0.08 - 1e-5,
+                "vertex behind near plane after clip: {:?}",
+                v
+            );
         }
     }
 
@@ -2585,7 +3202,10 @@ mod review_tests {
             chars: vec![(
                 CharFrame {
                     id: "mara".into(),
-                    root: Xform { pos: [0.0, 0.0, 0.0], rot: [0.0, 0.0, 0.0] },
+                    root: Xform {
+                        pos: [0.0, 0.0, 0.0],
+                        rot: [0.0, 0.0, 0.0],
+                    },
                     state: PerformanceState::Idle,
                     walk_phase: 0.0,
                     speaking: false,
@@ -2607,7 +3227,10 @@ mod review_tests {
         let r = StageRenderer::new(240, 420);
         let buf = r.render_buffers(&state, &rigs, &world, None);
         assert_eq!(buf.stats.non_finite, 0, "no non-finite projections");
-        assert_eq!(buf.stats.behind_camera, 0, "no whole triangles behind camera");
+        assert_eq!(
+            buf.stats.behind_camera, 0,
+            "no whole triangles behind camera"
+        );
         assert_eq!(
             buf.stats.implausible_character_triangles, 0,
             "no character triangle may fill >60% of the frame (spike/shard guard)"
@@ -2633,7 +3256,10 @@ mod review_tests {
             chars: vec![(
                 CharFrame {
                     id: "mara".into(),
-                    root: Xform { pos: [3.0, 0.0, -1.0], rot: [0.0, 0.0, 0.0] },
+                    root: Xform {
+                        pos: [3.0, 0.0, -1.0],
+                        rot: [0.0, 0.0, 0.0],
+                    },
                     state: PerformanceState::Idle,
                     walk_phase: 0.0,
                     speaking: false,
@@ -2680,11 +3306,20 @@ mod review_tests {
     #[test]
     fn rig_hierarchy_head_above_feet_and_connected() {
         let rig = HumanoidRig::default_humanoid("mara", "en-us", [0.8, 0.3, 0.3]);
-        let wm = rig.world_matrices(&Xform { pos: [0.0, 0.0, 0.0], rot: [0.0, 0.0, 0.0] }, &Pose::default());
+        let wm = rig.world_matrices(
+            &Xform {
+                pos: [0.0, 0.0, 0.0],
+                rot: [0.0, 0.0, 0.0],
+            },
+            &Pose::default(),
+        );
         let head_y = wm.get(&SemanticJoint::Head).unwrap().pos[1];
         let chest_y = wm.get(&SemanticJoint::Chest).unwrap().pos[1];
         let pelvis_y = wm.get(&SemanticJoint::Pelvis).unwrap().pos[1];
-        assert!(head_y > chest_y && chest_y > pelvis_y, "head above chest above pelvis");
+        assert!(
+            head_y > chest_y && chest_y > pelvis_y,
+            "head above chest above pelvis"
+        );
         // Exclude the Root joint (placed at the character origin y=0) and only
         // consider the actual body parts: the lowest point of any part (center
         // minus its half-height) must sit near the floor.
@@ -2696,7 +3331,10 @@ mod review_tests {
                 w.pos[1] - p.half[1]
             })
             .fold(f32::INFINITY, f32::min);
-        assert!(lowest > 0.0 && lowest < 0.20, "feet must sit near the floor (y={lowest:.3})");
+        assert!(
+            lowest > 0.0 && lowest < 0.20,
+            "feet must sit near the floor (y={lowest:.3})"
+        );
         for p in &rig.parts {
             // The Pelvis hangs ~0.92 m above the Root (ground anchor); that long
             // link is the leg length by design, not a detachment. We verify that
@@ -2706,8 +3344,13 @@ mod review_tests {
             }
             let cp = wm.get(&p.joint).unwrap().pos;
             let pp = wm.get(&p.parent).map(|w| w.pos).unwrap_or([0.0; 3]);
-            let d = ((cp[0] - pp[0]).powi(2) + (cp[1] - pp[1]).powi(2) + (cp[2] - pp[2]).powi(2)).sqrt();
-            assert!(d < 0.8, "part {:?} detached from parent (d={d:.2})", p.joint);
+            let d = ((cp[0] - pp[0]).powi(2) + (cp[1] - pp[1]).powi(2) + (cp[2] - pp[2]).powi(2))
+                .sqrt();
+            assert!(
+                d < 0.8,
+                "part {:?} detached from parent (d={d:.2})",
+                p.joint
+            );
         }
     }
 
@@ -2718,22 +3361,46 @@ mod review_tests {
         let gesture = character_pose(PerformanceState::Gesture, 1.0, 0.0);
         let react = character_pose(PerformanceState::React, 1.0, 0.0);
         let hand_idle = rig
-            .world_matrices(&Xform { pos: [0.0; 3], rot: [0.0; 3] }, &idle)
+            .world_matrices(
+                &Xform {
+                    pos: [0.0; 3],
+                    rot: [0.0; 3],
+                },
+                &idle,
+            )
             .get(&SemanticJoint::LeftHand)
             .unwrap()
             .pos;
         let hand_gesture = rig
-            .world_matrices(&Xform { pos: [0.0; 3], rot: [0.0; 3] }, &gesture)
+            .world_matrices(
+                &Xform {
+                    pos: [0.0; 3],
+                    rot: [0.0; 3],
+                },
+                &gesture,
+            )
             .get(&SemanticJoint::LeftHand)
             .unwrap()
             .pos;
         let head_idle = rig
-            .world_matrices(&Xform { pos: [0.0; 3], rot: [0.0; 3] }, &idle)
+            .world_matrices(
+                &Xform {
+                    pos: [0.0; 3],
+                    rot: [0.0; 3],
+                },
+                &idle,
+            )
             .get(&SemanticJoint::Head)
             .unwrap()
             .pos;
         let head_react = rig
-            .world_matrices(&Xform { pos: [0.0; 3], rot: [0.0; 3] }, &react)
+            .world_matrices(
+                &Xform {
+                    pos: [0.0; 3],
+                    rot: [0.0; 3],
+                },
+                &react,
+            )
             .get(&SemanticJoint::Head)
             .unwrap()
             .pos;
@@ -2745,8 +3412,14 @@ mod review_tests {
             + (head_idle[1] - head_react[1]).powi(2)
             + (head_idle[2] - head_react[2]).powi(2))
         .sqrt();
-        assert!(d_hand > 0.05, "gesture must move the arm/hand (d={d_hand:.3})");
-        assert!(d_head > 0.01, "react must move the head/torso (d={d_head:.3})");
+        assert!(
+            d_hand > 0.05,
+            "gesture must move the arm/hand (d={d_hand:.3})"
+        );
+        assert!(
+            d_head > 0.01,
+            "react must move the head/torso (d={d_head:.3})"
+        );
     }
 
     #[test]
@@ -2780,7 +3453,10 @@ mod review_tests {
         let pa = a.chars[0].0.root.pos;
         let pb = b.chars[0].0.root.pos;
         let d = ((pa[0] - pb[0]).powi(2) + (pa[2] - pb[2]).powi(2)).sqrt();
-        assert!(d > 0.2, "move action must translate the character (d={d:.2})");
+        assert!(
+            d > 0.2,
+            "move action must translate the character (d={d:.2})"
+        );
     }
 
     #[test]
@@ -2846,7 +3522,10 @@ mod review_tests {
                 (
                     CharFrame {
                         id: "mara".into(),
-                        root: Xform { pos: [0.0, 0.0, 2.0], rot: [0.0, 0.0, 0.0] },
+                        root: Xform {
+                            pos: [0.0, 0.0, 2.0],
+                            rot: [0.0, 0.0, 0.0],
+                        },
                         state: PerformanceState::Idle,
                         walk_phase: 0.0,
                         speaking: false,
@@ -2863,7 +3542,10 @@ mod review_tests {
                         // triangle is bounded to the frustum and contributes only a
                         // thin sliver, never a shard.
                         id: "ellis".into(),
-                        root: Xform { pos: [0.0, 0.0, 0.1], rot: [0.0, 0.0, 0.0] },
+                        root: Xform {
+                            pos: [0.0, 0.0, 0.1],
+                            rot: [0.0, 0.0, 0.0],
+                        },
                         state: PerformanceState::Idle,
                         walk_phase: 0.0,
                         speaking: false,

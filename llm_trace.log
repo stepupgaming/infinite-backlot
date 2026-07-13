@@ -1,0 +1,1454 @@
+[1783947429] oa_ok OK elapsed=122748ms len=2534
+{
+  "episode_title": "The Disagreement in 3B",
+  "logline": "Voss tries to cite the hallway for light flickering while Ellis attempts to eavesdrop on the elevator's secret floor.",
+  "tone": [
+    "surreal",
+    "comedy"
+  ],
+  "target_duration_seconds": 50.0,
+  "active_characters": [
+    "voss",
+    "ellis",
+    "mara"
+  ],
+  "primary_location": "floor_3_hallway",
+  "central_goal": {
+    "character": "mara",
+    "goal": "complete the shift without revealing anomalies"
+  },
+  "beats": [
+    {
+      "id": "beat_1",
+      "type": "beat",
+      "target_start_second": 0,
+      "action_sequence": [
+        {
+          "camera_intent": "establish",
+          "character_id": "voss",
+          "action": "speak",
+          "dialogue": "This flickering is a blatant violation of code 4-B."
+        },
+        {
+          "camera_intent": "reaction",
+          "character_id": "mara",
+          "action": "sigh"
+        }
+      ]
+    },
+    {
+      "id": "beat_2",
+      "type": "beat",
+      "target_start_second": 12,
+      "action_sequence": [
+        {
+          "camera_intent": "follow",
+          "character_id": "ellis",
+          "action": "approach"
+        },
+        {
+          "camera_in
+------------------------------------------------------------
+[1783947494] oa_ok OK elapsed=64829ms len=1333
+{
+  "beat_id": "beat_1",
+  "dramatic_purpose": "Voss confronts Mara about the flickering lights while Ellis eavesdrops on the elevator.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "point_at",
+      "text": "The hallway lights are pulsing in Morse code again."
+    },
+    {
+      "actor": "mara",
+      "action": "sigh",
+      "text": "It is just a faulty ballast, Voss. Please just sign the log."
+    },
+    {
+      "actor": "voss",
+      "action": "look_at",
+      "text": "It's rhythmic, Mara. It's definitely rhythmic."
+    },
+    {
+      "actor": "ellis",
+      "action": "approach",
+      "text": ""
+    },
+    {
+      "actor": "ellis",
+      "action": "listen",
+      "text": ""
+    },
+    {
+      "actor": "ellis",
+      "action": "whisper",
+      "text": "The elevator is humming in B-flat. It's trying to tell me something."
+    },
+    {
+      "actor": "mara",
+      "action": "display_emotion",
+      "text": "stress"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "Ellis, stop listening to the machinery. It's not part of your shift."
+    },
+    {
+      "actor": "voss",
+      "action": "flicker_lights",
+      "text": ""
+    }
+  ],
+  "camera_
+------------------------------------------------------------
+[1783947556] oa_ok OK elapsed=62069ms len=1245
+{
+  "beat_id": "beat_2",
+  "dramatic_purpose": "Voss confronts Mara about the flickering lights while Ellis eavesdrops on the elevator.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "approach",
+      "target": "mara"
+    },
+    {
+      "actor": "voss",
+      "action": "point_at",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "The hallway lights are blinking in Morse code again, Mara."
+    },
+    {
+      "actor": "mara",
+      "action": "conceal_emotion",
+      "intensity": 0.9
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "It is just a loose bulb, Voss. Please sign the log."
+    },
+    {
+      "actor": "ellis",
+      "action": "approach",
+      "target": "open_elevator"
+    },
+    {
+      "actor": "ellis",
+      "action": "listen",
+      "target": "open_elevator"
+    },
+    {
+      "actor": "ellis",
+      "action": "whisper",
+      "text": "I can hear the elevator humming in B-flat."
+    },
+    {
+      "actor": "flicker_lights",
+      "action": "play_environment_effect"
+    }
+  ],
+  "camera_intent": {
+    "type": "conversation",
+    "subject": "voss"
+  },
+  "completion_condit
+------------------------------------------------------------
+[1783947620] oa_ok OK elapsed=63598ms len=1293
+{
+  "beat_id": "beat_3",
+  "dramatic_purpose": "Voss confronts Mara about the elevator while Ellis eavesdrops",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "point_at",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "The flickering in this corridor is a direct violation of the building's structural stability code."
+    },
+    {
+      "actor": "mara",
+      "action": "display_emotion",
+      "emotion": "annoyance"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "It's just a loose bulb, Voss. Stop making a scene."
+    },
+    {
+      "actor": "ellis",
+      "action": "hide_object",
+      "target": "elevator"
+    },
+    {
+      "actor": "ellis",
+      "action": "whisper",
+      "text": "I can hear the floor counting down from negative ten."
+    },
+    {
+      "actor": "mara",
+      "action": "react",
+      "intensity": 0.9
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "Ellis, go back to your unit immediately."
+    },
+    {
+      "actor": "flicker_lights",
+      "action": "play_environment_effect"
+    }
+  ],
+  "camera_intent": {
+    "type": "conversation",
+------------------------------------------------------------
+[1783947674] oa_ok OK elapsed=54328ms len=1053
+{
+  "beat_id": "beat_4",
+  "dramatic_purpose": "Mara attempts to deflect Voss's scrutiny while Ellis's eavesdropping causes a spatial disturbance.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "point_at",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "The flickering is rhythmic, Mara. It's communicating."
+    },
+    {
+      "actor": "mara",
+      "action": "conceal_emotion",
+      "intensity": 0.9
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "It's just a loose bulb, Voss. Don't make it a thing."
+    },
+    {
+      "actor": "ellis",
+      "action": "whisper",
+      "text": "It's not a bulb, it's a doorbell for the void!"
+    },
+    {
+      "actor": "floor_3_hallway",
+      "action": "flicker_lights"
+    },
+    {
+      "actor": "mara",
+      "action": "react",
+      "intensity": 1.0
+    }
+  ],
+  "camera_intent": {
+    "type": "tension_push",
+    "subject": "mara"
+  },
+  "completion_condition": {
+    "type": "dialogue_finished"
+  }
+}
+------------------------------------------------------------
+[1783950170] oa_ok OK elapsed=173956ms len=2939
+{
+  "episode_title": "The Unlisted Level",
+  "logline": "Ellis tries to sneak into the elevator while Mara attempts to distract an inspector.",
+  "tone": [
+    "surreal",
+    "comedy"
+  ],
+  "target_duration_seconds": 50.0,
+  "active_characters": [
+    "mara",
+    "voss",
+    "ellis"
+  ],
+  "primary_location": "floor_3_hallway",
+  "central_goal": {
+    "character": "mara",
+    "goal": "prevent Voss from noticing the elevator's impossible behavior"
+  },
+  "beats": [
+    {
+      "id": "beat_1",
+      "type": "beat",
+      "target_start_second": 0,
+      "action_sequence": [
+        {
+          "camera_intent": "establish",
+          "character_id": "mara",
+          "action": "stand_at",
+          "target_id": "maintenance_panel"
+        },
+        {
+          "camera_intent": "speaker_closeup",
+          "character_id": "mara",
+          "action": "speak",
+          "dialogue": "It's just a faulty light, Inspector. Nothing to see here."
+        },
+        {
+          "camera_intent": "reaction",
+          "character_id": "voss",
+          "action": "inspect",
+          "target_id": "maintenance_panel"
+        }
+      ]
+    },
+    {
+      "id": "beat_2",
+      "type": "beat",
+      "
+------------------------------------------------------------
+[1783950228] oa_ok OK elapsed=58124ms len=1116
+{
+  "beat_id": "beat_1",
+  "dramatic_purpose": "Ellis attempts to sneak past Voss while Mara deflects his suspicion about the elevator's extra floor.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "inspect",
+      "text": "The floor plan shows a void here."
+    },
+    {
+      "actor": "mara",
+      "action": "approach",
+      "text": "It's just a structural quirk, Voss. Don't be pedantic."
+    },
+    {
+      "actor": "ellis",
+      "action": "move_to",
+      "text": ""
+    },
+    {
+      "actor": "ellis",
+      "action": "look_at",
+      "text": "open_elevator"
+    },
+    {
+      "actor": "voss",
+      "action": "turn_toward",
+      "text": "ellis"
+    },
+    {
+      "actor": "mara",
+      "action": "interrupt",
+      "text": "Anyway, about that plumbing report..."
+    },
+    {
+      "actor": "ellis",
+      "action": "flee_to",
+      "text": "open_elevator"
+    },
+    {
+      "actor": "voss",
+      "action": "react",
+      "text": ""
+    }
+  ],
+  "camera_intent": {
+    "type": "comedic_wide",
+    "subject": "ellis"
+  },
+  "completion_condition": {
+    "type": "dialogue_finished"
+  }
+}
+------------------------------------------------------------
+[1783950287] oa_ok OK elapsed=59054ms len=1180
+{
+  "beat_id": "beat_2",
+  "dramatic_purpose": "Ellis attempts to slip past Voss while Mara deflects his suspicion.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "inspect",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "The floor plan shows a void where this shaft is."
+    },
+    {
+      "actor": "mara",
+      "action": "gesture",
+      "text": "It's just architectural charm, Voss."
+    },
+    {
+      "actor": "mara",
+      "action": "look_at",
+      "target": "voss"
+    },
+    {
+      "actor": "ellis",
+      "action": "approach",
+      "target": "open_elevator"
+    },
+    {
+      "actor": "ellis",
+      "action": "react",
+      "intensity": 0.9
+    },
+    {
+      "actor": "voss",
+      "action": "turn_toward",
+      "target": "ellis"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "Ellis? Why are you vibrating?"
+    },
+    {
+      "actor": "ellis",
+      "action": "flee_to",
+      "target": "open_elevator"
+    }
+  ],
+  "camera_intent": {
+    "type": "tension_push",
+    "subject": "ellis"
+  },
+  "completion_condition": {
+    "type": "dialogue_finished"
+  }
+}
+------------------------------------------------------------
+[1783950355] oa_ok OK elapsed=67598ms len=1339
+{
+  "beat_id": "beat_3",
+  "dramatic_purpose": "Ellis is caught by Voss while Mara tries to cover for the elevator's impossible geometry.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "inspect",
+      "text": "Why is the floor number 'Purple' on this panel?"
+    },
+    {
+      "actor": "ellis",
+      "action": "approach",
+      "text": "I was just... checking the lightbulb!"
+    },
+    {
+      "actor": "mara",
+      "action": "interrupt",
+      "text": "He's right, Voss! The lightbulb is actually a sentient being and it's very shy."
+    },
+    {
+      "actor": "voss",
+      "action": "look_at",
+      "subject": "ellis"
+    },
+    {
+      "actor": "ellis",
+      "action": "flee_to",
+      "target": "elevator"
+    },
+    {
+      "actor": "voss",
+      "action": "point_at",
+      "text": "The elevator is currently floating three feet off the ground."
+    },
+    {
+      "actor": "mara",
+      "action": "display_emotion",
+      "emotion": "panic"
+    },
+    {
+      "actor": "ellis",
+      "action": "activate",
+      "text": "Incoming!"
+    },
+    {
+      "actor": "play_environment_effect",
+      "action": "change_room_state",
+      "text": "elevator_floats_upward"
+    }
+
+------------------------------------------------------------
+[1783950405] oa_ok OK elapsed=49674ms len=994
+{
+  "beat_id": "beat_4",
+  "dramatic_purpose": "Voss notices the elevator door opening into a void, forcing Mara into a desperate lie.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "look_at",
+      "target": "elevator"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "Why is the elevator opening into a nebula?"
+    },
+    {
+      "actor": "mara",
+      "action": "react",
+      "intensity": 0.9
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "It's just a high-definition screensaver, Voss. Very modern."
+    },
+    {
+      "actor": "voss",
+      "action": "inspect",
+      "target": "elevator"
+    },
+    {
+      "actor": "mara",
+      "action": "gesture",
+      "text": "Don't touch it! It's still buffering."
+    },
+    {
+      "actor": "voss",
+      "action": "sigh"
+    }
+  ],
+  "camera_intent": {
+    "type": "tension_push",
+    "subject": "voss"
+  },
+  "completion_condition": {
+    "type": "dialogue_finished"
+  }
+}
+------------------------------------------------------------
+[1783950705] oa ERROR elapsed=300015ms err=http error: error sending request for url (http://127.0.0.1:8080/v1/chat/completions)
+------------------------------------------------------------
+[1783950803] oa_ok OK elapsed=98455ms len=1475
+{
+  "active_characters": [
+    "mara",
+    "voss",
+    "ellis"
+  ],
+  "beats": [
+    {
+      "id": "beat_1",
+      "target_start_second": 0,
+      "type": "beat",
+      "description": "Ellis is caught peeking into the elevator shaft by Voss, who is checking the floor numbers."
+    },
+    {
+      "id": "beat_2",
+      "target_start_second": 12,
+      "type": "beat",
+      "description": "Mara arrives to intercept Voss, attempting to explain away the elevator's non-standard floor numbering."
+    },
+    {
+      "id": "beat_3",
+      "target_start_second": 25,
+      "type": "beat",
+      "description": "The elevator dings and opens to a void of swirling purple light; Voss insists this is a zoning violation."
+    },
+    {
+      "id": "beat_4",
+      "target_start_second": 38,
+      "type": "beat",
+      "description": "Mara tries to force the elevator doors shut while Ellis tries to take a photo of the abyss."
+    }
+  ],
+  "central_goal": {
+    "character": "mara",
+    "goal": "prevent Voss from documenting the non-existent floor"
+  },
+  "episode_title": "The Zoning of the Void",
+  "logline": "A curious tenant and a bureaucratic inspector clash over an elevator that opens into a dimensi
+------------------------------------------------------------
+[1783950909] oa_ok OK elapsed=105785ms len=2000
+{
+  "beat_id": "beat_1",
+  "dramatic_purpose": "Ellis is caught peeking into the elevator shaft by Voss, who is checking the floor numbers.",
+  "actions": [
+    {
+      "actor": "ellis",
+      "action": "approach",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "ellis",
+      "action": "look_at",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "ellis",
+      "action": "open",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "ellis",
+      "action": "inspect",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "ellis",
+      "action": "speak",
+      "text": "The purple nebula is leaking into the lobby again."
+    },
+    {
+      "actor": "voss",
+      "action": "approach",
+      "target": "ellis"
+    },
+    {
+      "actor": "voss",
+      "action": "look_at",
+      "target": "ellis"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "Tenant Ellis, please step away from the unauthorized aperture."
+    },
+    {
+      "actor": "ellis",
+      "action": "react",
+      "intensity": 0.8
+    },
+    {
+      "actor": "ellis",
+      "action": "speak",
+      "text": "It's not an aperture, it's a structural oversight!"
+  
+------------------------------------------------------------
+[1783950991] oa_ok OK elapsed=82080ms len=1549
+{
+  "beat_id": "beat_2",
+  "dramatic_purpose": "Mara arrives to intercept Voss, attempting to explain away the elevator's non-standard floor numbering.",
+  "actions": [
+    {
+      "actor": "mara",
+      "action": "approach",
+      "target": "voss"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "Voss, stop! You're looking at a structural optical illusion."
+    },
+    {
+      "actor": "voss",
+      "action": "turn_toward",
+      "target": "mara"
+    },
+    {
+      "actor": "voss",
+      "action": "inspect",
+      "target": "elevator"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "The elevator is currently displaying 'Floor Negative Infinity'. That is not in the building's permit."
+    },
+    {
+      "actor": "mara",
+      "action": "gesture"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "It's just a very aggressive basement. The contractor used a different numbering system."
+    },
+    {
+      "actor": "voss",
+      "action": "react"
+    },
+    {
+      "actor": "voss",
+      "action": "write_note"
+    },
+    {
+      "actor": "mara",
+      "action": "display_emotion",
+      "emotion": "anxiety"
+    
+------------------------------------------------------------
+[1783951072] oa_ok OK elapsed=80448ms len=1404
+{
+  "beat_id": "beat_3",
+  "dramatic_purpose": "The elevator reveals the void and Voss identifies a zoning violation.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "approach",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "voss",
+      "action": "open",
+      "target": "elevator"
+    },
+    {
+      "actor": "voss",
+      "action": "play_environment_effect",
+      "target": "purple_void_light"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "This is a massive zoning violation; there is no permit for a non-Euclidean dimension in this hallway."
+    },
+    {
+      "actor": "mara",
+      "action": "react"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "It's just a minor structural anomaly, Voss. Don't make a scene."
+    },
+    {
+      "actor": "voss",
+      "action": "point_at",
+      "target": "purple_void_light"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "An anomaly? This void lacks a registered floor number and proper ventilation!"
+    },
+    {
+      "actor": "mara",
+      "action": "gesture"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": 
+------------------------------------------------------------
+[1783951178] oa_ok OK elapsed=106667ms len=1613
+{
+  "beat_id": "beat_4",
+  "dramatic_purpose": "Mara attempts to physically obstruct the elevator doors while Ellis tries to capture the void on camera.",
+  "actions": [
+    {
+      "actor": "mara",
+      "action": "approach",
+      "target": "elevator_doors"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "Move, Ellis! This is a structural liability!"
+    },
+    {
+      "actor": "ellis",
+      "action": "react",
+      "intensity": 0.8
+    },
+    {
+      "actor": "ellis",
+      "action": "speak",
+      "text": "Just one more shot of the event horizon!"
+    },
+    {
+      "actor": "ellis",
+      "action": "pick_up",
+      "target": "camera"
+    },
+    {
+      "actor": "mara",
+      "action": "close",
+      "target": "elevator_doors"
+    },
+    {
+      "actor": "voss",
+      "action": "interrupt"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "Stop! This spatial anomaly requires a formal permit!"
+    },
+    {
+      "actor": "mara",
+      "action": "shout",
+      "text": "It's just a plumbing issue, Voss!"
+    },
+    {
+      "actor": "ellis",
+      "action": "react",
+      "intensity": 0.5
+    },
+    {
+      "actor": "voss",
+     
+------------------------------------------------------------
+[1783951479] oa ERROR elapsed=300012ms err=http error: error sending request for url (http://127.0.0.1:8080/v1/chat/completions)
+------------------------------------------------------------
+[1783951591] oa_ok OK elapsed=112346ms len=1630
+{
+  "active_characters": [
+    "mara",
+    "ellis",
+    "voss"
+  ],
+  "beats": [
+    {
+      "id": "beat_1",
+      "target_start_second": 0,
+      "type": "beat",
+      "description": "Ellis is poking the elevator buttons with a spoon while Mara watches in horror."
+    },
+    {
+      "id": "beat_2",
+      "target_start_second": 12,
+      "type": "beat",
+      "description": "Voss enters the hallway with a clipboard and demands to see the structural integrity of the floor."
+    },
+    {
+      "id": "beat_3",
+      "target_start_second": 25,
+      "type": "beat",
+      "description": "The elevator dings and opens to a void; Ellis tries to peek inside while Mara blocks him."
+    },
+    {
+      "id": "beat_4",
+      "target_start_second": 38,
+      "type": "beat",
+      "description": "Voss notices the elevator floor is made of liquid shadows and starts writing a citation."
+    },
+    {
+      "id": "beat_5",
+      "target_start_second": 46,
+      "type": "beat",
+      "description": "The hallway lights flicker violently as the elevator begins to ascend to a non-existent floor."
+    }
+  ],
+  "central_goal": {
+    "character": "mara",
+    "goal": "prevent Voss from seeing the elevator's 
+------------------------------------------------------------
+[1783951704] oa_ok OK elapsed=112722ms len=1870
+{
+  "beat_id": "beat_1",
+  "dramatic_purpose": "Ellis uses a spoon to probe the elevator panel while Mara attempts to intervene before Voss arrives.",
+  "actions": [
+    {
+      "actor": "ellis",
+      "action": "speak",
+      "text": "I think if I hit the 'B' button with enough force, it unlocks the sub-basement."
+    },
+    {
+      "actor": "ellis",
+      "action": "pick_up",
+      "text": "spoon"
+    },
+    {
+      "actor": "ellis",
+      "action": "approach",
+      "text": "elevator_panel"
+    },
+    {
+      "actor": "ellis",
+      "action": "activate",
+      "text": "elevator_panel"
+    },
+    {
+      "actor": "mara",
+      "action": "react",
+      "text": "horror"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "Ellis, stop! You're going to trigger a non-Euclidean maintenance request!"
+    },
+    {
+      "actor": "ellis",
+      "action": "laugh",
+      "text": "joy"
+    },
+    {
+      "actor": "ellis",
+      "action": "inspect",
+      "text": "elevator_panel"
+    },
+    {
+      "actor": "mara",
+      "action": "approach",
+      "text": "ellis"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "If Voss sees you tampering with
+------------------------------------------------------------
+[1783951794] oa_ok OK elapsed=90454ms len=1728
+{
+  "beat_id": "beat_2",
+  "dramatic_purpose": "Voss enters the hallway with a clipboard and demands to see the structural integrity of the floor.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "enter_room"
+    },
+    {
+      "actor": "voss",
+      "action": "approach",
+      "target": "mara"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "Mara, the elevator is vibrating at a frequency that violates Section 4 of the building code."
+    },
+    {
+      "actor": "mara",
+      "action": "react"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "It's just a minor settling issue, Voss. Ignore it."
+    },
+    {
+      "actor": "voss",
+      "action": "inspect",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "Settling? The floor is currently humming in B-flat."
+    },
+    {
+      "actor": "mara",
+      "action": "gesture"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "That's just the plumbing. Very rhythmic plumbing."
+    },
+    {
+      "actor": "voss",
+      "action": "look_at",
+      "target": "ellis"
+    },
+    {
+      "actor": "vo
+------------------------------------------------------------
+[1783952485] oa_ok OK elapsed=222598ms len=3544
+{
+  "episode_title": "The Unlisted Floor",
+  "logline": "Voss attempts to audit the elevator while Ellis tries to peek into the void.",
+  "tone": [
+    "surreal",
+    "comedy"
+  ],
+  "target_duration_seconds": 50.0,
+  "active_characters": [
+    "mara",
+    "voss",
+    "ellis"
+  ],
+  "primary_location": "floor_3_hallway",
+  "central_goal": {
+    "character": "mara",
+    "goal": "prevent Voss from noticing the elevator's non-standard behavior"
+  },
+  "beats": [
+    {
+      "id": "beat_1",
+      "type": "beat",
+      "target_start_second": 0,
+      "description": "Establish the hallway. Voss is tapping a clipboard against the elevator doors while Mara looks stressed.",
+      "dialogue": [
+        {
+          "character": "voss",
+          "line": "The blueprints for this building are suspiciously light on the sub-basement levels."
+        },
+        {
+          "character": "mara",
+          "line": "It's just efficient architecture, Inspector. We don't waste space on things that don't need to exist."
+        }
+      ],
+      "camera_intents": [
+        "establish",
+        "conversation"
+      ]
+    },
+    {
+      "id": "beat_2",
+      "type": "beat",
+      "target_start_second": 10,
+------------------------------------------------------------
+[1783952530] oa_ok OK elapsed=45305ms len=1137
+{
+  "beat_id": "beat_1",
+  "dramatic_purpose": "Establish the hallway. Voss is tapping a clipboard against the elevator doors while Mara looks stressed.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "stand_at",
+      "target": "elevator_doors"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "The floor count is inconsistent with the building's structural reality."
+    },
+    {
+      "actor": "voss",
+      "action": "knock_on",
+      "target": "elevator_doors"
+    },
+    {
+      "actor": "mara",
+      "action": "approach",
+      "target": "voss"
+    },
+    {
+      "actor": "mara",
+      "action": "display_emotion",
+      "intensity": 0.8
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "Don't touch that, it's just... a calibration error."
+    },
+    {
+      "actor": "voss",
+      "action": "look_at",
+      "target": "mara"
+    },
+    {
+      "actor": "mara",
+      "action": "sigh",
+      "intensity": 0.5
+    }
+  ],
+  "camera_intent": {
+    "type": "comedic_wide",
+    "subject": "voss"
+  },
+  "completion_condition": {
+    "type": "dialogue_finished"
+  }
+}
+------------------------------------------------------------
+[1783952559] oa_ok OK elapsed=29515ms len=726
+{
+  "beat_id": "beat_2",
+  "dramatic_purpose": "Ellis rushes into the frame, looking frantic and holding a flashlight.",
+  "actions": [
+    {
+      "actor": "ellis",
+      "action": "enter_room"
+    },
+    {
+      "actor": "ellis",
+      "action": "spawn_authorized_prop"
+    },
+    {
+      "actor": "ellis",
+      "action": "carry"
+    },
+    {
+      "actor": "ellis",
+      "action": "speak",
+      "text": "Don't look at the gap! It's hungry today!"
+    },
+    {
+      "actor": "voss",
+      "action": "react"
+    },
+    {
+      "actor": "mara",
+      "action": "react"
+    }
+  ],
+  "camera_intent": {
+    "type": "comedic_wide",
+    "subject": "ellis"
+  },
+  "completion_condition": {
+    "type": "dialogue_finished"
+  }
+}
+------------------------------------------------------------
+[1783952604] oa_ok OK elapsed=44351ms len=1147
+{
+  "beat_id": "beat_3",
+  "dramatic_purpose": "The elevator makes a loud, wet thudding sound. Voss leans in closer to the door.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "approach",
+      "target": "elevator"
+    },
+    {
+      "actor": "voss",
+      "action": "inspect",
+      "target": "elevator"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "That sound is definitely not in the maintenance manual."
+    },
+    {
+      "actor": "mara",
+      "action": "react",
+      "intensity": 0.9
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "It's just the building settling into a new dimension."
+    },
+    {
+      "actor": "ellis",
+      "action": "look_at",
+      "target": "elevator"
+    },
+    {
+      "actor": "ellis",
+      "action": "whisper",
+      "text": "I think something is breathing on the other side."
+    },
+    {
+      "actor": "voss",
+      "action": "play_environment_effect",
+      "effect": "wet_thud"
+    }
+  ],
+  "camera_intent": {
+    "type": "tension_push",
+    "subject": "voss"
+  },
+  "completion_condition": {
+    "type": "dialogue_finished"
+  }
+}
+------------------------------------------------------------
+[1783952652] oa_ok OK elapsed=47900ms len=1142
+{
+  "beat_id": "beat_4",
+  "dramatic_purpose": "The elevator doors flicker and slide open an inch, revealing a blinding neon light from within.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "approach",
+      "target": "elevator"
+    },
+    {
+      "actor": "ellis",
+      "action": "look_at",
+      "target": "elevator"
+    },
+    {
+      "actor": "mara",
+      "action": "react",
+      "intensity": 0.9
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "Don't look directly at it, Ellis!"
+    },
+    {
+      "actor": "voss",
+      "action": "inspect",
+      "target": "elevator"
+    },
+    {
+      "actor": "mara",
+      "action": "play_environment_effect",
+      "effect": "flicker_lights"
+    },
+    {
+      "actor": "voss",
+      "action": "open_elevator"
+    },
+    {
+      "actor": "ellis",
+      "action": "display_emotion",
+      "emotion": "awe"
+    },
+    {
+      "actor": "mara",
+      "action": "change_room_state",
+      "state": "neon_light_leak"
+    }
+  ],
+  "camera_intent": {
+    "type": "reveal",
+    "subject": "ellis"
+  },
+  "completion_condition": {
+    "type": "event_done"
+  }
+}
+------------------------------------------------------------
+[1783952691] oa_ok OK elapsed=38869ms len=979
+{
+  "beat_id": "beat_5",
+  "dramatic_purpose": "Mara tries to physically block Voss from the elevator.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "approach",
+      "target": "elevator"
+    },
+    {
+      "actor": "mara",
+      "action": "move_to",
+      "target": "voss"
+    },
+    {
+      "actor": "mara",
+      "action": "gesture",
+      "text": "Stop right there!"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "Move, Mara. The weight sensor is reporting negative gravity."
+    },
+    {
+      "actor": "mara",
+      "action": "react",
+      "intensity": 0.9
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "It's just a calibration error! Go back to your office!"
+    },
+    {
+      "actor": "voss",
+      "action": "look_at",
+      "target": "mara"
+    }
+  ],
+  "camera_intent": {
+    "type": "tension_push",
+    "subject": "mara"
+  },
+  "completion_condition": {
+    "type": "dialogue_finished"
+  }
+}
+------------------------------------------------------------
+[1783953015] oa_ok OK elapsed=323871ms len=5326
+{
+  "episode_title": "The Floor That Wasn't",
+  "logline": "Voss attempts to audit Apartment 4A while Ellis tries to prove the elevator is haunted.",
+  "tone": [
+    "surreal",
+    "comedy"
+  ],
+  "target_duration_seconds": 52.0,
+  "active_characters": [
+    "mara",
+    "voss",
+    "ellis"
+  ],
+  "primary_location": "floor_3_hallway",
+  "central_goal": {
+    "character": "mara",
+    "goal": "prevent Voss from noticing the elevator's impossible behavior"
+  },
+  "beats": [
+    {
+      "id": "beat_1",
+      "type": "beat",
+      "target_start_second": 0,
+      "actions": [
+        {
+          "camera_intent": "comedic_wide",
+          "subject": "voss",
+          "action": "stand_at"
+        },
+        {
+          "camera_intent": "speaker_closeup",
+          "subject": "voss",
+          "action": "speak",
+          "dialogue": "The structural integrity of this hallway is questionable at best."
+        },
+        {
+          "camera_intent": "reaction",
+          "subject": "mara",
+          "action": "sigh"
+        },
+        {
+          "camera_intent": "speaker_closeup",
+          "subject": "mara",
+          "action": "speak",
+          "dialogue": "It's just old pipes, Inspector.
+------------------------------------------------------------
+[1783953097] oa_ok OK elapsed=82078ms len=1695
+{
+  "beat_id": "beat_1",
+  "dramatic_purpose": "Voss attempts to audit the hallway while Ellis performs a seance near the elevator, forcing Mara to deflect.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "approach",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "The blueprints for floor three show a structural void where this hallway begins."
+    },
+    {
+      "actor": "mara",
+      "action": "react",
+      "intensity": 0.8
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "That's just a drafting error, Voss. Don't be pedantic."
+    },
+    {
+      "actor": "ellis",
+      "action": "stand_at",
+      "target": "elevator"
+    },
+    {
+      "actor": "ellis",
+      "action": "speak",
+      "text": "The spirits say the elevator is hungry for more than just electricity!"
+    },
+    {
+      "actor": "ellis",
+      "action": "knock_on",
+      "target": "elevator"
+    },
+    {
+      "actor": "voss",
+      "action": "look_at",
+      "target": "ellis"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "Ellis, stop harassing the machinery; I am trying to audit the squ
+------------------------------------------------------------
+[1783953180] oa_ok OK elapsed=83611ms len=1427
+{
+  "beat_id": "beat_2",
+  "dramatic_purpose": "Ellis attempts to distract Voss with elevator paranormal activity while Mara tries to maintain order.",
+  "actions": [
+    {
+      "actor": "ellis",
+      "action": "approach",
+      "target": "voss"
+    },
+    {
+      "actor": "ellis",
+      "action": "point_at",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "ellis",
+      "action": "speak",
+      "text": "Did you hear that? The elevator is definitely weeping again."
+    },
+    {
+      "actor": "voss",
+      "action": "react",
+      "intensity": 0.8
+    },
+    {
+      "actor": "voss",
+      "action": "inspect",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "That is just hydraulic pressure, Ellis. Stop being dramatic."
+    },
+    {
+      "actor": "mara",
+      "action": "approach",
+      "target": "voss"
+    },
+    {
+      "actor": "mara",
+      "action": "gesture",
+      "target": "voss"
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "Exactly. Now, please focus on the 4A audit."
+    },
+    {
+      "actor": "ellis",
+      "action": "play_environment_effect",
+      "target": "floo
+------------------------------------------------------------
+[1783953250] oa_ok OK elapsed=69652ms len=1513
+{
+  "beat_id": "beat_3",
+  "dramatic_purpose": "Voss confronts Mara about the elevator's non-existent floor while Ellis attempts to sabotage the audit.",
+  "actions": [
+    {
+      "actor": "voss",
+      "action": "approach",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "voss",
+      "action": "inspect",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "Mara, the elevator control panel shows a Floor 4, but the building blueprint ends at 3."
+    },
+    {
+      "actor": "mara",
+      "action": "react",
+      "intensity": 0.8
+    },
+    {
+      "actor": "mara",
+      "action": "speak",
+      "text": "The blueprints are just suggestions, Voss. Don't be pedantic."
+    },
+    {
+      "actor": "voss",
+      "action": "turn_toward",
+      "target": "mara"
+    },
+    {
+      "actor": "voss",
+      "action": "speak",
+      "text": "Suggestions? This is a structural impossibility!"
+    },
+    {
+      "actor": "ellis",
+      "action": "activate",
+      "target": "floor_3_hallway"
+    },
+    {
+      "actor": "ellis",
+      "action": "speak",
+      "text": "It's not an impossibility, it's a poltergeist!"
+    },
+    {
+  
+------------------------------------------------------------

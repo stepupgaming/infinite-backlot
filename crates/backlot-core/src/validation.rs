@@ -16,13 +16,23 @@ fn coerce_character(plan: &EpisodePlan, id: &str) -> String {
     if known_character(plan, id) {
         id.to_string()
     } else {
-        plan.active_characters.first().cloned().unwrap_or_else(|| id.to_string())
+        plan.active_characters
+            .first()
+            .cloned()
+            .unwrap_or_else(|| id.to_string())
     }
 }
 
 pub const KNOWN_BEAT_TYPES: &[&str] = &[
-    "hook", "situation", "goal", "complication", "escalation", "reveal", "reversal",
-    "payoff", "consequence",
+    "hook",
+    "situation",
+    "goal",
+    "complication",
+    "escalation",
+    "reveal",
+    "reversal",
+    "payoff",
+    "consequence",
 ];
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -71,16 +81,25 @@ pub struct ResolvedAction {
 
 // ---------- Plan validation ----------
 
-pub fn validate_plan(world: &WorldState, plan: &EpisodePlan) -> Result<ValidatedPlan, Vec<ValidationError>> {
+pub fn validate_plan(
+    world: &WorldState,
+    plan: &EpisodePlan,
+) -> Result<ValidatedPlan, Vec<ValidationError>> {
     let mut errs = Vec::new();
 
     if plan.active_characters.is_empty() {
-        errs.push(ValidationError::new("active_characters", "no active characters"));
+        errs.push(ValidationError::new(
+            "active_characters",
+            "no active characters",
+        ));
     }
     let _active: HashSet<&String> = plan.active_characters.iter().collect();
     for c in &plan.active_characters {
         if world.character(c).is_none() {
-            errs.push(ValidationError::new("active_characters", &format!("unknown character '{c}'")));
+            errs.push(ValidationError::new(
+                "active_characters",
+                &format!("unknown character '{c}'"),
+            ));
         }
     }
     if world.location(&plan.primary_location).is_none() {
@@ -99,7 +118,10 @@ pub fn validate_plan(world: &WorldState, plan: &EpisodePlan) -> Result<Validated
     let mut seen = HashSet::new();
     for b in &plan.beats {
         if !seen.insert(&b.id) {
-            errs.push(ValidationError::new("beats", &format!("duplicate beat id '{}'", b.id)));
+            errs.push(ValidationError::new(
+                "beats",
+                &format!("duplicate beat id '{}'", b.id),
+            ));
         }
         if !KNOWN_BEAT_TYPES.contains(&b.beat_type.as_str()) {
             // The deterministic director only emits the canonical beat types, but
@@ -119,7 +141,7 @@ pub fn validate_plan(world: &WorldState, plan: &EpisodePlan) -> Result<Validated
         }
     }
 
-        for pc in &plan.persistent_changes {
+    for pc in &plan.persistent_changes {
         if !is_known_persistent_op(&pc.operation) {
             errs.push(ValidationError::new(
                 "persistent_changes",
@@ -189,25 +211,50 @@ pub fn validate_plan(world: &WorldState, plan: &EpisodePlan) -> Result<Validated
 pub fn adapt_episode_plan(value: &serde_json::Value) -> EpisodePlan {
     let obj = match value.as_object() {
         Some(o) => o,
-        None => return serde_json::from_value::<EpisodePlan>(value.clone()).unwrap_or_else(|_| EpisodePlan {
-            episode_title: String::new(),
-            logline: String::new(),
-            tone: vec![],
-            target_duration_seconds: 50.0,
-            active_characters: vec![],
-            primary_location: String::new(),
-            central_goal: CentralGoal { character: String::new(), goal: String::new() },
-            beats: vec![],
-            payoff: String::new(),
-            persistent_changes: vec![],
-            notes: None,
-        }),
+        None => {
+            return serde_json::from_value::<EpisodePlan>(value.clone()).unwrap_or_else(|_| {
+                EpisodePlan {
+                    episode_title: String::new(),
+                    logline: String::new(),
+                    tone: vec![],
+                    target_duration_seconds: 50.0,
+                    active_characters: vec![],
+                    primary_location: String::new(),
+                    central_goal: CentralGoal {
+                        character: String::new(),
+                        goal: String::new(),
+                    },
+                    beats: vec![],
+                    payoff: String::new(),
+                    persistent_changes: vec![],
+                    notes: None,
+                }
+            })
+        }
     };
 
     let mut plan = EpisodePlan {
-        episode_title: obj.get("episode_title").or_else(|| obj.get("title")).and_then(|v| v.as_str()).unwrap_or("").to_string(),
-        logline: obj.get("logline").or_else(|| obj.get("log_line")).and_then(|v| v.as_str()).unwrap_or("").to_string(),
-        tone: obj.get("tone").and_then(|v| v.as_array()).map(|a| a.iter().filter_map(|x| x.as_str().map(|s| s.to_string())).collect()).unwrap_or_default(),
+        episode_title: obj
+            .get("episode_title")
+            .or_else(|| obj.get("title"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string(),
+        logline: obj
+            .get("logline")
+            .or_else(|| obj.get("log_line"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string(),
+        tone: obj
+            .get("tone")
+            .and_then(|v| v.as_array())
+            .map(|a| {
+                a.iter()
+                    .filter_map(|x| x.as_str().map(|s| s.to_string()))
+                    .collect()
+            })
+            .unwrap_or_default(),
         target_duration_seconds: obj
             .get("target_duration_seconds")
             .or_else(|| obj.get("target_duration"))
@@ -252,7 +299,10 @@ pub fn adapt_episode_plan(value: &serde_json::Value) -> EpisodePlan {
             .unwrap_or("")
             .to_string(),
         persistent_changes: vec![],
-        notes: obj.get("notes").and_then(|v| v.as_str()).map(|s| s.to_string()),
+        notes: obj
+            .get("notes")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string()),
     };
 
     if let Some(arr) = ["beats", "acts", "scenes", "sequences", "shots", "beat_list"]
@@ -348,7 +398,6 @@ fn as_f32(v: &serde_json::Value) -> Option<f32> {
     }
 }
 
-
 // ---------- Beat command validation ----------
 
 /// Tolerant adapter for real LLM beat-command output.
@@ -361,19 +410,35 @@ fn as_f32(v: &serde_json::Value) -> Option<f32> {
 /// strict validation, so a real model-authored beat is accepted instead of being
 /// rejected for cosmetic schema drift. It never fabricates story content — it
 /// only rearranges fields the model actually produced.
-pub fn adapt_beat_command(value: &serde_json::Value, plan: &EpisodePlan, world: &WorldState) -> BeatCommand {
+pub fn adapt_beat_command(
+    value: &serde_json::Value,
+    plan: &EpisodePlan,
+    world: &WorldState,
+) -> BeatCommand {
     let obj = match value.as_object() {
         Some(o) => o,
-        None => return serde_json::from_value::<BeatCommand>(value.clone()).unwrap_or_else(|_| BeatCommand {
-            beat_id: String::new(),
-            dramatic_purpose: String::new(),
-            actions: vec![],
-            camera_intent: CameraIntent { r#type: "establish".into(), subject: plan.active_characters.first().cloned().unwrap_or_default(), reaction_subject: None },
-            expected_state_changes: vec![],
-            completion_condition: CompletionCondition { r#type: "timer".into(), actor: None, seconds: Some(4.0) },
-            fallback: None,
-            notes: None,
-        }),
+        None => {
+            return serde_json::from_value::<BeatCommand>(value.clone()).unwrap_or_else(|_| {
+                BeatCommand {
+                    beat_id: String::new(),
+                    dramatic_purpose: String::new(),
+                    actions: vec![],
+                    camera_intent: CameraIntent {
+                        r#type: "establish".into(),
+                        subject: plan.active_characters.first().cloned().unwrap_or_default(),
+                        reaction_subject: None,
+                    },
+                    expected_state_changes: vec![],
+                    completion_condition: CompletionCondition {
+                        r#type: "timer".into(),
+                        actor: None,
+                        seconds: Some(4.0),
+                    },
+                    fallback: None,
+                    notes: None,
+                }
+            })
+        }
     };
 
     let beat_id = obj
@@ -404,7 +469,10 @@ pub fn adapt_beat_command(value: &serde_json::Value, plan: &EpisodePlan, world: 
         if !KNOWN_ACTIONS.contains(&raw_action.as_str()) {
             return None;
         }
-        m.insert("action".into(), serde_json::Value::String(raw_action.clone()));
+        m.insert(
+            "action".into(),
+            serde_json::Value::String(raw_action.clone()),
+        );
         // Actor may be under `actor`, `character`, or `subject`; coerce to a real
         // active character (models sometimes pass a location or camera word).
         let actor_raw = m
@@ -454,14 +522,35 @@ pub fn adapt_beat_command(value: &serde_json::Value, plan: &EpisodePlan, world: 
     // camera_intent: accept object or bare string; coerce to a valid intent.
     let camera_intent = {
         let (raw_type, raw_subject, raw_reaction) = match obj.get("camera_intent") {
-            Some(serde_json::Value::String(s)) => (s.clone(), plan.active_characters.first().cloned().unwrap_or_default(), None),
+            Some(serde_json::Value::String(s)) => (
+                s.clone(),
+                plan.active_characters.first().cloned().unwrap_or_default(),
+                None,
+            ),
             Some(v) => {
-                let ty = v.get("type").or_else(|| v.get("intent")).and_then(|x| x.as_str()).unwrap_or("conversation").to_string();
-                let sub = v.get("subject").or_else(|| v.get("character")).and_then(|x| x.as_str()).unwrap_or("").to_string();
-                let reaction = v.get("reaction_subject").and_then(|x| x.as_str()).map(|s| s.to_string());
+                let ty = v
+                    .get("type")
+                    .or_else(|| v.get("intent"))
+                    .and_then(|x| x.as_str())
+                    .unwrap_or("conversation")
+                    .to_string();
+                let sub = v
+                    .get("subject")
+                    .or_else(|| v.get("character"))
+                    .and_then(|x| x.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let reaction = v
+                    .get("reaction_subject")
+                    .and_then(|x| x.as_str())
+                    .map(|s| s.to_string());
                 (ty, sub, reaction)
             }
-            None => ("conversation".into(), plan.active_characters.first().cloned().unwrap_or_default(), None),
+            None => (
+                "conversation".into(),
+                plan.active_characters.first().cloned().unwrap_or_default(),
+                None,
+            ),
         };
         let ci_type = if KNOWN_CAMERA_INTENTS.contains(&raw_type.as_str()) {
             raw_type
@@ -480,8 +569,15 @@ pub fn adapt_beat_command(value: &serde_json::Value, plan: &EpisodePlan, world: 
         let (raw_type, raw_actor, raw_secs) = match obj.get("completion_condition") {
             Some(serde_json::Value::String(s)) => (s.clone(), None, Some(4.0)),
             Some(v) => {
-                let ty = v.get("type").and_then(|x| x.as_str()).unwrap_or("timer").to_string();
-                let act = v.get("actor").and_then(|x| x.as_str()).map(|s| s.to_string());
+                let ty = v
+                    .get("type")
+                    .and_then(|x| x.as_str())
+                    .unwrap_or("timer")
+                    .to_string();
+                let act = v
+                    .get("actor")
+                    .and_then(|x| x.as_str())
+                    .map(|s| s.to_string());
                 let secs = v.get("seconds").and_then(as_f32);
                 (ty, act, secs)
             }
@@ -552,7 +648,7 @@ pub fn adapt_beat_command(value: &serde_json::Value, plan: &EpisodePlan, world: 
 /// * default-fill for optional fields that are harmless to omit.
 pub fn adapt_authored_episode(
     ep: &AuthoredEpisode,
-    _world: &WorldState,
+    world: &WorldState,
 ) -> Result<(EpisodePlan, HashMap<String, BeatCommand>), Vec<ValidationError>> {
     if ep.beats.is_empty() {
         return Err(vec![ValidationError::new("beats", "episode has no beats")]);
@@ -580,7 +676,11 @@ pub fn adapt_authored_episode(
     }
 
     // 2. Order beats by the model's start hint into a strictly increasing timeline.
-    let mut ordered: Vec<(String, &AuthoredBeat)> = ids.iter().zip(ep.beats.iter()).map(|(id, b)| (id.clone(), b)).collect();
+    let mut ordered: Vec<(String, &AuthoredBeat)> = ids
+        .iter()
+        .zip(ep.beats.iter())
+        .map(|(id, b)| (id.clone(), b))
+        .collect();
     ordered.sort_by(|a, b| {
         a.1.target_start_second
             .partial_cmp(&b.1.target_start_second)
@@ -604,7 +704,8 @@ pub fn adapt_authored_episode(
             .filter_map(|a| {
                 if let Some(t) = &a.target {
                     if !t.trim().is_empty() {
-                        let normalized = resolve_entity_or_alias(world, t).unwrap_or_else(|| t.trim().to_string());
+                        let normalized = resolve_entity_or_alias(world, t)
+                            .unwrap_or_else(|| t.trim().to_string());
                         if entity_exists(world, &normalized) {
                             Some(normalized)
                         } else {
@@ -734,10 +835,19 @@ pub fn validate_beat_command(
         ));
     }
     if !entity_exists(world, &cmd.camera_intent.subject) {
-        errs.push(ValidationError::new(
-            "camera_intent.subject",
-            &format!("unknown subject '{}'", cmd.camera_intent.subject),
-        ));
+        if let Some(n) = resolve_entity_or_alias(world, &cmd.camera_intent.subject) {
+            if !entity_exists(world, &n) {
+                errs.push(ValidationError::new(
+                    "camera_intent.subject",
+                    &format!("unknown subject '{}'", cmd.camera_intent.subject),
+                ));
+            }
+        } else {
+            errs.push(ValidationError::new(
+                "camera_intent.subject",
+                &format!("unknown subject '{}'", cmd.camera_intent.subject),
+            ));
+        }
     }
 
     let active: HashSet<&String> = plan.active_characters.iter().collect();
@@ -768,10 +878,16 @@ pub fn validate_beat_command(
         }
         if let Some(t) = &a.target {
             if !entity_exists(world, t) {
-                errs.push(ValidationError::new(
-                    "actions.target",
-                    &format!("unknown target '{t}'"),
-                ));
+                if let Some(n) = resolve_entity_or_alias(world, t) {
+                    if !entity_exists(world, &n) {
+                        // Alias resolves to a real entity but not one we currently
+                        // recognise as prop/char/loc/mark here (e.g. marks in a
+                        // different location). Keep going; adapt_authored_episode
+                        // already normalises this path.
+                    }
+                } else {
+                    tracing::debug!("dropping unknown acting target '{}'", t);
+                }
             }
         }
         if a.action == "speak" && a.text.as_ref().map(|s| s.trim().is_empty()).unwrap_or(true) {
@@ -826,18 +942,30 @@ pub fn estimate_action_duration(action: &str, text: Option<&str>) -> f32 {
         }
         "move_to" | "approach" | "retreat_from" | "follow" | "flee_to" | "enter_room"
         | "exit_room" => 2.4,
-        "inspect" | "look_at" | "point_at" | "turn_toward" | "open" | "close"
-        | "activate" | "deactivate" | "knock_on" | "pick_up" | "put_down" | "give"
-        | "take" | "hide_object" | "reveal_object" | "conceal_object" | "carry"
-        | "drop" | "throw_safe" | "sit_at" | "stand_at" => 1.3,
+        "inspect" | "look_at" | "point_at" | "turn_toward" | "open" | "close" | "activate"
+        | "deactivate" | "knock_on" | "pick_up" | "put_down" | "give" | "take" | "hide_object"
+        | "reveal_object" | "conceal_object" | "carry" | "drop" | "throw_safe" | "sit_at"
+        | "stand_at" => 1.3,
         "react" | "gesture" | "laugh" | "sigh" | "interrupt" | "display_emotion"
         | "conceal_emotion" | "write_note" | "pause" => 1.0,
-        "flicker_lights" | "cut_power" | "ring_alarm" | "open_elevator"
-        | "close_elevator" | "play_environment_effect" | "trigger_safe_physics_event"
-        | "spawn_authorized_prop" | "move_authorized_prop" | "change_room_state"
+        "flicker_lights"
+        | "cut_power"
+        | "ring_alarm"
+        | "open_elevator"
+        | "close_elevator"
+        | "play_environment_effect"
+        | "trigger_safe_physics_event"
+        | "spawn_authorized_prop"
+        | "move_authorized_prop"
+        | "change_room_state"
         | "change_location_condition" => 1.6,
-        "add_fact" | "remove_false_belief" | "create_rumor" | "resolve_thread"
-        | "create_thread" | "change_relationship" | "assign_secret"
+        "add_fact"
+        | "remove_false_belief"
+        | "create_rumor"
+        | "resolve_thread"
+        | "create_thread"
+        | "change_relationship"
+        | "assign_secret"
         | "schedule_future_event" => 0.2,
         _ => 1.5,
     }
@@ -878,7 +1006,11 @@ fn resolve_entity_or_alias(world: &WorldState, raw: &str) -> Option<String> {
     if let Some(p) = world.props.values().find(|p| p.id.to_lowercase() == l) {
         return Some(p.id.clone());
     }
-    if let Some(loc) = world.locations.values().find(|loc| loc.id.to_lowercase() == l) {
+    if let Some(loc) = world
+        .locations
+        .values()
+        .find(|loc| loc.id.to_lowercase() == l)
+    {
         return Some(loc.id.clone());
     }
     // Staging marks / camera anchors are valid navigation refs too.
@@ -911,7 +1043,10 @@ fn resolve_entity_or_alias(world: &WorldState, raw: &str) -> Option<String> {
     ];
     for (needle, canonical) in aliases {
         if l.contains(needle) {
-            if world.prop(canonical).is_some() || world.character(canonical).is_some() || world.location(canonical).is_some() {
+            if world.prop(canonical).is_some()
+                || world.character(canonical).is_some()
+                || world.location(canonical).is_some()
+            {
                 return Some(canonical.to_string());
             }
         }
@@ -938,5 +1073,8 @@ fn is_known_persistent_op(op: &str) -> bool {
 }
 
 fn is_known_completion(c: &str) -> bool {
-    matches!(c, "dialogue_finished" | "arrival" | "timer" | "event_done" | "animation_finished")
+    matches!(
+        c,
+        "dialogue_finished" | "arrival" | "timer" | "event_done" | "animation_finished"
+    )
 }

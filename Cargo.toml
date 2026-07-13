@@ -31,7 +31,11 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Async runtime for the LLM client
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync", "io-util"] }
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+# Canonical OpenAI-compatible client SDK (replaces a hand-rolled reqwest call).
+async-openai = { version = "0.41", default-features = false, features = ["rustls", "chat-completion", "model"] }
+# Used ONLY to configure a timeout on the SDK's underlying HTTP client.
+# Must match the reqwest version async-openai itself depends on (0.13).
+reqwest = { version = "0.13", default-features = false, features = ["rustls"] }
 
 # Engine
 bevy = { version = "0.19" }

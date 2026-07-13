@@ -1,0 +1,12 @@
+Infinite Backlot — base_url=http://127.0.0.1:8080/v1 model=gemma-4-26b-mtp-q5 force_fallback=false
+PRODUCED episode_000001
+  captioned  : C:/Projects/bevy-infinite/output\episodes\episode_000001\output\vertical_captioned.mp4
+  clean      : C:/Projects/bevy-infinite/output\episodes\episode_000001\output\vertical_clean.mp4
+  duration   : 56.7s
+  frames     : 1700
+  require_llm: false
+  plan_src   : deterministic_fallback
+  llm_used   : false
+  tts        : espeak (real=true)
+  mp4_ok     : true
+  ffprobe_ok : true

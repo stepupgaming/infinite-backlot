@@ -8,7 +8,7 @@ use backlot_core::world::WorldState;
 use backlot_llm::LlmMetrics;
 use bevy::prelude::*;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex, mpsc};
+use std::sync::{mpsc, Arc, Mutex};
 
 /// Explicit application states (PRD §13).
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]

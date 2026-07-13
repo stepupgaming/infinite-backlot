@@ -1,0 +1,235 @@
+{
+  "active_characters": [
+    "ellis",
+    "mara",
+    "voss"
+  ],
+  "beats": [
+    {
+      "actions": [
+        {
+          "action": "look_at",
+          "actor": "ellis",
+          "target": "floor_3_hallway"
+        },
+        {
+          "action": "speak",
+          "actor": "ellis",
+          "text": "Did you hear that? It sounded like a choir of bells! A very loud, very angry choir!"
+        },
+        {
+          "action": "flicker_lights",
+          "actor": "mara",
+          "target": "floor_3_hallway"
+        },
+        {
+          "action": "speak",
+          "actor": "mara",
+          "text": "It's just the wiring, Ellis. Old building. Very old. Probably just settling into the earth."
+        }
+      ],
+      "camera_intent": {
+        "subject": "ellis",
+        "type": "establish"
+      },
+      "completion_condition": {
+        "actor": "mara",
+        "type": "dialogue_finished"
+      },
+      "id": "beat_1",
+      "narrative_purpose": "Hook: The elevator dings and the lights flicker aggressively.",
+      "target_start_second": 0.0
+    },
+    {
+      "actions": [
+        {
+          "action": "enter_room",
+          "actor": "voss",
+          "target": "floor_3_hallway"
+        },
+        {
+          "action": "speak",
+          "actor": "voss",
+          "text": "Superintendent Mara! I'm here for the quarterly audit. This hallway is a mess."
+        },
+        {
+          "action": "speak",
+          "actor": "voss",
+          "text": "Why is the hallway light blinking in Morse code? Is the building trying to talk to me?"
+        },
+        {
+          "action": "speak",
+          "actor": "mara",
+          "text": "It's a feature! Energy saving! It's very modern, really. Don't mind the rhythm."
+        }
+      ],
+      "camera_intent": {
+        "subject": "voss",
+        "type": "conversation"
+      },
+      "completion_condition": {
+        "actor": "mara",
+        "type": "dialogue_finished"
+      },
+      "id": "beat_2",
+      "narrative_purpose": "Voss enters to inspect the hallway.",
+      "target_start_second": 8.0
+    },
+    {
+      "actions": [
+        {
+          "action": "approach",
+          "actor": "ellis",
+          "target": "floor_3_hallway"
+        },
+        {
+          "action": "speak",
+          "actor": "ellis",
+          "text": "The elevator is opening! But there's nothing there! Just purple fog and the smell of ozone!"
+        },
+        {
+          "action": "look_at",
+          "actor": "voss",
+          "target": "floor_3_hallway"
+        },
+        {
+          "action": "speak",
+          "actor": "voss",
+          "text": "Purple fog is not on the approved building materials list. This is highly irregular."
+        }
+      ],
+      "camera_intent": {
+        "subject": "ellis",
+        "type": "tension_push"
+      },
+      "completion_condition": {
+        "actor": "voss",
+        "type": "dialogue_finished"
+      },
+      "id": "beat_3",
+      "narrative_purpose": "Ellis tries to investigate the elevator.",
+      "target_start_second": 16.0
+    },
+    {
+      "actions": [
+        {
+          "action": "move_to",
+          "actor": "mara",
+          "target": "voss"
+        },
+        {
+          "action": "speak",
+          "actor": "mara",
+          "text": "It's just... localized humidity. Very high, very purple humidity. It's a tropical microclimate!"
+        },
+        {
+          "action": "inspect",
+          "actor": "voss",
+          "target": "floor_3_hallway"
+        },
+        {
+          "action": "speak",
+          "actor": "voss",
+          "text": "Humidity doesn't hum 'The Star-Spangled Banner' at forty decibels. Explain that, Mara."
+        }
+      ],
+      "camera_intent": {
+        "reaction_subject": "voss",
+        "subject": "mara",
+        "type": "over_the_shoulder"
+      },
+      "completion_condition": {
+        "actor": "voss",
+        "type": "dialogue_finished"
+      },
+      "id": "beat_4",
+      "narrative_purpose": "Mara attempts to deflect the inspector.",
+      "target_start_second": 25.0
+    },
+    {
+      "actions": [
+        {
+          "action": "shout",
+          "actor": "ellis",
+          "text": "It's pulling in a vacuum! My hair is standing up! Help!"
+        },
+        {
+          "action": "activate",
+          "actor": "mara",
+          "target": "floor_3_hallway"
+        },
+        {
+          "action": "speak",
+          "actor": "mara",
+          "text": "Voss, please! Stop writing! I have a quota to meet and a reality to maintain!"
+        },
+        {
+          "action": "write_note",
+          "actor": "voss",
+          "text": "Violation: Unsanctioned spatial rift and unauthorized musical humidity."
+        }
+      ],
+      "camera_intent": {
+        "subject": "voss",
+        "type": "reaction"
+      },
+      "completion_condition": {
+        "actor": "voss",
+        "type": "dialogue_finished"
+      },
+      "id": "beat_5",
+      "narrative_purpose": "Escalation: The elevator makes a loud noise.",
+      "target_start_second": 34.0
+    },
+    {
+      "actions": [
+        {
+          "action": "approach",
+          "actor": "voss",
+          "target": "floor_3_hallway"
+        },
+        {
+          "action": "speak",
+          "actor": "voss",
+          "text": "I'm seeing a floor labeled 'The Void'. This is a major citation. A massive one!"
+        },
+        {
+          "action": "react",
+          "actor": "ellis",
+          "text": "Ooh, looks cozy! Very minimalist! I might move in!"
+        },
+        {
+          "action": "sigh",
+          "actor": "mara",
+          "text": "I'm really not getting overtime for fixing the fabric of space-time."
+        }
+      ],
+      "camera_intent": {
+        "subject": "voss",
+        "type": "cliffhanger_hold"
+      },
+      "completion_condition": {
+        "actor": "mara",
+        "type": "dialogue_finished"
+      },
+      "id": "beat_6",
+      "narrative_purpose": "Climax/Cliffhanger: The elevator doors open wide.",
+      "target_start_second": 42.0
+    }
+  ],
+  "central_goal": {
+    "character": "mara",
+    "goal": "complete the shift without revealing anomalies"
+  },
+  "episode_title": "The Inspector and the Impossible Ding",
+  "logline": "Voss tries to document a code violation while Ellis and Mara struggle to hide the elevator's tendency to visit non-existent floors.",
+  "notes": null,
+  "payoff": "Voss begins writing a massive fine as the elevator begins to suck the hallway into a different dimension.",
+  "persistent_changes": [],
+  "primary_location": "floor_3_hallway",
+  "target_duration_seconds": 50.0,
+  "tone": [
+    "surreal",
+    "comedy"
+  ]
+}

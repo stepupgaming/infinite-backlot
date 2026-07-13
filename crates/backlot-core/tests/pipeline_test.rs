@@ -101,8 +101,12 @@ fn pipeline_commits_a_package_to_disk() {
     let mut pkg: EpisodePackage = empty_package(id, &planned.plan, &world);
     pkg.world_after = after;
     pkg.build_report();
-    assert!(!pkg.report_md.is_empty(), "report markdown must be generated");
-    pkg.write(dir.to_str().unwrap()).expect("package writes to disk");
+    assert!(
+        !pkg.report_md.is_empty(),
+        "report markdown must be generated"
+    );
+    pkg.write(dir.to_str().unwrap())
+        .expect("package writes to disk");
 
     let base = dir.join("episodes").join(id);
     for name in [

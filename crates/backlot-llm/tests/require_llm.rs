@@ -4,24 +4,22 @@
 //! returns an unusable response, production stops with an error instead of
 //! quietly shipping a fallback-authored episode.
 
-use backlot_core::config::{DirectorConfig, LlmConfig};
+use backlot_core::author::EpisodeAuthor;
+use backlot_core::config::{Config, DirectorConfig};
 use backlot_core::director::DirectorContext;
 use backlot_core::world::build_default_world;
-use backlot_core::author::EpisodeAuthor;
 use backlot_llm::LlmAuthor;
 
 #[test]
 fn require_llm_fails_clearly_without_silent_fallback() {
     // Point at a port that refuses connections so the request fails fast.
-    let llm = LlmConfig {
-        base_url: "http://127.0.0.1:1/v1".into(),
-        model: "nope".into(),
-        ..Default::default()
-    };
+    let mut config = Config::default();
+    config.llm.base_url = "http://127.0.0.1:1/v1".into();
+    config.llm.model = "nope".into();
     let mut dir = DirectorConfig::default();
     dir.require_llm = true;
 
-    let author = LlmAuthor::new(llm, dir).expect("client construction must not fail");
+    let author = LlmAuthor::new(&config, dir).expect("client construction must not fail");
     let ctx = DirectorContext {
         world: build_default_world(),
         episode_number: 1,

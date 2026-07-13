@@ -1,0 +1,114 @@
+   Compiling backlot-core v0.1.0 (C:\Projects\bevy-infinite\crates\backlot-core)
+warning: unused imports: `validate_beat_command` and `validate_plan`
+  --> crates\backlot-core\src\timeline.rs:13:25
+   |
+13 | use crate::validation::{validate_beat_command, validate_plan, ValidatedPlan};
+   |                         ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Deserialize` and `Serialize`
+  --> crates\backlot-core\src\timeline.rs:15:13
+   |
+15 | use serde::{Deserialize, Serialize};
+   |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused imports: `CameraTargetRole`, `PerformanceState`, `Pose`, and `Xform`
+  --> crates\backlot-core\src\render.rs:15:35
+   |
+15 |     character_pose, part_corners, CameraTargetRole, HumanoidRig, PerformanceState, Pose, Xform,
+   |                                   ^^^^^^^^^^^^^^^^               ^^^^^^^^^^^^^^^^  ^^^^  ^^^^^
+
+warning: unused import: `TimedEvent`
+  --> crates\backlot-core\src\render.rs:20:5
+   |
+20 |     TimedEvent,
+   |     ^^^^^^^^^^
+
+warning: unnecessary parentheses around `if` condition
+   --> crates\backlot-core\src\render.rs:763:16
+    |
+763 |             if (w0 >= -0.001 && w1 >= -0.001 && w2 >= -0.001) {
+    |                ^                                            ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+763 -             if (w0 >= -0.001 && w1 >= -0.001 && w2 >= -0.001) {
+763 +             if w0 >= -0.001 && w1 >= -0.001 && w2 >= -0.001 {
+    |
+
+warning: value assigned to `camera_shots` is never read
+   --> crates\backlot-core\src\timeline.rs:175:49
+    |
+175 |     let mut camera_shots: Vec<CameraShotSpec> = Vec::new();
+    |                                                 ^^^^^^^^^^ this value is reassigned later and never used
+...
+269 |     camera_shots = plan_shots(world, validated, &home_of, &dialogue, &inserts, clock.max(1.0));
+    |     ------------ `camera_shots` is overwritten here before the previous value is read
+    |
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> crates\backlot-core\src\director.rs:455:13
+    |
+455 |         let mut extra = shots.clone();
+    |             ----^^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `home_of`
+   --> crates\backlot-core\src\director.rs:328:5
+    |
+328 |     home_of: &HashMap<String, [f32; 3]>,
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_home_of`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `require_llm`
+    --> crates\backlot-core\src\render.rs:1523:5
+     |
+1523 |     require_llm: bool,
+     |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_require_llm`
+
+warning: field `sample_rate` is never read
+  --> crates\backlot-core\src\tts.rs:67:5
+   |
+65 | pub struct EspeakTts {
+   |            --------- field in this struct
+66 |     exe: String,
+67 |     sample_rate: u32,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: linker stdout: LINK : warning LNK4044: unrecognized option '/fuse-ld=lld'; ignored
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `backlot-core` (lib test) generated 11 warnings (run `cargo fix --lib -p backlot-core --tests` to apply 8 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.91s
+     Running unittests src\lib.rs (target\debug\deps\backlot_core-e600802c20c5284b.exe)
+
+running 16 tests
+test render::review_tests::clip_near_keeps_no_vertex_behind ... ok
+test render::review_tests::clip_near_passes_geometry_in_front ... ok
+test render::review_tests::build_ass_subtitles_is_valid_and_per_caption ... ok
+test render::review_tests::caption_normalization_fixes_fused_words ... ok
+test render::review_tests::escape_ass_reserves_backslash_comma_newline ... ok
+test render::review_tests::frame_motion_detects_change_and_identity ... ok
+test render::review_tests::rig_hierarchy_head_above_feet_and_connected ... ok
+test render::review_tests::locomotion_translates_character_root ... ok
+test render::review_tests::shot_legibility_rejects_bad_framing ... ok
+test render::review_tests::clip_near_rejects_geometry_behind_camera ... ok
+test render::review_tests::rig_articulation_states_differ ... ok
+test render::review_tests::renderer_pipeline_no_nan_no_spikes ... ok
+test render::review_tests::elevator_open_changes_geometry ... ok
+test render::review_tests::character_does_not_vanish_into_elevator ... ok
+test render::review_tests::camera_never_produces_spike_triangles_on_performer_at_elevator ... ok
+test render::review_tests::review_detects_articulation_on_talking_character ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+

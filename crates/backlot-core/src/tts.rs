@@ -198,7 +198,11 @@ impl Tts for HttpTts {
         let key = line_key(text, voice_id);
         let dir = Path::new(&self.cache_dir);
         let _ = std::fs::create_dir_all(dir);
-        let ext = if self.cfg.format.eq_ignore_ascii_case("pcm") { "pcm" } else { "wav" };
+        let ext = if self.cfg.format.eq_ignore_ascii_case("pcm") {
+            "pcm"
+        } else {
+            "wav"
+        };
         let out = dir.join(format!("http_{key}.{ext}"));
 
         if out.exists() {
@@ -241,7 +245,8 @@ impl Tts for HttpTts {
             .arg("-o")
             .arg(out.to_string_lossy().as_ref());
         if !self.cfg.api_key.is_empty() {
-            cmd.arg("-H").arg(format!("Authorization: Bearer {}", self.cfg.api_key));
+            cmd.arg("-H")
+                .arg(format!("Authorization: Bearer {}", self.cfg.api_key));
         }
         let res = cmd.output();
         let _ = std::fs::remove_file(&body_file);
@@ -265,7 +270,10 @@ impl Tts for HttpTts {
                 tracing::warn!(
                     "http TTS request failed: status={} stderr={}",
                     o.status,
-                    String::from_utf8_lossy(&o.stderr).chars().take(200).collect::<String>()
+                    String::from_utf8_lossy(&o.stderr)
+                        .chars()
+                        .take(200)
+                        .collect::<String>()
                 );
                 self.fallback(text)
             }
@@ -310,12 +318,16 @@ pub fn build_tts(cfg: &TtsConfig) -> Box<dyn Tts> {
     if cfg.provider == "http" {
         if let Some(http) = cfg.http.clone() {
             if http.base_url.trim().is_empty() {
-                tracing::warn!("http TTS provider configured with empty base_url; using estimating stub");
+                tracing::warn!(
+                    "http TTS provider configured with empty base_url; using estimating stub"
+                );
             } else {
                 return Box::new(HttpTts::new(http, cfg.cache_dir.clone()));
             }
         } else {
-            tracing::warn!("http TTS provider selected but no [tts.http] config; using estimating stub");
+            tracing::warn!(
+                "http TTS provider selected but no [tts.http] config; using estimating stub"
+            );
         }
     }
     Box::new(EstimatingTts)

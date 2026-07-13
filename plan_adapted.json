@@ -1,0 +1,67 @@
+{
+  "episode_title": "The Auditory Cupboard",
+  "logline": "During a routine inspection of Apartment 4A, Voss discovers that the building's elevator might be living inside the kitchen cabinets.",
+  "tone": [
+    "surreal",
+    "comedy"
+  ],
+  "target_duration_seconds": 50.0,
+  "active_characters": [
+    "nox",
+    "voss",
+    "mara"
+  ],
+  "primary_location": "apartment_4a",
+  "central_goal": {
+    "character": "voss",
+    "goal": "find a code violation"
+  },
+  "beats": [
+    {
+      "id": "beat_1",
+      "type": "establish",
+      "target_start_second": 0.0,
+      "description": "Establish the tension of the inspection as Voss enters the opinionated apartment.",
+      "required_entities": [
+        "voss",
+        "apartment_4a",
+        "nox"
+      ]
+    },
+    {
+      "id": "beat_2",
+      "type": "conversation",
+      "target_start_second": 10.0,
+      "description": "Voss attempts to inspect the walls, but the apartment reacts to his presence.",
+      "required_entities": [
+        "voss",
+        "nox"
+      ]
+    },
+    {
+      "id": "beat_3",
+      "type": "tension_push",
+      "target_start_second": 25.0,
+      "description": "Mara enters to deflect Voss, but the floor begins to vibrate rhythmically.",
+      "required_entities": [
+        "mara",
+        "voss",
+        "nox"
+      ]
+    },
+    {
+      "id": "beat_4",
+      "type": "cliffhanger_hold",
+      "target_start_second": 40.0,
+      "description": "The elevator chime rings from inside the kitchen cupboard, causing a standoff.",
+      "required_entities": [
+        "voss",
+        "mara",
+        "nox"
+      ]
+    }
+  ],
+  "payoff": "The inspector is forced to choose between a fine and a descent into the unknown.",
+  "persistent_changes": [],
+  "notes": null
+}

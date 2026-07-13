@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct WorldDelta {
     pub added_canonical_facts: Vec<String>,
-    pub added_beliefs: Vec<String>, // "<char>:<value>"
+    pub added_beliefs: Vec<String>,        // "<char>:<value>"
     pub relationship_changes: Vec<String>, // "<a>-><b>:<dim><sign><amt>"
     pub resolved_threads: Vec<String>,
     pub new_threads: Vec<String>,
@@ -20,7 +20,10 @@ pub struct WorldDelta {
 }
 
 /// Apply persistent changes to the world and return a record of what changed.
-pub fn apply_persistent_changes(world: &mut WorldState, changes: &[PersistentChange]) -> WorldDelta {
+pub fn apply_persistent_changes(
+    world: &mut WorldState,
+    changes: &[PersistentChange],
+) -> WorldDelta {
     let mut delta = WorldDelta::default();
     for pc in changes {
         match pc.operation.as_str() {
@@ -29,7 +32,9 @@ pub fn apply_persistent_changes(world: &mut WorldState, changes: &[PersistentCha
                     if !ch.believed_facts.iter().any(|f| f == &pc.value) {
                         ch.believed_facts.push(pc.value.clone());
                     }
-                    delta.added_beliefs.push(format!("{}:{}", pc.target, pc.value));
+                    delta
+                        .added_beliefs
+                        .push(format!("{}:{}", pc.target, pc.value));
                 } else {
                     world.add_fact(&pc.value);
                     delta.added_canonical_facts.push(pc.value.clone());
@@ -40,7 +45,9 @@ pub fn apply_persistent_changes(world: &mut WorldState, changes: &[PersistentCha
                     if !ch.believed_facts.iter().any(|f| f == &pc.value) {
                         ch.believed_facts.push(pc.value.clone());
                     }
-                    delta.added_beliefs.push(format!("{}:{}", pc.target, pc.value));
+                    delta
+                        .added_beliefs
+                        .push(format!("{}:{}", pc.target, pc.value));
                 }
             }
             "remove_fact" => {
@@ -78,13 +85,19 @@ pub fn apply_persistent_changes(world: &mut WorldState, changes: &[PersistentCha
                     });
                 let rel = entry.relationships.entry(b.clone()).or_insert_with(|| {
                     use std::collections::HashMap;
-                    crate::world::Relationship { dimensions: HashMap::new() }
+                    crate::world::Relationship {
+                        dimensions: HashMap::new(),
+                    }
                 });
                 let v = rel.dimensions.entry(dim.clone()).or_insert(0.0);
                 *v = (*v + amt).clamp(-1.0, 1.0);
                 delta.relationship_changes.push(format!(
                     "{}->{}:{}{}{:.2}",
-                    pc.target, b, dim, if amt >= 0.0 { '+' } else { '-' }, amt.abs()
+                    pc.target,
+                    b,
+                    dim,
+                    if amt >= 0.0 { '+' } else { '-' },
+                    amt.abs()
                 ));
             }
             "resolve_thread" => {
@@ -112,11 +125,16 @@ pub fn apply_persistent_changes(world: &mut WorldState, changes: &[PersistentCha
             "change_location_condition" => {
                 if let Some(l) = world.locations.get_mut(&pc.target) {
                     l.room_state = pc.value.clone();
-                    delta.location_changes.push(format!("{}:{}", pc.target, pc.value));
+                    delta
+                        .location_changes
+                        .push(format!("{}:{}", pc.target, pc.value));
                 }
             }
             other => {
-                delta.notes.push(format!("unhandled operation '{other}' (target={})", pc.target));
+                delta.notes.push(format!(
+                    "unhandled operation '{other}' (target={})",
+                    pc.target
+                ));
             }
         }
     }

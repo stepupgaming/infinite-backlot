@@ -1,0 +1,451 @@
+Infinite Backlot — base_url=http://localhost:1234/v1 model=gemma-4-26b-a3b force_fallback=false
+RENDER BACKEND: bevy (real GPU scene)
+[2m2026-07-12T20:47:26.207723Z[0m [32m INFO[0m [2mbevy_diagnostic::system_information_diagnostics_plugin::internal[0m[2m:[0m SystemInfo { os: "Windows 11 Pro", kernel: "26200", cpu: "AMD Ryzen 9 9900X 12-Core Processor", core_count: "12", memory: "61.5 GiB" }
+[2m2026-07-12T20:47:26.599529Z[0m [32m INFO[0m [2mbevy_render::renderer[0m[2m:[0m AdapterInfo { name: "NVIDIA GeForce RTX 5060 Ti", vendor: 4318, device: 11524, device_type: DiscreteGpu, device_pci_bus_id: "0000:01:00.0", driver: "NVIDIA", driver_info: "591.86", backend: Vulkan, subgroup_min_size: 32, subgroup_max_size: 32, transient_saves_memory: false }
+[2m2026-07-12T20:47:27.130353Z[0m [33m WARN[0m [2mbevy_render::camera[0m[2m:[0m Entity 366v0 has a `Camera` component, but it doesn't have a render graph configured. Usually, adding a `Camera2d` or `Camera3d` component will work.
+        However, you may instead need to enable `bevy_core_pipeline`, or may want to manually add a `CameraRenderGraph` component to create a custom render graph.
+
+thread 'Compute Task Pool (9)' (48672) panicked at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\handler.rs:130:1:
+Encountered an error in system `<Enable the debug feature to see the name>`: Parameter `<Enable the debug feature to see the name>` failed validation: Resource does not exist
+If this is an expected state, wrap the parameter in `Option<T>` and handle `None` when it happens, or wrap the parameter in `If<T>` to skip the system when it happens.
+   0: std::backtrace_rs::backtrace::win64::trace
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\..\..\backtrace\src\backtrace\win64.rs:85
+   1: std::backtrace_rs::backtrace::trace_unsynchronized
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\..\..\backtrace\src\backtrace\mod.rs:66
+   2: std::backtrace::Backtrace::create
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\backtrace.rs:331
+   3: std::backtrace::Backtrace::capture
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\backtrace.rs:296
+   4: bevy_ecs::error::bevy_error::impl$3::from<bevy_ecs::system::system_param::SystemParamValidationError>
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\bevy_error.rs:411
+   5: bevy_ecs::system::system::impl$3::from<bevy_ecs::system::system_param::SystemParamValidationError>
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\system\system.rs:426
+   6: core::result::impl$28::from_residual<tuple$<>,bevy_ecs::system::system_param::SystemParamValidationError,enum2$<bevy_ecs::system::system::RunSystemError> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\result.rs:2189
+   7: bevy_ecs::system::function_system::impl$12::run_unsafe<void (*)(bevy_ecs::system::commands::Commands,bevy_ecs::system::query::Query<bevy_ecs::entity::Entity,tuple$<bevy_ecs::query::filter::With<enum2$<bevy_mesh::morph::MeshMorphWeights> >,bevy_ecs::query::
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\system\function_system.rs:680
+   8: bevy_ecs::schedule::executor::__rust_begin_short_backtrace::run_unsafe
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\schedule\executor\mod.rs:263
+   9: bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\schedule\executor\multi_threaded.rs:666
+  10: core::ops::function::FnOnce::call_once<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ops\function.rs:250
+  11: core::panic::unwind_safe::impl$25::call_once<tuple$<>,bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  12: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  13: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  14: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  15: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  16: bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\schedule\executor\multi_threaded.rs:659
+  17: core::panic::unwind_safe::impl$28::poll<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:300
+  18: futures_lite::future::impl$11::poll::closure$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:653
+  19: core::panic::unwind_safe::impl$25::call_once<enum2$<core::task::poll::Poll<tuple$<> > >,futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  20: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::a
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  21: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  22: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  23: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_en
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  24: futures_lite::future::impl$11::poll<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:653
+  25: async_executor::impl$21::poll<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,async_executor::impl$5::spawn_inner::closure_e
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:1195
+  26: async_task::raw::impl$3::run::closure$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,asyn
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\raw.rs:550
+  27: core::ops::function::FnOnce::call_once<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spa
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ops\function.rs:250
+  28: core::panic::unwind_safe::impl$25::call_once<enum2$<core::task::poll::Poll<enum2$<core::result::Result<tuple$<>,alloc::boxed::Box<dyn$<core::any::Any,core::marker::Send>,alloc::alloc::Global> > > > >,async_task::raw::impl$3::run::closure_env$1<async_execut
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  29: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::sched
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  30: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  31: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  32: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  33: async_task::raw::RawTask<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,async_executor::imp
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\raw.rs:549
+  34: async_task::runnable::Runnable<tuple$<> >::run<tuple$<> >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\runnable.rs:781
+  35: async_executor::impl$13::run::async_fn$0::async_block$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_en
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:749
+  36: futures_lite::future::impl$7::poll<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_channel::R
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:454
+  37: async_executor::impl$13::run::async_fn$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_chan
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:756
+  38: async_executor::impl$5::run::async_fn$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_chann
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:353
+  39: futures_lite::future::block_on::closure$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,enum2$<async_executor::impl$5::run::async_fn_env$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<b
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:96
+  40: std::thread::local::LocalKey<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> > >::try_with<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> >,futures_lite::future::block_on::closure_env$0<enum2$<core::result::Result<t
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:462
+  41: std::thread::local::LocalKey<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> > >::with<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> >,futures_lite::future::block_on::closure_env$0<enum2$<core::result::Result<tuple
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:426
+  42: futures_lite::future::block_on<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,enum2$<async_executor::impl$5::run::async_fn_env$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:75
+  43: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:203
+  44: std::panicking::catch_unwind::do_call<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure_env$0,enum2$<core::result::Result<tuple$<>,async_channel::RecvError> > >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  45: core::fmt::Write::write_fmt<std::io::default_write_fmt::Adapter<std::sys::stdio::windows::Stderr> >
+  46: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  47: std::panic::catch_unwind<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure_env$0,enum2$<core::result::Result<tuple$<>,async_channel::RecvError> > >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  48: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:197
+  49: std::thread::local::LocalKey<bevy_tasks::executor::LocalExecutor>::try_with<bevy_tasks::executor::LocalExecutor,bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:462
+  50: std::thread::local::LocalKey<bevy_tasks::executor::LocalExecutor>::with<bevy_tasks::executor::LocalExecutor,bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:426
+  51: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:190
+  52: std::sys::backtrace::__rust_begin_short_backtrace<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\sys\backtrace.rs:166
+  53: std::thread::lifecycle::spawn_unchecked::closure$1::closure$0<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\lifecycle.rs:70
+  54: core::panic::unwind_safe::impl$25::call_once<tuple$<>,std::thread::lifecycle::spawn_unchecked::closure$1::closure_env$0<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> > >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  55: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::closure$1::closure_env$0<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> > >,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  56: event_listener::impl$27::poll<tuple$<> >
+  57: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  58: std::panic::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  59: std::thread::lifecycle::spawn_unchecked::closure$1<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\lifecycle.rs:68
+  60: core::ops::function::FnOnce::call_once<std::thread::lifecycle::spawn_unchecked::closure_env$1<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> >,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ops\function.rs:250
+  61: std::sys::thread::windows::impl$0::new::thread_start
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\sys\thread\windows.rs:58
+  62: BaseThreadInitThunk
+  63: RtlUserThreadStart
+
+
+stack backtrace:
+   0: std::panicking::panic_handler
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\panicking.rs:689
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\core\src\panicking.rs:80
+   2: bevy_ecs::error::handler::panic
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\handler.rs:95
+   3: bevy_ecs::error::handler::match_severity
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\handler.rs:138
+   4: bevy_ecs::error::handler::match_severity
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\handler.rs:130
+   5: bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\schedule\executor\multi_threaded.rs:671
+   6: core::ops::function::FnOnce::call_once<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ops\function.rs:250
+   7: core::panic::unwind_safe::impl$25::call_once<tuple$<>,bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+   8: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+   9: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  10: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  11: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  12: bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\schedule\executor\multi_threaded.rs:659
+  13: core::panic::unwind_safe::impl$28::poll<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:300
+  14: futures_lite::future::impl$11::poll::closure$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:653
+  15: core::panic::unwind_safe::impl$25::call_once<enum2$<core::task::poll::Poll<tuple$<> > >,futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  16: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::a
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  17: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  18: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  19: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_en
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  20: futures_lite::future::impl$11::poll<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:653
+  21: async_executor::impl$21::poll<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,async_executor::impl$5::spawn_inner::closure_e
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:1195
+  22: async_task::raw::impl$3::run::closure$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,asyn
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\raw.rs:550
+  23: core::ops::function::FnOnce::call_once<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spa
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ops\function.rs:250
+  24: core::panic::unwind_safe::impl$25::call_once<enum2$<core::task::poll::Poll<enum2$<core::result::Result<tuple$<>,alloc::boxed::Box<dyn$<core::any::Any,core::marker::Send>,alloc::alloc::Global> > > > >,async_task::raw::impl$3::run::closure_env$1<async_execut
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  25: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::sched
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  26: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  27: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  28: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  29: async_task::raw::RawTask<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,async_executor::imp
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\raw.rs:549
+  30: async_task::runnable::Runnable<tuple$<> >::run<tuple$<> >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\runnable.rs:781
+  31: async_executor::impl$13::run::async_fn$0::async_block$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_en
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:749
+  32: futures_lite::future::impl$7::poll<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_channel::R
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:454
+  33: async_executor::impl$13::run::async_fn$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_chan
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:756
+  34: async_executor::impl$5::run::async_fn$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_chann
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:353
+  35: futures_lite::future::block_on::closure$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,enum2$<async_executor::impl$5::run::async_fn_env$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<b
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:96
+  36: std::thread::local::LocalKey<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> > >::try_with<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> >,futures_lite::future::block_on::closure_env$0<enum2$<core::result::Result<t
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:462
+  37: std::thread::local::LocalKey<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> > >::with<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> >,futures_lite::future::block_on::closure_env$0<enum2$<core::result::Result<tuple
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:426
+  38: futures_lite::future::block_on<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,enum2$<async_executor::impl$5::run::async_fn_env$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:75
+  39: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:203
+  40: std::panicking::catch_unwind::do_call<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure_env$0,enum2$<core::result::Result<tuple$<>,async_channel::RecvError> > >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  41: core::fmt::Write::write_fmt<std::io::default_write_fmt::Adapter<std::sys::stdio::windows::Stderr> >
+  42: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  43: std::panic::catch_unwind<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure_env$0,enum2$<core::result::Result<tuple$<>,async_channel::RecvError> > >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  44: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:197
+  45: std::thread::local::LocalKey<bevy_tasks::executor::LocalExecutor>::try_with<bevy_tasks::executor::LocalExecutor,bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:462
+  46: std::thread::local::LocalKey<bevy_tasks::executor::LocalExecutor>::with<bevy_tasks::executor::LocalExecutor,bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:426
+  47: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:190
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+thread 'Compute Task Pool (11)' (29860) panicked at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\handler.rs:130:1:
+Encountered an error in system `<Enable the debug feature to see the name>`: Parameter `<Enable the debug feature to see the name>` failed validation: Resource does not exist
+If this is an expected state, wrap the parameter in `Option<T>` and handle `None` when it happens, or wrap the parameter in `If<T>` to skip the system when it happens.
+   0: std::backtrace_rs::backtrace::win64::trace
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\..\..\backtrace\src\backtrace\win64.rs:85
+   1: std::backtrace_rs::backtrace::trace_unsynchronized
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\..\..\backtrace\src\backtrace\mod.rs:66
+   2: std::backtrace::Backtrace::create
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\backtrace.rs:331
+   3: std::backtrace::Backtrace::capture
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\backtrace.rs:296
+   4: bevy_ecs::error::bevy_error::impl$3::from<bevy_ecs::system::system_param::SystemParamValidationError>
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\bevy_error.rs:411
+   5: bevy_ecs::system::system::impl$3::from<bevy_ecs::system::system_param::SystemParamValidationError>
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\system\system.rs:426
+   6: core::result::impl$28::from_residual<tuple$<>,bevy_ecs::system::system_param::SystemParamValidationError,enum2$<bevy_ecs::system::system::RunSystemError> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\result.rs:2189
+   7: bevy_ecs::system::function_system::impl$12::run_unsafe<void (*)(bevy_ecs::system::commands::Commands,bevy_ecs::system::query::Query<bevy_ecs::entity::Entity,tuple$<bevy_ecs::query::filter::With<bevy_mesh::skinning::SkinnedMesh>,bevy_ecs::query::filter::Wit
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\system\function_system.rs:680
+   8: bevy_ecs::schedule::executor::__rust_begin_short_backtrace::run_unsafe
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\schedule\executor\mod.rs:263
+   9: bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\schedule\executor\multi_threaded.rs:666
+  10: core::ops::function::FnOnce::call_once<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ops\function.rs:250
+  11: core::panic::unwind_safe::impl$25::call_once<tuple$<>,bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  12: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  13: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  14: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  15: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  16: bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\schedule\executor\multi_threaded.rs:659
+  17: core::panic::unwind_safe::impl$28::poll<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:300
+  18: futures_lite::future::impl$11::poll::closure$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:653
+  19: core::panic::unwind_safe::impl$25::call_once<enum2$<core::task::poll::Poll<tuple$<> > >,futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  20: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::a
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  21: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  22: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  23: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_en
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  24: futures_lite::future::impl$11::poll<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:653
+  25: async_executor::impl$21::poll<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,async_executor::impl$5::spawn_inner::closure_e
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:1195
+  26: async_task::raw::impl$3::run::closure$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,asyn
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\raw.rs:550
+  27: core::ops::function::FnOnce::call_once<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spa
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ops\function.rs:250
+  28: core::panic::unwind_safe::impl$25::call_once<enum2$<core::task::poll::Poll<enum2$<core::result::Result<tuple$<>,alloc::boxed::Box<dyn$<core::any::Any,core::marker::Send>,alloc::alloc::Global> > > > >,async_task::raw::impl$3::run::closure_env$1<async_execut
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  29: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::sched
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  30: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  31: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  32: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  33: async_task::raw::RawTask<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,async_executor::imp
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\raw.rs:549
+  34: async_task::runnable::Runnable<tuple$<> >::run<tuple$<> >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\runnable.rs:781
+  35: async_executor::impl$13::run::async_fn$0::async_block$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_en
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:749
+  36: futures_lite::future::impl$7::poll<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_channel::R
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:454
+  37: async_executor::impl$13::run::async_fn$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_chan
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:756
+  38: async_executor::impl$5::run::async_fn$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_chann
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:353
+  39: futures_lite::future::block_on::closure$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,enum2$<async_executor::impl$5::run::async_fn_env$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<b
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:96
+  40: std::thread::local::LocalKey<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> > >::try_with<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> >,futures_lite::future::block_on::closure_env$0<enum2$<core::result::Result<t
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:462
+  41: std::thread::local::LocalKey<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> > >::with<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> >,futures_lite::future::block_on::closure_env$0<enum2$<core::result::Result<tuple
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:426
+  42: futures_lite::future::block_on<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,enum2$<async_executor::impl$5::run::async_fn_env$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:75
+  43: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:203
+  44: std::panicking::catch_unwind::do_call<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure_env$0,enum2$<core::result::Result<tuple$<>,async_channel::RecvError> > >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  45: core::fmt::Write::write_fmt<std::io::default_write_fmt::Adapter<std::sys::stdio::windows::Stderr> >
+  46: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  47: std::panic::catch_unwind<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure_env$0,enum2$<core::result::Result<tuple$<>,async_channel::RecvError> > >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  48: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:197
+  49: std::thread::local::LocalKey<bevy_tasks::executor::LocalExecutor>::try_with<bevy_tasks::executor::LocalExecutor,bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:462
+  50: std::thread::local::LocalKey<bevy_tasks::executor::LocalExecutor>::with<bevy_tasks::executor::LocalExecutor,bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:426
+  51: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:190
+  52: std::sys::backtrace::__rust_begin_short_backtrace<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\sys\backtrace.rs:166
+  53: std::thread::lifecycle::spawn_unchecked::closure$1::closure$0<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\lifecycle.rs:70
+  54: core::panic::unwind_safe::impl$25::call_once<tuple$<>,std::thread::lifecycle::spawn_unchecked::closure$1::closure_env$0<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> > >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  55: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::closure$1::closure_env$0<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> > >,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  56: event_listener::impl$27::poll<tuple$<> >
+  57: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  58: std::panic::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  59: std::thread::lifecycle::spawn_unchecked::closure$1<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\lifecycle.rs:68
+  60: core::ops::function::FnOnce::call_once<std::thread::lifecycle::spawn_unchecked::closure_env$1<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure_env$0,tuple$<> >,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ops\function.rs:250
+  61: std::sys::thread::windows::impl$0::new::thread_start
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\sys\thread\windows.rs:58
+  62: BaseThreadInitThunk
+  63: RtlUserThreadStart
+
+
+Encountered a panic in system `stack backtrace:
+<Enable the debug feature to see the name>`!
+   0: std::panicking::panic_handler
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\std\src\panicking.rs:689
+   1: core::panicking::panic_fmt
+             at /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library\core\src\panicking.rs:80
+   2: bevy_ecs::error::handler::panic
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\handler.rs:95
+   3: bevy_ecs::error::handler::match_severity
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\handler.rs:138
+   4: bevy_ecs::error::handler::match_severity
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\handler.rs:130
+   5: bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\schedule\executor\multi_threaded.rs:671
+   6: core::ops::function::FnOnce::call_once<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ops\function.rs:250
+   7: core::panic::unwind_safe::impl$25::call_once<tuple$<>,bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+   8: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+   9: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  10: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  11: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0::closure_env$0>,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  12: bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\schedule\executor\multi_threaded.rs:659
+  13: core::panic::unwind_safe::impl$28::poll<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:300
+  14: futures_lite::future::impl$11::poll::closure$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:653
+  15: core::panic::unwind_safe::impl$25::call_once<enum2$<core::task::poll::Poll<tuple$<> > >,futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  16: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::a
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  17: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  18: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  19: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<futures_lite::future::impl$11::poll::closure_env$0<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_en
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  20: futures_lite::future::impl$11::poll<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:653
+  21: async_executor::impl$21::poll<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,async_executor::impl$5::spawn_inner::closure_e
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:1195
+  22: async_task::raw::impl$3::run::closure$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,asyn
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\raw.rs:550
+  23: core::ops::function::FnOnce::call_once<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spa
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ops\function.rs:250
+  24: core::panic::unwind_safe::impl$25::call_once<enum2$<core::task::poll::Poll<enum2$<core::result::Result<tuple$<>,alloc::boxed::Box<dyn$<core::any::Any,core::marker::Send>,alloc::alloc::Global> > > > >,async_task::raw::impl$3::run::closure_env$1<async_execut
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\panic\unwind_safe.rs:275
+  25: std::panicking::catch_unwind::do_call<core::panic::unwind_safe::AssertUnwindSafe<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::sched
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  26: bevy_reflect::type_registry::FromType::insert_dependencies<bevy_reflect::type_registry::ReflectDeserialize,bevy_ecs::hierarchy::ChildOf>
+  27: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  28: std::panic::catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<async_task::raw::impl$3::run::closure_env$1<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  29: async_task::raw::RawTask<async_executor::AsyncCallOnDrop<futures_lite::future::CatchUnwind<core::panic::unwind_safe::AssertUnwindSafe<enum2$<bevy_ecs::schedule::executor::multi_threaded::impl$5::spawn_system_task::async_block_env$0> > >,async_executor::imp
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\raw.rs:549
+  30: async_task::runnable::Runnable<tuple$<> >::run<tuple$<> >
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-task-4.7.1\src\runnable.rs:781
+  31: async_executor::impl$13::run::async_fn$0::async_block$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_en
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:749
+  32: futures_lite::future::impl$7::poll<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_channel::R
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:454
+  33: async_executor::impl$13::run::async_fn$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_chan
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:756
+  34: async_executor::impl$5::run::async_fn$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0::async_block_env$0>,async_chann
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\async-executor-1.14.0\src\lib.rs:353
+  35: futures_lite::future::block_on::closure$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,enum2$<async_executor::impl$5::run::async_fn_env$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<b
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:96
+  36: std::thread::local::LocalKey<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> > >::try_with<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> >,futures_lite::future::block_on::closure_env$0<enum2$<core::result::Result<t
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:462
+  37: std::thread::local::LocalKey<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> > >::with<core::cell::RefCell<tuple$<parking::Parker,core::task::wake::Waker> >,futures_lite::future::block_on::closure_env$0<enum2$<core::result::Result<tuple
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:426
+  38: futures_lite::future::block_on<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,enum2$<async_executor::impl$5::run::async_fn_env$0<enum2$<core::result::Result<tuple$<>,async_channel::RecvError> >,futures_lite::future::Or<enum2$<bevy_tasks::
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-lite-2.6.1\src\future.rs:75
+  39: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:203
+  40: std::panicking::catch_unwind::do_call<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure_env$0,enum2$<core::result::Result<tuple$<>,async_channel::RecvError> > >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:581
+  41: core::fmt::Write::write_fmt<std::io::default_write_fmt::Adapter<std::sys::stdio::windows::Stderr> >
+  42: std::panicking::catch_unwind
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panicking.rs:544
+  43: std::panic::catch_unwind<bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0::closure_env$0,enum2$<core::result::Result<tuple$<>,async_channel::RecvError> > >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\panic.rs:359
+  44: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:197
+  45: std::thread::local::LocalKey<bevy_tasks::executor::LocalExecutor>::try_with<bevy_tasks::executor::LocalExecutor,bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:462
+  46: std::thread::local::LocalKey<bevy_tasks::executor::LocalExecutor>::with<bevy_tasks::executor::LocalExecutor,bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0::closure_env$0,tuple$<> >
+             at C:\Users\Steve\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src\thread\local.rs:426
+  47: bevy_tasks::task_pool::impl$2::new_internal::closure$0::closure$0
+             at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_tasks-0.19.0\src\task_pool.rs:190
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Encountered a panic in system `<Enable the debug feature to see the name>`!
+Encountered a panic in system `<Enable the debug feature to see the name>`!

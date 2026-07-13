@@ -6,9 +6,7 @@
 //! second, divergent interpretation of the world. The Bevy renderer merely draws
 //! the `FrameState` this module produces; it never re-derives scene state.
 
-use crate::avatar::{
-    character_pose, CameraTargetRole, HumanoidRig, PerformanceState, Pose, Xform,
-};
+use crate::avatar::{character_pose, CameraTargetRole, HumanoidRig, PerformanceState, Pose, Xform};
 use crate::package::{Caption, DialogueLine, TimedEvent};
 use crate::validation::{validate_beat_command, validate_plan, ValidatedPlan};
 use crate::world::WorldState;
@@ -81,13 +79,16 @@ pub enum ActionKind {
 
 pub fn action_kind(a: &str) -> ActionKind {
     match a {
-        "move_to" | "approach" | "retreat_from" | "follow" | "flee_to" | "enter_room" | "exit_room" => ActionKind::Move,
+        "move_to" | "approach" | "retreat_from" | "follow" | "flee_to" | "enter_room"
+        | "exit_room" => ActionKind::Move,
         "speak" | "whisper" | "shout" => ActionKind::Speak,
         "react" => ActionKind::React,
         "gesture" => ActionKind::Gesture,
         "point_at" => ActionKind::Point,
         "look_at" | "turn_toward" => ActionKind::Look,
-        "sigh" | "laugh" | "display_emotion" | "conceal_emotion" | "pause" | "interrupt" => ActionKind::Listen,
+        "sigh" | "laugh" | "display_emotion" | "conceal_emotion" | "pause" | "interrupt" => {
+            ActionKind::Listen
+        }
         _ => ActionKind::Other,
     }
 }
@@ -142,16 +143,23 @@ pub fn build_schedule(
 
     let active: Vec<&String> = validated.plan.active_characters.iter().collect();
     let mut home_of: HashMap<String, [f32; 3]> = HashMap::new();
-    let default_marks = ["hall_center", "apt_3b_door", "maintenance_panel", "apt_4a_door"];
+    let default_marks = [
+        "hall_center",
+        "apt_3b_door",
+        "maintenance_panel",
+        "apt_4a_door",
+    ];
     for (i, id) in active.iter().enumerate() {
         let pos = marks
             .get(i)
             .copied()
             .or_else(|| {
-                world
-                    .locations
-                    .get(loc_id)
-                    .and_then(|l| l.staging_marks.iter().find(|m| m.id == default_marks[i % default_marks.len()]).map(|m| m.position))
+                world.locations.get(loc_id).and_then(|l| {
+                    l.staging_marks
+                        .iter()
+                        .find(|m| m.id == default_marks[i % default_marks.len()])
+                        .map(|m| m.position)
+                })
             })
             .unwrap_or([0.0, 0.0, 0.0]);
         home_of.insert((*id).clone(), pos);
@@ -213,7 +221,11 @@ pub fn build_schedule(
                     text: text.clone(),
                     voice_id: voice.clone(),
                 });
-                captions.push(Caption { start: s, end: e, text });
+                captions.push(Caption {
+                    start: s,
+                    end: e,
+                    text,
+                });
             }
             // events log
             events.push(TimedEvent {
@@ -254,19 +266,22 @@ pub fn build_schedule(
             }
             t += dur;
         }
-        let beat_end = (beat_start + t + 0.6).max(
-            rb.completion
-                .seconds
-                .unwrap_or(0.0)
-                .max(beat_start + t),
-        );
+        let beat_end =
+            (beat_start + t + 0.6).max(rb.completion.seconds.unwrap_or(0.0).max(beat_start + t));
         clock = beat_end;
     }
 
     // Expand the per-beat camera intent into purposeful coverage via the
     // autonomous director. This is what turns sparse 5-shot plans into 8-14
     // shot episodes with hook/speaker/reaction/insert coverage.
-    camera_shots = plan_shots(world, validated, &home_of, &dialogue, &inserts, clock.max(1.0));
+    camera_shots = plan_shots(
+        world,
+        validated,
+        &home_of,
+        &dialogue,
+        &inserts,
+        clock.max(1.0),
+    );
 
     Schedule {
         duration: clock.max(1.0),
@@ -326,7 +341,11 @@ pub fn compact_dead_air(sched: &mut Schedule, max_dead_air: f32) {
         };
         let dur = (e - s).max(0.0);
         let ne = ns + dur;
-        let s_cp = if i == 0 { *s } else { (*s).max(prev_old_end + 1e-3) };
+        let s_cp = if i == 0 {
+            *s
+        } else {
+            (*s).max(prev_old_end + 1e-3)
+        };
         cp.push((s_cp, ns));
         if *e > s_cp + 1e-3 {
             cp.push((*e, ne));
@@ -350,7 +369,11 @@ pub fn compact_dead_air(sched: &mut Schedule, max_dead_air: f32) {
             let (o0, n0) = cp[i];
             let (o1, n1) = cp[i + 1];
             if t >= o0 && t <= o1 {
-                let k = if o1 - o0 > 1e-6 { (t - o0) / (o1 - o0) } else { 0.0 };
+                let k = if o1 - o0 > 1e-6 {
+                    (t - o0) / (o1 - o0)
+                } else {
+                    0.0
+                };
                 return n0 + (n1 - n0) * k;
             }
         }
@@ -406,9 +429,27 @@ mod timeline_tests {
             characters: vec![],
             camera_shots: vec![],
             dialogue: vec![
-                DialogueLine { start: 4.0, end: 7.0, actor: "a".into(), text: "x".into(), voice_id: "a".into() },
-                DialogueLine { start: 14.0, end: 16.0, actor: "b".into(), text: "y".into(), voice_id: "b".into() },
-                DialogueLine { start: 25.0, end: 27.0, actor: "c".into(), text: "z".into(), voice_id: "c".into() },
+                DialogueLine {
+                    start: 4.0,
+                    end: 7.0,
+                    actor: "a".into(),
+                    text: "x".into(),
+                    voice_id: "a".into(),
+                },
+                DialogueLine {
+                    start: 14.0,
+                    end: 16.0,
+                    actor: "b".into(),
+                    text: "y".into(),
+                    voice_id: "b".into(),
+                },
+                DialogueLine {
+                    start: 25.0,
+                    end: 27.0,
+                    actor: "c".into(),
+                    text: "z".into(),
+                    voice_id: "c".into(),
+                },
             ],
             captions: vec![],
             events: vec![],
@@ -418,14 +459,21 @@ mod timeline_tests {
         };
         compact_dead_air(&mut sched, 4.0);
         // First line starts within ~1s (was 4.0s cold open).
-        assert!(sched.dialogue[0].start < 1.0, "first content must start within ~1s");
+        assert!(
+            sched.dialogue[0].start < 1.0,
+            "first content must start within ~1s"
+        );
         // No inter-line gap exceeds the dead-air limit (max_gap <= 3.5).
         for i in 1..sched.dialogue.len() {
             let gap = sched.dialogue[i].start - sched.dialogue[i - 1].end;
             assert!(gap <= 3.6, "gap {gap} exceeds dead-air limit");
         }
         // Timeline shrank (dead air removed).
-        assert!(sched.duration < 40.0, "duration {} not compressed", sched.duration);
+        assert!(
+            sched.duration < 40.0,
+            "duration {} not compressed",
+            sched.duration
+        );
         // Dialogue stays ordered.
         for i in 1..sched.dialogue.len() {
             assert!(sched.dialogue[i].start >= sched.dialogue[i - 1].start);
@@ -464,7 +512,12 @@ pub struct FrameState {
 }
 
 /// Compute the world state at absolute time `t` (deterministic).
-pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world: &WorldState, t: f32) -> FrameState {
+pub fn evaluate_at(
+    sched: &Schedule,
+    rigs: &HashMap<String, HumanoidRig>,
+    world: &WorldState,
+    t: f32,
+) -> FrameState {
     // First pass: root positions + performance state per character.
     let mut frames: Vec<CharFrame> = Vec::new();
     for ct in &sched.characters {
@@ -485,7 +538,11 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
             }
             match action_kind(&a.action) {
                 ActionKind::Move => {
-                    if let Some(p) = resolve_pos(a.target.as_deref().unwrap_or(""), world, &char_home_map(sched)) {
+                    if let Some(p) = resolve_pos(
+                        a.target.as_deref().unwrap_or(""),
+                        world,
+                        &char_home_map(sched),
+                    ) {
                         let k = ((t - a.start) / a.dur.max(0.001)).clamp(0.0, 1.0);
                         if t < a.start + a.dur {
                             pos = [
@@ -540,7 +597,10 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
             None if moving => (PerformanceState::Walk, false),
             None => {
                 // listening if someone else is speaking
-                let other_speaking = sched.dialogue.iter().any(|d| d.start <= t && t < d.end && d.actor != ct.id);
+                let other_speaking = sched
+                    .dialogue
+                    .iter()
+                    .any(|d| d.start <= t && t < d.end && d.actor != ct.id);
                 if other_speaking {
                     (PerformanceState::Listen, false)
                 } else {
@@ -550,7 +610,10 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
         };
         frames.push(CharFrame {
             id: ct.id.clone(),
-            root: Xform { pos: [pos[0], 0.0, pos[2]], rot: [0.0, yaw, 0.0] },
+            root: Xform {
+                pos: [pos[0], 0.0, pos[2]],
+                rot: [0.0, yaw, 0.0],
+            },
             state,
             walk_phase: t,
             speaking,
@@ -562,11 +625,11 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
     for f in &frames {
         let mut pose = character_pose(f.state, t, f.walk_phase);
         // gaze toward conversational partner if listening/speaking
-        if matches!(f.state, PerformanceState::Listen | PerformanceState::Talk | PerformanceState::Look) {
-            let partner = frames
-                .iter()
-                .find(|o| o.id != f.id)
-                .map(|o| o.root.pos);
+        if matches!(
+            f.state,
+            PerformanceState::Listen | PerformanceState::Talk | PerformanceState::Look
+        ) {
+            let partner = frames.iter().find(|o| o.id != f.id).map(|o| o.root.pos);
             if let Some(p) = partner {
                 let dx = p[0] - f.root.pos[0];
                 let dz = p[2] - f.root.pos[2];
@@ -578,7 +641,13 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
                         nh.rot[1] = yaw;
                         pose.set(crate::avatar::SemanticJoint::Head, nh);
                     } else {
-                        pose.set(crate::avatar::SemanticJoint::Head, Xform { pos: [0.0; 3], rot: [0.0, yaw, 0.0] });
+                        pose.set(
+                            crate::avatar::SemanticJoint::Head,
+                            Xform {
+                                pos: [0.0; 3],
+                                rot: [0.0, yaw, 0.0],
+                            },
+                        );
                     }
                 }
             }
@@ -609,9 +678,12 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
             .find(|(f, _)| f.id == shot.subject)
             .map(|(f, _)| f.id.clone())
             .or_else(|| {
-                shot.reaction
-                    .as_ref()
-                    .and_then(|r| posed.iter().find(|(f, _)| f.id == *r).map(|(f, _)| f.id.clone()))
+                shot.reaction.as_ref().and_then(|r| {
+                    posed
+                        .iter()
+                        .find(|(f, _)| f.id == *r)
+                        .map(|(f, _)| f.id.clone())
+                })
             })
             .or_else(|| {
                 sched
@@ -657,7 +729,11 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
         // performer), then rotated by the subject's facing so we see their face.
         let world_off = rotate_y([loff.0, loff.1, loff.2], yaw);
         let mut eye = clamp_camera_to_hallway(
-            [chest[0] + world_off[0], chest[1] + world_off[1], chest[2] + world_off[2]],
+            [
+                chest[0] + world_off[0],
+                chest[1] + world_off[1],
+                chest[2] + world_off[2],
+            ],
             &frame_pos,
         );
         // Enforce a minimum camera-to-subject distance. Without this a close
@@ -707,7 +783,10 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
                 .unwrap_or([0.0; 3]);
             [home[0], 0.5, home[2]]
         };
-        props.push(PropFrame { id: p.id.clone(), pos });
+        props.push(PropFrame {
+            id: p.id.clone(),
+            pos,
+        });
     }
 
     let flicker = sched.flicker.iter().any(|(s, e)| t >= *s && t < *e);
@@ -737,8 +816,8 @@ pub fn char_home_map(sched: &Schedule) -> HashMap<String, [f32; 3]> {
 /// (roughly 0.55 m below the head) so the framing subject is vertically centred.
 pub fn camera_offset(intent: &str, react: Option<[f32; 3]>) -> ((f32, f32, f32), CameraTargetRole) {
     let o = match intent {
-        "establish" | "comedic_wide" | "group_coverage" => (0.0, 1.5, 5.2),
-        "speaker_closeup" | "follow" | "conversation" => (0.0, 0.3, 2.7),
+        "establish" | "comedic_wide" | "group_coverage" => (0.0, 1.1, 4.5),
+        "speaker_closeup" | "follow" | "conversation" => (0.0, 0.3, 2.4),
         "reaction" => {
             let r = react.unwrap_or([0.0, 1.5, 0.0]);
             // approach the reactor from its side, slightly closer

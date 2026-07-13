@@ -1,0 +1,195 @@
+warning: unused imports: `validate_beat_command` and `validate_plan`
+  --> crates\backlot-core\src\timeline.rs:13:25
+   |
+13 | use crate::validation::{validate_beat_command, validate_plan, ValidatedPlan};
+   |                         ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Deserialize` and `Serialize`
+  --> crates\backlot-core\src\timeline.rs:15:13
+   |
+15 | use serde::{Deserialize, Serialize};
+   |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused imports: `CameraTargetRole`, `PerformanceState`, `Pose`, `Xform`, and `character_pose`
+  --> crates\backlot-core\src\render.rs:15:5
+   |
+15 |     character_pose, part_corners, CameraTargetRole, HumanoidRig, PerformanceState, Pose, Xform,
+   |     ^^^^^^^^^^^^^^                ^^^^^^^^^^^^^^^^               ^^^^^^^^^^^^^^^^  ^^^^  ^^^^^
+
+warning: unused import: `TimedEvent`
+  --> crates\backlot-core\src\render.rs:20:5
+   |
+20 |     TimedEvent,
+   |     ^^^^^^^^^^
+
+warning: unnecessary parentheses around `if` condition
+   --> crates\backlot-core\src\render.rs:269:16
+    |
+269 |             if (w0 >= -0.001 && w1 >= -0.001 && w2 >= -0.001) {
+    |                ^                                            ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+269 -             if (w0 >= -0.001 && w1 >= -0.001 && w2 >= -0.001) {
+269 +             if w0 >= -0.001 && w1 >= -0.001 && w2 >= -0.001 {
+    |
+
+warning: value assigned to `camera_shots` is never read
+   --> crates\backlot-core\src\timeline.rs:175:49
+    |
+175 |     let mut camera_shots: Vec<CameraShotSpec> = Vec::new();
+    |                                                 ^^^^^^^^^^ this value is reassigned later and never used
+...
+269 |     camera_shots = plan_shots(world, validated, &home_of, &dialogue, &inserts, clock.max(1.0));
+    |     ------------ `camera_shots` is overwritten here before the previous value is read
+    |
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> crates\backlot-core\src\director.rs:455:13
+    |
+455 |         let mut extra = shots.clone();
+    |             ----^^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `home_of`
+   --> crates\backlot-core\src\director.rs:328:5
+    |
+328 |     home_of: &HashMap<String, [f32; 3]>,
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_home_of`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `require_llm`
+   --> crates\backlot-core\src\render.rs:714:5
+    |
+714 |     require_llm: bool,
+    |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_require_llm`
+
+warning: field `sample_rate` is never read
+  --> crates\backlot-core\src\tts.rs:67:5
+   |
+65 | pub struct EspeakTts {
+   |            --------- field in this struct
+66 |     exe: String,
+67 |     sample_rate: u32,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `backlot-core` (lib) generated 10 warnings (run `cargo fix --lib -p backlot-core` to apply 8 suggestions)
+warning: field `finish_reason` is never read
+  --> crates\backlot-llm\src\client.rs:69:5
+   |
+67 | struct Choice {
+   |        ------ field in this struct
+68 |     message: ChatMessageOut,
+69 |     finish_reason: Option<String>,
+   |     ^^^^^^^^^^^^^
+   |
+   = note: `Choice` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `backlot-llm` (lib) generated 1 warning
+warning: field `indicator` is never read
+  --> crates\backlot-app\src\scene.rs:11:9
+   |
+ 8 | pub struct HudEntities {
+   |            ----------- field in this struct
+...
+11 |     pub indicator: Entity,
+   |         ^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `Repairing` is never constructed
+  --> crates\backlot-app\src\state.rs:24:5
+   |
+15 | pub enum AppState {
+   |          -------- variant in this enum
+...
+24 |     Repairing,
+   |     ^^^^^^^^^
+   |
+   = note: `AppState` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `color` is never read
+  --> crates\backlot-app\src\state.rs:39:9
+   |
+36 | pub struct CharacterAvatar {
+   |            --------------- field in this struct
+...
+39 |     pub color: Color,
+   |         ^^^^^
+
+warning: field `anchors` is never read
+  --> crates\backlot-app\src\state.rs:71:9
+   |
+66 | pub struct CameraRig {
+   |            --------- field in this struct
+...
+71 |     pub anchors: Vec<(Vec3, Vec3)>,
+   |         ^^^^^^^
+
+warning: field `metrics` is never read
+  --> crates\backlot-app\src\state.rs:88:9
+   |
+85 | pub struct AuthorMsg {
+   |            --------- field in this struct
+...
+88 |     pub metrics: Option<LlmMetrics>,
+   |         ^^^^^^^
+
+warning: field `action_fired` is never read
+   --> crates\backlot-app\src\state.rs:144:9
+    |
+138 | pub struct Player {
+    |            ------ field in this struct
+...
+144 |     pub action_fired: Vec<bool>,
+    |         ^^^^^^^^^^^^
+
+warning: field `0` is never read
+   --> crates\backlot-app\src\state.rs:214:27
+    |
+214 | pub struct CurrentMetrics(pub EpisodeMetrics);
+    |            -------------- ^^^^^^^^^^^^^^^^^^
+    |            |
+    |            field in this struct
+    |
+    = help: consider removing this field
+
+warning: linker stdout: LINK : warning LNK4044: unrecognized option '/fuse-ld=lld'; ignored
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `backlot-app` (bin "backlot") generated 8 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running `target\debug\backlot.exe --produce-one --render-backend bevy`
+Infinite Backlot — base_url=http://localhost:1234/v1 model=gemma-4-26b-a3b force_fallback=false
+RENDER BACKEND: bevy (real GPU scene)
+[2m2026-07-12T20:43:52.636896Z[0m [32m INFO[0m [2mbevy_diagnostic::system_information_diagnostics_plugin::internal[0m[2m:[0m SystemInfo { os: "Windows 11 Pro", kernel: "26200", cpu: "AMD Ryzen 9 9900X 12-Core Processor", core_count: "12", memory: "61.5 GiB" }
+[2m2026-07-12T20:43:53.049189Z[0m [32m INFO[0m [2mbevy_render::renderer[0m[2m:[0m AdapterInfo { name: "NVIDIA GeForce RTX 5060 Ti", vendor: 4318, device: 11524, device_type: DiscreteGpu, device_pci_bus_id: "0000:01:00.0", driver: "NVIDIA", driver_info: "591.86", backend: Vulkan, subgroup_min_size: 32, subgroup_max_size: 32, transient_saves_memory: false }
+[2m2026-07-12T20:43:53.520173Z[0m [33m WARN[0m [2mbevy_render::camera[0m[2m:[0m Entity 366v0 has a `Camera` component, but it doesn't have a render graph configured. Usually, adding a `Camera2d` or `Camera3d` component will work.
+        However, you may instead need to enable `bevy_core_pipeline`, or may want to manually add a `CameraRenderGraph` component to create a custom render graph.
+
+thread 'Compute Task Pool (8)' (25448) panicked at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\handler.rs:130:1:
+Encountered an error in system `<Enable the debug feature to see the name>`: Parameter `<Enable the debug feature to see the name>` failed validation: Resource does not exist
+If this is an expected state, wrap the parameter in `Option<T>` and handle `None` when it happens, or wrap the parameter in `If<T>` to skip the system when it happens.
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+Encountered a panic in system `<Enable the debug feature to see the name>`!
+
+thread 'Compute Task Pool (5)' (4320) panicked at C:\Users\Steve\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bevy_ecs-0.19.0\src\error\handler.rs:130:1:
+Encountered an error in system `<Enable the debug feature to see the name>`: Parameter `<Enable the debug feature to see the name>` failed validation: Resource does not exist
+If this is an expected state, wrap the parameter in `Option<T>` and handle `None` when it happens, or wrap the parameter in `If<T>` to skip the system when it happens.
+
+Encountered a panic in system `<Enable the debug feature to see the name>`!
+Encountered a panic in system `<Enable the debug feature to see the name>`!
+error: process didn't exit successfully: `target\debug\backlot.exe --produce-one --render-backend bevy` (exit code: 101)

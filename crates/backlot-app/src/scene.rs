@@ -82,7 +82,8 @@ pub fn spawn_scene(
             base_color: Color::srgb(0.18, 0.18, 0.22),
             ..default()
         })),
-        Transform::from_xyz(0.0, 0.0, -2.0).with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
+        Transform::from_xyz(0.0, 0.0, -2.0)
+            .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
     ));
 
     // Back wall + simple side walls (greybox).
@@ -164,7 +165,12 @@ pub fn spawn_scene(
     // stands in for a future skinned asset; the parent entity carries the
     // `CharacterAvatar` (driven by the existing movement/talk systems) and each
     // rig part is a child box positioned at its rest-pose offset.
-    let start_marks = ["hall_center", "apt_3b_door", "maintenance_panel", "apt_4a_door"];
+    let start_marks = [
+        "hall_center",
+        "apt_3b_door",
+        "maintenance_panel",
+        "apt_4a_door",
+    ];
     let ids: Vec<String> = world.0.characters.keys().cloned().collect();
     for (i, id) in ids.iter().enumerate() {
         let c = &world.0.characters[id];
@@ -185,7 +191,11 @@ pub fn spawn_scene(
                     speed: 1.8,
                     nav_target: None,
                     speaking_until: -1.0,
-                    emote: c.emotion.first().cloned().unwrap_or_else(|| "neutral".into()),
+                    emote: c
+                        .emotion
+                        .first()
+                        .cloned()
+                        .unwrap_or_else(|| "neutral".into()),
                 },
             ))
             .id();
@@ -213,7 +223,11 @@ pub fn spawn_scene(
     }
 
     // Camera rig.
-    let (cam_pos, cam_look) = scene.anchors.first().copied().unwrap_or((Vec3::new(0.0, 3.0, 7.0), Vec3::ZERO));
+    let (cam_pos, cam_look) = scene
+        .anchors
+        .first()
+        .copied()
+        .unwrap_or((Vec3::new(0.0, 3.0, 7.0), Vec3::ZERO));
     commands.spawn((
         Camera3d::default(),
         Projection::Perspective(PerspectiveProjection {
@@ -272,5 +286,9 @@ pub fn spawn_scene(
             BackgroundColor(Color::srgb(0.05, 0.05, 0.08)),
         ))
         .id();
-    hud.0 = Some(HudEntities { top, bottom, indicator });
+    hud.0 = Some(HudEntities {
+        top,
+        bottom,
+        indicator,
+    });
 }

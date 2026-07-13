@@ -96,7 +96,10 @@ pub fn flicker_system(time: Res<Time>, mut lights: Query<(&mut PointLight, &mut 
     }
 }
 
-pub fn camera_system(time: Res<Time>, mut cams: Query<(&mut Transform, &mut CameraRig), With<MainCamera>>) {
+pub fn camera_system(
+    time: Res<Time>,
+    mut cams: Query<(&mut Transform, &mut CameraRig), With<MainCamera>>,
+) {
     let k = 1.0 - (-3.0 * time.delta_secs()).exp();
     for (mut tf, mut rig) in cams.iter_mut() {
         rig.current_look = rig.current_look.lerp(rig.desired_look, k);
@@ -159,9 +162,22 @@ pub fn player_system(
     mut next: ResMut<NextState<AppState>>,
     time: Res<Time>,
     world: Res<CanonicalWorld>,
-    mut chars: Query<(Entity, &mut CharacterAvatar, &mut Transform), (Without<PropMarker>, Without<MainCamera>)>,
-    props: Query<(Entity, &PropMarker, &Transform), (Without<CharacterAvatar>, Without<MainCamera>)>,
-    mut cams: Query<(Entity, &mut Transform, &mut CameraRig), (With<MainCamera>, Without<CharacterAvatar>, Without<PropMarker>)>,
+    mut chars: Query<
+        (Entity, &mut CharacterAvatar, &mut Transform),
+        (Without<PropMarker>, Without<MainCamera>),
+    >,
+    props: Query<
+        (Entity, &PropMarker, &Transform),
+        (Without<CharacterAvatar>, Without<MainCamera>),
+    >,
+    mut cams: Query<
+        (Entity, &mut Transform, &mut CameraRig),
+        (
+            With<MainCamera>,
+            Without<CharacterAvatar>,
+            Without<PropMarker>,
+        ),
+    >,
     mut lights: Query<(&mut PointLight, &mut FlickerLight)>,
 ) {
     if !player.active {
@@ -270,8 +286,18 @@ fn begin_beat(
     log: &mut RehearsalLog,
     validated: &backlot_core::validation::ValidatedPlan,
     scene: &SceneIndex,
-    chars: &mut Query<(Entity, &mut CharacterAvatar, &mut Transform), (Without<PropMarker>, Without<MainCamera>)>,
-    cams: &mut Query<(Entity, &mut Transform, &mut CameraRig), (With<MainCamera>, Without<CharacterAvatar>, Without<PropMarker>)>,
+    chars: &mut Query<
+        (Entity, &mut CharacterAvatar, &mut Transform),
+        (Without<PropMarker>, Without<MainCamera>),
+    >,
+    cams: &mut Query<
+        (Entity, &mut Transform, &mut CameraRig),
+        (
+            With<MainCamera>,
+            Without<CharacterAvatar>,
+            Without<PropMarker>,
+        ),
+    >,
 ) {
     let rb = &validated.resolved_beats[player.beat_index];
     let mut t = 0.0;
@@ -292,14 +318,24 @@ fn begin_beat(
     let subject_pos = scene
         .characters
         .get(&rb.camera_intent.subject)
-        .and_then(|e| chars.iter().find(|(ent, _, _)| *ent == *e).map(|(_, _, tf)| tf.translation))
+        .and_then(|e| {
+            chars
+                .iter()
+                .find(|(ent, _, _)| *ent == *e)
+                .map(|(_, _, tf)| tf.translation)
+        })
         .unwrap_or(Vec3::ZERO);
     let reaction_pos = rb
         .camera_intent
         .reaction_subject
         .as_ref()
         .and_then(|r| scene.characters.get(r))
-        .and_then(|e| chars.iter().find(|(ent, _, _)| *ent == *e).map(|(_, _, tf)| tf.translation));
+        .and_then(|e| {
+            chars
+                .iter()
+                .find(|(ent, _, _)| *ent == *e)
+                .map(|(_, _, tf)| tf.translation)
+        });
     let (pos, look) = compute_camera(&intent, subject_pos, reaction_pos, &scene.anchors);
     for (_, _, mut rig) in cams.iter_mut() {
         rig.intent = intent.clone();
@@ -332,7 +368,10 @@ fn fire_action(
     char_map: &std::collections::HashMap<String, (Vec3, Entity, String)>,
     prop_map: &std::collections::HashMap<String, Vec3>,
     world: &CanonicalWorld,
-    chars: &mut Query<(Entity, &mut CharacterAvatar, &mut Transform), (Without<PropMarker>, Without<MainCamera>)>,
+    chars: &mut Query<
+        (Entity, &mut CharacterAvatar, &mut Transform),
+        (Without<PropMarker>, Without<MainCamera>),
+    >,
     lights: &mut Query<(&mut PointLight, &mut FlickerLight)>,
     run: &RunControl,
 ) {
@@ -399,7 +438,8 @@ fn fire_action(
                 fl.active = true;
             }
         }
-        "move_to" | "approach" | "retreat_from" | "follow" | "flee_to" | "enter_room" | "exit_room" => {
+        "move_to" | "approach" | "retreat_from" | "follow" | "flee_to" | "enter_room"
+        | "exit_room" => {
             if let Some(pos) = act
                 .target_id
                 .as_ref()

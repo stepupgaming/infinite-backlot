@@ -81,7 +81,7 @@ amplitude = 100
 # Speed multiplier (espeak words/min scaled). The WAV-duration reader measures
 # real (16-bit) speech length, so 0.9 (slower) lands the autonomous episode in
 # the 45-60s target window.
-speed = 0.9
+speed = 0.72
 # Character id -> espeak voice name. Two characters map to two distinct voices
 # (en-us / en-gb) so dialogue is clearly distinguishable.
 voice_map = { mara = "en-us", ellis = "en-gb", voss = "en-us", nox = "en-gb" }

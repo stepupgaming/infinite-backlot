@@ -1,0 +1,82 @@
+{
+  "active_characters": [
+    "voss",
+    "mara",
+    "ellis"
+  ],
+  "beats": [
+    {
+      "description": "Hook: The elevator dings and lights flicker aggressively.",
+      "id": "beat_1",
+      "required_entities": [
+        "elevator",
+        "voss"
+      ],
+      "target_start_second": 0.0,
+      "type": "beat"
+    },
+    {
+      "description": "Ellis enters to escalate the curiosity.",
+      "id": "beat_2",
+      "required_entities": [
+        "elevator",
+        "ellis"
+      ],
+      "target_start_second": 8.0,
+      "type": "beat"
+    },
+    {
+      "description": "Mara tries to deflect the investigation.",
+      "id": "beat_3",
+      "required_entities": [
+        "ellis",
+        "mara"
+      ],
+      "target_start_second": 18.0,
+      "type": "beat"
+    },
+    {
+      "description": "Physical escalation: the elevator doors open.",
+      "id": "beat_4",
+      "required_entities": [
+        "elevator"
+      ],
+      "target_start_second": 28.0,
+      "type": "beat"
+    },
+    {
+      "description": "Voss pushes for a violation.",
+      "id": "beat_5",
+      "required_entities": [
+        "elevator",
+        "voss"
+      ],
+      "target_start_second": 38.0,
+      "type": "beat"
+    },
+    {
+      "description": "Payoff: The elevator pulls them in or slams shut.",
+      "id": "beat_6",
+      "required_entities": [
+        "mara"
+      ],
+      "target_start_second": 46.0,
+      "type": "beat"
+    }
+  ],
+  "central_goal": {
+    "character": "voss",
+    "goal": "find a code violation"
+  },
+  "episode_title": "The Floor That Isn't",
+  "logline": "Voss attempts to document the elevator's illogical behavior while Mara desperately tries to maintain the facade of normalcy.",
+  "notes": null,
+  "payoff": "The elevator doors slam shut, leaving Voss without his clipboard and Mara contemplating her life choices.",
+  "persistent_changes": [],
+  "primary_location": "floor_3_hallway",
+  "target_duration_seconds": 50.0,
+  "tone": [
+    "surreal",
+    "comedy"
+  ]
+}
