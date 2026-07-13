@@ -82,6 +82,9 @@ pub fn produce_episode_bevy(
     cfg: ProduceConfig,
     author: Box<dyn EpisodeAuthor>,
 ) -> backlot_core::error::Result<ProduceReport> {
+    use backlot_core::package::TimingReport;
+    let total_start = std::time::Instant::now();
+    let started_at = chrono::Utc::now().to_rfc3339();
     let ProduceConfig { config, require_llm, world, seed, episode_number, .. } = cfg;
     let out_dir = config.runtime.output_dir.clone();
     let ep_dir = Path::new(&out_dir).join("episodes").join(backlot_core::serial_id("episode", episode_number, 6));
@@ -122,9 +125,6 @@ pub fn produce_episode_bevy(
     // exist" validation errors that fire on the first `update()` calls while the
     // GPU `RenderDevice` is still being unpacked into the main world. Every other
     // error (including real panics) defers to `match_severity` and aborts loudly.
-    // This is what lets the renderer initialization proceed past its frame-1
-    // device-init transient; the explicit readiness + capture-success checks
-    // below still catch any genuine renderer failure.
     app.insert_resource(FallbackErrorHandler(tolerate_startup_resource_error));
 
     // Ensure skinned-mesh inverse-bindpose assets are registered so the PBR
@@ -151,10 +151,7 @@ pub fn produce_episode_bevy(
     // Spawn PBR scene content + capture systems, then run Bevy's renderer
     // lifecycle. `App::run` performs `finish()` then `cleanup()` before looping
     // `update()`; `cleanup()` is what spawns the render thread and inserts the
-    // `RenderAppChannels` resource the render-extract step depends on. Calling
-    // `app.update()` alone (the previous approach) never runs `cleanup()`, which
-    // is why the render extract panicked with "resource does not exist:
-    // RenderAppChannels". We mirror that lifecycle explicitly here.
+    // `RenderAppChannels` resource the render-extract step depends on.
     spawn_scene(&mut app, &prep, &world, rw, rh, cap_handle.clone());
     app.insert_resource(CapturePlan {
         schedule: prep.schedule.clone(),
@@ -176,9 +173,7 @@ pub fn produce_episode_bevy(
     // Readiness: poll until the render thread has unpacked `RenderDevice` into
     // the main world. After `cleanup()` the `RenderApp` sub-app lives on the
     // render thread, so readiness is checked via the mirrored main-world
-    // `RenderDevice`, not `app.sub_app(RenderApp)`. The targeted error handler
-    // installed above tolerates the transient frame-1 "Resource does not exist"
-    // validation errors while `RenderDevice` is still being unpacked.
+    // `RenderDevice`, not `app.sub_app(RenderApp)`.
     let mut readiness_attempts = 0usize;
     while !render_device_ready(&app) && readiness_attempts < 600 {
         app.update();
@@ -192,6 +187,7 @@ pub fn produce_episode_bevy(
     tracing::info!("GPU RenderDevice ready after {readiness_attempts} startup updates");
 
     // Run the deterministic fixed-step capture loop.
+    let t_capture_start = std::time::Instant::now();
     let mut guard = 0usize;
     loop {
         let captured = app.world().resource::<CaptureProgress>().captured;
@@ -213,6 +209,12 @@ pub fn produce_episode_bevy(
             tracing::info!("bevy capture progress: requested up to {}, captured {c}/{n_frames}", app.world().resource::<CaptureProgress>().requested);
         }
     }
+    let bevy_capture_secs = t_capture_start.elapsed().as_secs_f32();
+    let effective_fps = if bevy_capture_secs > 0.0 {
+        Some(app.world().resource::<CaptureProgress>().captured as f32 / bevy_capture_secs)
+    } else {
+        None
+    };
 
     let captured = app.world().resource::<CaptureProgress>().captured;
     if captured == 0 {
@@ -221,13 +223,42 @@ pub fn produce_episode_bevy(
         ));
     }
     tracing::info!(
-        "bevy capture complete: {captured}/{n_frames} frames",
-        captured = captured,
-        n_frames = n_frames
+        "bevy capture complete: {captured}/{n_frames} frames, effective {effective_fps:?} fps",
+        effective_fps = effective_fps
     );
 
-    // Stage 3: shared mix/encode/verify/package.
-    let report = finalize_production(&config, require_llm, &prep, &frames_dir, captured, "bevy")?;
+    // Stage 3: shared mix/encode/verify/package with timing tracked.
+    let t_pkg_start = std::time::Instant::now();
+    let mut report = finalize_production(&config, require_llm, &prep, &frames_dir, captured, "bevy")?;
+    let packaging_and_mix = t_pkg_start.elapsed().as_secs_f32();
+    let total_end_to_end_secs = total_start.elapsed().as_secs_f32();
+    let ended_at = chrono::Utc::now().to_rfc3339();
+
+    // Attach timing to the persisted diagnostics if available, then re-write.
+    {
+        let ep_dir = Path::new(&config.runtime.output_dir).join("episodes").join(&report.episode_id);
+        let diag_path = ep_dir.join("diagnostics.json");
+        if let Ok(raw) = std::fs::read_to_string(&diag_path) {
+            if let Ok(mut diag) = serde_json::from_str::<backlot_core::package::Diagnostics>(&raw) {
+                diag.timing = Some(TimingReport {
+                    llm_authoring_secs: prep.prep_timings.llm_authoring_secs,
+                    tts_generation_secs: prep.prep_timings.tts_generation_secs,
+                    timeline_prep_secs: prep.prep_timings.timeline_prep_secs,
+                    bevy_capture_secs,
+                    audio_mixing_secs: 0.0,
+                    ffmpeg_encode_secs: 0.0,
+                    packaging_secs: packaging_and_mix,
+                    total_end_to_end_secs,
+                    effective_fps,
+                    started_at: started_at.clone(),
+                    ended_at: ended_at.clone(),
+                });
+                let json = serde_json::to_string_pretty(&diag).unwrap_or_default();
+                let _ = std::fs::write(&diag_path, &json);
+                report.issues = diag.issues.clone();
+            }
+        }
+    }
 
     if !config.runtime.capture_frames && captured > 0 {
         let _ = std::fs::remove_dir_all(&frames_dir);
@@ -522,7 +553,7 @@ fn spawn_scene(
             color: Color::srgb(1.0, 0.88, 0.72),
             range: 14.0,
             radius: 0.4,
-            shadows_enabled: false,
+            shadow_maps_enabled: false,
             ..default()
         },
         Transform::from_xyz(0.0, 5.2, 0.0),
@@ -545,7 +576,7 @@ fn spawn_scene(
             color: Color::srgb(0.7, 0.78, 0.95),
             range: 12.0,
             radius: 0.3,
-            shadows_enabled: false,
+            shadow_maps_enabled: false,
             ..default()
         },
         Transform::from_xyz(3.0, 3.0, 3.0),

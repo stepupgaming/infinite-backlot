@@ -1189,7 +1189,8 @@ fn whole_episode_user_prompt(
     );
     p.push_str(
         "DURATION (the only hard runtime constraint): the rendered episode must run 45-60 seconds, measured from REAL spoken dialogue plus action timing. Build that time from concise dialogue AND visible business; do not solve duration with monologues.\n\
-         - Use exactly 6 beats and keep dialogue concise: roughly 10-14 spoken lines total, with no more than three lines in one beat.\n\
+         - Use exactly 6 beats.\n\
+         - Include 14-18 spoken lines total (roughly 2-3 short exchanges per beat), so dialogue fills 35-45 seconds, the rest visible actions/reactions/transitions. At least 14 lines required.\n\
          - Every beat needs at least one non-speech action. Across the episode include a staging change, a prop or environment interaction, two distinct reactions, a physical escalation, and a final visible payoff.\n\
          - Make at least one character walk to a new staging mark, turn or look toward a relevant subject, and return to a neutral pose after a gesture or reaction.\n\
          - Treat gestures as short actions: preparation, main gesture, brief hold, recovery. Do not leave arms raised through a scene.\n\
@@ -1266,18 +1267,17 @@ fn direction_aware_feedback(
         let new_lines = ((secs_to_add / 4.0).ceil() as i32).max(4);
         format!(
             "DURATION REPAIR (lengthen). The rendered episode currently runs {:.1}s but must land inside {:.1}-{:.1}s (aim near {:.1}s). It is {:.1}s too short. \
-             Add time with visible business first: extend blocking, add a reaction beat within an existing beat, add a prop or elevator interaction, or add short back-and-forth where needed. You MAY add new spoken dialogue, but do not only reword existing lines. Add at least {} seconds of meaningful staged material, and if you add dialogue keep it concise and tied to visible action. \
+             Add time with visible business first: extend blocking, add a reaction beat within an existing beat, add a prop or elevator interaction, or add short back-and-forth where needed. You MAY add new spoken dialogue, but do not only reword existing lines. Add at least {:.1} seconds of meaningful staged material, and if you add dialogue keep it concise and tied to visible action. \
              Focus on the beats with the thinnest action coverage or fewest spoken words below. Preserve the existing hook, premise, and payoff exactly. Only revise the provided accepted episode JSON — do not start over.\n\nBEAT ANALYSIS:\n{}",
-            secs, duration.min_secs, duration.max_secs, duration.target_secs, secs_to_add, new_lines, secs_to_add, beat_summary
+            secs, duration.min_secs, duration.max_secs, duration.target_secs, secs_to_add, secs_to_add, beat_summary
         )
     } else {
         let secs_to_cut = (secs - duration.max_secs).max(1.0);
-        let lines_to_cut = ((secs_to_cut / 4.0).ceil() as i32).max(3);
         format!(
             "DURATION REPAIR (shorten). The rendered episode currently runs {:.1}s but must land inside {:.1}-{:.1}s (aim near {:.1}s). It is {:.1}s too long. \
-             You MUST REMOVE CONTENT — trim redundant dialogue first, shorten repetitive back-and-forth, combine duplicate actions, and drop filler business while preserving visible blocking, reaction, escalation, and payoff. Do NOT only reword lines hoping they shrink — actually delete or consolidate material. \
+             You MUST REMOVE CONTENT — trim redundant dialogue first, shorten repetitive back-and-forth, combine duplicate actions, and drop filler business while preserving visible blocking, reaction, escalation, and payoff. Do NOT only reword lines hoping they shrink — actually delete or consolidate material, roughly {:.1}s worth. \
              Do NOT add new beats unless replacing longer material. Preserve the hook, escalation, reaction, and payoff. Only revise the provided accepted episode JSON — do not start over.\n\nBEAT ANALYSIS:\n{}",
-            secs, duration.min_secs, duration.max_secs, duration.target_secs, secs_to_cut, lines_to_cut, secs_to_cut, beat_summary
+            secs, duration.min_secs, duration.max_secs, duration.target_secs, secs_to_cut, secs_to_cut, beat_summary
         )
     };
     (direction, feedback)

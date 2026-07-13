@@ -356,6 +356,16 @@ pub fn build_default_world() -> WorldState {
     };
     props.insert("elevator".into(), prop("elevator", "Elevator", "floor_3_hallway", "elevator_door", vec!["ride", "open", "reach_unknown_floor"]));
     props.insert("elevator_indicator".into(), prop("elevator_indicator", "Elevator Indicator", "floor_3_hallway", "elevator_door", vec!["display_symbol"]));
+    // Interaction surface props (control panel, door, frame, button) so that
+    // the LLM can reference concrete targets like elevator_doors, elevator_panel,
+    // maintenance_panel, etc. All are backed by real staging marks so they
+    // resolve to actual world positions.
+    props.insert("elevator_doors".into(), prop("elevator_doors", "Elevator Doors", "floor_3_hallway", "elevator_door", vec!["open", "close"]));
+    props.insert("elevator_panel".into(), prop("elevator_panel", "Elevator Control Panel", "floor_3_hallway", "elevator_door", vec!["activate", "inspect"]));
+    props.insert("elevator_frame".into(), prop("elevator_frame", "Elevator Frame", "floor_3_hallway", "elevator_door", vec!["inspect"]));
+    props.insert("control_panel".into(), prop("control_panel", "Elevator Control Panel (alias)", "floor_3_hallway", "maintenance_panel", vec!["activate", "inspect"]));
+    props.insert("maintenance_panel".into(), prop("maintenance_panel", "Maintenance Panel", "floor_3_hallway", "maintenance_panel", vec!["open", "activate", "inspect"]));
+    props.insert("hallway_light".into(), prop("hallway_light", "Hallway Light", "floor_3_hallway", "hall_center", vec!["flicker"]));
     props.insert("maintenance_override_key".into(), prop("maintenance_override_key", "Maintenance Override Key", "maintenance_room", "maintenance_room_center", vec!["conceal", "reveal"]));
     props.insert("inspection_clipboard".into(), prop("inspection_clipboard", "Inspection Clipboard", "floor_3_hallway", "hall_center", vec!["write", "cite"]));
     props.insert("flickering_light".into(), prop("flickering_light", "Flickering Light", "floor_3_hallway", "hall_center", vec!["flicker"]));

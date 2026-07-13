@@ -470,17 +470,46 @@ pub fn plan_shots(
 
     // Resolve overlaps that produce zero-length or out-of-order shots. After
     // sorting by start, clamp each shot's end to the next shot's start so the
-    // plan is strictly increasing and every entry has positive length.
+    // plan is strictly increasing and every entry has positive length. Also
+    // de-dupe any shots whose start lies within 0.05s of the previous one.
     shots.retain(|s| s.end > s.start + 0.05);
+    shots.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
     if shots.len() > 1 {
-        for i in 0..shots.len() - 1 {
+        let mut deduped: Vec<CameraShotSpec> = Vec::with_capacity(shots.len());
+        for s in shots {
+            if let Some(prev) = deduped.last() {
+                if (s.start - prev.start).abs() < 0.05 {
+                    continue;
+                }
+            }
+            deduped.push(s);
+        }
+        shots = deduped;
+        for i in 0..shots.len().saturating_sub(1) {
             let next_start = shots[i + 1].start;
-            if shots[i].end > next_start {
-                shots[i].end = next_start.max(shots[i].start + 0.5);
+            if shots[i].end > next_start && next_start - shots[i].start >= 0.5 {
+                shots[i].end = next_start;
             }
         }
-        // Re-drop anything that became degenerate after clamping.
         shots.retain(|s| s.end > s.start + 0.05);
+        // Ensure shots tile contiguously from 0 to duration with no gaps or
+        // zero-length tail duplicates.
+        shots.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
+        let mut i = 0usize;
+        while i + 1 < shots.len() {
+            if shots[i].end > shots[i + 1].start + 0.05 {
+                let ns = shots[i].end;
+                shots[i + 1].start = shots[i].end;
+                // If fixing the start collapsed the next shot, drop it.
+                if shots[i + 1].start >= shots[i + 1].end - 0.05 {
+                    shots.remove(i + 1);
+                    continue;
+                }
+                // Also if the next two overlap due to our shift, keep resolving.
+                // (don't advance past if we need another re-fix pass).
+            }
+            i += 1;
+        }
     }
     shots
 }

@@ -14,7 +14,7 @@ base_url = "http://127.0.0.1:8080/v1"
 model = "dcf179a91153e3a7ece792e48ef872180d9d6ef9b7677f0a0bd3e83cfe624d5e"
 # Most local servers accept an empty key; cloud providers need a real token.
 api_key = ""
-timeout_secs = 120
+timeout_secs = 1800
 temperature = 0.4
 max_tokens = 8192
 max_retries = 2
@@ -61,10 +61,12 @@ force_fallback = false
 require_llm = false
 # How many times a single LLM piece may be repaired/re-requested before giving
 # up (only relevant when require_llm is true).
-max_repairs = 2
+max_repairs = 1
 
 [tts]
-# Provider: "espeak" (real local TTS) or "estimating" (duration-only stub).
+# Provider: "espeak" (real local TTS), "estimating" (duration-only stub), or
+# "http" (local OpenAI-compatible /v1/audio/speech — e.g. Kokoro + FastAPI,
+# XTTS, AllTalk, Piper HTTP). When provider is "http", configure [tts.http].
 provider = "espeak"
 # Full path to espeak-ng (it is not on PATH by default on this machine).
 executable = "C:/Program Files/eSpeak NG/espeak-ng"
@@ -83,3 +85,24 @@ speed = 0.9
 # Character id -> espeak voice name. Two characters map to two distinct voices
 # (en-us / en-gb) so dialogue is clearly distinguishable.
 voice_map = { mara = "en-us", ellis = "en-gb", voss = "en-us", nox = "en-gb" }
+
+# Optional local HTTP TTS provider (used when [tts].provider = "http").
+# Install a local OpenAI-compatible TTS server to improve voice quality:
+# - Kokoro 82M: pip install kokoro-onnx + FastAPI wrapper on 8000
+# - XTTS-v2: oobabooga / AllTalk run locally
+# - Piper HTTP: rhasspy/piper with an /v1/audio/speech shim
+# Example local endpoint:
+#  base_url = "http://localhost:8000/v1"
+#  model = "tts-1"
+#  voice_map = { mara = "af_nicole", ellis = "af_bella", voss = "am_michael", nox = "af_sarah" }
+#  default_voice = "af_bella"
+#  format = "wav"
+#  timeout_secs = 30
+[tts.http]
+# base_url = "http://localhost:8000/v1"
+# api_key = ""
+# model = "tts-1"
+# format = "wav"
+# default_voice = "alloy"
+# timeout_secs = 30
+# voice_map = { mara = "alloy", ellis = "nova", voss = "onyx", nox = "shimmer" }

@@ -115,9 +115,33 @@ pub struct Diagnostics {
     /// only) or "bevy" (the authoritative scene). Never claim "bevy" unless the
     /// Bevy renderer produced the frames.
     pub render_backend: String,
+    #[serde(default)]
+    /// Phase-level timing breakdown (present after a full production run).
+    pub timing: Option<TimingReport>,
 }
 
 /// Manifest for downstream tools (PRD §26.1).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TimingReport {
+    /// Wall-clock secs for each phase.
+    pub llm_authoring_secs: f32,
+    pub tts_generation_secs: f32,
+    pub timeline_prep_secs: f32,
+    pub bevy_capture_secs: f32,
+    pub audio_mixing_secs: f32,
+    pub ffmpeg_encode_secs: f32,
+    pub packaging_secs: f32,
+    pub total_end_to_end_secs: f32,
+    /// Effective GPU render FPS = captured_frames / bevy_capture_secs.
+    pub effective_fps: Option<f32>,
+    /// ISO timestamp when production began.
+    #[serde(default)]
+    pub started_at: String,
+    /// ISO timestamp when production ended.
+    #[serde(default)]
+    pub ended_at: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GemmyManifest {
     pub title: String,
@@ -207,6 +231,36 @@ impl EpisodePackage {
 
     pub fn build_report(&mut self) {
         let m = &self.metrics;
+        let timing_str = if let Some(t) = &self.diagnostics.timing {
+            format!(
+                "\n## Timing\n\
+                 - LLM authoring: {a:.1}s\n\
+                 - TTS generation: {b:.1}s\n\
+                 - Timeline prep: {c:.1}s\n\
+                 - Bevy capture: {d:.1}s\n\
+                 - Audio mixing: {e:.1}s\n\
+                 - FFmpeg encode: {f:.1}s\n\
+                 - Packaging: {g:.1}s\n\
+                 - Total: {h:.1}s\n\
+                 - Effective FPS: {fps}\n\
+                 - Started: {st}\n\
+                 - Ended: {en}\n\n",
+                a = t.llm_authoring_secs,
+                b = t.tts_generation_secs,
+                c = t.timeline_prep_secs,
+                d = t.bevy_capture_secs,
+                e = t.audio_mixing_secs,
+                f = t.ffmpeg_encode_secs,
+                g = t.packaging_secs,
+                h = t.total_end_to_end_secs,
+                fps = t.effective_fps.map(|v| format!("{v:.1}")).unwrap_or_else(|| "n/a".into()),
+                st = t.started_at,
+                en = t.ended_at,
+            )
+        } else {
+            String::new()
+        };
+        let timing_str_owned = timing_str.clone();
         self.report_md = format!(
             "# {title}\n\n**Logline:** {logline}\n\n\
              - **ID:** {id}\n\
@@ -215,7 +269,9 @@ impl EpisodePackage {
              - **Canonical:** {can}\n\
              - **Beats:** {beats}\n\
              - **Dialogue lines:** {dl}\n\
-             - **Camera shots:** {cs}\n\n\
+             - **Camera shots:** {cs}\n\
+             - **TTS provider:** {tts}\n\
+             - **Render backend:** {rb}\n\n\
              ## Quality\n\
              - Hook latency: {hook:.1}s\n\
              - Objective clear by: {obj:.1}s\n\
@@ -223,10 +279,12 @@ impl EpisodePackage {
              - Avg shot: {shot:.1}s / Longest: {long:.1}s\n\
              - Visual changes/min: {vpm:.1}\n\
              - Story changes/min: {spm:.1}\n\
+             - Caption safe %: {caps:.1}%\n\
              - Failed actions: {fa}\n\
              - Deterministic repairs: {rep}\n\
              - Payoff complete: {pay}\n\
              - Persistent consequence: {pc}\n\n\
+             {timing}\
              ## Issues\n{issues}\n",
             title = self.title,
             logline = self.logline,
@@ -237,6 +295,8 @@ impl EpisodePackage {
             beats = self.plan.beats.len(),
             dl = self.dialogue.len(),
             cs = self.camera_plan.len(),
+            tts = self.diagnostics.tts_provider,
+            rb = self.diagnostics.render_backend,
             hook = m.hook_latency_secs,
             obj = m.objective_understandable_secs,
             dead = m.dead_air_secs,
@@ -244,10 +304,12 @@ impl EpisodePackage {
             long = m.longest_shot_duration,
             vpm = m.visual_changes_per_min,
             spm = m.story_changes_per_min,
+            caps = m.caption_safe_pct,
             fa = m.failed_actions,
             rep = m.deterministic_repairs,
             pay = m.payoff_complete,
             pc = m.persistent_consequence,
+            timing = timing_str_owned,
             issues = if self.diagnostics.issues.is_empty() {
                 "  - none".into()
             } else {

@@ -400,6 +400,7 @@ pub fn commit_system(
             ffprobe_ok: false,
             replay_no_llm: true,
             render_backend: "bevy".into(),
+            timing: None,
         },
         gemmy,
         report_md: String::new(),

@@ -1102,12 +1102,12 @@ pub fn stage_font_for_ffmpeg(frames_dir: &str, font_abs: &str) -> String {
 
 
 pub fn wrap_caption(text: &str) -> String {
-    // Keep captions short: split into <=2 lines of ~26 chars.
+    // Phone-readable: tighter wrap for 1080 vertical with 8% horizontal margins.
     let words: Vec<&str> = text.split_whitespace().collect();
     let mut lines: Vec<String> = Vec::new();
     let mut cur = String::new();
     for w in words {
-        if cur.len() + w.len() + 1 > 26 && !cur.is_empty() {
+        if cur.len() + w.len() + 1 > 20 && !cur.is_empty() {
             lines.push(std::mem::take(&mut cur));
         }
         if !cur.is_empty() {
@@ -1639,6 +1639,15 @@ pub struct PreparedProduction {
     pub any_real: bool,
     pub tts_provider: String,
     pub world_before: WorldState,
+    /// Phase-level wall-clock durations measured during `prepare_production`.
+    pub prep_timings: PrepTimings,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct PrepTimings {
+    pub llm_authoring_secs: f32,
+    pub tts_generation_secs: f32,
+    pub timeline_prep_secs: f32,
 }
 
 /// Stage 1 (shared): author, validate, synthesize TTS, build the authoritative
@@ -1718,7 +1727,10 @@ pub fn prepare_production(
         recent_summaries: vec![],
         tone: vec!["surreal".into(), "comedy".into()],
     };
+    let t_llm = std::time::Instant::now();
     let (planned, auth) = author.author(&ctx)?;
+    let llm_authoring_secs = t_llm.elapsed().as_secs_f32();
+    let t_tts_start = std::time::Instant::now();
     let validated = build_validated(world, &planned)
         .ok_or_else(|| crate::error::CoreError::EmptyPlan)?;
 
@@ -1749,10 +1761,13 @@ pub fn prepare_production(
             tts_durations.insert((ra.actor_id.clone(), text), dur);
         }
     }
+    let tts_generation_secs = t_tts_start.elapsed().as_secs_f32();
+    let t_timeline = std::time::Instant::now();
     let mut sched = build_schedule(world, &validated, &tts_durations);
     // Phase 8: compress the timeline so content starts within ~1s and no
     // inter-line gap exceeds the dead-air limit.
     compact_dead_air(&mut sched, config.runtime.max_dead_air_secs);
+    let timeline_prep_secs = t_timeline.elapsed().as_secs_f32();
     let (min_duration, max_duration) = duration_acceptance_window(config.runtime.target_duration_secs);
     if sched.duration < min_duration || sched.duration > max_duration {
         let msg = format!(
@@ -1790,6 +1805,7 @@ pub fn prepare_production(
         any_real,
         tts_provider: provider,
         world_before: world.clone(),
+        prep_timings: PrepTimings { llm_authoring_secs, tts_generation_secs, timeline_prep_secs },
     })
 }
 
@@ -1857,11 +1873,14 @@ pub fn finalize_production(
     );
 
     // Mix audio
+    let t_mix = std::time::Instant::now();
     let sr = config.tts.sample_rate;
     let mix_path = audio_dir.join("final_mix.wav");
     mix_audio(&prep.clips, mix_path.to_str().unwrap(), sr, sched.duration);
+    let audio_mixing_secs = t_mix.elapsed().as_secs_f32();
 
     // Encode MP4
+    let t_enc = std::time::Instant::now();
     let fps = config.runtime.frame_rate.max(1);
     let cap_out = ep_dir.join("output").join("vertical_captioned.mp4");
     let clean_out = ep_dir.join("output").join("vertical_clean.mp4");
@@ -1876,14 +1895,15 @@ pub fn finalize_production(
         config.runtime.resolution,
         fps,
     )?;
+    let ffmpeg_encode_secs = t_enc.elapsed().as_secs_f32();
 
     // Verify
     let probe = verify_mp4(config, cap_out.to_str().unwrap());
     let ffprobe_ok = probe.has_video && probe.has_audio && probe.duration >= sched.duration * 0.8;
 
     // Package
-    let mut world_after = world.clone();
-    let _delta = apply_persistent_changes(&mut world_after, &plan.persistent_changes);
+    let t_pack = std::time::Instant::now();
+    let mut world_after = world.clone();    let _delta = apply_persistent_changes(&mut world_after, &plan.persistent_changes);
 
     let llm_used = auth.plan_source == AuthorSource::Llm
         || auth.beats.iter().any(|b| b.source == AuthorSource::Llm);
@@ -2081,6 +2101,7 @@ pub fn finalize_production(
             ffprobe_ok,
             replay_no_llm: true,
             render_backend: render_backend.to_string(),
+            timing: None,
         }
     };
 
@@ -2109,6 +2130,30 @@ pub fn finalize_production(
         suggested_compilation_category: "surreal-comedy".into(),
     };
 
+    // Finish packaging timing and attach timing to diagnostics immediately so
+    // even the CPU/offline path has a breakdown (Bevy path overwrites with
+    // additional bevy_capture/effective_fps data afterwards).
+    let packaging_secs = t_pack.elapsed().as_secs_f32();
+    let mut diagnostics_with_timing = diagnostics.clone();
+    diagnostics_with_timing.timing = Some(crate::package::TimingReport {
+        llm_authoring_secs: prep.prep_timings.llm_authoring_secs,
+        tts_generation_secs: prep.prep_timings.tts_generation_secs,
+        timeline_prep_secs: prep.prep_timings.timeline_prep_secs,
+        bevy_capture_secs: 0.0,
+        audio_mixing_secs,
+        ffmpeg_encode_secs,
+        packaging_secs,
+        total_end_to_end_secs: prep.prep_timings.llm_authoring_secs
+            + prep.prep_timings.tts_generation_secs
+            + prep.prep_timings.timeline_prep_secs
+            + audio_mixing_secs
+            + ffmpeg_encode_secs
+            + packaging_secs,
+        effective_fps: None,
+        started_at: chrono::Utc::now().to_rfc3339(),
+        ended_at: chrono::Utc::now().to_rfc3339(),
+    });
+
     let mut pkg = EpisodePackage {
         id: prep.episode_id.clone(),
         title: plan.episode_title.clone(),
@@ -2123,7 +2168,7 @@ pub fn finalize_production(
         captions: sched.captions.clone(),
         camera_plan,
         metrics: m.clone(),
-        diagnostics: diagnostics.clone(),
+        diagnostics: diagnostics_with_timing.clone(),
         gemmy,
         report_md: String::new(),
     };

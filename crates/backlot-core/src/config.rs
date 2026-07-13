@@ -252,6 +252,7 @@ impl Default for TtsConfig {
             amplitude: 100,
             speed: 1.0,
             voice_map: HashMap::new(),
+            http: None,
         }
     }
 }
