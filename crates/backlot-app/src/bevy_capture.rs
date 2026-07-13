@@ -17,12 +17,15 @@ use bevy::asset::{AssetApp, RenderAssetUsages};
 use bevy::camera::{ClearColorConfig, PerspectiveProjection, RenderTarget};
 use bevy::render::camera::CameraRenderGraph;
 use bevy::core_pipeline::Core3d;
+use bevy::ecs::error::{BevyError, ErrorContext, FallbackErrorHandler, match_severity};
 use bevy::ecs::observer::On;
+use bevy::log::warn;
 use bevy::math::Vec4;
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat, TextureUsages};
+use bevy::render::renderer::RenderDevice;
 use bevy::render::view::screenshot::{Screenshot, ScreenshotCaptured};
-use bevy::window::{Window, WindowPlugin};
+use bevy::window::WindowPlugin;
 
 use backlot_core::author::EpisodeAuthor;
 use backlot_core::avatar::{HumanoidRig, SemanticJoint};
@@ -30,11 +33,19 @@ use backlot_core::render::{finalize_production, prepare_production, write_png, P
 use backlot_core::timeline::{evaluate_at, Schedule};
 use backlot_core::world::WorldState;
 
+/// Which primitive a body part is rendered as.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum PartShape {
+    Capsule,
+    Sphere,
+}
+
 /// A body-part mesh bound to a semantic joint of a character.
 #[derive(Component)]
 struct RigPartTag {
     char_id: String,
     joint: SemanticJoint,
+    shape: PartShape,
 }
 
 /// A prop mesh bound to a world prop id.
@@ -89,21 +100,32 @@ pub fn produce_episode_bevy(
     let n_frames = (prep.schedule.duration * fps as f32).ceil() as u32;
 
     let mut app = App::new();
-    app.add_plugins(DefaultPlugins.set(WindowPlugin {
-        // A hidden primary window ensures the window-bound render resources
-        // (e.g. `WindowSurfaces`) exist even though we render to an offscreen
-        // image. The window itself is never shown or presented.
-        primary_window: Some(Window {
-            // A visible (tiny) window lets wgpu complete GPU device creation
-            // synchronously so `RenderDevice` is present in the main world before
-            // the PBR batching systems run in `PostUpdate`. We still render the
-            // episode to the offscreen `RenderTarget::Image`, not this window.
-            visible: true,
+    // Use the real GPU. On this machine Bevy auto-selects the discrete
+    // NVIDIA adapter (Vulkan/DX12); we must NOT force the WARP software
+    // fallback adapter, because a CPU software rasterizer is not an acceptable
+    // production renderer for this pipeline. The offscreen `RenderTarget::Image`
+    // is what we actually capture; the primary window only exists so Bevy can
+    // initialize the `RenderDevice`. We keep it hidden so production runs
+    // headlessly without popping a visible window.
+    app.add_plugins(
+        DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                visible: false,
+                ..default()
+            }),
             ..default()
         }),
-        ..default()
-    }))
+    )
     .insert_resource(ClearColor(Color::srgb(0.03, 0.03, 0.05)));
+
+    // Targeted error handler: tolerate ONLY the transient "Resource does not
+    // exist" validation errors that fire on the first `update()` calls while the
+    // GPU `RenderDevice` is still being unpacked into the main world. Every other
+    // error (including real panics) defers to `match_severity` and aborts loudly.
+    // This is what lets the renderer initialization proceed past its frame-1
+    // device-init transient; the explicit readiness + capture-success checks
+    // below still catch any genuine renderer failure.
+    app.insert_resource(FallbackErrorHandler(tolerate_startup_resource_error));
 
     // Ensure skinned-mesh inverse-bindpose assets are registered so the PBR
     // skin extraction system has its `Assets<SkinnedMeshInverseBindposes>`
@@ -126,11 +148,14 @@ pub fn produce_episode_bevy(
         images.add(img)
     };
 
-    // Spawn the scene (floor, walls, lights, articulated rigs, props, camera).
+    // Spawn PBR scene content + capture systems, then run Bevy's renderer
+    // lifecycle. `App::run` performs `finish()` then `cleanup()` before looping
+    // `update()`; `cleanup()` is what spawns the render thread and inserts the
+    // `RenderAppChannels` resource the render-extract step depends on. Calling
+    // `app.update()` alone (the previous approach) never runs `cleanup()`, which
+    // is why the render extract panicked with "resource does not exist:
+    // RenderAppChannels". We mirror that lifecycle explicitly here.
     spawn_scene(&mut app, &prep, &world, rw, rh, cap_handle.clone());
-
-    // Insert capture plan + progress up front (systems are wired after the
-    // GPU readiness pre-roll below, so the pre-roll does not capture frames).
     app.insert_resource(CapturePlan {
         schedule: prep.schedule.clone(),
         rigs: prep.rigs.clone(),
@@ -141,67 +166,30 @@ pub fn produce_episode_bevy(
         capture_image: cap_handle,
     });
     app.insert_resource(CaptureProgress::default());
-
-    // --- GPU readiness pre-roll (headless offscreen) ---
-    // Bevy publishes `RenderDevice` only into the *render* world, but the PBR
-    // batching systems (`no_automatic_skin/morph_batching`) run in the main-world
-    // `PostUpdate` and require it there. Until the device is ready those systems
-    // fail validation and abort the frame. We temporarily install a lenient
-    // error handler so the main schedule can reach the render-app update (which
-    // creates `RenderDevice` in the render world); once present we mirror it into
-    // the main world and restore the strict handler for the real capture.
-    {
-        use bevy::ecs::error::{BevyError, ErrorContext, FallbackErrorHandler};
-        use bevy::render::renderer::RenderDevice;
-        use bevy::render::RenderApp;
-
-        fn lenient(_err: BevyError, _ctx: ErrorContext) {
-            // Skip the offending system and keep the frame alive.
-        }
-
-        app.insert_resource(FallbackErrorHandler(lenient));
-        if let Some(ra) = app.get_sub_app_mut(RenderApp) {
-            ra.insert_resource(FallbackErrorHandler(lenient));
-        }
-
-        let mut attempts = 0usize;
-        let mut mirrored = false;
-        while !mirrored && attempts < 600 {
-            let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                app.update();
-            }));
-            {
-                let rd = app
-                    .sub_app(RenderApp)
-                    .world()
-                    .get_resource::<RenderDevice>()
-                    .cloned();
-                if let Some(rd) = rd {
-                    app.world_mut().insert_resource(rd);
-                    mirrored = true;
-                }
-            }
-            attempts += 1;
-        }
-
-        // Restore strict error handling for the actual production.
-        app.insert_resource(FallbackErrorHandler(bevy::ecs::error::match_severity));
-        if let Some(ra) = app.get_sub_app_mut(RenderApp) {
-            ra.insert_resource(FallbackErrorHandler(bevy::ecs::error::match_severity));
-        }
-
-        if !mirrored {
-            tracing::error!("GPU RenderDevice never became available; cannot render");
-            return Err(backlot_core::error::CoreError::Msg(
-                "bevy GPU RenderDevice unavailable in this environment".into(),
-            ));
-        }
-        tracing::info!("GPU RenderDevice ready (mirrored to main world)");
-    }
-
-    // Wire the per-frame capture systems now that the GPU is ready.
     app.add_systems(Update, apply_frame_system);
     app.add_observer(on_captured);
+
+    // Run Bevy's renderer lifecycle once (this is what `App::run` does).
+    app.finish();
+    app.cleanup();
+
+    // Readiness: poll until the render thread has unpacked `RenderDevice` into
+    // the main world. After `cleanup()` the `RenderApp` sub-app lives on the
+    // render thread, so readiness is checked via the mirrored main-world
+    // `RenderDevice`, not `app.sub_app(RenderApp)`. The targeted error handler
+    // installed above tolerates the transient frame-1 "Resource does not exist"
+    // validation errors while `RenderDevice` is still being unpacked.
+    let mut readiness_attempts = 0usize;
+    while !render_device_ready(&app) && readiness_attempts < 600 {
+        app.update();
+        readiness_attempts += 1;
+    }
+    if !render_device_ready(&app) {
+        return Err(backlot_core::error::CoreError::Msg(
+            "bevy renderer did not initialize a RenderDevice within 600 updates".into(),
+        ));
+    }
+    tracing::info!("GPU RenderDevice ready after {readiness_attempts} startup updates");
 
     // Run the deterministic fixed-step capture loop.
     let mut guard = 0usize;
@@ -227,6 +215,11 @@ pub fn produce_episode_bevy(
     }
 
     let captured = app.world().resource::<CaptureProgress>().captured;
+    if captured == 0 {
+        return Err(backlot_core::error::CoreError::Msg(
+            "bevy renderer produced no frames (capture readback failed)".into(),
+        ));
+    }
     tracing::info!(
         "bevy capture complete: {captured}/{n_frames} frames",
         captured = captured,
@@ -243,6 +236,29 @@ pub fn produce_episode_bevy(
 }
 
 /// Spawn the static + dynamic scene elements into the app world.
+fn render_device_ready(app: &App) -> bool {
+    // After `cleanup()`, the `RenderApp` sub-app lives on the render thread, so
+    // readiness is read from the `RenderDevice` mirrored into the main world by
+    // the render thread once the GPU device initializes.
+    app.world().get_resource::<RenderDevice>().is_some()
+}
+
+/// Targeted error handler: tolerate ONLY the transient "Resource does not exist"
+/// validation errors that occur on the first `update()` calls while the GPU
+/// `RenderDevice` is still being unpacked into the main world. Every other error
+/// (including real panics) defers to the default `match_severity` and aborts.
+fn tolerate_startup_resource_error(err: BevyError, ctx: ErrorContext) {
+    if err.to_string().contains("Resource does not exist") {
+        warn!(
+            "tolerating transient startup resource error in {}: {}",
+            ctx.name(),
+            err
+        );
+        return;
+    }
+    match_severity(err, ctx);
+}
+
 fn spawn_scene(
     app: &mut App,
     prep: &backlot_core::render::PreparedProduction,
@@ -261,29 +277,58 @@ fn spawn_scene(
         let mut meshes = bw.resource_mut::<Assets<Mesh>>();
         meshes.add(Sphere::new(0.18))
     };
+    // Unit primitives for articulated humanoid performers. The rig is an
+    // articulated skeleton; we render each joint's body part as a capsule
+    // (limbs/torso) or sphere (head/jaw/eyes) so the figures read as humanoid
+    // rather than as blocky cuboids. Size is baked per-part in the frame system
+    // via non-uniform scale from the rig's `half` extents.
+    let unit_sphere = {
+        let mut meshes = bw.resource_mut::<Assets<Mesh>>();
+        meshes.add(Sphere::new(0.5))
+    };
+    let unit_capsule = {
+        let mut meshes = bw.resource_mut::<Assets<Mesh>>();
+        meshes.add(Capsule3d::new(0.5, 0.5))
+    };
 
     let floor_mat = {
         let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
         mats.add(StandardMaterial {
-            base_color: Color::srgb(0.12, 0.12, 0.14),
-            perceptual_roughness: 0.95,
+            base_color: Color::srgb(0.22, 0.20, 0.24),
+            perceptual_roughness: 0.85,
             ..default()
         })
     };
     let wall_mat = {
         let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
         mats.add(StandardMaterial {
-            base_color: Color::srgb(0.16, 0.15, 0.18),
-            perceptual_roughness: 1.0,
+            base_color: Color::srgb(0.34, 0.32, 0.38),
+            perceptual_roughness: 0.95,
+            ..default()
+        })
+    };
+    let trim_mat = {
+        let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
+        mats.add(StandardMaterial {
+            base_color: Color::srgb(0.55, 0.50, 0.44),
+            perceptual_roughness: 0.7,
             ..default()
         })
     };
     let elevator_mat = {
         let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
         mats.add(StandardMaterial {
-            base_color: Color::srgb(0.30, 0.32, 0.36),
-            perceptual_roughness: 0.6,
-            metallic: 0.2,
+            base_color: Color::srgb(0.42, 0.44, 0.48),
+            perceptual_roughness: 0.4,
+            metallic: 0.4,
+            ..default()
+        })
+    };
+    let ceiling_mat = {
+        let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
+        mats.add(StandardMaterial {
+            base_color: Color::srgb(0.30, 0.28, 0.30),
+            perceptual_roughness: 1.0,
             ..default()
         })
     };
@@ -330,6 +375,34 @@ fn spawn_scene(
         },
     ));
 
+    // --- Ceiling (closes the corridor so lights read as interior) ---
+    bw.spawn((
+        Mesh3d(unit_cube.clone()),
+        MeshMaterial3d(ceiling_mat),
+        Transform {
+            translation: Vec3::new(0.0, wall_h, 0.0),
+            rotation: Quat::IDENTITY,
+            scale: Vec3::new(16.0, 0.2, 16.0),
+        },
+    ));
+
+    // --- Baseboards along the back + side walls (depth + material separation) ---
+    for (tx, tz, sx, sz) in [
+        (0.0f32, -5.85, 16.0f32, 0.12f32),
+        (-7.85, 0.0, 0.12, 16.0),
+        (7.85, 0.0, 0.12, 16.0),
+    ] {
+        bw.spawn((
+            Mesh3d(unit_cube.clone()),
+            MeshMaterial3d(trim_mat.clone()),
+            Transform {
+                translation: Vec3::new(tx, 0.15, tz),
+                rotation: Quat::IDENTITY,
+                scale: Vec3::new(sx, 0.3, sz),
+            },
+        ));
+    }
+
     // --- Elevator box prop (set piece) ---
     bw.spawn((
         Mesh3d(unit_cube.clone()),
@@ -341,26 +414,144 @@ fn spawn_scene(
         },
     ));
 
-    // --- Lights ---
+    // --- Apartment hallway dressing ---
+    // Corridor carpet runner leading to the elevator.
+    let carpet_mat = {
+        let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
+        mats.add(StandardMaterial {
+            base_color: Color::srgb(0.22, 0.10, 0.12),
+            perceptual_roughness: 1.0,
+            ..default()
+        })
+    };
     bw.spawn((
-        DirectionalLight { illuminance: 1200.0, ..default() },
+        Mesh3d(unit_cube.clone()),
+        MeshMaterial3d(carpet_mat),
+        Transform {
+            translation: Vec3::new(0.0, 0.01, -2.0),
+            rotation: Quat::IDENTITY,
+            scale: Vec3::new(3.0, 0.04, 12.0),
+        },
+    ));
+
+    // Apartment doors along the back wall, each with a frame.
+    let door_mat = {
+        let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
+        mats.add(StandardMaterial {
+            base_color: Color::srgb(0.36, 0.24, 0.14),
+            perceptual_roughness: 0.85,
+            ..default()
+        })
+    };
+    let frame_mat = {
+        let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
+        mats.add(StandardMaterial {
+            base_color: Color::srgb(0.55, 0.55, 0.58),
+            perceptual_roughness: 0.9,
+            ..default()
+        })
+    };
+    let indicator_mat = {
+        let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
+        mats.add(StandardMaterial {
+            base_color: Color::srgb(0.95, 0.85, 0.2),
+            emissive: Color::srgb(0.9, 0.8, 0.2).into(),
+            perceptual_roughness: 0.4,
+            ..default()
+        })
+    };
+    for dx in [2.5f32, 4.5, 6.5] {
+        // Door frame (sits just inside the wall).
+        bw.spawn((
+            Mesh3d(unit_cube.clone()),
+            MeshMaterial3d(frame_mat.clone()),
+            Transform {
+                translation: Vec3::new(dx, 1.1, -5.9),
+                rotation: Quat::IDENTITY,
+                scale: Vec3::new(1.4, 2.6, 0.08),
+            },
+        ));
+        // Door panel (flush with the wall face at z = -5.85).
+        bw.spawn((
+            Mesh3d(unit_cube.clone()),
+            MeshMaterial3d(door_mat.clone()),
+            Transform {
+                translation: Vec3::new(dx, 1.1, -5.84),
+                rotation: Quat::IDENTITY,
+                scale: Vec3::new(1.1, 2.2, 0.12),
+            },
+        ));
+    }
+
+    // Elevator: door panel + glowing floor indicator.
+    bw.spawn((
+        Mesh3d(unit_cube.clone()),
+        MeshMaterial3d(frame_mat.clone()),
+        Transform {
+            translation: Vec3::new(-5.5, 1.4, -4.19),
+            rotation: Quat::IDENTITY,
+            scale: Vec3::new(1.9, 2.6, 0.06),
+        },
+    ));
+    bw.spawn((
+        Mesh3d(unit_cube.clone()),
+        MeshMaterial3d(indicator_mat),
+        Transform {
+            translation: Vec3::new(-5.5, 2.65, -4.16),
+            rotation: Quat::IDENTITY,
+            scale: Vec3::new(0.18, 0.18, 0.06),
+        },
+    ));
+
+    // --- Lights ---
+    // Key directional light (warm, angled to carve performers from the set).
+    bw.spawn((
+        DirectionalLight { illuminance: 2400.0, color: Color::srgb(1.0, 0.95, 0.88), ..default() },
         Transform::from_xyz(4.0, 10.0, 6.0).looking_at(Vec3::ZERO, Vec3::Y),
     ));
-    bw.spawn((
-        PointLight {
-            intensity: 600.0,
-            color: Color::srgb(1.0, 0.9, 0.8),
-            ..default()
-        },
-        Transform::from_xyz(-4.0, 4.0, 2.0),
-    ));
+    // Ambient fill lifts the whole corridor out of near-black.
     bw.spawn(AmbientLight {
-        color: Color::srgb(0.5, 0.5, 0.55),
-        brightness: 0.6,
+        color: Color::srgb(0.62, 0.60, 0.66),
+        brightness: 1.4,
         affects_lightmapped_meshes: false,
     });
+    // Hallway practical: warm ceiling fixture above the staging area.
+    bw.spawn((
+        PointLight {
+            intensity: 2200.0,
+            color: Color::srgb(1.0, 0.88, 0.72),
+            range: 14.0,
+            radius: 0.4,
+            shadows_enabled: false,
+            ..default()
+        },
+        Transform::from_xyz(0.0, 5.2, 0.0),
+    ));
+    // Elevator interior light (reads the indicator + frame clearly).
+    bw.spawn((
+        PointLight {
+            intensity: 1400.0,
+            color: Color::srgb(0.85, 0.90, 1.0),
+            range: 8.0,
+            radius: 0.3,
+            ..default()
+        },
+        Transform::from_xyz(-5.5, 2.4, -4.6),
+    ));
+    // Soft cool fill from the opposite side to separate characters from walls.
+    bw.spawn((
+        PointLight {
+            intensity: 900.0,
+            color: Color::srgb(0.7, 0.78, 0.95),
+            range: 12.0,
+            radius: 0.3,
+            shadows_enabled: false,
+            ..default()
+        },
+        Transform::from_xyz(3.0, 3.0, 3.0),
+    ));
 
-    // --- Characters: articulated rigs (material created per part) ---
+    // --- Characters: articulated rigs rendered as capsule/sphere humanoids ---
     for rig in prep.rigs.values() {
         for part in &rig.parts {
             let mat = {
@@ -371,12 +562,22 @@ fn spawn_scene(
                     ..default()
                 })
             };
+            let (mesh, shape) = match part.joint {
+                SemanticJoint::Head
+                | SemanticJoint::Jaw
+                | SemanticJoint::LeftEye
+                | SemanticJoint::RightEye
+                | SemanticJoint::Gaze
+                | SemanticJoint::PropGrip => (unit_sphere.clone(), PartShape::Sphere),
+                _ => (unit_capsule.clone(), PartShape::Capsule),
+            };
             bw.spawn((
-                Mesh3d(unit_cube.clone()),
+                Mesh3d(mesh),
                 MeshMaterial3d(mat),
                 RigPartTag {
                     char_id: rig.character_id.clone(),
                     joint: part.joint,
+                    shape,
                 },
                 Transform::IDENTITY,
             ));
@@ -458,7 +659,19 @@ fn apply_frame_system(
                     .unwrap_or([0.1, 0.1, 0.1]);
                 tr.translation = Vec3::new(rw.pos[0], rw.pos[1], rw.pos[2]);
                 tr.rotation = mat3_to_quat(rw.rot);
-                tr.scale = Vec3::new(half[0] * 2.0, half[1] * 2.0, half[2] * 2.0);
+                // Capsule unit is radius 0.5 / half-length 0.5 (Y-long); sphere
+                // unit is radius 0.5. Scale from the rig `half` extents so each
+                // bone reads as a rounded limb/torso, not a cuboid.
+                tr.scale = match tag.shape {
+                    PartShape::Sphere => {
+                        let r = half[0].max(half[1]).max(half[2]);
+                        Vec3::splat(r * 2.0)
+                    }
+                    PartShape::Capsule => {
+                        let r = half[0].min(half[2]);
+                        Vec3::new(r * 2.0, half[1] * 2.0, r * 2.0)
+                    }
+                };
             }
         }
     }

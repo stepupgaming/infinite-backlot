@@ -468,7 +468,19 @@ pub fn plan_shots(
         shots.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
     }
 
-    // Avoid zero/negative-length shots.
+    // Resolve overlaps that produce zero-length or out-of-order shots. After
+    // sorting by start, clamp each shot's end to the next shot's start so the
+    // plan is strictly increasing and every entry has positive length.
     shots.retain(|s| s.end > s.start + 0.05);
+    if shots.len() > 1 {
+        for i in 0..shots.len() - 1 {
+            let next_start = shots[i + 1].start;
+            if shots[i].end > next_start {
+                shots[i].end = next_start.max(shots[i].start + 0.5);
+            }
+        }
+        // Re-drop anything that became degenerate after clamping.
+        shots.retain(|s| s.end > s.start + 0.05);
+    }
     shots
 }

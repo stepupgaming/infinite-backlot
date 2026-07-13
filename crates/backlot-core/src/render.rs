@@ -14,7 +14,8 @@ use crate::author::{AuthorSource, EpisodeAuthor, PlanAuthorship, PlannedEpisode}
 use crate::avatar::{
     character_pose, part_corners, CameraTargetRole, HumanoidRig, PerformanceState, Pose, Xform,
 };
-use crate::config::Config;
+use crate::config::{Config, TtsConfig};
+use crate::{BeatCommand, EpisodePlan};
 use crate::package::{
     Caption, CameraShot, Diagnostics, DialogueLine, EpisodeMetrics, EpisodePackage, GemmyManifest,
     TimedEvent,
@@ -1124,6 +1125,29 @@ pub fn wrap_caption(text: &str) -> String {
     lines.join("\\n")
 }
 
+/// Greedy word-wrap into <=2 lines of at most `max_chars` characters each, used
+/// by the caption bounds validator to approximate the rendered ASS layout.
+pub fn wrap_caption_lines(text: &str, max_chars: usize) -> Vec<String> {
+    let cap = max_chars.max(1);
+    let words: Vec<&str> = text.split_whitespace().collect();
+    let mut lines: Vec<String> = Vec::new();
+    let mut cur = String::new();
+    for w in words {
+        if cur.len() + w.len() + 1 > cap && !cur.is_empty() {
+            lines.push(std::mem::take(&mut cur));
+        }
+        if !cur.is_empty() {
+            cur.push(' ');
+        }
+        cur.push_str(w);
+    }
+    if !cur.is_empty() {
+        lines.push(cur);
+    }
+    lines.truncate(2);
+    lines
+}
+
 pub fn escape_drawtext(s: &str) -> String {
     // Inside a single-quoted drawtext `text='...'` value: a backslash is
     // drawtext's own escape char, so we leave backslashes untouched (the `\n`
@@ -1188,10 +1212,16 @@ fn ass_timecode(sec: f32) -> String {
 /// Build a complete ASS subtitle file for the episode captions. ASS handles
 /// font size, outline, safe-margin placement, wrapping and timing natively, so
 /// the rendered captions are robust regardless of punctuation or line breaks.
+///
+/// Placement uses Alignment 8 (lower-middle, center) so captions sit above the
+/// bottom-edge unsafe zone and away from typical face/interaction framing.
 pub fn build_ass_subtitles(captions: &[Caption], resolution: (u32, u32)) -> String {
     let (w, h) = resolution;
-    let fontsize = ((h as f32 * 0.030).round() as u32).clamp(38, 60);
-    let margin_v = ((h as f32 * 0.12).round() as u32).clamp(160, 320);
+    let fontsize = ((h as f32 * 0.034).round() as u32).clamp(42, 64);
+    // Generous horizontal safe margins for 9:16 phone readability.
+    let margin_h = ((w as f32 * 0.08).round() as u32).clamp(80, 140);
+    // Vertical margin from the bottom: keep captions in the lower-middle band.
+    let margin_v = ((h as f32 * 0.22).round() as u32).clamp(320, 520);
     let mut s = String::new();
     s.push_str("[Script Info]\n");
     s.push_str("ScriptType: v4.00+\n");
@@ -1201,10 +1231,15 @@ pub fn build_ass_subtitles(captions: &[Caption], resolution: (u32, u32)) -> Stri
     s.push_str("ScaledBorderAndShadow: yes\n\n");
     s.push_str("[V4+ Styles]\n");
     s.push_str("Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n");
-    // Alignment 2 = bottom-centre; MarginV lifts captions above the unsafe
-    // bottom platform region. White fill, black outline + soft shadow.
+    // Alignment 8 = bottom-center but raised by MarginV into the lower-middle
+    // safe region. White fill, black outline + soft shadow for contrast.
     s.push_str(&format!(
-        "Style: Default,Arial,{fontsize},&H00FFFFFF,&H00000000,&H00000000,&H7F000000,0,0,0,0,100,100,0,0,1,4,1,2,80,80,{margin_v},1\n\n"
+        "Style: Default,Arial,{fontsize},&H00FFFFFF,&H00000000,&H00000000,&H7F000000,-1,0,0,0,100,100,0,0,1,{outline},{shadow},2,{ml},{mr},{mv},1\n\n",
+        outline = 5,
+        shadow = 1,
+        ml = margin_h,
+        mr = margin_h,
+        mv = margin_v,
     ));
     s.push_str("[Events]\n");
     s.push_str("Format: Layer, Start, End, Style, Text\n");
@@ -1608,6 +1643,64 @@ pub struct PreparedProduction {
 
 /// Stage 1 (shared): author, validate, synthesize TTS, build the authoritative
 /// schedule, build rigs, collect audio clips. No frames are rendered here.
+fn duration_acceptance_window(target_secs: f32) -> (f32, f32) {
+    let target = target_secs.clamp(45.0, 60.0);
+    let min = 45.0f32.min(target);
+    let max = 60.0f32.max(target);
+    (min, max)
+}
+
+/// Measure the real, dead-air-compacted runtime of an authored plan using the
+/// configured TTS engine — the exact same path `prepare_production` uses for its
+/// authoritative gate. This is exposed so the LLM author's duration-repair loop
+/// can estimate against *measured* speech timing instead of a rough heuristic
+/// that ignores dead-air compaction (which otherwise overestimates runtime and
+/// lets a too-short episode slip past the repair loop).
+pub fn measure_runtime(
+    world: &WorldState,
+    plan: &EpisodePlan,
+    commands: &HashMap<String, BeatCommand>,
+    tts_cfg: &TtsConfig,
+    max_dead_air: f32,
+) -> crate::error::Result<f32> {
+    let planned = PlannedEpisode {
+        plan: plan.clone(),
+        commands: commands.clone(),
+    };
+    let validated = build_validated(world, &planned)
+        .ok_or_else(|| crate::error::CoreError::EmptyPlan)?;
+    let tts = build_tts(tts_cfg);
+    let mut tts_durations: HashMap<(String, String), f32> = HashMap::new();
+    for ra in validated
+        .resolved_beats
+        .iter()
+        .flat_map(|b| b.resolved_actions.iter())
+    {
+        if matches!(action_kind(&ra.action), ActionKind::Speak) {
+            let text = ra.text.clone().unwrap_or_default();
+            let voice = world
+                .character(&ra.actor_id)
+                .map(|c| c.voice_id.clone())
+                .unwrap_or_else(|| ra.actor_id.clone());
+            let res = tts.synthesize(&text, &voice);
+            let dur = if let Some(p) = &res.audio_path {
+                let t = trim_wav_silence_in_place(p, tts_cfg.sample_rate, 0.01);
+                if t > 0.0 {
+                    t
+                } else {
+                    res.duration
+                }
+            } else {
+                res.duration
+            };
+            tts_durations.insert((ra.actor_id.clone(), text), dur);
+        }
+    }
+    let mut sched = build_schedule(world, &validated, &tts_durations);
+    compact_dead_air(&mut sched, max_dead_air);
+    Ok(sched.duration)
+}
+
 pub fn prepare_production(
     config: &Config,
     require_llm: bool,
@@ -1660,6 +1753,19 @@ pub fn prepare_production(
     // Phase 8: compress the timeline so content starts within ~1s and no
     // inter-line gap exceeds the dead-air limit.
     compact_dead_air(&mut sched, config.runtime.max_dead_air_secs);
+    let (min_duration, max_duration) = duration_acceptance_window(config.runtime.target_duration_secs);
+    if sched.duration < min_duration || sched.duration > max_duration {
+        let msg = format!(
+            "authored episode runtime {:.1}s outside required {:.1}-{:.1}s after measured TTS and dead-air compaction",
+            sched.duration,
+            min_duration,
+            max_duration
+        );
+        if require_llm {
+            return Err(crate::error::CoreError::Llm(format!("require_llm: {msg}")));
+        }
+        tracing::warn!("{msg}");
+    }
     for d in &sched.dialogue {
         let voice = world
             .character(&d.actor)
@@ -1735,6 +1841,21 @@ pub fn finalize_production(
     let plan = prep.planned.plan.clone();
     let auth = &prep.auth;
 
+    // Persist the final authored plan + per-beat commands + authorship so the
+    // exact LLM-authored episode is reproducible and auditable.
+    let _ = std::fs::write(
+        llm_dir.join("final_plan.json"),
+        serde_json::to_string_pretty(&plan).unwrap_or_default(),
+    );
+    let _ = std::fs::write(
+        llm_dir.join("final_commands.json"),
+        serde_json::to_string_pretty(&prep.planned.commands).unwrap_or_default(),
+    );
+    let _ = std::fs::write(
+        llm_dir.join("authorship.json"),
+        serde_json::to_string_pretty(auth).unwrap_or_default(),
+    );
+
     // Mix audio
     let sr = config.tts.sample_rate;
     let mix_path = audio_dir.join("final_mix.wav");
@@ -1789,6 +1910,34 @@ pub fn finalize_production(
     m.visual_changes_per_min = (sched.events.len() as f32) / (sched.duration / 60.0);
     m.payoff_complete = !plan.payoff.trim().is_empty();
     m.persistent_consequence = !plan.persistent_changes.is_empty();
+
+    // Caption safety: approximate rendered bounds from ASS layout assumptions.
+    // Each caption is wrapped to <=2 lines; we estimate pixel width per line at
+    // ~0.55 * fontsize per character and verify both lines fit the safe band.
+    let (cw, ch) = (config.runtime.resolution.0, config.runtime.resolution.1);
+    let fontsize = ((ch as f32 * 0.034).round() as u32).clamp(42, 64) as f32;
+    let margin_h = ((cw as f32 * 0.08).round() as u32).clamp(80, 140) as f32;
+    let safe_w = cw as f32 - 2.0 * margin_h;
+    let mut safe_count = 0u32;
+    let mut unsafe_captions: Vec<String> = Vec::new();
+    for c in &sched.captions {
+        let normalized = normalize_caption_text(&c.text);
+        let lines = wrap_caption_lines(&normalized, (safe_w / (fontsize * 0.55)).round() as usize);
+        let widest = lines.iter().map(|l| l.chars().count()).max().unwrap_or(0) as f32 * fontsize * 0.55;
+        if lines.len() <= 2 && widest <= safe_w {
+            safe_count += 1;
+        } else {
+            unsafe_captions.push(format!(
+                "[{:.1}-{:.1}] {} line(s), ~{:.0}px wide",
+                c.start, c.end, lines.len(), widest
+            ));
+        }
+    }
+    m.caption_safe_pct = if sched.captions.is_empty() {
+        1.0
+    } else {
+        safe_count as f32 / sched.captions.len() as f32
+    } * 100.0;
 
     let transcript: String = sched
         .dialogue
@@ -1863,33 +2012,76 @@ pub fn finalize_production(
         serde_json::to_string_pretty(&silence_report).unwrap_or_default(),
     );
 
-    let diagnostics = Diagnostics {
-        episode_id: prep.episode_id.clone(),
-        generated_at: chrono::Utc::now().to_rfc3339(),
-        director: plan_source.clone(),
-        llm_requests: auth.beats.iter().map(|b| b.attempts).sum::<u32>() + auth.attempts,
-        llm_failures: auth
-            .beats
-            .iter()
-            .filter(|b| b.source == AuthorSource::DeterministicFallback)
-            .count() as u32,
-        validation_errors: vec![],
-        repairs: 0,
-        metrics: m.clone(),
-        issues: vec![],
-        require_llm,
-        llm_used,
-        plan_author_source: plan_source.clone(),
-        authorship: Some(auth.clone()),
-        tts_provider: prep.tts_provider.clone(),
-        tts_real: prep.any_real,
-        audio_real: prep.any_real,
-        frames_captured: captured > 0,
-        mp4_produced: enc_ok,
-        ffmpeg_command: Some(cmd.clone()),
-        ffprobe_ok,
-        replay_no_llm: true,
-        render_backend: render_backend.to_string(),
+    let diagnostics = {
+        let mut issues: Vec<String> = Vec::new();
+        let rejected_shots: Vec<&ShotAnalysis> = cam_analysis.iter().filter(|a| a.rejected).collect();
+        if !rejected_shots.is_empty() {
+            issues.push(format!(
+                "camera: {} of {} shots rejected by framing analysis ({})",
+                rejected_shots.len(),
+                cam_analysis.len(),
+                rejected_shots
+                    .iter()
+                    .map(|a| format!("{} @ {:.1}s: {}", a.intent, a.start, a.reject_reason))
+                    .collect::<Vec<_>>()
+                    .join("; ")
+            ));
+        }
+        let zero_len = camera_plan.iter().filter(|s| s.end - s.start <= 0.05).count();
+        if zero_len > 0 {
+            issues.push(format!("camera: {zero_len} zero-length shots in camera plan"));
+        }
+        if max_gap > config.runtime.max_dead_air_secs {
+            issues.push(format!(
+                "audio: dead-air gap {max_gap:.1}s exceeds {:.1}s limit",
+                config.runtime.max_dead_air_secs
+            ));
+        }
+        if prep.tts_provider == "estimating" || prep.tts_provider.ends_with("-failed") {
+            issues.push(format!(
+                "audio: tts provider '{}' is not production-quality; configure a real local engine",
+                prep.tts_provider
+            ));
+        }
+        if !ffprobe_ok {
+            issues.push("mux: ffprobe verification failed".into());
+        }
+        if !unsafe_captions.is_empty() {
+            issues.push(format!(
+                "captions: {} of {} cues exceed safe bounds ({})",
+                unsafe_captions.len(),
+                sched.captions.len(),
+                unsafe_captions.join("; ")
+            ));
+        }
+        Diagnostics {
+            episode_id: prep.episode_id.clone(),
+            generated_at: chrono::Utc::now().to_rfc3339(),
+            director: plan_source.clone(),
+            llm_requests: auth.beats.iter().map(|b| b.attempts).sum::<u32>() + auth.attempts,
+            llm_failures: auth
+                .beats
+                .iter()
+                .filter(|b| b.source == AuthorSource::DeterministicFallback)
+                .count() as u32,
+            validation_errors: vec![],
+            repairs: 0,
+            metrics: m.clone(),
+            issues,
+            require_llm,
+            llm_used,
+            plan_author_source: plan_source.clone(),
+            authorship: Some(auth.clone()),
+            tts_provider: prep.tts_provider.clone(),
+            tts_real: prep.any_real,
+            audio_real: prep.any_real,
+            frames_captured: captured > 0,
+            mp4_produced: enc_ok,
+            ffmpeg_command: Some(cmd.clone()),
+            ffprobe_ok,
+            replay_no_llm: true,
+            render_backend: render_backend.to_string(),
+        }
     };
 
     let gemmy = GemmyManifest {

@@ -50,11 +50,22 @@ pub const KNOWN_WORLD_EVENTS: &[&str] = &[
     "play_environment_effect", "trigger_safe_physics_event",
 ];
 
+pub const KNOWN_COMPLETION_TYPES: &[&str] = &[
+    "dialogue_finished",
+    "arrival",
+    "timer",
+    "event_done",
+    "animation_finished",
+];
+
 pub fn is_known_action(t: &str) -> bool {
     KNOWN_ACTIONS.contains(&t)
 }
 pub fn is_known_camera_intent(t: &str) -> bool {
     KNOWN_CAMERA_INTENTS.contains(&t)
+}
+pub fn is_known_completion(t: &str) -> bool {
+    KNOWN_COMPLETION_TYPES.contains(&t)
 }
 
 // ---------------------------------------------------------------------------
@@ -92,6 +103,7 @@ pub struct BeatOutline {
     #[serde(rename = "type")]
     pub beat_type: String,
     pub target_start_second: f32,
+    #[serde(default)]
     pub description: String,
     #[serde(default)]
     pub required_entities: Vec<String>,
@@ -209,6 +221,112 @@ pub struct DigestThread {
     pub id: String,
     pub summary: String,
     pub importance: f32,
+}
+
+// ---------------------------------------------------------------------------
+// Whole-episode authored response (redesigned single-call authoring)
+// ---------------------------------------------------------------------------
+//
+// Instead of asking the model for a `EpisodePlan` and then N separate
+// `BeatCommand` calls, the redesigned authoring collapses everything into ONE
+// structured response. `AuthoredEpisode` is the model-facing schema: it carries
+// the episode metadata AND every fully-authored beat in a single object.
+//
+// Crucially there is exactly ONE beat identifier field — `AuthoredBeat.id`. The
+// runtime derives the internal `beat_id` from it during adaptation, so the old
+// `id` vs `beat_id` confusion that used to trigger an extra model call can
+// never happen again.
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct AuthoredEpisode {
+    pub episode_title: String,
+    pub logline: String,
+    #[serde(default)]
+    pub tone: Vec<String>,
+    pub target_duration_seconds: f32,
+    pub active_characters: Vec<String>,
+    pub primary_location: String,
+    pub central_goal: CentralGoal,
+    pub beats: Vec<AuthoredBeat>,
+    pub payoff: String,
+    #[serde(default)]
+    pub persistent_changes: Vec<PersistentChange>,
+    /// Free-form reasoning notes (allowed prose).
+    #[serde(default)]
+    pub notes: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct AuthoredBeat {
+    /// The ONLY beat identifier. Internal `beat_id` is derived from this.
+    pub id: String,
+    /// Narrative purpose / dramatic function of the beat (free text).
+    pub narrative_purpose: String,
+    /// Approximate start time (seconds). Used only as an ordering hint; the
+    /// adaptation phase re-derives a strictly increasing timeline.
+    pub target_start_second: f32,
+    pub actions: Vec<AuthoredAction>,
+    pub camera_intent: AuthoredCameraIntent,
+    pub completion_condition: AuthoredCompletion,
+    /// Short staging/blocking description so the runtime can preserve what the
+    /// beat is supposed to look like even when the action list stays lean.
+    #[serde(default)]
+    pub blocking: Option<String>,
+    /// The most important on-screen business for this beat.
+    #[serde(default)]
+    pub visible_action: Option<String>,
+    /// The important reaction to catch during or after the beat.
+    #[serde(default)]
+    pub intended_reaction: Option<String>,
+    /// Why this camera setup exists (speaker, reaction, prop, payoff, etc.).
+    #[serde(default)]
+    pub camera_purpose: Option<String>,
+    /// Playable acting direction for the beat as a whole.
+    #[serde(default)]
+    pub performance_intent: Option<String>,
+    #[serde(default)]
+    pub fallback: Option<String>,
+    #[serde(default)]
+    pub expected_state_changes: Vec<ExpectedStateChange>,
+    #[serde(default)]
+    pub notes: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct AuthoredAction {
+    pub actor: String,
+    pub action: String,
+    #[serde(default)]
+    pub target: Option<String>,
+    /// Required for `speak` and similar performance actions.
+    #[serde(default)]
+    pub text: Option<String>,
+    #[serde(default)]
+    pub intensity: Option<f32>,
+    /// Playable acting direction for this action, such as "restrained" or
+    /// "startled". It remains optional so cached authored episodes replay.
+    #[serde(default)]
+    pub performance_intent: Option<String>,
+    /// Override the default estimated duration (seconds).
+    #[serde(default)]
+    pub duration_override: Option<f32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct AuthoredCameraIntent {
+    pub r#type: String,
+    pub subject: String,
+    #[serde(default)]
+    pub reaction_subject: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct AuthoredCompletion {
+    pub r#type: String,
+    #[serde(default)]
+    pub actor: Option<String>,
+    #[serde(default)]
+    pub seconds: Option<f32>,
 }
 
 impl WorldDigest {

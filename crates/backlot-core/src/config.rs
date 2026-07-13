@@ -114,7 +114,7 @@ pub struct DirectorConfig {
 /// performers get distinguishable, persistent voices.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TtsConfig {
-    /// Provider id: `estimating` | `espeak`.
+    /// Provider id: `estimating` | `espeak` | `http`.
     #[serde(default = "default_tts_provider")]
     pub provider: String,
     /// Path/command for the espeak-ng binary.
@@ -139,6 +139,50 @@ pub struct TtsConfig {
     /// distinct voices for distinguishable dialogue.
     #[serde(default)]
     pub voice_map: HashMap<String, String>,
+    /// HTTP TTS provider configuration (used when `provider == "http"`). This
+    /// enables any OpenAI-compatible `/v1/audio/speech` local server (Kokoro,
+    /// XTTS, AllTalk, Piper-HTTP, etc.) without coupling the app to one engine.
+    #[serde(default)]
+    pub http: Option<HttpTtsConfig>,
+}
+
+/// Configuration for a local OpenAI-compatible HTTP TTS provider.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct HttpTtsConfig {
+    /// Base URL, e.g. `http://localhost:8000/v1`.
+    #[serde(default)]
+    pub base_url: String,
+    /// API key (optional for local servers).
+    #[serde(default)]
+    pub api_key: String,
+    /// TTS model id passed in the request body (e.g. `tts-1`, `kokoro`).
+    #[serde(default = "default_http_tts_model")]
+    pub model: String,
+    /// Output format: `wav` or `pcm`.
+    #[serde(default = "default_http_tts_format")]
+    pub format: String,
+    /// Character id -> voice id used by the provider.
+    #[serde(default)]
+    pub voice_map: HashMap<String, String>,
+    /// Default voice when no per-character mapping exists.
+    #[serde(default = "default_http_tts_voice")]
+    pub default_voice: String,
+    /// Request timeout in seconds.
+    #[serde(default = "default_http_tts_timeout")]
+    pub timeout_secs: f32,
+}
+
+fn default_http_tts_model() -> String {
+    "tts-1".into()
+}
+fn default_http_tts_format() -> String {
+    "wav".into()
+}
+fn default_http_tts_voice() -> String {
+    "alloy".into()
+}
+fn default_http_tts_timeout() -> f32 {
+    30.0
 }
 
 impl Default for Config {

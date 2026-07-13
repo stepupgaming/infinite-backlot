@@ -7,7 +7,7 @@
 //! duration, which is what drives accurate dialogue timing (the estimating
 //! stub only predicts).
 
-use crate::config::TtsConfig;
+use crate::config::{HttpTtsConfig, TtsConfig};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::Mutex;
@@ -170,6 +170,129 @@ impl EspeakTts {
     }
 }
 
+/// Local OpenAI-compatible HTTP TTS provider. Calls a configurable
+/// `/v1/audio/speech` endpoint (Kokoro, XTTS, AllTalk, Piper-HTTP, etc.) via a
+/// `curl` subprocess, so backlot-core stays free of async HTTP dependencies.
+/// Output WAV/PCM is cached by content hash and measured like espeak.
+pub struct HttpTts {
+    cfg: HttpTtsConfig,
+    cache_dir: String,
+}
+
+impl HttpTts {
+    pub fn new(cfg: HttpTtsConfig, cache_dir: String) -> Self {
+        Self { cfg, cache_dir }
+    }
+
+    pub fn voice_for(&self, voice_id: &str) -> String {
+        self.cfg
+            .voice_map
+            .get(voice_id)
+            .cloned()
+            .unwrap_or_else(|| self.cfg.default_voice.clone())
+    }
+}
+
+impl Tts for HttpTts {
+    fn synthesize(&self, text: &str, voice_id: &str) -> TtsResult {
+        let key = line_key(text, voice_id);
+        let dir = Path::new(&self.cache_dir);
+        let _ = std::fs::create_dir_all(dir);
+        let ext = if self.cfg.format.eq_ignore_ascii_case("pcm") { "pcm" } else { "wav" };
+        let out = dir.join(format!("http_{key}.{ext}"));
+
+        if out.exists() {
+            if let Some(d) = wav_duration_secs(out.to_string_lossy().as_ref()) {
+                return TtsResult {
+                    audio_path: Some(out.to_string_lossy().into_owned()),
+                    duration: d,
+                    cached: true,
+                    ok: true,
+                    provider: "http".into(),
+                };
+            }
+        }
+
+        let voice = self.voice_for(voice_id);
+        let url = format!("{}/audio/speech", self.cfg.base_url.trim_end_matches('/'));
+        let body = serde_json::json!({
+            "model": self.cfg.model,
+            "input": text,
+            "voice": voice,
+            "response_format": self.cfg.format,
+        })
+        .to_string();
+        let body_file = dir.join(format!("http_{key}.req.json"));
+        if std::fs::write(&body_file, &body).is_err() {
+            return self.fallback(text);
+        }
+        let timeout = format!("{:.0}", self.cfg.timeout_secs.max(5.0) as u64);
+        let mut cmd = std::process::Command::new("curl");
+        cmd.arg("-sS")
+            .arg("-X")
+            .arg("POST")
+            .arg(&url)
+            .arg("-H")
+            .arg("Content-Type: application/json")
+            .arg("--max-time")
+            .arg(&timeout)
+            .arg("--data-binary")
+            .arg(format!("@{}", body_file.to_string_lossy()))
+            .arg("-o")
+            .arg(out.to_string_lossy().as_ref());
+        if !self.cfg.api_key.is_empty() {
+            cmd.arg("-H").arg(format!("Authorization: Bearer {}", self.cfg.api_key));
+        }
+        let res = cmd.output();
+        let _ = std::fs::remove_file(&body_file);
+        match res {
+            Ok(o) if o.status.success() && out.exists() => {
+                match wav_duration_secs(out.to_string_lossy().as_ref()) {
+                    Some(d) => TtsResult {
+                        audio_path: Some(out.to_string_lossy().into_owned()),
+                        duration: d,
+                        cached: false,
+                        ok: true,
+                        provider: "http".into(),
+                    },
+                    None => {
+                        tracing::warn!("http TTS returned non-WAV or unreadable output");
+                        self.fallback(text)
+                    }
+                }
+            }
+            Ok(o) => {
+                tracing::warn!(
+                    "http TTS request failed: status={} stderr={}",
+                    o.status,
+                    String::from_utf8_lossy(&o.stderr).chars().take(200).collect::<String>()
+                );
+                self.fallback(text)
+            }
+            Err(e) => {
+                tracing::warn!("http TTS curl invocation failed: {e}");
+                self.fallback(text)
+            }
+        }
+    }
+
+    fn provider_name(&self) -> &'static str {
+        "http"
+    }
+}
+
+impl HttpTts {
+    fn fallback(&self, text: &str) -> TtsResult {
+        TtsResult {
+            audio_path: None,
+            duration: Tts::estimate_duration(self, text),
+            cached: false,
+            ok: false,
+            provider: "http-failed".into(),
+        }
+    }
+}
+
 /// Build the configured TTS provider. When `provider == "espeak"` we still
 /// verify the binary is reachable; if not, we transparently downgrade to the
 /// estimating stub and let the caller decide whether that is acceptable.
@@ -183,6 +306,17 @@ pub fn build_tts(cfg: &TtsConfig) -> Box<dyn Tts> {
             "espeak TTS provider '{}' not reachable; using estimating stub",
             e.exe
         );
+    }
+    if cfg.provider == "http" {
+        if let Some(http) = cfg.http.clone() {
+            if http.base_url.trim().is_empty() {
+                tracing::warn!("http TTS provider configured with empty base_url; using estimating stub");
+            } else {
+                return Box::new(HttpTts::new(http, cfg.cache_dir.clone()));
+            }
+        } else {
+            tracing::warn!("http TTS provider selected but no [tts.http] config; using estimating stub");
+        }
     }
     Box::new(EstimatingTts)
 }

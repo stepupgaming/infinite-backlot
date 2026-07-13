@@ -475,6 +475,7 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
         let mut dir = [0.0f32, 0.0, 0.0];
         let mut yaw = 0.0f32;
         let mut active_state: Option<(PerformanceState, bool)> = None;
+        let mut focus_target: Option<String> = None;
         // gather this character's actions sorted by start
         let mut acts: Vec<&ScheduledAction> = ct.actions.iter().collect();
         acts.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
@@ -502,20 +503,41 @@ pub fn evaluate_at(sched: &Schedule, rigs: &HashMap<String, HumanoidRig>, world:
                         }
                     }
                 }
-                ActionKind::Speak => active_state = Some((PerformanceState::Talk, true)),
-                ActionKind::React => active_state = Some((PerformanceState::React, false)),
-                ActionKind::Gesture => active_state = Some((PerformanceState::Gesture, false)),
-                ActionKind::Point => active_state = Some((PerformanceState::Point, false)),
-                ActionKind::Look => active_state = Some((PerformanceState::Look, false)),
-                ActionKind::Listen => active_state = Some((PerformanceState::Listen, false)),
-                ActionKind::Other => { /* interaction: keep current */ }
+                _ if t >= a.start && t < a.start + a.dur => match action_kind(&a.action) {
+                    ActionKind::Speak => active_state = Some((PerformanceState::Talk, true)),
+                    ActionKind::React => active_state = Some((PerformanceState::React, false)),
+                    ActionKind::Gesture => active_state = Some((PerformanceState::Gesture, false)),
+                    ActionKind::Point => {
+                        active_state = Some((PerformanceState::Point, false));
+                        focus_target = a.target.clone();
+                    }
+                    ActionKind::Look => {
+                        active_state = Some((PerformanceState::Look, false));
+                        focus_target = a.target.clone();
+                    }
+                    ActionKind::Listen => active_state = Some((PerformanceState::Listen, false)),
+                    // Object interactions need readable body business rather than
+                    // silently retaining a previous pose.
+                    ActionKind::Other => active_state = Some((PerformanceState::Gesture, false)),
+                    ActionKind::Move => {}
+                },
+                _ => {}
             }
         }
         if moving && (dir[0] != 0.0 || dir[2] != 0.0) {
             yaw = dir[0].atan2(dir[2]);
+        } else if let Some(target) = focus_target.as_deref() {
+            if let Some(p) = resolve_pos(target, world, &char_home_map(sched)) {
+                let dx = p[0] - pos[0];
+                let dz = p[2] - pos[2];
+                if dx != 0.0 || dz != 0.0 {
+                    yaw = dx.atan2(dz);
+                }
+            }
         }
         let (state, speaking) = match active_state {
             Some(s) => s,
+            None if moving => (PerformanceState::Walk, false),
             None => {
                 // listening if someone else is speaking
                 let other_speaking = sched.dialogue.iter().any(|d| d.start <= t && t < d.end && d.actor != ct.id);
