@@ -125,12 +125,11 @@ pub struct DirectorConfig {
     pub max_repairs: u32,
 }
 
-/// Text-to-speech configuration. Supports a real local engine (`espeak`) and
-/// the duration-only estimating stub. Voices are mapped per character so two
-/// performers get distinguishable, persistent voices.
+/// Text-to-speech configuration. Production uses the one-load Gepard batch
+/// worker; espeak and estimating remain explicit preview/diagnostic choices.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TtsConfig {
-    /// Provider id: `estimating` | `espeak` | `http`.
+    /// Provider id: `gepard_batch` | `estimating` | `espeak` | `http`.
     #[serde(default = "default_tts_provider")]
     pub provider: String,
     /// Path/command for the espeak-ng binary.
@@ -169,6 +168,9 @@ pub struct TtsConfig {
 pub struct VoiceProfileConfig {
     /// Stable cast identity. The reference file is immutable once approved.
     pub character_id: String,
+    /// Durable voice-registry identity used in cache provenance.
+    #[serde(default)]
+    pub voice_id: String,
     pub reference_wav: String,
     #[serde(default)]
     pub reference_hash: String,
@@ -178,20 +180,75 @@ pub struct VoiceProfileConfig {
     pub accent: Option<String>,
     #[serde(default)]
     pub seed: u64,
+    #[serde(default)]
+    pub status: VoiceStatus,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum VoiceStatus {
+    Final,
+    #[default]
+    Temporary,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct GepardPresetConfig {
+    #[serde(default = "default_gepard_temperature")]
+    pub temperature: f32,
+    #[serde(default)]
+    pub top_k: u32,
+    #[serde(default = "default_gepard_cfg_scale")]
+    pub cfg_scale: f32,
+    #[serde(default)]
+    pub cfg_frames: u32,
+    #[serde(default = "default_gepard_stop_threshold")]
+    pub stop_threshold: f32,
+    #[serde(default = "default_gepard_max_frames")]
+    pub max_frames: u32,
+    #[serde(default = "default_gepard_repetition_penalty")]
+    pub repetition_penalty: f32,
+    #[serde(default = "default_gepard_repetition_window")]
+    pub repetition_window: u32,
+}
+
+impl Default for GepardPresetConfig {
+    fn default() -> Self {
+        Self {
+            temperature: default_gepard_temperature(),
+            top_k: 0,
+            cfg_scale: default_gepard_cfg_scale(),
+            cfg_frames: 0,
+            stop_threshold: default_gepard_stop_threshold(),
+            max_frames: default_gepard_max_frames(),
+            repetition_penalty: default_gepard_repetition_penalty(),
+            repetition_window: default_gepard_repetition_window(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GepardTtsConfig {
     #[serde(default = "default_gepard_runtime")]
     pub runtime_root: String,
+    #[serde(default = "default_gepard_worker")]
+    pub worker_script: String,
     #[serde(default = "default_gepard_model")]
     pub model_root: String,
+    #[serde(default = "default_gepard_device")]
+    pub device: String,
     #[serde(default = "default_gepard_revision")]
     pub model_revision: String,
     #[serde(default = "default_gepard_codec_revision")]
     pub codec_revision: String,
     #[serde(default = "default_gepard_timeout")]
     pub timeout_secs: f32,
+    #[serde(default = "default_gepard_runtime_version")]
+    pub runtime_version: String,
+    #[serde(default)]
+    pub cache_bypass: bool,
+    #[serde(default)]
+    pub default_preset: GepardPresetConfig,
     #[serde(default)]
     pub profiles: HashMap<String, VoiceProfileConfig>,
 }
@@ -404,8 +461,14 @@ fn default_true() -> bool {
 fn default_gepard_runtime() -> String {
     "runtimes/gepard".into()
 }
+fn default_gepard_worker() -> String {
+    "backlot_gepard_worker.py".into()
+}
 fn default_gepard_model() -> String {
     r"F:\Models\InfiniteBacklot\gepard-1.0".into()
+}
+fn default_gepard_device() -> String {
+    "cuda".into()
 }
 fn default_gepard_revision() -> String {
     "gepard-1.0".into()
@@ -415,6 +478,27 @@ fn default_gepard_codec_revision() -> String {
 }
 fn default_gepard_timeout() -> f32 {
     900.0
+}
+fn default_gepard_runtime_version() -> String {
+    "backlot-gepard-worker-1".into()
+}
+fn default_gepard_temperature() -> f32 {
+    0.3
+}
+fn default_gepard_cfg_scale() -> f32 {
+    1.0
+}
+fn default_gepard_stop_threshold() -> f32 {
+    0.5
+}
+fn default_gepard_max_frames() -> u32 {
+    2000
+}
+fn default_gepard_repetition_penalty() -> f32 {
+    1.0
+}
+fn default_gepard_repetition_window() -> u32 {
+    32
 }
 fn default_asr_provider() -> String {
     "parakeet".into()

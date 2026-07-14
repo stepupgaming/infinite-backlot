@@ -283,7 +283,7 @@ impl LlmAuthor {
             // That would invalidate the zero-call replay proof and overwrite the
             // cached artifact with different authored content.
             return Err(CoreError::Llm(format!(
-                "reused episode at '{}' is missing, invalid, or outside 45-60s; refusing a fresh LLM call",
+                "reused episode at '{}' is missing or invalid; refusing a fresh LLM call",
                 path.display()
             )));
         }
@@ -485,16 +485,10 @@ impl LlmAuthor {
         let text = std::fs::read_to_string(path).ok()?;
         let ep: AuthoredEpisode = serde_json::from_str(&text).ok()?;
         let plan_cmds = self.adapt_validate(&ctx.world, &ep).ok()?;
-        let secs = self.measure_or_estimate(&ctx.world, &plan_cmds.0, &plan_cmds.1);
-        let dur = DurationPolicy::for_request(ctx.target_duration);
-        if !dur.in_range(secs) {
-            eprintln!("CACHED EPISODE MEASURED RUNTIME: {secs:.1}s");
-            tracing::warn!(
-                "reused episode {:.1}s outside 45-60s; re-authoring instead of replaying",
-                secs
-            );
-            return None;
-        }
+        // A frozen authored episode is immutable narrative input. Production
+        // TTS is synthesized exactly once later, and that measured audio rebuilds
+        // the authoritative schedule. Measuring here would load Gepard twice and
+        // incorrectly reject an accepted story merely because its voice changed.
         let before = self.client.metrics();
         let (planned, auth) = self.build_authorship(
             plan_cmds,

@@ -9,19 +9,35 @@ pub struct ProcessSpec {
     pub args: Vec<String>,
     pub cwd: PathBuf,
     pub env: BTreeMap<String, String>,
+    pub stdout_path: Option<PathBuf>,
+    pub stderr_path: Option<PathBuf>,
 }
 
 impl ProcessSpec {
-    pub fn command(&self) -> Command {
+    pub fn command(&self) -> std::io::Result<Command> {
         let mut command = Command::new(&self.program);
         command
             .args(&self.args)
             .current_dir(&self.cwd)
             .envs(&self.env)
-            .stdin(Stdio::null())
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit());
-        command
+            .stdin(Stdio::null());
+        if let Some(path) = &self.stdout_path {
+            if let Some(parent) = path.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            command.stdout(Stdio::from(std::fs::File::create(path)?));
+        } else {
+            command.stdout(Stdio::inherit());
+        }
+        if let Some(path) = &self.stderr_path {
+            if let Some(parent) = path.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            command.stderr(Stdio::from(std::fs::File::create(path)?));
+        } else {
+            command.stderr(Stdio::inherit());
+        }
+        Ok(command)
     }
 }
 
@@ -48,7 +64,7 @@ impl OwnedProcess {
         if spec.program.components().count() > 1 && !spec.program.exists() {
             return Err(ProcessError::MissingProgram(spec.program.clone()));
         }
-        let child = spec.command().spawn()?;
+        let child = spec.command()?.spawn()?;
         Ok(Self { child, spec })
     }
 
@@ -82,5 +98,24 @@ impl OwnedProcess {
         #[cfg(not(windows))]
         self.child.kill()?;
         Ok(self.child.wait()?)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn missing_worker_process_fails_before_spawn() {
+        let spec = ProcessSpec {
+            program: PathBuf::from("definitely-missing-backlot-worker/program.exe"),
+            args: vec![],
+            cwd: std::env::current_dir().unwrap(),
+            env: BTreeMap::new(),
+            stdout_path: None,
+            stderr_path: None,
+        };
+        let error = OwnedProcess::spawn(spec).unwrap_err();
+        assert!(matches!(error, ProcessError::MissingProgram(_)));
     }
 }

@@ -15,11 +15,14 @@ use crate::avatar::{part_corners, HumanoidRig, PerformanceState};
 use crate::config::{Config, TtsConfig};
 use crate::package::{
     CameraShot, Caption, Diagnostics, DialogueLine, EpisodeMetrics, EpisodePackage, GemmyManifest,
+    TtsProvenance,
 };
 use crate::serial_id;
 use crate::story::apply_persistent_changes;
 use crate::timeline::*;
-use crate::tts::{build_tts, TtsRequest, TtsResult};
+use crate::tts::{
+    build_tts, build_tts_for_episode, stable_line_id, GepardBatchManifest, TtsRequest, TtsResult,
+};
 use crate::validation::{validate_beat_command, validate_plan, ValidatedPlan};
 use crate::world::WorldState;
 use crate::{BeatCommand, EpisodePlan};
@@ -1087,6 +1090,11 @@ fn normalize(a: [f32; 3]) -> [f32; 3] {
 pub struct ProbeInfo {
     pub has_video: bool,
     pub has_audio: bool,
+    pub video_codec: Option<String>,
+    pub pixel_format: Option<String>,
+    pub audio_codec: Option<String>,
+    pub audio_sample_rate: Option<u32>,
+    pub audio_channels: Option<u32>,
     pub width: u32,
     pub height: u32,
     pub duration: f32,
@@ -1153,6 +1161,12 @@ pub fn encode_mp4(
         "yuv420p".into(),
         "-c:a".into(),
         "aac".into(),
+        "-ar".into(),
+        "48000".into(),
+        "-ac".into(),
+        "2".into(),
+        "-af".into(),
+        "loudnorm=I=-16:TP=-1.5:LRA=11".into(),
         "-shortest".into(),
         "-movflags".into(),
         "+faststart".into(),
@@ -1176,6 +1190,12 @@ pub fn encode_mp4(
         "yuv420p".into(),
         "-c:a".into(),
         "aac".into(),
+        "-ar".into(),
+        "48000".into(),
+        "-ac".into(),
+        "2".into(),
+        "-af".into(),
+        "loudnorm=I=-16:TP=-1.5:LRA=11".into(),
         "-shortest".into(),
         "-movflags".into(),
         "+faststart".into(),
@@ -1203,7 +1223,7 @@ pub fn encode_mp4(
     ];
     let status_muted = run_ffmpeg(ff, &args_muted)?;
     let ok = status_cap && status_clean && status_muted;
-    let cmd = format!("{ff} -y -framerate {fps} -i {frame_pattern} -i {audio_path} -vf \"{vf_captioned}\" -c:v libx264 -c:a aac -shortest {out_captioned}");
+    let cmd = format!("{ff} -y -framerate {fps} -i {frame_pattern} -i {audio_path} -vf \"{vf_captioned}\" -c:v libx264 -c:a aac -ar 48000 -ac 2 -af loudnorm=I=-16:TP=-1.5:LRA=11 -shortest {out_captioned}");
     Ok((cmd, ok))
 }
 
@@ -1505,7 +1525,7 @@ pub fn verify_mp4(cfg: &Config, path: &str) -> ProbeInfo {
             "-v",
             "error",
             "-show_entries",
-            "stream=codec_type,width,height,duration,r_frame_rate",
+            "stream=codec_type,codec_name,pix_fmt,width,height,duration,r_frame_rate,sample_rate,channels",
             "-of",
             "json",
             &path,
@@ -1529,6 +1549,14 @@ fn parse_probe(v: &serde_json::Value) -> ProbeInfo {
             let typ = s.get("codec_type").and_then(|t| t.as_str()).unwrap_or("");
             if typ == "video" {
                 info.has_video = true;
+                info.video_codec = s
+                    .get("codec_name")
+                    .and_then(|value| value.as_str())
+                    .map(str::to_string);
+                info.pixel_format = s
+                    .get("pix_fmt")
+                    .and_then(|value| value.as_str())
+                    .map(str::to_string);
                 info.width = s.get("width").and_then(|w| w.as_u64()).unwrap_or(0) as u32;
                 info.height = s.get("height").and_then(|h| h.as_u64()).unwrap_or(0) as u32;
                 if let Some(d) = s.get("duration").and_then(|d| d.as_str()) {
@@ -1545,6 +1573,18 @@ fn parse_probe(v: &serde_json::Value) -> ProbeInfo {
                 }
             } else if typ == "audio" {
                 info.has_audio = true;
+                info.audio_codec = s
+                    .get("codec_name")
+                    .and_then(|value| value.as_str())
+                    .map(str::to_string);
+                info.audio_sample_rate = s
+                    .get("sample_rate")
+                    .and_then(|value| value.as_str())
+                    .and_then(|value| value.parse().ok());
+                info.audio_channels = s
+                    .get("channels")
+                    .and_then(|value| value.as_u64())
+                    .map(|value| value as u32);
                 if let Some(d) = s.get("duration").and_then(|d| d.as_str()) {
                     info.duration = info.duration.max(d.parse().unwrap_or(0.0));
                 }
@@ -1570,8 +1610,22 @@ pub fn mix_audio(
     let sr = sample_rate as usize;
     let total = ((duration + 0.5) * sr as f32).ceil().max(1.0) as usize;
     let mut mixed: Vec<f32> = vec![0.0; total];
+    // Quiet deterministic hallway bed: mains hum, ventilation overtone, and a
+    // tiny seeded noise floor. This prevents dead digital gaps while remaining
+    // well below centered dialogue and scheduled elevator/panel effects.
+    let mut noise_state = 0x9e37_79b9u32;
+    for (index, sample) in mixed.iter_mut().enumerate() {
+        noise_state = noise_state
+            .wrapping_mul(1_664_525)
+            .wrapping_add(1_013_904_223);
+        let noise = ((noise_state >> 8) as f32 / 16_777_215.0) * 2.0 - 1.0;
+        let t = index as f32 / sr.max(1) as f32;
+        *sample = (std::f32::consts::TAU * 55.0 * t).sin() * 0.018
+            + (std::f32::consts::TAU * 110.0 * t).sin() * 0.005
+            + noise * 0.008;
+    }
     for (path, start, _dur) in clips {
-        if let Some(samples) = read_wav_mono_f32(path) {
+        if let Some((samples, _source_rate)) = read_wav_mono_f32(path) {
             let off = (*start * sr as f32).round().max(0.0) as usize;
             for (i, s) in samples.iter().enumerate() {
                 let idx = off + i;
@@ -1596,7 +1650,7 @@ pub fn mix_audio(
     write_wav(out_path, sr as u32, &pcm);
 }
 
-fn read_wav_mono_f32(path: &str) -> Option<Vec<f32>> {
+fn read_wav_mono_f32(path: &str) -> Option<(Vec<f32>, u32)> {
     let bytes = std::fs::read(path).ok()?;
     if bytes.len() < 44 || &bytes[0..4] != b"RIFF" {
         return None;
@@ -1635,8 +1689,7 @@ fn read_wav_mono_f32(path: &str) -> Option<Vec<f32>> {
             p += channels;
         }
     }
-    let _ = sr;
-    Some(out)
+    Some((out, sr))
 }
 
 /// Minimum continuous-silence length (seconds) that counts as "dead air" and
@@ -1669,15 +1722,14 @@ pub struct SilenceReport {
 /// silent span (seconds) worth reporting; `rms_thresh` is the energy floor
 /// below which a window is considered silent.
 pub fn detect_silence(path: &str, min_gap: f32, rms_thresh: f32) -> SilenceReport {
-    let Some(samples) = read_wav_mono_f32(path) else {
+    let Some((samples, sample_rate)) = read_wav_mono_f32(path) else {
         return SilenceReport {
             first_content_secs: 0.0,
             max_gap_secs: 0.0,
             ranges: vec![],
         };
     };
-    let sr_est = 44100u32; // only used for windowing; exact rate not required
-    let win = ((0.1f32 * sr_est as f32).round() as usize).max(1);
+    let win = ((0.1f32 * sample_rate as f32).round() as usize).max(1);
     let n = samples.len();
     let mut silent: Vec<bool> = Vec::with_capacity(n / win + 1);
     let mut first_content = n as f32; // index of first non-silent sample
@@ -1700,7 +1752,7 @@ pub fn detect_silence(path: &str, min_gap: f32, rms_thresh: f32) -> SilenceRepor
         }
         i = end;
     }
-    let step = win as f32 / sr_est as f32;
+    let step = win as f32 / sample_rate as f32;
     // Build silent runs (in seconds).
     let mut ranges: Vec<SilenceRange> = Vec::new();
     let mut run_start: Option<usize> = None;
@@ -1736,8 +1788,8 @@ pub fn detect_silence(path: &str, min_gap: f32, rms_thresh: f32) -> SilenceRepor
 
     // The lead-in (0 .. first content) and tail (last content .. duration) are
     // also dead air worth reporting.
-    let first_content_secs = first_content / sr_est as f32;
-    let duration = n as f32 / sr_est as f32;
+    let first_content_secs = first_content / sample_rate as f32;
+    let duration = n as f32 / sample_rate as f32;
     if first_content_secs >= min_gap {
         ranges.insert(
             0,
@@ -1749,10 +1801,10 @@ pub fn detect_silence(path: &str, min_gap: f32, rms_thresh: f32) -> SilenceRepor
             },
         );
     }
-    let tail = duration - last_content as f32 / sr_est as f32;
+    let tail = duration - last_content as f32 / sample_rate as f32;
     if tail >= min_gap {
         ranges.push(SilenceRange {
-            start: last_content as f32 / sr_est as f32,
+            start: last_content as f32 / sample_rate as f32,
             end: duration,
             duration: tail,
             repaired: false,
@@ -1765,6 +1817,47 @@ pub fn detect_silence(path: &str, min_gap: f32, rms_thresh: f32) -> SilenceRepor
         max_gap_secs: max_gap,
         ranges,
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AudioQualityReport {
+    pub sample_rate: u32,
+    pub duration_secs: f32,
+    pub peak_amplitude: f32,
+    pub rms_amplitude: f32,
+    pub headroom_dbfs: f32,
+    pub clipped_samples: usize,
+    pub clipped_sample_pct: f32,
+}
+
+pub fn analyze_audio_quality(path: &str) -> Option<AudioQualityReport> {
+    let (samples, sample_rate) = read_wav_mono_f32(path)?;
+    if samples.is_empty() {
+        return None;
+    }
+    let peak = samples
+        .iter()
+        .map(|sample| sample.abs())
+        .fold(0.0, f32::max);
+    let sum_squares: f32 = samples.iter().map(|sample| sample * sample).sum();
+    let rms = (sum_squares / samples.len() as f32).sqrt();
+    let clipped_samples = samples
+        .iter()
+        .filter(|sample| sample.abs() >= 0.999_9)
+        .count();
+    Some(AudioQualityReport {
+        sample_rate,
+        duration_secs: samples.len() as f32 / sample_rate.max(1) as f32,
+        peak_amplitude: peak,
+        rms_amplitude: rms,
+        headroom_dbfs: if peak > 0.0 {
+            -20.0 * peak.log10()
+        } else {
+            120.0
+        },
+        clipped_samples,
+        clipped_sample_pct: clipped_samples as f32 * 100.0 / samples.len() as f32,
+    })
 }
 
 fn write_wav(path: &str, sample_rate: u32, pcm: &[i16]) {
@@ -1796,10 +1889,7 @@ fn write_wav(path: &str, sample_rate: u32, pcm: &[i16]) {
 /// otherwise widen the gaps between lines. Returns the trimmed duration in
 /// seconds (falls back to the original length if the file cannot be read).
 fn trim_wav_silence_in_place(path: &str, _mix_sr: u32, rms_thresh: f32) -> f32 {
-    let Some(sr) = crate::tts::wav_sample_rate(path) else {
-        return 0.0;
-    };
-    let Some(samples) = read_wav_mono_f32(path) else {
+    let Some((samples, sr)) = read_wav_mono_f32(path) else {
         return 0.0;
     };
     let n = samples.len();
@@ -1845,6 +1935,7 @@ pub struct PreparedProduction {
     pub clips: Vec<(String, f32, f32)>,
     pub any_real: bool,
     pub tts_provider: String,
+    pub tts_provenance: Option<TtsProvenance>,
     pub world_before: WorldState,
     /// Phase-level wall-clock durations measured during `prepare_production`.
     pub prep_timings: PrepTimings,
@@ -1857,6 +1948,10 @@ pub struct PreparedProduction {
 pub struct PrepTimings {
     pub llm_authoring_secs: f32,
     pub tts_generation_secs: f32,
+    pub tts_request_preparation_secs: f32,
+    pub tts_model_loading_secs: f32,
+    pub tts_dialogue_generation_secs: f32,
+    pub tts_audio_verification_secs: f32,
     pub speech_alignment_secs: f32,
     pub kimodo_generation_secs: f32,
     pub motion_processing_secs: f32,
@@ -1900,7 +1995,10 @@ pub fn measure_runtime(
         .collect();
     let requests: Vec<TtsRequest> = speech
         .iter()
-        .map(|ra| TtsRequest {
+        .enumerate()
+        .map(|(index, ra)| TtsRequest {
+            id: stable_line_id(index, &ra.actor_id, ra.text.as_deref().unwrap_or_default()),
+            actor_id: ra.actor_id.clone(),
             text: ra.text.clone().unwrap_or_default(),
             voice_id: world
                 .character(&ra.actor_id)
@@ -1913,7 +2011,9 @@ pub fn measure_runtime(
     let mut tts_durations: HashMap<(String, String), f32> = HashMap::new();
     for (ra, res) in speech.iter().zip(results) {
         let text = ra.text.clone().unwrap_or_default();
-        let dur = if let Some(p) = &res.audio_path {
+        let dur = if tts.provider_name() == "gepard_batch" {
+            res.duration
+        } else if let Some(p) = &res.audio_path {
             let t = trim_wav_silence_in_place(p, tts_cfg.sample_rate, 0.01);
             if t > 0.0 {
                 t
@@ -1955,7 +2055,18 @@ pub fn prepare_production(
     let validated =
         build_validated(world, &planned).ok_or_else(|| crate::error::CoreError::EmptyPlan)?;
 
-    let tts = build_tts(&config.tts);
+    let episode_audio_dir = Path::new(&config.runtime.output_dir)
+        .join("episodes")
+        .join(&episode_id)
+        .join("audio");
+    std::fs::create_dir_all(&episode_audio_dir).map_err(io_err(&episode_audio_dir))?;
+    if config.tts.provider == "gepard_batch" {
+        let dialogue_dir = episode_audio_dir.join("dialogue");
+        if dialogue_dir.exists() {
+            std::fs::remove_dir_all(&dialogue_dir).map_err(io_err(&dialogue_dir))?;
+        }
+    }
+    let tts = build_tts_for_episode(&config.tts, &episode_audio_dir);
     let provider = tts.provider_name().to_string();
     let mut tts_durations: HashMap<(String, String), f32> = HashMap::new();
     let mut tts_results: HashMap<(String, String), TtsResult> = HashMap::new();
@@ -1969,7 +2080,10 @@ pub fn prepare_production(
         .collect();
     let requests: Vec<TtsRequest> = speech
         .iter()
-        .map(|ra| TtsRequest {
+        .enumerate()
+        .map(|(index, ra)| TtsRequest {
+            id: stable_line_id(index, &ra.actor_id, ra.text.as_deref().unwrap_or_default()),
+            actor_id: ra.actor_id.clone(),
             text: ra.text.clone().unwrap_or_default(),
             voice_id: world
                 .character(&ra.actor_id)
@@ -1983,9 +2097,11 @@ pub fn prepare_production(
         if res.ok {
             any_real = true;
         }
-        // Trim trailing/leading silence so the schedule duration matches the
-        // real spoken length (and the cached mix clip carries no padding).
-        let dur = if let Some(p) = &res.audio_path {
+        // Gepard's worker-reported/measured source WAV duration is authoritative
+        // and its original episode artifact must remain byte-for-byte intact.
+        let dur = if provider == "gepard_batch" {
+            res.duration
+        } else if let Some(p) = &res.audio_path {
             let t = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
             if t > 0.0 {
                 t
@@ -1998,16 +2114,97 @@ pub fn prepare_production(
         tts_durations.insert((ra.actor_id.clone(), text.clone()), dur);
         tts_results.insert((ra.actor_id.clone(), text), res);
     }
-    if require_llm {
+    if require_llm || provider == "gepard_batch" {
         let failures = tts_results.values().filter(|result| !result.ok).count();
         if failures > 0 || tts_results.len() != requests.len() {
-            return Err(crate::error::CoreError::Llm(format!(
-                "production voice phase incomplete: {failures} failed and {} of {} lines returned",
+            let message = format!(
+                "{provider} production voice phase incomplete: {failures} failed and {} of {} lines returned",
                 tts_results.len(),
                 requests.len()
-            )));
+            );
+            return Err(if provider == "gepard_batch" {
+                crate::error::CoreError::Msg(message)
+            } else {
+                crate::error::CoreError::Llm(message)
+            });
         }
     }
+    let tts_manifest = if provider == "gepard_batch" {
+        let path = episode_audio_dir.join("gepard_manifest.json");
+        let manifest: GepardBatchManifest = std::fs::read(&path)
+            .ok()
+            .and_then(|bytes| serde_json::from_slice(&bytes).ok())
+            .ok_or_else(|| {
+                crate::error::CoreError::Msg(format!(
+                    "gepard_batch did not produce a readable manifest at {}",
+                    path.display()
+                ))
+            })?;
+        if !manifest.errors.is_empty() {
+            return Err(crate::error::CoreError::Msg(format!(
+                "gepard_batch verification failed: {}",
+                manifest.errors.join("; ")
+            )));
+        }
+        Some(manifest)
+    } else {
+        None
+    };
+    let tts_provenance = if let Some(manifest) = &tts_manifest {
+        let mut voice_ids: Vec<String> = manifest
+            .lines
+            .iter()
+            .map(|line| line.voice.voice_id.clone())
+            .collect();
+        voice_ids.sort();
+        voice_ids.dedup();
+        Some(TtsProvenance {
+            provider: provider.clone(),
+            manifest_path: "audio/gepard_manifest.json".into(),
+            line_count: manifest.line_count as u32,
+            successful_lines: manifest.lines.iter().filter(|line| line.success).count() as u32,
+            failed_lines: manifest.lines.iter().filter(|line| !line.success).count() as u32,
+            cache_hits: manifest.cache_hits as u32,
+            cache_misses: manifest.cache_misses as u32,
+            worker_invocations: manifest.worker_invocations,
+            espeak_lines: 0,
+            estimating_lines: 0,
+            model_revision: Some(manifest.model_revision.clone()),
+            device: Some(manifest.device.clone()),
+            voice_ids,
+        })
+    } else {
+        let successful = tts_results.values().filter(|result| result.ok).count() as u32;
+        Some(TtsProvenance {
+            provider: provider.clone(),
+            line_count: requests.len() as u32,
+            successful_lines: successful,
+            failed_lines: requests.len() as u32 - successful,
+            espeak_lines: if provider == "espeak" { successful } else { 0 },
+            estimating_lines: if provider == "estimating" {
+                requests.len() as u32
+            } else {
+                0
+            },
+            ..Default::default()
+        })
+    };
+    let tts_request_preparation_secs = tts_manifest
+        .as_ref()
+        .map(|manifest| manifest.request_preparation_secs)
+        .unwrap_or(0.0);
+    let tts_model_loading_secs = tts_manifest
+        .as_ref()
+        .map(|manifest| manifest.model_load_secs)
+        .unwrap_or(0.0);
+    let tts_dialogue_generation_secs = tts_manifest
+        .as_ref()
+        .map(|manifest| manifest.dialogue_generation_secs)
+        .unwrap_or(0.0);
+    let tts_audio_verification_secs = tts_manifest
+        .as_ref()
+        .map(|manifest| manifest.audio_verification_secs)
+        .unwrap_or(0.0);
     let tts_generation_secs = t_tts_start.elapsed().as_secs_f32();
     let mut alignment_ids = HashMap::new();
     let mut wavs = Vec::new();
@@ -2084,16 +2281,23 @@ pub fn prepare_production(
             min_duration,
             max_duration
         );
-        if require_llm {
-            return Err(crate::error::CoreError::Llm(format!("require_llm: {msg}")));
+        if require_llm || provider == "gepard_batch" {
+            return Err(if provider == "gepard_batch" {
+                crate::error::CoreError::Msg(msg)
+            } else {
+                crate::error::CoreError::Llm(format!("require_llm: {msg}"))
+            });
         }
         tracing::warn!("{msg}");
     }
     for d in &sched.dialogue {
         if let Some(res) = tts_results.get(&(d.actor.clone(), d.text.clone())) {
             if let Some(p) = &res.audio_path {
-                // Idempotent: re-trim in case this line was not seen in the action loop.
-                let _ = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
+                if provider != "gepard_batch" {
+                    // Legacy providers retain idempotent cache trimming. Gepard
+                    // source WAVs in the episode package are immutable evidence.
+                    let _ = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
+                }
                 clips.push((p.clone(), d.start, d.end - d.start));
             }
         }
@@ -2117,10 +2321,15 @@ pub fn prepare_production(
         clips,
         any_real,
         tts_provider: provider,
+        tts_provenance,
         world_before: world.clone(),
         prep_timings: PrepTimings {
             llm_authoring_secs,
             tts_generation_secs,
+            tts_request_preparation_secs,
+            tts_model_loading_secs,
+            tts_dialogue_generation_secs,
+            tts_audio_verification_secs,
             speech_alignment_secs,
             kimodo_generation_secs,
             motion_processing_secs,
@@ -2478,19 +2687,33 @@ fn write_review_handoff(
     ep_dir: &Path,
     plan: &EpisodePlan,
     provider: &str,
+    provenance: Option<&TtsProvenance>,
     render_backend: &str,
     entries: &[ReviewFrameEntry],
     issues: &[String],
 ) -> crate::error::Result<()> {
+    let (captioned_name, clean_name) = if provider == "gepard_batch" {
+        ("vertical_captioned_gepard.mp4", "vertical_clean_gepard.mp4")
+    } else {
+        ("vertical_captioned.mp4", "vertical_clean.mp4")
+    };
+    let line_count = provenance.map(|value| value.successful_lines).unwrap_or(0);
+    let worker_invocations = provenance
+        .map(|value| value.worker_invocations)
+        .unwrap_or(0);
     let mut body = format!(
         "# External Visual Review Handoff\n\n\
          **Candidate:** {}\n\
          **Renderer:** {}\n\
-         **TTS provider:** {}\n\n\
+         **TTS provider:** {}\n\
+         **Dialogue lines:** {} successful\n\
+         **Batch-worker invocations:** {}\n\n\
          This MP4 is a candidate for external visual review. No automated result in this package is a claim that it looks good.\n\n\
          ## Review assets\n\
-         - Captioned candidate: `output/vertical_captioned.mp4`\n\
-         - Clean candidate: `output/vertical_clean.mp4`\n\
+         - Captioned candidate: `output/{}`\n\
+         - Clean candidate: `output/{}`\n\
+         - TTS provider manifest: `audio/gepard_manifest.json`\n\
+         - Audio quality diagnostics: `review/audio_quality_report.json`\n\
          - Review-frame index: `review/frame_index.json` ({} frames)\n\
          - Periodic contact sheet: `review/contact_sheet.jpg`\n\
          - Animation timeline: `review/animation_state_timeline.json`\n\
@@ -2500,6 +2723,10 @@ fn write_review_handoff(
         plan.episode_title,
         render_backend,
         provider,
+        line_count,
+        worker_invocations,
+        captioned_name,
+        clean_name,
         entries.len(),
     );
     if issues.is_empty() {
@@ -2608,6 +2835,15 @@ pub fn finalize_production(
         config.runtime.resolution,
         fps,
     )?;
+    let gepard_cap_out = ep_dir.join("output").join("vertical_captioned_gepard.mp4");
+    let gepard_clean_out = ep_dir.join("output").join("vertical_clean_gepard.mp4");
+    let (reported_cap_out, reported_clean_out) = if prep.tts_provider == "gepard_batch" {
+        std::fs::copy(&cap_out, &gepard_cap_out).map_err(io_err(&gepard_cap_out))?;
+        std::fs::copy(&clean_out, &gepard_clean_out).map_err(io_err(&gepard_clean_out))?;
+        (gepard_cap_out, gepard_clean_out)
+    } else {
+        (cap_out.clone(), clean_out.clone())
+    };
     let ffmpeg_encode_secs = t_enc.elapsed().as_secs_f32();
 
     // Verify
@@ -2745,6 +2981,32 @@ pub fn finalize_production(
     let silence = detect_silence(&mix_path.to_string_lossy(), cfg_silence_min_gap(), 0.012);
     let first_content = silence.first_content_secs;
     let max_gap = silence.max_gap_secs;
+    let dialogue_gaps: Vec<serde_json::Value> = sched
+        .dialogue
+        .windows(2)
+        .filter_map(|pair| {
+            let duration = (pair[1].start - pair[0].end).max(0.0);
+            (duration > 0.01).then(|| {
+                serde_json::json!({
+                    "start": pair[0].end,
+                    "end": pair[1].start,
+                    "duration": duration,
+                    "after_actor": pair[0].actor,
+                    "before_actor": pair[1].actor,
+                    "exceeds_limit": duration > config.runtime.max_dead_air_secs,
+                })
+            })
+        })
+        .collect();
+    let max_dialogue_gap = dialogue_gaps
+        .iter()
+        .filter_map(|gap| gap.get("duration").and_then(|value| value.as_f64()))
+        .fold(0.0f64, f64::max) as f32;
+    let audio_quality = analyze_audio_quality(&mix_path.to_string_lossy());
+    let clipped_samples = audio_quality
+        .as_ref()
+        .map(|quality| quality.clipped_samples)
+        .unwrap_or(0);
     let silence_report = serde_json::json!({
         "min_gap_secs": cfg_silence_min_gap(),
         "first_content_secs": first_content,
@@ -2752,10 +3014,33 @@ pub fn finalize_production(
         "dead_air_limit_exceeded": max_gap > config.runtime.max_dead_air_secs,
         "duration_secs": sched.duration,
         "silent_ranges": silence.ranges,
+        "longest_dialogue_gap_secs": max_dialogue_gap,
+        "dialogue_gaps": dialogue_gaps,
     });
     let _ = std::fs::write(
         ep_dir.join("review").join("silence_report.json"),
         serde_json::to_string_pretty(&silence_report).unwrap_or_default(),
+    );
+    let audio_quality_report = serde_json::json!({
+        "mixed_wav": audio_quality,
+        "mix_elements": {
+            "dialogue": "original mono Gepard WAVs, centered in the encoded stereo mix",
+            "ambience": "deterministic low-level hallway hum and ventilation bed",
+            "effects": "scheduled elevator, ding, panel, and environmental semantic cues",
+        },
+        "encoded_audio": {
+            "codec": probe.audio_codec,
+            "sample_rate": probe.audio_sample_rate,
+            "channels": probe.audio_channels,
+            "loudness_filter": "loudnorm=I=-16:TP=-1.5:LRA=11",
+            "target_integrated_lufs": -16.0,
+            "target_true_peak_dbfs": -1.5,
+        },
+        "resampling_statement": "48 kHz AAC resampling is for compatibility; it does not improve the source voice quality",
+    });
+    let _ = std::fs::write(
+        ep_dir.join("review").join("audio_quality_report.json"),
+        serde_json::to_string_pretty(&audio_quality_report).unwrap_or_default(),
     );
 
     write_animation_state_timeline(&review_dir, sched, rigs, world)?;
@@ -2790,6 +3075,17 @@ pub fn finalize_production(
             issues.push(format!(
                 "audio: dead-air gap {max_gap:.1}s exceeds {:.1}s limit",
                 config.runtime.max_dead_air_secs
+            ));
+        }
+        if max_dialogue_gap > config.runtime.max_dead_air_secs {
+            issues.push(format!(
+                "audio: dialogue gap {max_dialogue_gap:.1}s exceeds {:.1}s limit",
+                config.runtime.max_dead_air_secs
+            ));
+        }
+        if clipped_samples > 0 {
+            issues.push(format!(
+                "audio: {clipped_samples} clipped samples detected in final_mix.wav"
             ));
         }
         if prep.tts_provider == "estimating" || prep.tts_provider.ends_with("-failed") {
@@ -2828,6 +3124,7 @@ pub fn finalize_production(
             plan_author_source: plan_source.clone(),
             authorship: Some(auth.clone()),
             tts_provider: prep.tts_provider.clone(),
+            tts_provenance: prep.tts_provenance.clone(),
             tts_real: prep.any_real,
             audio_real: prep.any_real,
             frames_captured: captured > 0,
@@ -2846,11 +3143,23 @@ pub fn finalize_production(
         &ep_dir,
         &plan,
         &prep.tts_provider,
+        prep.tts_provenance.as_ref(),
         render_backend,
         &review_frames,
         &diagnostics.issues,
     )?;
 
+    let render_paths = if prep.tts_provider == "gepard_batch" {
+        vec![
+            "output/vertical_captioned_gepard.mp4".into(),
+            "output/vertical_clean_gepard.mp4".into(),
+        ]
+    } else {
+        vec![
+            "output/vertical_captioned.mp4".into(),
+            "output/vertical_clean.mp4".into(),
+        ]
+    };
     let gemmy = GemmyManifest {
         title: plan.episode_title.clone(),
         summary: plan.logline.clone(),
@@ -2863,10 +3172,7 @@ pub fn finalize_production(
         characters: plan.active_characters.clone(),
         transcript: transcript.clone(),
         caption_style: config.runtime.caption_style.clone(),
-        render_paths: vec![
-            "output/vertical_captioned.mp4".into(),
-            "output/vertical_clean.mp4".into(),
-        ],
+        render_paths,
         thumbnail_candidates: review_frames
             .iter()
             .find(|entry| entry.category == "periodic")
@@ -2901,6 +3207,10 @@ pub fn finalize_production(
         schema_version: 2,
         llm_authoring: prep.prep_timings.llm_authoring_secs,
         tts: prep.prep_timings.tts_generation_secs,
+        tts_request_preparation: prep.prep_timings.tts_request_preparation_secs,
+        tts_model_loading: prep.prep_timings.tts_model_loading_secs,
+        tts_dialogue_generation: prep.prep_timings.tts_dialogue_generation_secs,
+        tts_audio_verification: prep.prep_timings.tts_audio_verification_secs,
         speech_alignment: prep.prep_timings.speech_alignment_secs,
         kimodo_generation: prep.prep_timings.kimodo_generation_secs,
         motion_processing: prep.prep_timings.motion_processing_secs,
@@ -2966,8 +3276,8 @@ pub fn finalize_production(
         &ep_dir,
         &cmd,
         &probe,
-        cap_out.to_str().unwrap(),
-        clean_out.to_str().unwrap(),
+        reported_cap_out.to_str().unwrap(),
+        reported_clean_out.to_str().unwrap(),
         sched.duration,
     );
     write_tts_manifest(
@@ -2979,8 +3289,8 @@ pub fn finalize_production(
 
     Ok(ProduceReport {
         episode_id: prep.episode_id.clone(),
-        mp4_captioned: cap_out.to_string_lossy().into_owned(),
-        mp4_clean: clean_out.to_string_lossy().into_owned(),
+        mp4_captioned: reported_cap_out.to_string_lossy().into_owned(),
+        mp4_clean: reported_clean_out.to_string_lossy().into_owned(),
         mp4_muted: muted_out.to_string_lossy().into_owned(),
         duration_secs: sched.duration,
         frames: captured,

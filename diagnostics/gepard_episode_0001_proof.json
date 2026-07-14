@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "episode_id": "episode_000001",
+  "frozen_authored_fixture": "data/cached_episode_set_proof.json",
+  "provider": "gepard_batch",
+  "runtime": "runtimes/gepard",
+  "worker": "runtimes/gepard/backlot_gepard_worker.py",
+  "replay_llm_requests": 0,
+  "worker_invocations": 1,
+  "model_loads": 1,
+  "dialogue_lines": {
+    "submitted": 15,
+    "successful": 15,
+    "failed": 0,
+    "cache_hits": 0,
+    "cache_misses": 15,
+    "espeak": 0,
+    "estimating": 0
+  },
+  "timing_seconds": {
+    "model_load": 13.616,
+    "dialogue_generation": 29.589,
+    "line_generation_min": 1.109,
+    "line_generation_mean": 1.9726,
+    "line_generation_max": 3.373,
+    "managed_tts_lifecycle": 55.26292,
+    "timeline_rebuild": 0.000296,
+    "measured_schedule": 59.652866,
+    "encoded_video": 59.666667
+  },
+  "captioned_review": {
+    "relative_path": "output/blender-set-gepard/episodes/episode_000001/output/vertical_captioned_gepard.mp4",
+    "sha256": "236be56842ab7d026444483d9dbb39a63730331f563e418bf0002d66fd1f6132",
+    "width": 1080,
+    "height": 1920,
+    "frame_rate": 30,
+    "frames": 1790,
+    "video_codec": "h264",
+    "pixel_format": "yuv420p",
+    "audio_codec": "aac",
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "committed": false
+  },
+  "generated_artifacts_omitted": [
+    "model weights",
+    "dialogue WAVs",
+    "TTS caches",
+    "JSONL runtime trace",
+    "stderr logs",
+    "rendered frames",
+    "MP4 files"
+  ]
+}

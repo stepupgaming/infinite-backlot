@@ -12,10 +12,11 @@ use backlot_core::author::{AuthorSource, DeterministicAuthor, EpisodeAuthor};
 use backlot_core::avatar::{HumanoidRig, SemanticJoint};
 use backlot_core::config::TtsConfig;
 use backlot_core::director::DirectorContext;
+use backlot_core::render::{analyze_audio_quality, detect_silence, mix_audio};
 use backlot_core::tts::{build_tts, wav_duration_secs};
-use backlot_core::validation::validate_beat_command;
+use backlot_core::validation::{validate_beat_command, ValidatedPlan};
 use backlot_core::world::build_default_world;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 fn ctx() -> DirectorContext {
     DirectorContext {
@@ -136,7 +137,26 @@ fn wav_duration_is_measured_from_header() {
 
     let d = wav_duration_secs(&p).expect("should parse duration");
     assert!((d - 1.0).abs() < 0.05, "expected ~1.0s, got {d}");
+    let quality = analyze_audio_quality(&p).expect("audio quality report");
+    assert_eq!(quality.sample_rate, 44100);
+    assert_eq!(quality.clipped_samples, 0);
+    assert!((quality.duration_secs - 1.0).abs() < 0.01);
+    let silence = detect_silence(&p, 0.5, 0.001);
+    assert!((silence.max_gap_secs - 1.0).abs() < 0.01);
     let _ = std::fs::remove_file(&path);
+}
+
+#[test]
+fn production_mix_has_ambience_headroom_and_no_digital_dead_air() {
+    let path = std::env::temp_dir().join("backlot_test_ambience_mix.wav");
+    let value = path.to_string_lossy().to_string();
+    mix_audio(&[], &value, 22050, 3.0);
+    let quality = analyze_audio_quality(&value).unwrap();
+    assert_eq!(quality.clipped_samples, 0);
+    assert!(quality.headroom_dbfs > 1.0);
+    let silence = detect_silence(&value, 2.5, 0.012);
+    assert_eq!(silence.max_gap_secs, 0.0);
+    let _ = std::fs::remove_file(path);
 }
 
 #[test]
@@ -150,6 +170,54 @@ fn tts_downgrades_honestly_when_espeak_unreachable() {
     // Downgrades to the duration-only stub; crucially it does NOT pretend to be
     // a real provider.
     assert_eq!(t.provider_name(), "estimating");
+}
+
+#[test]
+fn schedule_rebuild_uses_measured_tts_duration_for_dialogue_and_captions() {
+    let c = ctx();
+    let (planned, _) = DeterministicAuthor.author(&c).unwrap();
+    let resolved_beats = planned
+        .plan
+        .beats
+        .iter()
+        .map(|beat| {
+            validate_beat_command(
+                &c.world,
+                &planned.plan,
+                planned.commands.get(&beat.id).unwrap(),
+            )
+            .unwrap()
+        })
+        .collect();
+    let validated = ValidatedPlan {
+        plan: planned.plan,
+        resolved_beats,
+    };
+    let speech = validated
+        .resolved_beats
+        .iter()
+        .flat_map(|beat| &beat.resolved_actions)
+        .find(|action| action.text.is_some())
+        .unwrap();
+    let text = speech.text.clone().unwrap();
+
+    let short = HashMap::from([((speech.actor_id.clone(), text.clone()), 1.25)]);
+    let long = HashMap::from([((speech.actor_id.clone(), text.clone()), 3.75)]);
+    let short_schedule = backlot_core::timeline::build_schedule(&c.world, &validated, &short);
+    let long_schedule = backlot_core::timeline::build_schedule(&c.world, &validated, &long);
+    let short_line = short_schedule
+        .dialogue
+        .iter()
+        .find(|line| line.actor == speech.actor_id && line.text == text)
+        .unwrap();
+    let long_line = long_schedule
+        .dialogue
+        .iter()
+        .find(|line| line.actor == speech.actor_id && line.text == text)
+        .unwrap();
+    assert!(((short_line.end - short_line.start) - 1.25).abs() < 0.01);
+    assert!(((long_line.end - long_line.start) - 3.75).abs() < 0.01);
+    assert!(long_schedule.duration > short_schedule.duration);
 }
 
 #[test]

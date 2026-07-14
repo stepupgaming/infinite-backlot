@@ -68,6 +68,8 @@ impl KimodoConfig {
             ],
             cwd: self.runtime_root.clone(),
             env,
+            stdout_path: None,
+            stderr_path: None,
         }
     }
 }

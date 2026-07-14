@@ -97,6 +97,9 @@ pub struct Diagnostics {
     pub authorship: Option<PlanAuthorship>,
     /// TTS provider id actually used (estimating | espeak | espeak-failed).
     pub tts_provider: String,
+    /// Provider-specific proof for the production dialogue batch.
+    #[serde(default)]
+    pub tts_provenance: Option<TtsProvenance>,
     /// Whether real (non-estimated) audio was produced.
     pub tts_real: bool,
     /// Whether the final mix contained real audio.
@@ -120,6 +123,24 @@ pub struct Diagnostics {
     pub timing: Option<TimingReport>,
 }
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct TtsProvenance {
+    pub provider: String,
+    pub manifest_path: String,
+    pub line_count: u32,
+    pub successful_lines: u32,
+    pub failed_lines: u32,
+    pub cache_hits: u32,
+    pub cache_misses: u32,
+    pub worker_invocations: u32,
+    pub espeak_lines: u32,
+    pub estimating_lines: u32,
+    pub model_revision: Option<String>,
+    pub device: Option<String>,
+    #[serde(default)]
+    pub voice_ids: Vec<String>,
+}
+
 /// Manifest for downstream tools (PRD §26.1).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TimingReport {
@@ -129,6 +150,14 @@ pub struct TimingReport {
     pub llm_authoring: f32,
     #[serde(default)]
     pub tts: f32,
+    #[serde(default)]
+    pub tts_request_preparation: f32,
+    #[serde(default)]
+    pub tts_model_loading: f32,
+    #[serde(default)]
+    pub tts_dialogue_generation: f32,
+    #[serde(default)]
+    pub tts_audio_verification: f32,
     #[serde(default)]
     pub speech_alignment: f32,
     #[serde(default)]
@@ -438,5 +467,31 @@ pub fn empty_package(id: &str, plan: &EpisodePlan, world: &WorldState) -> Episod
             suggested_compilation_category: "shorts".into(),
         },
         report_md: String::new(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn diagnostics_serialize_gepard_provenance() {
+        let diagnostics = Diagnostics {
+            tts_provider: "gepard_batch".into(),
+            tts_provenance: Some(TtsProvenance {
+                provider: "gepard_batch".into(),
+                line_count: 12,
+                successful_lines: 12,
+                failed_lines: 0,
+                espeak_lines: 0,
+                worker_invocations: 1,
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+        let value = serde_json::to_value(diagnostics).unwrap();
+        assert_eq!(value["tts_provenance"]["provider"], "gepard_batch");
+        assert_eq!(value["tts_provenance"]["line_count"], 12);
+        assert_eq!(value["tts_provenance"]["espeak_lines"], 0);
     }
 }

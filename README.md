@@ -151,22 +151,26 @@ Each episode is written to `<output_dir>/episodes/<id>/`:
 
 ---
 
-## What is stubbed / next
+## Production pipeline
 
-This foundation focuses on the autonomous *engine*. Intentionally left for later
-phases (and clearly separated so they can be dropped in):
+Production replays an accepted whole-episode Gemma artifact without making new
+LLM requests, generates every dialogue line through one `gepard_batch` worker
+invocation, rebuilds the timeline from measured WAV durations, renders the
+Blender-authored semantic set through Bevy's GPU renderer, and packages native
+1080×1920 H.264/AAC outputs with FFmpeg diagnostics and external-review frames.
 
-- **Real TTS audio** — `backlot-core/src/tts.rs` defines a `Tts` trait with an
-  `EstimatingTts` that predicts durations; swap in a real synthesizer to also
-  write `audio/*.wav`.
-- **Caption burn-in / MP4** — `captions.json` + `camera_plan.json` are the
-  inputs; an ffmpeg/encoder pass turns them into `vertical_captioned.mp4`,
-  `vertical_clean.mp4`, `horizontal_clean.mp4`, and a thumbnail.
-- **On-screen captions in the 3D view** — captions are currently data + an
-  operator HUD bar; rendering burned subtitles onto the rendered frames is a
-  later pass.
-- **GPU frame capture** — `capture_frames` in config gating; currently the
-  window is the operator view.
+Espeak remains available only as an explicit diagnostic/quick-preview backend.
+A Gepard production failure is fatal and never falls back to espeak or estimated
+audio.
+
+## Architecture documents
+
+- [Infinite-world architecture](docs/INFINITE_WORLD_ARCHITECTURE.md) — indoor,
+  outdoor, streaming, persistence, content strategy, and the LLM boundary.
+- [Backlot voice registry](docs/BACKLOT_VOICE_REGISTRY.md) — stable recurring
+  character references, hashes, seed policy, presets, and approval status.
+- [Gepard integration proof](docs/GEPARD_INTEGRATION_PROOF.md) — measured batch,
+  retiming, cache, provenance, and final-render evidence.
 
 ## Tests
 

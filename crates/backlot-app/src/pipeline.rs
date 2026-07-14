@@ -417,6 +417,7 @@ pub fn commit_system(
             plan_author_source: plan_source.clone(),
             authorship: current.auth.clone(),
             tts_provider: "estimating".into(),
+            tts_provenance: None,
             tts_real: false,
             audio_real: false,
             frames_captured: run.config.runtime.capture_frames,

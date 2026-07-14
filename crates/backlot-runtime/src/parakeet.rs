@@ -45,6 +45,10 @@ impl ParakeetConfig {
             "HUGGINGFACE_HUB_CACHE".into(),
             self.cache_root.join("hub").display().to_string(),
         );
+        // Never inherit Hermes' control-plane Python packages into the runtime's
+        // pinned uv environment.
+        env.insert("PYTHONPATH".into(), String::new());
+        env.insert("PYTHONNOUSERSITE".into(), "1".into());
         ProcessSpec {
             program: self.python_executable.clone(),
             args: vec![
@@ -58,6 +62,8 @@ impl ParakeetConfig {
             ],
             cwd: self.runtime_root.clone(),
             env,
+            stdout_path: None,
+            stderr_path: None,
         }
     }
 }

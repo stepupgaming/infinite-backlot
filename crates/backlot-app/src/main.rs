@@ -41,9 +41,15 @@ fn main() {
         .map(String::as_str)
         .unwrap_or("data/config.toml");
     let mut config = Config::load_or_default(config_path);
-    if cli_args.iter().any(|arg| arg == "--diagnostic-tts") {
+    let diagnostic_tts = cli_args.iter().any(|arg| arg == "--diagnostic-tts");
+    if diagnostic_tts {
         config.tts.provider = "espeak".into();
         config.asr.provider = "none".into();
+    }
+    if cli_args.iter().any(|arg| arg == "--tts-cache-bypass") {
+        if let Some(gepard) = config.tts.gepard.as_mut() {
+            gepard.cache_bypass = true;
+        }
     }
     if cli_args.iter().any(|arg| arg == "--review-render") {
         config.director.force_fallback = true;
@@ -67,15 +73,26 @@ fn main() {
 
     // --- Offline one-shot producer (no Bevy / no GPU / no window) ---
     let produce_one = cli_args.iter().any(|a| a == "--produce-one");
-    let require_llm = config.director.require_llm || cli_args.iter().any(|a| a == "--require-llm");
-    if require_llm && config.tts.provider != "gepard" {
+    let reuse_path = cli_args
+        .iter()
+        .position(|a| a == "--reuse-authored-path")
+        .and_then(|index| cli_args.get(index + 1))
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("data/last_authored_episode.json"));
+    let reuse_authored = cli_args.iter().any(|a| a == "--reuse-authored")
+        || cli_args.iter().any(|a| a == "--reuse-authored-path");
+    let repair_authored = cli_args.iter().any(|a| a == "--repair-authored");
+    let require_llm_requested =
+        config.director.require_llm || cli_args.iter().any(|a| a == "--require-llm");
+    // Frozen replay is a validated local-input mode and must never start a new
+    // model-backed authoring run.
+    let require_llm = require_llm_requested && !(reuse_authored && !repair_authored);
+    if produce_one && !diagnostic_tts && config.tts.provider != "gepard_batch" {
         eprintln!(
-            "production preflight failed: --require-llm requires [tts].provider = \"gepard\"; espeak is diagnostic-only"
+            "production preflight failed: [tts].provider must be \"gepard_batch\"; espeak is available only through --diagnostic-tts"
         );
         std::process::exit(2);
     }
-    let reuse_authored = cli_args.iter().any(|a| a == "--reuse-authored");
-    let repair_authored = cli_args.iter().any(|a| a == "--repair-authored");
     let render_backend = cli_args
         .iter()
         .position(|a| a == "--render-backend")
@@ -152,7 +169,7 @@ fn main() {
             match LlmAuthor::new(&config, dir) {
                 Ok(mut a) => {
                     if reuse_authored || repair_authored {
-                        a.set_reuse_path(PathBuf::from("data/last_authored_episode.json"));
+                        a.set_reuse_path(reuse_path.clone());
                         a.set_repair_reused(repair_authored);
                         // Cached deterministic replay must never start a model
                         // runtime. LlmAuthor validates and adapts the frozen
@@ -177,7 +194,7 @@ fn main() {
             match LlmAuthor::new(&config, config.director.clone()) {
                 Ok(mut a) => {
                     if reuse_authored {
-                        a.set_reuse_path(PathBuf::from("data/last_authored_episode.json"));
+                        a.set_reuse_path(reuse_path.clone());
                         Box::new(a)
                     } else {
                         Box::new(ManagedLlamaAuthor::new(a))

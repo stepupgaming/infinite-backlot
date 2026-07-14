@@ -27,7 +27,7 @@ organization = ""
 # of validated beat durations (dialogue + movement), so this guides pacing.
 target_duration_secs = 50
 # Watchability governor: max continuous silence before it forces a beat end.
-max_dead_air_secs = 4
+max_dead_air_secs = 2.8
 # How many episodes to produce before returning to idle (0 = run forever /
 # wait for operator input). Set to e.g. 3 for an unattended demo run.
 episodes_to_run = 0
@@ -73,7 +73,7 @@ timeout_secs = 900
 [tts]
 # Production uses the project-owned, batch-mode Gepard runtime. `espeak` is
 # reachable only through the explicit `--diagnostic-tts` CLI switch.
-provider = "gepard"
+provider = "gepard_batch"
 # Full path to espeak-ng (it is not on PATH by default on this machine).
 executable = "C:/Program Files/eSpeak NG/espeak-ng"
 # Output sample rate for generated audio.
@@ -94,42 +94,64 @@ voice_map = { mara = "en-us", ellis = "en-gb", voss = "en-us", nox = "en-gb" }
 
 [tts.gepard]
 runtime_root = "C:/Projects/bevy-infinite/runtimes/gepard"
+worker_script = "backlot_gepard_worker.py"
 model_root = "F:/Models/InfiniteBacklot/gepard-1.0"
+device = "cuda"
 model_revision = "nineninesix/gepard-1.0"
 codec_revision = "NanoCodec-pinned"
+runtime_version = "backlot-gepard-worker-1"
 timeout_secs = 900
+cache_bypass = false
+
+[tts.gepard.default_preset]
+temperature = 0.3
+top_k = 0
+cfg_scale = 1.0
+cfg_frames = 0
+stop_threshold = 0.5
+max_frames = 2000
+repetition_penalty = 1.0
+repetition_window = 32
 
 [tts.gepard.profiles.mara]
 character_id = "mara"
+voice_id = "mara_gepard_nurisa_en"
 reference_wav = "C:/Projects/bevy-infinite/runtimes/gepard/ref_audio/nurisa_en.wav"
 reference_hash = "df8803e3036b3f79771f8fde2cc62022d8d3c91305b589623ef1b72f0349b923"
 language = "en"
 accent = "American"
 seed = 42001
+status = "temporary"
 
 [tts.gepard.profiles.ellis]
 character_id = "ellis"
+voice_id = "ellis_gepard_audio_en"
 reference_wav = "C:/Projects/bevy-infinite/runtimes/gepard/ref_audio/audio_en.wav"
 reference_hash = "5ffbd005cf5d871d787ebb84619d31672f2c9044b088735efb94efe66359063d"
 language = "en"
 accent = "British"
 seed = 42002
+status = "temporary"
 
 [tts.gepard.profiles.voss]
 character_id = "voss"
+voice_id = "voss_gepard_ulan_emo"
 reference_wav = "C:/Projects/bevy-infinite/runtimes/gepard/ref_audio/ulan_emo.wav"
 reference_hash = "182b17b8af341ce1a7b7e6f83dc5ce2268f3d4a782cf386e47201e9c900e8179"
 language = "en"
 accent = "American"
 seed = 42003
+status = "temporary"
 
 [tts.gepard.profiles.nox]
 character_id = "nox"
+voice_id = "nox_gepard_audio_ru"
 reference_wav = "C:/Projects/bevy-infinite/runtimes/gepard/ref_audio/audio_ru.wav"
 reference_hash = "546aae6a8339a772f5ddd77334e01b8e841fef42a38e1b2c7197fa57e35f1889"
 language = "en"
 accent = "British"
 seed = 42004
+status = "temporary"
 
 # Optional local HTTP TTS provider (used when [tts].provider = "http").
 # Install a local OpenAI-compatible TTS server to improve voice quality:

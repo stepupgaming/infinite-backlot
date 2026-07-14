@@ -1,0 +1,399 @@
+{
+  "episode_title": "The Floor That Isn't",
+  "logline": "Voss attempts to document the elevator's illogical behavior while Mara desperately tries to maintain the facade of normalcy.",
+  "tone": [
+    "surreal",
+    "comedy"
+  ],
+  "target_duration_seconds": 55,
+  "active_characters": [
+    "voss",
+    "mara",
+    "ellis"
+  ],
+  "primary_location": "floor_3_hallway",
+  "central_goal": {
+    "character": "voss",
+    "goal": "find a code violation"
+  },
+  "beats": [
+    {
+      "id": "beat_1",
+      "narrative_purpose": "Hook: The elevator dings and lights flicker aggressively.",
+      "target_start_second": 0.0,
+      "actions": [
+        {
+          "actor": "voss",
+          "action": "look_at",
+          "target": "elevator",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "Floor negative twelve? Impossible.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "flicker_lights",
+          "target": null,
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "speak",
+          "target": null,
+          "text": "Old wiring. Relax, inspector.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "establish",
+        "subject": "voss",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "Voss stands at the elevator doors; Mara stands by the maintenance panel.",
+      "visible_action": "The hallway lights flicker rapidly as the elevator dings.",
+      "intended_reaction": "Voss looks up in confusion; Mara sighs heavily.",
+      "camera_purpose": "establish the impossible event",
+      "performance_intent": "bureaucratic confusion",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    },
+    {
+      "id": "beat_2",
+      "narrative_purpose": "Ellis enters to escalate the curiosity.",
+      "target_start_second": 8.0,
+      "actions": [
+        {
+          "actor": "ellis",
+          "action": "enter_room",
+          "target": null,
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "ellis",
+          "action": "approach",
+          "target": "elevator",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "ellis",
+          "action": "speak",
+          "target": null,
+          "text": "The elevator is singing!",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "turn_toward",
+          "target": "ellis",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "Singing is a safety violation.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "conversation",
+        "subject": "ellis",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "Ellis enters from apartment 3b; Voss turns toward him.",
+      "visible_action": "Ellis rushes toward the elevator doors with intense curiosity.",
+      "intended_reaction": "Voss steps back to make room; Mara looks stressed.",
+      "camera_purpose": "introduce new character and tension",
+      "performance_intent": "eager, frantic",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    },
+    {
+      "id": "beat_3",
+      "narrative_purpose": "Mara tries to deflect the investigation.",
+      "target_start_second": 18.0,
+      "actions": [
+        {
+          "actor": "mara",
+          "action": "move_to",
+          "target": "elevator",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "speak",
+          "target": null,
+          "text": "Just pressure. Stop bothering her.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "pick_up",
+          "target": null,
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "Pressure does not recite poetry.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "speaker_closeup",
+        "subject": "mara",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "Mara moves toward Ellis to block his view of the elevator.",
+      "visible_action": "Mara gestures wildly toward the maintenance panel.",
+      "intended_reaction": "Ellis leans around her; Voss takes out a notepad.",
+      "camera_purpose": "focus on Mara's evasion",
+      "performance_intent": "desperate, strained",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    },
+    {
+      "id": "beat_4",
+      "narrative_purpose": "Physical escalation: the elevator doors open.",
+      "target_start_second": 28.0,
+      "actions": [
+        {
+          "actor": "ellis",
+          "action": "shout",
+          "target": null,
+          "text": "Liquid grape space is inside!",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "open_elevator",
+          "target": "elevator",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "Unauthorized. Documented.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "speak",
+          "target": null,
+          "text": "Just lobby lighting.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "reveal",
+        "subject": "elevator",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "The elevator doors open to reveal a glowing purple light.",
+      "visible_action": "The elevator doors slide open with a heavy thud.",
+      "intended_reaction": "Voss stares blankly; Ellis gasps loudly.",
+      "camera_purpose": "reveal the anomaly",
+      "performance_intent": "shocked",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    },
+    {
+      "id": "beat_5",
+      "narrative_purpose": "Voss pushes for a violation.",
+      "target_start_second": 38.0,
+      "actions": [
+        {
+          "actor": "voss",
+          "action": "point_at",
+          "target": "elevator",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "Impossible dimensions violate transit law.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "speak",
+          "target": null,
+          "text": "We will fix it Monday. Sign.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "ellis",
+          "action": "speak",
+          "target": null,
+          "text": "Can I enter?",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "tension_push",
+        "subject": "voss",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "Voss approaches the elevator; Mara follows him closely.",
+      "visible_action": "Voss points a pen at the glowing elevator interior.",
+      "intended_reaction": "Mara winces; Ellis tries to peek closer.",
+      "camera_purpose": "tension push on the confrontation",
+      "performance_intent": "determined, bureaucratic",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    },
+    {
+      "id": "beat_6",
+      "narrative_purpose": "Payoff: The elevator pulls them in or slams shut.",
+      "target_start_second": 46.0,
+      "actions": [
+        {
+          "actor": "voss",
+          "action": "speak",
+          "target": null,
+          "text": "It ate my clipboard!",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "speak",
+          "target": null,
+          "text": "I warned you.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "ellis",
+          "action": "speak",
+          "target": null,
+          "text": "At least it smells pleasant.",
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        },
+        {
+          "actor": "mara",
+          "action": "close_elevator",
+          "target": "elevator",
+          "text": null,
+          "intensity": null,
+          "performance_intent": null,
+          "duration_override": null
+        }
+      ],
+      "camera_intent": {
+        "type": "reveal",
+        "subject": "elevator",
+        "reaction_subject": null
+      },
+      "completion_condition": {
+        "type": "dialogue_finished",
+        "actor": null,
+        "seconds": null
+      },
+      "blocking": "The elevator doors slam shut on Voss's notepad.",
+      "visible_action": "The elevator doors close violently; the lights flicker one last time.",
+      "intended_reaction": "Voss looks at his empty hands; Mara facepalms.",
+      "camera_purpose": "hold on the elevator closing payoff",
+      "performance_intent": "exhausted",
+      "fallback": null,
+      "expected_state_changes": [],
+      "notes": null
+    }
+  ],
+  "payoff": "The elevator doors slam shut, leaving Voss without his clipboard and Mara contemplating her life choices.",
+  "persistent_changes": [],
+  "notes": null
+}

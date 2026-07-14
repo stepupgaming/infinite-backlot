@@ -39,6 +39,8 @@ impl Gemma26Config {
                 .unwrap_or_else(|| Path::new(r"C:\Projects\gemmy"))
                 .to_path_buf(),
             env: BTreeMap::new(),
+            stdout_path: None,
+            stderr_path: None,
         }
     }
 }
