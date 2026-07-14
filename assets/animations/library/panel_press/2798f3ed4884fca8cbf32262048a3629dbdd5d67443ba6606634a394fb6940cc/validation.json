@@ -1,0 +1,8 @@
+{
+  "contact_drift_m": 0.0,
+  "errors": [],
+  "frame_count": 90,
+  "source_bvh": "diagnostics\\kimodo-smoke\\panel_press.bvh",
+  "source_sidecar": "diagnostics\\kimodo-smoke\\panel_press.motion.json",
+  "valid": true
+}

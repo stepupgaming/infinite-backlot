@@ -19,7 +19,7 @@ use crate::package::{
 use crate::serial_id;
 use crate::story::apply_persistent_changes;
 use crate::timeline::*;
-use crate::tts::build_tts;
+use crate::tts::{build_tts, TtsRequest, TtsResult};
 use crate::validation::{validate_beat_command, validate_plan, ValidatedPlan};
 use crate::world::WorldState;
 use crate::{BeatCommand, EpisodePlan};
@@ -62,6 +62,7 @@ pub struct ProduceReport {
     pub episode_id: String,
     pub mp4_captioned: String,
     pub mp4_clean: String,
+    pub mp4_muted: String,
     pub duration_secs: f32,
     pub frames: u32,
     pub require_llm: bool,
@@ -464,7 +465,10 @@ pub fn review_schedule(
         fg.iter().sum::<f32>() / fg.len() as f32
     };
     let freeze = max_motion < 0.003;
-    let articulation = max_motion > 0.006;
+    // Camera safety now pulls portrait shots farther from the performer; the
+    // same joint travel consequently affects fewer pixels. Keep this strictly
+    // above the freeze gate while avoiding a framing-dependent false negative.
+    let articulation = max_motion > 0.004;
     let mut notes: Vec<String> = Vec::new();
     if freeze {
         notes.push("freeze detected: near-zero inter-frame motion across sampled frames".into());
@@ -800,21 +804,10 @@ fn push_box_corners(tris: &mut Vec<SceneTri>, c: &[[f32; 3]; 8], col: [f32; 3], 
 /// enclose an actor or block the camera. `open` in [0,1] slides the door panels
 /// apart to reveal the interior.
 fn push_elevator(tris: &mut Vec<SceneTri>, world: &WorldState, open: f32) {
-    let e = world
-        .props
-        .get("elevator")
-        .and_then(|p| {
-            world
-                .locations
-                .values()
-                .flat_map(|l| l.staging_marks.iter())
-                .find(|m| m.id == p.home_mark)
-                .map(|m| m.position)
-        })
-        .unwrap_or([3.0, 0.0, -1.0]);
-    let cx = e[0];
-    let front_z = e[2] - 0.4; // door plane, in front of the cabin
-    let back_z = -3.0;
+    let _ = world;
+    let cx = crate::stage::ELEVATOR_CENTER[0];
+    let front_z = crate::stage::ELEVATOR_DOORS[2];
+    let back_z = crate::stage::IMPOSSIBLE_FLOOR[2];
     let half_w = 0.9;
     let height = 2.6;
     let midz = (front_z + back_z) / 2.0;
@@ -904,14 +897,14 @@ fn push_elevator(tris: &mut Vec<SceneTri>, world: &WorldState, open: f32) {
         [left_cx, height / 2.0, front_z],
         [door_w, height / 2.0, 0.04],
         door_col,
-        1,
+        2,
     );
     push_box(
         tris,
         [right_cx, height / 2.0, front_z],
         [door_w, height / 2.0, 0.04],
         door_col,
-        1,
+        2,
     );
 }
 
@@ -1107,6 +1100,7 @@ pub fn encode_mp4(
     audio_path: &str,
     out_captioned: &str,
     out_clean: &str,
+    out_muted: &str,
     captions: &[Caption],
     resolution: (u32, u32),
     fps: u32,
@@ -1119,6 +1113,7 @@ pub fn encode_mp4(
     let audio_path = audio_path.replace('\\', "/");
     let out_captioned = out_captioned.replace('\\', "/");
     let out_clean = out_clean.replace('\\', "/");
+    let out_muted = out_muted.replace('\\', "/");
     let scale = format!("scale={}:{}", resolution.0, resolution.1);
     // Prefer robust ASS subtitles (correct wrapping, outlines, safe margins,
     // line breaks, and *no* fragile drawtext string concatenation that can
@@ -1187,7 +1182,27 @@ pub fn encode_mp4(
         out_clean.clone(),
     ];
     let status_clean = run_ffmpeg(ff, &args_clean)?;
-    let ok = status_cap && status_clean;
+    // Muted review export is encoded directly from the deterministic frames so
+    // it never depends on audio stream manipulation or player defaults.
+    let args_muted: Vec<String> = vec![
+        "-y".into(),
+        "-framerate".into(),
+        fps.to_string(),
+        "-i".into(),
+        frame_pattern.clone(),
+        "-vf".into(),
+        vf_clean,
+        "-c:v".into(),
+        "libx264".into(),
+        "-pix_fmt".into(),
+        "yuv420p".into(),
+        "-an".into(),
+        "-movflags".into(),
+        "+faststart".into(),
+        out_muted,
+    ];
+    let status_muted = run_ffmpeg(ff, &args_muted)?;
+    let ok = status_cap && status_clean && status_muted;
     let cmd = format!("{ff} -y -framerate {fps} -i {frame_pattern} -i {audio_path} -vf \"{vf_captioned}\" -c:v libx264 -c:a aac -shortest {out_captioned}");
     Ok((cmd, ok))
 }
@@ -1780,7 +1795,10 @@ fn write_wav(path: &str, sample_rate: u32, pcm: &[i16]) {
 /// starting at its scheduled time, so any espeak trailing/leading padding would
 /// otherwise widen the gaps between lines. Returns the trimmed duration in
 /// seconds (falls back to the original length if the file cannot be read).
-fn trim_wav_silence_in_place(path: &str, sr: u32, rms_thresh: f32) -> f32 {
+fn trim_wav_silence_in_place(path: &str, _mix_sr: u32, rms_thresh: f32) -> f32 {
+    let Some(sr) = crate::tts::wav_sample_rate(path) else {
+        return 0.0;
+    };
     let Some(samples) = read_wav_mono_f32(path) else {
         return 0.0;
     };
@@ -1830,12 +1848,18 @@ pub struct PreparedProduction {
     pub world_before: WorldState,
     /// Phase-level wall-clock durations measured during `prepare_production`.
     pub prep_timings: PrepTimings,
+    pub word_alignments: HashMap<(String, String), crate::asr::WordAlignment>,
+    pub motion_plan: crate::motion::ProductionMotionPlan,
+    pub runtime_telemetry: backlot_runtime::RuntimeTelemetry,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct PrepTimings {
     pub llm_authoring_secs: f32,
     pub tts_generation_secs: f32,
+    pub speech_alignment_secs: f32,
+    pub kimodo_generation_secs: f32,
+    pub motion_processing_secs: f32,
     pub timeline_prep_secs: f32,
 }
 
@@ -1868,31 +1892,38 @@ pub fn measure_runtime(
     let validated =
         build_validated(world, &planned).ok_or_else(|| crate::error::CoreError::EmptyPlan)?;
     let tts = build_tts(tts_cfg);
-    let mut tts_durations: HashMap<(String, String), f32> = HashMap::new();
-    for ra in validated
+    let speech: Vec<_> = validated
         .resolved_beats
         .iter()
         .flat_map(|b| b.resolved_actions.iter())
-    {
-        if matches!(action_kind(&ra.action), ActionKind::Speak) {
-            let text = ra.text.clone().unwrap_or_default();
-            let voice = world
+        .filter(|ra| matches!(action_kind(&ra.action), ActionKind::Speak))
+        .collect();
+    let requests: Vec<TtsRequest> = speech
+        .iter()
+        .map(|ra| TtsRequest {
+            text: ra.text.clone().unwrap_or_default(),
+            voice_id: world
                 .character(&ra.actor_id)
                 .map(|c| c.voice_id.clone())
-                .unwrap_or_else(|| ra.actor_id.clone());
-            let res = tts.synthesize(&text, &voice);
-            let dur = if let Some(p) = &res.audio_path {
-                let t = trim_wav_silence_in_place(p, tts_cfg.sample_rate, 0.01);
-                if t > 0.0 {
-                    t
-                } else {
-                    res.duration
-                }
+                .unwrap_or_else(|| ra.actor_id.clone()),
+            delivery: ra.delivery.clone(),
+        })
+        .collect();
+    let results = tts.synthesize_batch(&requests);
+    let mut tts_durations: HashMap<(String, String), f32> = HashMap::new();
+    for (ra, res) in speech.iter().zip(results) {
+        let text = ra.text.clone().unwrap_or_default();
+        let dur = if let Some(p) = &res.audio_path {
+            let t = trim_wav_silence_in_place(p, tts_cfg.sample_rate, 0.01);
+            if t > 0.0 {
+                t
             } else {
                 res.duration
-            };
-            tts_durations.insert((ra.actor_id.clone(), text), dur);
-        }
+            }
+        } else {
+            res.duration
+        };
+        tts_durations.insert((ra.actor_id.clone(), text), dur);
     }
     let mut sched = build_schedule(world, &validated, &tts_durations);
     compact_dead_air(&mut sched, max_dead_air);
@@ -1907,6 +1938,7 @@ pub fn prepare_production(
     episode_number: u64,
     author: &dyn EpisodeAuthor,
 ) -> crate::error::Result<PreparedProduction> {
+    backlot_runtime::clear_global_telemetry();
     let episode_id = serial_id("episode", episode_number, 6);
     let ctx = crate::director::DirectorContext {
         world: world.clone(),
@@ -1926,45 +1958,123 @@ pub fn prepare_production(
     let tts = build_tts(&config.tts);
     let provider = tts.provider_name().to_string();
     let mut tts_durations: HashMap<(String, String), f32> = HashMap::new();
+    let mut tts_results: HashMap<(String, String), TtsResult> = HashMap::new();
     let mut clips: Vec<(String, f32, f32)> = Vec::new();
     let mut any_real = false;
-    for ra in validated
+    let speech: Vec<_> = validated
         .resolved_beats
         .iter()
         .flat_map(|b| b.resolved_actions.iter())
-    {
-        if matches!(action_kind(&ra.action), ActionKind::Speak) {
-            let text = ra.text.clone().unwrap_or_default();
-            let voice = world
+        .filter(|ra| matches!(action_kind(&ra.action), ActionKind::Speak))
+        .collect();
+    let requests: Vec<TtsRequest> = speech
+        .iter()
+        .map(|ra| TtsRequest {
+            text: ra.text.clone().unwrap_or_default(),
+            voice_id: world
                 .character(&ra.actor_id)
                 .map(|c| c.voice_id.clone())
-                .unwrap_or_else(|| ra.actor_id.clone());
-            let res = tts.synthesize(&text, &voice);
-            if res.ok {
-                any_real = true;
-            }
-            // Trim trailing/leading silence so the schedule duration matches the
-            // real spoken length (and the cached mix clip carries no padding).
-            let dur = if let Some(p) = &res.audio_path {
-                let t = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
-                if t > 0.0 {
-                    t
-                } else {
-                    res.duration
-                }
+                .unwrap_or_else(|| ra.actor_id.clone()),
+            delivery: ra.delivery.clone(),
+        })
+        .collect();
+    for (ra, res) in speech.iter().zip(tts.synthesize_batch(&requests)) {
+        let text = ra.text.clone().unwrap_or_default();
+        if res.ok {
+            any_real = true;
+        }
+        // Trim trailing/leading silence so the schedule duration matches the
+        // real spoken length (and the cached mix clip carries no padding).
+        let dur = if let Some(p) = &res.audio_path {
+            let t = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
+            if t > 0.0 {
+                t
             } else {
                 res.duration
-            };
-            tts_durations.insert((ra.actor_id.clone(), text), dur);
+            }
+        } else {
+            res.duration
+        };
+        tts_durations.insert((ra.actor_id.clone(), text.clone()), dur);
+        tts_results.insert((ra.actor_id.clone(), text), res);
+    }
+    if require_llm {
+        let failures = tts_results.values().filter(|result| !result.ok).count();
+        if failures > 0 || tts_results.len() != requests.len() {
+            return Err(crate::error::CoreError::Llm(format!(
+                "production voice phase incomplete: {failures} failed and {} of {} lines returned",
+                tts_results.len(),
+                requests.len()
+            )));
         }
     }
     let tts_generation_secs = t_tts_start.elapsed().as_secs_f32();
+    let mut alignment_ids = HashMap::new();
+    let mut wavs = Vec::new();
+    for ((actor, text), result) in &tts_results {
+        if let Some(path) = &result.audio_path {
+            let id = blake3::hash(format!("{actor}\0{text}").as_bytes())
+                .to_hex()
+                .to_string();
+            alignment_ids.insert(id.clone(), (actor.clone(), text.clone()));
+            wavs.push((id, path.clone()));
+        }
+    }
+    let alignment_batch = crate::asr::align_wavs(&config.asr, &wavs)?;
+    let speech_alignment_secs = alignment_batch.elapsed_secs;
+    let word_alignments: HashMap<(String, String), crate::asr::WordAlignment> = alignment_batch
+        .alignments
+        .into_iter()
+        .filter_map(|(id, alignment)| alignment_ids.get(&id).cloned().map(|key| (key, alignment)))
+        .collect();
+    if require_llm && !wavs.is_empty() && word_alignments.len() != wavs.len() {
+        return Err(crate::error::CoreError::Llm(format!(
+            "Parakeet alignment phase incomplete: aligned {} of {} dialogue clips",
+            word_alignments.len(),
+            wavs.len()
+        )));
+    }
     let t_timeline = std::time::Instant::now();
     let mut sched = build_schedule(world, &validated, &tts_durations);
     // Phase 8: compress the timeline so content starts within ~1s and no
     // inter-line gap exceeds the dead-air limit.
     compact_dead_air(&mut sched, config.runtime.max_dead_air_secs);
+    crate::timeline::apply_word_aligned_captions(&mut sched, &word_alignments);
     let timeline_prep_secs = t_timeline.elapsed().as_secs_f32();
+    let t_motion = std::time::Instant::now();
+    let mut motion_plan =
+        crate::motion::compile_motion_plan(&sched, Path::new("assets/animations/library"))
+            .map_err(crate::error::CoreError::Msg)?;
+    let mut motion_processing_secs = t_motion.elapsed().as_secs_f32();
+    let mut kimodo_generation_secs = 0.0;
+    if require_llm && !motion_plan.unresolved.is_empty() {
+        let generated = crate::motion::generate_unresolved_motion(
+            &motion_plan.unresolved,
+            Path::new("."),
+            Path::new("assets/animations/library"),
+            Path::new("output/cache/kimodo"),
+            seed,
+        )
+        .map_err(crate::error::CoreError::Msg)?;
+        kimodo_generation_secs += generated.generation_secs;
+        motion_processing_secs += generated.processing_secs;
+        motion_plan =
+            crate::motion::compile_motion_plan(&sched, Path::new("assets/animations/library"))
+                .map_err(crate::error::CoreError::Msg)?;
+        if !motion_plan.unresolved.is_empty() {
+            let manifests = generated
+                .generated_manifests
+                .iter()
+                .map(|path| path.display().to_string())
+                .collect::<Vec<_>>()
+                .join(", ");
+            return Err(crate::error::CoreError::Msg(format!(
+                "production motion review required for semantics [{}]; Bevy previews must be approved in: {}",
+                motion_plan.unresolved.join(", "),
+                manifests
+            )));
+        }
+    }
     let (min_duration, max_duration) =
         duration_acceptance_window(config.runtime.target_duration_secs);
     if sched.duration < min_duration || sched.duration > max_duration {
@@ -1980,16 +2090,21 @@ pub fn prepare_production(
         tracing::warn!("{msg}");
     }
     for d in &sched.dialogue {
-        let voice = world
-            .character(&d.actor)
-            .map(|c| c.voice_id.clone())
-            .unwrap_or_else(|| d.actor.clone());
-        let res = tts.synthesize(&d.text, &voice);
-        if let Some(p) = &res.audio_path {
-            // Idempotent: re-trim in case this line was not seen in the action loop.
-            let _ = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
-            clips.push((p.clone(), d.start, d.end - d.start));
+        if let Some(res) = tts_results.get(&(d.actor.clone(), d.text.clone())) {
+            if let Some(p) = &res.audio_path {
+                // Idempotent: re-trim in case this line was not seen in the action loop.
+                let _ = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
+                clips.push((p.clone(), d.start, d.end - d.start));
+            }
         }
+    }
+    for scheduled in &sched.sounds {
+        let (path, duration) = ensure_semantic_sfx(
+            &scheduled.cue.sound,
+            scheduled.cue.gain,
+            config.tts.sample_rate,
+        )?;
+        clips.push((path, scheduled.start.max(0.0), duration));
     }
     let rigs = build_rigs(world);
     Ok(PreparedProduction {
@@ -2006,9 +2121,84 @@ pub fn prepare_production(
         prep_timings: PrepTimings {
             llm_authoring_secs,
             tts_generation_secs,
+            speech_alignment_secs,
+            kimodo_generation_secs,
+            motion_processing_secs,
             timeline_prep_secs,
         },
+        word_alignments,
+        motion_plan,
+        runtime_telemetry: backlot_runtime::snapshot_global_telemetry(),
     })
+}
+
+fn ensure_semantic_sfx(
+    semantic: &str,
+    gain: f32,
+    sample_rate: u32,
+) -> crate::error::Result<(String, f32)> {
+    let duration = match semantic {
+        "elevator_ding" => 0.9,
+        "door_motor" => 1.6,
+        "panel_beep" => 0.28,
+        "indicator_glitch" => 0.55,
+        "electrical_flicker" => 0.45,
+        "footsteps" => 1.2,
+        "impossible_floor_ambience" => 3.0,
+        "reaction_sting" => 0.7,
+        other => {
+            return Err(crate::error::CoreError::Msg(format!(
+                "unknown semantic SFX id {other}"
+            )))
+        }
+    };
+    let root = Path::new("assets/audio/sfx");
+    std::fs::create_dir_all(root).map_err(io_err(root))?;
+    let gain_key = (gain.clamp(0.0, 2.0) * 100.0).round() as u32;
+    let path = root.join(format!("{semantic}_{gain_key:03}_{sample_rate}.wav"));
+    if path.exists() {
+        return Ok((path.to_string_lossy().into_owned(), duration));
+    }
+    let count = (duration * sample_rate as f32).round() as usize;
+    let mut pcm = Vec::with_capacity(count);
+    let mut noise = 0x9E37_79B9u32;
+    for index in 0..count {
+        let t = index as f32 / sample_rate as f32;
+        let fade_in = (t / 0.03).clamp(0.0, 1.0);
+        let fade_out = ((duration - t) / 0.12).clamp(0.0, 1.0);
+        let envelope = fade_in * fade_out;
+        noise = noise.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
+        let n = ((noise >> 8) as f32 / 16_777_215.0) * 2.0 - 1.0;
+        let sample = match semantic {
+            "elevator_ding" => {
+                (std::f32::consts::TAU * 880.0 * t).sin() * (-2.6 * t).exp()
+                    + 0.35 * (std::f32::consts::TAU * 1320.0 * t).sin() * (-4.0 * t).exp()
+            }
+            "panel_beep" => (std::f32::consts::TAU * 1180.0 * t).sin(),
+            "door_motor" => 0.55 * (std::f32::consts::TAU * (82.0 + 18.0 * t) * t).sin() + 0.18 * n,
+            "indicator_glitch" => {
+                let gate = if (t * 34.0).fract() > 0.42 { 1.0 } else { 0.0 };
+                gate * ((std::f32::consts::TAU * 720.0 * t).sin() + 0.35 * n)
+            }
+            "electrical_flicker" => 0.7 * n * if (t * 27.0).fract() > 0.5 { 1.0 } else { 0.15 },
+            "footsteps" => {
+                let phase = (t * 3.4).fract();
+                n * (-18.0 * phase).exp()
+            }
+            "impossible_floor_ambience" => {
+                0.45 * (std::f32::consts::TAU * 46.0 * t).sin()
+                    + 0.2 * (std::f32::consts::TAU * 71.0 * t).sin()
+                    + 0.08 * n
+            }
+            "reaction_sting" => {
+                (std::f32::consts::TAU * (260.0 + 360.0 * t) * t).sin() * (-2.0 * t).exp()
+            }
+            _ => 0.0,
+        };
+        pcm.push((sample * envelope * gain.clamp(0.0, 2.0) * 8_000.0) as i16);
+    }
+    write_wav(path.to_string_lossy().as_ref(), sample_rate, &pcm);
+    Ok((path.to_string_lossy().into_owned(), duration))
 }
 
 /// Build the committed camera plan (eye/look sampled at each shot midpoint).
@@ -2143,6 +2333,12 @@ fn package_review_frames(
 ) -> crate::error::Result<Vec<ReviewFrameEntry>> {
     let review_frames = ep_dir.join("review").join("frames");
     let sheet_frames = ep_dir.join("review").join("contact_sheet_frames");
+    if review_frames.exists() {
+        std::fs::remove_dir_all(&review_frames).map_err(io_err(&review_frames))?;
+    }
+    if sheet_frames.exists() {
+        std::fs::remove_dir_all(&sheet_frames).map_err(io_err(&sheet_frames))?;
+    }
     std::fs::create_dir_all(&review_frames).map_err(io_err(&review_frames))?;
     std::fs::create_dir_all(&sheet_frames).map_err(io_err(&sheet_frames))?;
     let fps = config.runtime.frame_rate.max(1);
@@ -2370,6 +2566,22 @@ pub fn finalize_production(
         llm_dir.join("authorship.json"),
         serde_json::to_string_pretty(auth).unwrap_or_default(),
     );
+    let alignment_records: Vec<_> = prep
+        .word_alignments
+        .iter()
+        .map(|((actor, text), alignment)| {
+            serde_json::json!({
+                "actor": actor,
+                "authored_text": text,
+                "alignment": alignment,
+            })
+        })
+        .collect();
+    std::fs::write(
+        audio_dir.join("word_alignments.json"),
+        serde_json::to_vec_pretty(&alignment_records).unwrap_or_default(),
+    )
+    .map_err(io_err(&audio_dir))?;
 
     // Mix audio
     let t_mix = std::time::Instant::now();
@@ -2383,6 +2595,7 @@ pub fn finalize_production(
     let fps = config.runtime.frame_rate.max(1);
     let cap_out = ep_dir.join("output").join("vertical_captioned.mp4");
     let clean_out = ep_dir.join("output").join("vertical_clean.mp4");
+    let muted_out = ep_dir.join("output").join("vertical_muted.mp4");
     std::fs::create_dir_all(ep_dir.join("output")).map_err(io_err(&ep_dir))?;
     let (cmd, enc_ok) = encode_mp4(
         config,
@@ -2390,6 +2603,7 @@ pub fn finalize_production(
         mix_path.to_str().unwrap(),
         cap_out.to_str().unwrap(),
         clean_out.to_str().unwrap(),
+        muted_out.to_str().unwrap(),
         &sched.captions,
         config.runtime.resolution,
         fps,
@@ -2674,12 +2888,35 @@ pub fn finalize_production(
     let ended_at = chrono::Utc::now().to_rfc3339();
     let default_total = prep.prep_timings.llm_authoring_secs
         + prep.prep_timings.tts_generation_secs
+        + prep.prep_timings.speech_alignment_secs
+        + prep.prep_timings.kimodo_generation_secs
+        + prep.prep_timings.motion_processing_secs
         + prep.prep_timings.timeline_prep_secs
+        + timing_context.map(|t| t.bevy_capture_secs).unwrap_or(0.0)
         + audio_mixing_secs
         + ffmpeg_encode_secs
         + packaging_secs;
     let mut diagnostics_with_timing = diagnostics.clone();
     diagnostics_with_timing.timing = Some(crate::package::TimingReport {
+        schema_version: 2,
+        llm_authoring: prep.prep_timings.llm_authoring_secs,
+        tts: prep.prep_timings.tts_generation_secs,
+        speech_alignment: prep.prep_timings.speech_alignment_secs,
+        kimodo_generation: prep.prep_timings.kimodo_generation_secs,
+        motion_processing: prep.prep_timings.motion_processing_secs,
+        timeline_assembly: prep.prep_timings.timeline_prep_secs,
+        bevy_capture: timing_context.map(|t| t.bevy_capture_secs).unwrap_or(0.0),
+        audio_mixing: audio_mixing_secs,
+        encoding: ffmpeg_encode_secs,
+        review_packaging: packaging_secs,
+        total_production_time: timing_context
+            .map(|t| {
+                t.elapsed_before_finalize_secs
+                    + audio_mixing_secs
+                    + ffmpeg_encode_secs
+                    + packaging_secs
+            })
+            .unwrap_or(default_total),
         llm_authoring_secs: prep.prep_timings.llm_authoring_secs,
         tts_generation_secs: prep.prep_timings.tts_generation_secs,
         timeline_prep_secs: prep.prep_timings.timeline_prep_secs,
@@ -2695,6 +2932,7 @@ pub fn finalize_production(
                     + packaging_secs
             })
             .unwrap_or(default_total),
+        model_phases: prep.runtime_telemetry.phases.clone(),
         effective_fps: timing_context.and_then(|t| t.effective_fps),
         started_at: timing_context
             .map(|t| t.started_at.clone())
@@ -2743,6 +2981,7 @@ pub fn finalize_production(
         episode_id: prep.episode_id.clone(),
         mp4_captioned: cap_out.to_string_lossy().into_owned(),
         mp4_clean: clean_out.to_string_lossy().into_owned(),
+        mp4_muted: muted_out.to_string_lossy().into_owned(),
         duration_secs: sched.duration,
         frames: captured,
         require_llm,
@@ -3048,6 +3287,7 @@ mod review_tests {
                     text: Some("hello".into()),
                     start: 0.0,
                     dur: 4.0,
+                    performance: None,
                 }],
             }],
             camera_shots: vec![CameraShotSpec {
@@ -3063,6 +3303,8 @@ mod review_tests {
             flicker: vec![],
             prop_attach: vec![],
             inserts: vec![],
+            environment: vec![],
+            sounds: vec![],
         };
         let rep = review_schedule(&sched, &rigs, &world, 160, 284, 24);
         assert_eq!(rep.sampled_frames, 24);
@@ -3209,6 +3451,9 @@ mod review_tests {
                     state: PerformanceState::Idle,
                     walk_phase: 0.0,
                     speaking: false,
+                    action_local_time: 0.0,
+                    action_weight: 0.0,
+                    focus_target: None,
                 },
                 Pose::default(),
             )],
@@ -3217,6 +3462,9 @@ mod review_tests {
             props: vec![],
             flicker: false,
             elevator_open: 0.0,
+            elevator_indicator: None,
+            panel_active: 0.0,
+            impossible_reveal: 0.0,
         };
         (world, rigs, state)
     }
@@ -3263,6 +3511,9 @@ mod review_tests {
                     state: PerformanceState::Idle,
                     walk_phase: 0.0,
                     speaking: false,
+                    action_local_time: 0.0,
+                    action_weight: 0.0,
+                    focus_target: None,
                 },
                 Pose::default(),
             )],
@@ -3271,6 +3522,9 @@ mod review_tests {
             props: vec![],
             flicker: false,
             elevator_open: 0.0,
+            elevator_indicator: None,
+            panel_active: 0.0,
+            impossible_reveal: 0.0,
         };
         let analysis = analyze_frame(&state, &rigs, &world, 240, 420, "mara");
         assert!(analysis.in_frame, "performer at elevator must be in frame");
@@ -3283,22 +3537,25 @@ mod review_tests {
 
     #[test]
     fn elevator_open_changes_geometry() {
-        let (world, rigs, mut state) = sample_world_with_char();
-        // Frame the elevator (x ~ 3) so the door panels are in view.
-        state.camera_eye = [3.0, 1.6, 3.0];
-        state.camera_look = [3.0, 1.0, -1.4];
-        let r = StageRenderer::new(160, 284);
-        state.elevator_open = 0.0;
-        let closed = r.render_buffers(&state, &rigs, &world, None);
-        state.elevator_open = 1.0;
-        let open = r.render_buffers(&state, &rigs, &world, None);
-        let differing = closed
-            .id
+        let (world, _, _) = sample_world_with_char();
+        let mut closed = Vec::new();
+        let mut open = Vec::new();
+        push_elevator(&mut closed, &world, 0.0);
+        push_elevator(&mut open, &world, 1.0);
+        let closed_door_vertices = closed
             .iter()
-            .zip(open.id.iter())
-            .filter(|(a, b)| a != b)
-            .count();
-        assert!(differing > 0, "elevator doors must move when opened");
+            .filter(|triangle| triangle.id == 2)
+            .flat_map(|triangle| triangle.v)
+            .collect::<Vec<_>>();
+        let open_door_vertices = open
+            .iter()
+            .filter(|triangle| triangle.id == 2)
+            .flat_map(|triangle| triangle.v)
+            .collect::<Vec<_>>();
+        assert_ne!(
+            closed_door_vertices, open_door_vertices,
+            "elevator doors must move when opened"
+        );
     }
 
     // ---- Phase 4: rig hierarchy + articulation ----
@@ -3438,6 +3695,7 @@ mod review_tests {
                     text: None,
                     start: 0.0,
                     dur: 3.0,
+                    performance: None,
                 }],
             }],
             camera_shots: vec![],
@@ -3447,6 +3705,8 @@ mod review_tests {
             flicker: vec![],
             prop_attach: vec![],
             inserts: vec![],
+            environment: vec![],
+            sounds: vec![],
         };
         let a = evaluate_at(&sched, &rigs, &world, 0.0);
         let b = evaluate_at(&sched, &rigs, &world, 1.5);
@@ -3480,6 +3740,7 @@ mod review_tests {
                     text: None,
                     start: 0.0,
                     dur: 4.0,
+                    performance: None,
                 }],
             }],
             camera_shots: vec![CameraShotSpec {
@@ -3495,6 +3756,8 @@ mod review_tests {
             flicker: vec![],
             prop_attach: vec![],
             inserts: vec![],
+            environment: vec![],
+            sounds: vec![],
         };
         let r = StageRenderer::new(200, 356);
         for i in 0..8 {
@@ -3529,6 +3792,9 @@ mod review_tests {
                         state: PerformanceState::Idle,
                         walk_phase: 0.0,
                         speaking: false,
+                        action_local_time: 0.0,
+                        action_weight: 0.0,
+                        focus_target: None,
                     },
                     Pose::default(),
                 ),
@@ -3549,6 +3815,9 @@ mod review_tests {
                         state: PerformanceState::Idle,
                         walk_phase: 0.0,
                         speaking: false,
+                        action_local_time: 0.0,
+                        action_weight: 0.0,
+                        focus_target: None,
                     },
                     Pose::default(),
                 ),
@@ -3558,6 +3827,9 @@ mod review_tests {
             props: vec![],
             flicker: false,
             elevator_open: 0.0,
+            elevator_indicator: None,
+            panel_active: 0.0,
+            impossible_reveal: 0.0,
         };
         let r = StageRenderer::new(240, 420);
         let buf = r.render_buffers(&state, &rigs, &world, None);

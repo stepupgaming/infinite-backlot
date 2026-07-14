@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "pick_up",
+  "cache_key": "799d8c0f651103208e7bb4938fae8848083d63abedc7a6be182aead61021f588",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A performer steps to a small object, bends with stable feet, reaches, grasps it, rises, and settles into a balanced standing pose holding it.",
+  "seed": 12648433,
+  "approval": "approved",
+  "clip": "clip.motion",
+  "preview": null
+}

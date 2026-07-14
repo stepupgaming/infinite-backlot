@@ -4,16 +4,19 @@
 //! This crate is engine-agnostic (no Bevy dependency) so it can be unit-tested
 //! and reused by both the runtime and offline tooling.
 
+pub mod asr;
 pub mod author;
 pub mod avatar;
 pub mod config;
 pub mod director;
 pub mod error;
+pub mod motion;
 pub mod package;
 pub mod protocol;
 pub mod render;
 pub mod rng;
 pub mod schema;
+pub mod stage;
 pub mod story;
 pub mod timeline;
 pub mod tts;

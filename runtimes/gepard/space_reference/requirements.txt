@@ -1,0 +1,14 @@
+# GEPARD Space dependencies.
+#
+# torch is provided by the Space image — do NOT pin it here.
+# huggingface-hub is deliberately NOT listed: at build time the resolver picks
+# a 0.x hub (required by NeMo's transformers<=4.52 pin); at app startup
+# create_env.py force-reinstalls transformers==5.3.0, which upgrades hub to
+# 1.x — still within gradio 5.49's accepted range (>=0.33.5,<2.0).
+nemo-toolkit[tts]==2.4.0
+safetensors
+librosa>=0.10.0
+soundfile
+omegaconf
+pyyaml
+numpy

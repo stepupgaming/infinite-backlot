@@ -7,10 +7,15 @@
 //! duration, which is what drives accurate dialogue timing (the estimating
 //! stub only predicts).
 
-use crate::config::{HttpTtsConfig, TtsConfig};
+use crate::config::{GepardTtsConfig, HttpTtsConfig, TtsConfig, VoiceProfileConfig};
+use crate::protocol::{DeliveryEmotion, DeliveryPace, DeliverySpec};
+use backlot_runtime::gepard::{GepardConfig, GepardLineRequest, GepardPreset};
+use backlot_runtime::{ModelRuntimeManager, RuntimeKind};
 use serde::{Deserialize, Serialize};
-use std::path::Path;
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
+use std::time::Duration;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TtsResult {
@@ -26,6 +31,13 @@ pub struct TtsResult {
     pub provider: String,
 }
 
+#[derive(Debug, Clone)]
+pub struct TtsRequest {
+    pub text: String,
+    pub voice_id: String,
+    pub delivery: Option<DeliverySpec>,
+}
+
 pub trait Tts: Send + Sync {
     /// Estimate how long `text` will take to speak (seconds).
     fn estimate_duration(&self, text: &str) -> f32 {
@@ -35,6 +47,14 @@ pub trait Tts: Send + Sync {
 
     /// Synthesize `text` for `voice_id`. Implementations should cache by hash.
     fn synthesize(&self, text: &str, voice_id: &str) -> TtsResult;
+
+    /// Batch providers override this so a model loads once for all cache misses.
+    fn synthesize_batch(&self, requests: &[TtsRequest]) -> Vec<TtsResult> {
+        requests
+            .iter()
+            .map(|request| self.synthesize(&request.text, &request.voice_id))
+            .collect()
+    }
 
     /// Human-readable provider id, used in diagnostics.
     fn provider_name(&self) -> &'static str;
@@ -193,6 +213,243 @@ impl HttpTts {
     }
 }
 
+/// Project-owned Gepard provider. It never leaves a server resident: cache
+/// misses are serialized to one JSON batch, a uv-locked worker loads the model
+/// once, produces every line, exits, and only measured WAV durations are used.
+pub struct GepardTts {
+    cfg: GepardTtsConfig,
+    cache_dir: PathBuf,
+}
+
+impl GepardTts {
+    pub fn new(cfg: GepardTtsConfig, cache_dir: String) -> Self {
+        Self {
+            cfg,
+            cache_dir: PathBuf::from(cache_dir),
+        }
+    }
+
+    fn profile(&self, voice_id: &str) -> Option<&VoiceProfileConfig> {
+        self.cfg.profiles.get(voice_id).or_else(|| {
+            self.cfg
+                .profiles
+                .values()
+                .find(|p| p.character_id == voice_id)
+        })
+    }
+
+    fn reference_hash(profile: &VoiceProfileConfig) -> Option<String> {
+        let bytes = std::fs::read(&profile.reference_wav).ok()?;
+        let actual = blake3::hash(&bytes).to_hex().to_string();
+        if !profile.reference_hash.is_empty() && profile.reference_hash != actual {
+            return None;
+        }
+        Some(actual)
+    }
+
+    fn cache_key(&self, request: &TtsRequest, profile: &VoiceProfileConfig) -> Option<String> {
+        let reference_hash = Self::reference_hash(profile)?;
+        let payload = serde_json::json!({
+            "model_revision": self.cfg.model_revision,
+            "codec_revision": self.cfg.codec_revision,
+            "reference_hash": reference_hash,
+            "character": profile.character_id,
+            "text": normalize_spoken_text(&request.text),
+            "delivery": request.delivery,
+            "seed": profile.seed,
+        });
+        Some(
+            blake3::hash(payload.to_string().as_bytes())
+                .to_hex()
+                .to_string(),
+        )
+    }
+
+    fn failed(&self, request: &TtsRequest) -> TtsResult {
+        TtsResult {
+            audio_path: None,
+            duration: self.estimate_duration(&request.text),
+            cached: false,
+            ok: false,
+            provider: "gepard-failed".into(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct GepardWorkerResponse {
+    id: String,
+    output: String,
+    duration: f32,
+    success: bool,
+}
+
+impl Tts for GepardTts {
+    fn synthesize(&self, text: &str, voice_id: &str) -> TtsResult {
+        self.synthesize_batch(&[TtsRequest {
+            text: text.into(),
+            voice_id: voice_id.into(),
+            delivery: None,
+        }])
+        .into_iter()
+        .next()
+        .unwrap_or_else(|| {
+            self.failed(&TtsRequest {
+                text: text.into(),
+                voice_id: voice_id.into(),
+                delivery: None,
+            })
+        })
+    }
+
+    fn synthesize_batch(&self, requests: &[TtsRequest]) -> Vec<TtsResult> {
+        let _ = std::fs::create_dir_all(&self.cache_dir);
+        let mut results: Vec<Option<TtsResult>> = vec![None; requests.len()];
+        let mut pending: Vec<GepardLineRequest> = Vec::new();
+        let mut ids: HashMap<String, usize> = HashMap::new();
+
+        for (index, request) in requests.iter().enumerate() {
+            let Some(profile) = self.profile(&request.voice_id) else {
+                results[index] = Some(self.failed(request));
+                continue;
+            };
+            let Some(key) = self.cache_key(request, profile) else {
+                results[index] = Some(self.failed(request));
+                continue;
+            };
+            let wav = self.cache_dir.join(format!("gepard_{key}.wav"));
+            // Gepard/NanoCodec emits 22.05 kHz. Older Backlot builds could
+            // corrupt the cache by relabelling those samples as 44.1 kHz while
+            // trimming silence. Reject that cache entry so the real worker
+            // regenerates it instead of replaying pitch-doubled audio.
+            if wav_sample_rate(&wav.to_string_lossy()) == Some(22_050) {
+                if let Some(duration) = wav_duration_secs(&wav.to_string_lossy()) {
+                    results[index] = Some(TtsResult {
+                        audio_path: Some(wav.to_string_lossy().into_owned()),
+                        duration,
+                        cached: true,
+                        ok: true,
+                        provider: "gepard".into(),
+                    });
+                    continue;
+                }
+            }
+            let id = format!("line_{index}_{key}");
+            ids.insert(id.clone(), index);
+            pending.push(GepardLineRequest {
+                id,
+                text: shape_prosody_text(&request.text, request.delivery.as_ref()),
+                output: wav,
+                reference_audio: PathBuf::from(&profile.reference_wav),
+                seed: profile.seed,
+                preset: gepard_preset(request.delivery.as_ref()),
+            });
+        }
+
+        if !pending.is_empty() {
+            let batch_id = uuid::Uuid::new_v4().simple().to_string();
+            let request_file = self
+                .cache_dir
+                .join(format!("batch_{batch_id}.request.json"));
+            let response_file = self
+                .cache_dir
+                .join(format!("batch_{batch_id}.response.json"));
+            let write_ok = std::fs::write(
+                &request_file,
+                serde_json::to_vec_pretty(&pending).unwrap_or_default(),
+            )
+            .is_ok();
+            if write_ok {
+                let worker = GepardConfig {
+                    runtime_root: PathBuf::from(&self.cfg.runtime_root),
+                    model_root: PathBuf::from(&self.cfg.model_root),
+                    request_file: request_file.clone(),
+                    response_file: response_file.clone(),
+                };
+                let mut manager = ModelRuntimeManager::default();
+                if manager
+                    .start(
+                        RuntimeKind::Gepard,
+                        worker.process_spec(),
+                        Some(self.cfg.model_revision.clone()),
+                    )
+                    .is_ok()
+                {
+                    let completed = manager
+                        .wait_for_exit(Duration::from_secs_f32(self.cfg.timeout_secs.max(30.0)))
+                        .unwrap_or(false);
+                    let _ = manager.mark_work_complete(0, pending.len() as u32);
+                    let _ = manager.stop();
+                    if completed {
+                        if let Ok(bytes) = std::fs::read(&response_file) {
+                            if let Ok(responses) =
+                                serde_json::from_slice::<Vec<GepardWorkerResponse>>(&bytes)
+                            {
+                                for response in responses {
+                                    if let Some(&index) = ids.get(&response.id) {
+                                        let measured = wav_duration_secs(&response.output)
+                                            .unwrap_or(response.duration);
+                                        results[index] = Some(TtsResult {
+                                            audio_path: Some(response.output),
+                                            duration: measured,
+                                            cached: false,
+                                            ok: response.success && measured > 0.0,
+                                            provider: "gepard".into(),
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            let _ = std::fs::remove_file(request_file);
+            let _ = std::fs::remove_file(response_file);
+        }
+
+        results
+            .into_iter()
+            .zip(requests)
+            .map(|(result, request)| result.unwrap_or_else(|| self.failed(request)))
+            .collect()
+    }
+
+    fn provider_name(&self) -> &'static str {
+        "gepard"
+    }
+}
+
+fn normalize_spoken_text(text: &str) -> String {
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+fn shape_prosody_text(text: &str, delivery: Option<&DeliverySpec>) -> String {
+    let mut shaped = normalize_spoken_text(text);
+    let Some(delivery) = delivery else {
+        return shaped;
+    };
+    if matches!(delivery.pace, DeliveryPace::Slow | DeliveryPace::Measured) {
+        shaped = shaped.replace(", ", ",  ");
+    }
+    if matches!(delivery.pace, DeliveryPace::Fast) {
+        shaped = shaped.replace(", ", " ");
+    }
+    shaped
+}
+
+fn gepard_preset(delivery: Option<&DeliverySpec>) -> GepardPreset {
+    let mut preset = GepardPreset::default();
+    if let Some(delivery) = delivery {
+        preset.temperature = match delivery.emotion {
+            DeliveryEmotion::Hushed => 0.25,
+            DeliveryEmotion::Warm | DeliveryEmotion::Amused => 0.35,
+            DeliveryEmotion::Urgent | DeliveryEmotion::Stunned => 0.40,
+            _ => 0.30,
+        };
+    }
+    preset
+}
+
 impl Tts for HttpTts {
     fn synthesize(&self, text: &str, voice_id: &str) -> TtsResult {
         let key = line_key(text, voice_id);
@@ -305,6 +562,12 @@ impl HttpTts {
 /// verify the binary is reachable; if not, we transparently downgrade to the
 /// estimating stub and let the caller decide whether that is acceptable.
 pub fn build_tts(cfg: &TtsConfig) -> Box<dyn Tts> {
+    if cfg.provider == "gepard" {
+        if let Some(gepard) = cfg.gepard.clone() {
+            return Box::new(GepardTts::new(gepard, cfg.cache_dir.clone()));
+        }
+        tracing::error!("gepard TTS selected without [tts.gepard] configuration");
+    }
     if cfg.provider == "espeak" {
         let e = EspeakTts::new(cfg);
         if e.available() {
@@ -374,14 +637,20 @@ pub fn wav_duration_secs(path: &str) -> Option<f32> {
     }
 }
 
+pub fn wav_sample_rate(path: &str) -> Option<u32> {
+    let bytes = std::fs::read(path).ok()?;
+    if bytes.len() < 28 || &bytes[0..4] != b"RIFF" || &bytes[8..12] != b"WAVE" {
+        return None;
+    }
+    Some(u32::from_le_bytes([
+        bytes[24], bytes[25], bytes[26], bytes[27],
+    ]))
+}
+
 /// Hash a line for caching keys.
 pub fn line_key(text: &str, voice_id: &str) -> String {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-    let mut h = DefaultHasher::new();
-    text.hash(&mut h);
-    voice_id.hash(&mut h);
-    format!("{:016x}", h.finish())
+    let payload = format!("{}\0{}", normalize_spoken_text(text), voice_id);
+    blake3::hash(payload.as_bytes()).to_hex().to_string()
 }
 
 /// Convenience: a shareable, lazily-built TTS handle.

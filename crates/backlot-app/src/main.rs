@@ -16,16 +16,47 @@ use backlot_core::director::DirectorContext;
 use backlot_core::render::{produce_episode, ProduceConfig};
 use backlot_core::world::build_default_world;
 use backlot_llm::{LlmAuthor, LlmMetrics};
+use backlot_runtime::llama::Gemma26Config;
+use backlot_runtime::{ModelRuntimeManager, RuntimeKind};
 use bevy::prelude::*;
 use bevy::window::{Window, WindowPlugin, WindowResolution};
+use std::io::{Read, Write};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpStream};
 use std::path::PathBuf;
 use std::sync::{mpsc, Arc, Mutex};
+use std::time::{Duration, Instant};
 
 use crate::scene::Hud;
 use state::*;
 
 fn main() {
-    let config = Config::load_or_default("data/config.toml");
+    let cli_args: Vec<String> = std::env::args().collect();
+    if cli_args.iter().any(|arg| arg == "--motion-review") {
+        std::env::set_var("BACKLOT_MOTION_REVIEW", "1");
+    }
+    let config_path = cli_args
+        .iter()
+        .position(|arg| arg == "--config")
+        .and_then(|index| cli_args.get(index + 1))
+        .map(String::as_str)
+        .unwrap_or("data/config.toml");
+    let mut config = Config::load_or_default(config_path);
+    if cli_args.iter().any(|arg| arg == "--diagnostic-tts") {
+        config.tts.provider = "espeak".into();
+        config.asr.provider = "none".into();
+    }
+    if cli_args.iter().any(|arg| arg == "--review-render") {
+        config.director.force_fallback = true;
+        config.director.require_llm = false;
+        config.runtime.resolution = (540, 960);
+        config.runtime.frame_rate = 12;
+        config.runtime.output_dir = "output/review-dev".into();
+    }
+    if cli_args.iter().any(|arg| arg == "--motion-review-fast") {
+        config.runtime.resolution = (360, 640);
+        config.runtime.frame_rate = 6;
+        config.runtime.output_dir = "output/motion-review".into();
+    }
     println!(
         "Infinite Backlot — base_url={} model={} force_fallback={}",
         config.llm.base_url, config.llm.model, config.director.force_fallback
@@ -35,10 +66,16 @@ fn main() {
         .unwrap_or_else(|_| build_default_world());
 
     // --- Offline one-shot producer (no Bevy / no GPU / no window) ---
-    let cli_args: Vec<String> = std::env::args().collect();
     let produce_one = cli_args.iter().any(|a| a == "--produce-one");
-    let require_llm = cli_args.iter().any(|a| a == "--require-llm");
+    let require_llm = config.director.require_llm || cli_args.iter().any(|a| a == "--require-llm");
+    if require_llm && config.tts.provider != "gepard" {
+        eprintln!(
+            "production preflight failed: --require-llm requires [tts].provider = \"gepard\"; espeak is diagnostic-only"
+        );
+        std::process::exit(2);
+    }
     let reuse_authored = cli_args.iter().any(|a| a == "--reuse-authored");
+    let repair_authored = cli_args.iter().any(|a| a == "--repair-authored");
     let render_backend = cli_args
         .iter()
         .position(|a| a == "--render-backend")
@@ -114,10 +151,20 @@ fn main() {
             dir.require_llm = true;
             match LlmAuthor::new(&config, dir) {
                 Ok(mut a) => {
-                    if reuse_authored {
+                    if reuse_authored || repair_authored {
                         a.set_reuse_path(PathBuf::from("data/last_authored_episode.json"));
+                        a.set_repair_reused(repair_authored);
+                        // Cached deterministic replay must never start a model
+                        // runtime. LlmAuthor validates and adapts the frozen
+                        // authored episode locally before returning it.
+                        if repair_authored {
+                            Box::new(ManagedLlamaAuthor::new(a))
+                        } else {
+                            Box::new(a)
+                        }
+                    } else {
+                        Box::new(ManagedLlamaAuthor::new(a))
                     }
-                    Box::new(a)
                 }
                 Err(e) => {
                     eprintln!("REQUIRE-LLM mode: LLM client could not be initialized: {e}");
@@ -131,8 +178,10 @@ fn main() {
                 Ok(mut a) => {
                     if reuse_authored {
                         a.set_reuse_path(PathBuf::from("data/last_authored_episode.json"));
+                        Box::new(a)
+                    } else {
+                        Box::new(ManagedLlamaAuthor::new(a))
                     }
-                    Box::new(a)
                 }
                 Err(_) => Box::new(DeterministicAuthor),
             }
@@ -157,6 +206,7 @@ fn main() {
                 println!("PRODUCED {}", report.episode_id);
                 println!("  captioned  : {}", report.mp4_captioned);
                 println!("  clean      : {}", report.mp4_clean);
+                println!("  muted      : {}", report.mp4_muted);
                 println!("  duration   : {:.1}s", report.duration_secs);
                 println!("  frames     : {}", report.frames);
                 println!("  require_llm: {}", report.require_llm);
@@ -312,6 +362,100 @@ fn main() {
     );
 
     app.run();
+}
+
+/// Owns the private Gemma server for exactly one authoring call. The wrapped
+/// author and its duration-repair loop are unchanged; only runtime ownership is
+/// added around that proven transaction.
+struct ManagedLlamaAuthor {
+    inner: LlmAuthor,
+    runtime: Gemma26Config,
+}
+
+impl ManagedLlamaAuthor {
+    fn new(inner: LlmAuthor) -> Self {
+        let project_root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+        Self {
+            inner,
+            runtime: Gemma26Config::project_default(&project_root),
+        }
+    }
+}
+
+impl EpisodeAuthor for ManagedLlamaAuthor {
+    fn name(&self) -> &'static str {
+        "managed-gemma"
+    }
+
+    fn author(
+        &self,
+        ctx: &DirectorContext,
+    ) -> backlot_core::error::Result<(
+        backlot_core::author::PlannedEpisode,
+        backlot_core::author::PlanAuthorship,
+    )> {
+        let mut manager = ModelRuntimeManager::default();
+        manager
+            .start(
+                RuntimeKind::Gemma,
+                self.runtime.process_spec(),
+                Some(self.runtime.model_alias.clone()),
+            )
+            .map_err(|error| backlot_core::error::CoreError::Llm(error.to_string()))?;
+
+        let address = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), self.runtime.port);
+        let deadline = Instant::now() + Duration::from_secs(180);
+        let ready = loop {
+            if llama_health_ready(address) {
+                break Ok(());
+            }
+            if let Some(status) = manager
+                .poll_exit()
+                .map_err(|error| backlot_core::error::CoreError::Llm(error.to_string()))?
+            {
+                break Err(format!(
+                    "owned Gemma runtime exited before readiness with {status}"
+                ));
+            }
+            if Instant::now() >= deadline {
+                break Err("owned Gemma runtime did not become ready within 180 seconds".into());
+            }
+            std::thread::sleep(Duration::from_millis(250));
+        };
+        if let Err(message) = ready {
+            let _ = manager.stop();
+            return Err(backlot_core::error::CoreError::Llm(message));
+        }
+
+        let result = self.inner.author(ctx);
+        let _ = manager.mark_work_complete(0, 1);
+        let stop_result = manager.stop();
+        if result.is_ok() {
+            stop_result.map_err(|error| backlot_core::error::CoreError::Llm(error.to_string()))?;
+        }
+        result
+    }
+}
+
+fn llama_health_ready(address: SocketAddr) -> bool {
+    let Ok(mut stream) = TcpStream::connect_timeout(&address, Duration::from_millis(300)) else {
+        return false;
+    };
+    let _ = stream.set_read_timeout(Some(Duration::from_millis(500)));
+    let _ = stream.set_write_timeout(Some(Duration::from_millis(500)));
+    if stream
+        .write_all(b"GET /health HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n")
+        .is_err()
+    {
+        return false;
+    }
+    let mut response = String::new();
+    if stream.read_to_string(&mut response).is_err() {
+        return false;
+    }
+    let status_ok = response.starts_with("HTTP/1.1 200") || response.starts_with("HTTP/1.0 200");
+    let body_ok = response.contains("\"status\"") && response.contains("\"ok\"");
+    status_ok && body_ok
 }
 
 fn boot_to_loading(mut next: ResMut<NextState<AppState>>) {

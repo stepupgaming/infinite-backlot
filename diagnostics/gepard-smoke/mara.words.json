@@ -1,0 +1,54 @@
+{
+  "text": "The elevator should not know my name.",
+  "words": [
+    {
+      "id": "w0",
+      "text": "The",
+      "start": 0.0,
+      "end": 0.24
+    },
+    {
+      "id": "w1",
+      "text": "elevator",
+      "start": 0.24,
+      "end": 0.88
+    },
+    {
+      "id": "w2",
+      "text": "should",
+      "start": 0.88,
+      "end": 1.2
+    },
+    {
+      "id": "w3",
+      "text": "not",
+      "start": 1.2,
+      "end": 1.52
+    },
+    {
+      "id": "w4",
+      "text": "know",
+      "start": 1.52,
+      "end": 1.84
+    },
+    {
+      "id": "w5",
+      "text": "my",
+      "start": 1.84,
+      "end": 2.0
+    },
+    {
+      "id": "w6",
+      "text": "name.",
+      "start": 2.16,
+      "end": 2.48
+    }
+  ],
+  "wordCount": 7,
+  "durationSeconds": 2.972154,
+  "metadata": {
+    "provider": "nemo-asr",
+    "modelId": "nvidia/parakeet-tdt-0.6b-v2",
+    "device": "cuda"
+  }
+}

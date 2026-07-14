@@ -337,23 +337,27 @@ pub fn build_default_world() -> WorldState {
             staging_marks: vec![
                 StagingMark {
                     id: "hall_center".into(),
-                    position: [0.0, 0.0, 0.0],
+                    position: crate::stage::HALL_CENTER,
                 },
                 StagingMark {
                     id: "elevator_door".into(),
-                    position: [3.0, 0.0, -1.0],
+                    position: crate::stage::ELEVATOR_STAND,
                 },
                 StagingMark {
                     id: "apt_3b_door".into(),
-                    position: [-3.0, 0.0, -1.0],
+                    position: crate::stage::APARTMENT_3B_STAND,
                 },
                 StagingMark {
                     id: "apt_4a_door".into(),
-                    position: [-5.0, 0.0, -1.0],
+                    position: crate::stage::APARTMENT_4A_STAND,
                 },
                 StagingMark {
                     id: "maintenance_panel".into(),
-                    position: [1.5, 0.0, -1.0],
+                    position: crate::stage::PANEL_STAND,
+                },
+                StagingMark {
+                    id: "panel_stand".into(),
+                    position: crate::stage::PANEL_STAND,
                 },
             ],
             camera_anchors: vec![
@@ -468,6 +472,16 @@ pub fn build_default_world() -> WorldState {
             "Elevator Control Panel",
             "floor_3_hallway",
             "elevator_door",
+            vec!["activate", "inspect"],
+        ),
+    );
+    props.insert(
+        "elevator_control_panel".into(),
+        prop(
+            "elevator_control_panel",
+            "Elevator Control Panel",
+            "floor_3_hallway",
+            "panel_stand",
             vec!["activate", "inspect"],
         ),
     );

@@ -1,0 +1,7 @@
+[
+  {
+    "id": "mara-smoke",
+    "audio": "C:/Projects/bevy-infinite/diagnostics/gepard-smoke/mara.wav",
+    "output": "C:/Projects/bevy-infinite/diagnostics/gepard-smoke/mara.words.json"
+  }
+]

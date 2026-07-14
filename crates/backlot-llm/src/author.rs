@@ -58,6 +58,9 @@ pub struct LlmAuthor {
     /// When set, authoring first tries to load a previously authored + validated
     /// episode from this path and replay it with zero new LLM calls.
     reuse_path: Option<PathBuf>,
+    /// Permit exactly one duration-repair call against the cached authored
+    /// episode when measured production audio has moved outside 45-60 seconds.
+    repair_reused: bool,
     /// Ordered log of every logical (structured) call made while `diagnostic`.
     capture_log: Arc<Mutex<Vec<CapturedCall>>>,
 }
@@ -158,6 +161,7 @@ impl LlmAuthor {
             diagnostic: false,
             capture_dir: None,
             reuse_path: None,
+            repair_reused: false,
             capture_log: Arc::new(Mutex::new(Vec::new())),
         })
     }
@@ -166,6 +170,10 @@ impl LlmAuthor {
     /// calls). Used by production to reuse the episode the diagnostic proved.
     pub fn set_reuse_path(&mut self, path: PathBuf) {
         self.reuse_path = Some(path);
+    }
+
+    pub fn set_repair_reused(&mut self, enabled: bool) {
+        self.repair_reused = enabled;
     }
 
     /// Construct an author that runs the authoring-only diagnostic: every
@@ -267,6 +275,9 @@ impl LlmAuthor {
         if let Some(path) = &self.reuse_path {
             if let Some(out) = self.load_reused(ctx, path) {
                 return Ok(out);
+            }
+            if self.repair_reused {
+                return self.repair_reused_episode(ctx, path).await;
             }
             // A requested replay must never silently become a new model call.
             // That would invalidate the zero-call replay proof and overwrite the
@@ -394,6 +405,77 @@ impl LlmAuthor {
         self.fallback_plan(ctx).map(|(p, a)| (p, a, None))
     }
 
+    async fn repair_reused_episode(
+        &self,
+        ctx: &DirectorContext,
+        path: &Path,
+    ) -> Result<(PlannedEpisode, PlanAuthorship, Option<AuthoredEpisode>)> {
+        let text = std::fs::read_to_string(path).map_err(|error| {
+            CoreError::Llm(format!(
+                "read cached authored episode {}: {error}",
+                path.display()
+            ))
+        })?;
+        let authored: AuthoredEpisode = serde_json::from_str(&text).map_err(|error| {
+            CoreError::Llm(format!(
+                "parse cached authored episode {}: {error}",
+                path.display()
+            ))
+        })?;
+        let plan_cmds = self
+            .adapt_validate(&ctx.world, &authored)
+            .map_err(|error| CoreError::Llm(format!("cached episode invalid: {error}")))?;
+        let duration = DurationPolicy::for_request(ctx.target_duration);
+        let measured = self.measure_or_estimate(&ctx.world, &plan_cmds.0, &plan_cmds.1);
+        let (direction, feedback) =
+            direction_aware_feedback(&plan_cmds.0, &plan_cmds.1, duration, measured);
+        let digest = WorldDigest::for_episode(
+            &ctx.world,
+            &first_location(&ctx.world),
+            &all_char_ids(&ctx.world),
+        );
+        let system = whole_episode_system_prompt();
+        let schema = authored_episode_schema();
+        let accepted_json = serde_json::to_string_pretty(&authored).unwrap_or_default();
+        let before = self.client.metrics();
+        let (repaired, _, _) = self
+            .request_whole_episode(
+                ctx,
+                &digest,
+                &system,
+                &schema,
+                Some(&feedback),
+                Some(&accepted_json),
+            )
+            .await?;
+        let repaired_plan = self
+            .adapt_validate(&ctx.world, &repaired)
+            .map_err(|error| CoreError::Llm(format!("repaired cached episode invalid: {error}")))?;
+        let repaired_secs =
+            self.measure_or_estimate(&ctx.world, &repaired_plan.0, &repaired_plan.1);
+        if !duration.in_range(repaired_secs) {
+            return Err(CoreError::Llm(format!(
+                "repaired cached episode runtime {repaired_secs:.1}s outside 45-60s"
+            )));
+        }
+        let json = serde_json::to_vec_pretty(&repaired)
+            .map_err(|error| CoreError::Llm(format!("serialize repaired episode: {error}")))?;
+        std::fs::write(path, json).map_err(|error| {
+            CoreError::Llm(format!(
+                "write repaired authored episode {}: {error}",
+                path.display()
+            ))
+        })?;
+        let (planned, auth) = self.build_authorship(
+            repaired_plan,
+            &before,
+            true,
+            Some(direction.as_str()),
+            Some("gemma-repaired-cache"),
+        );
+        Ok((planned, auth, Some(repaired)))
+    }
+
     /// Replay a previously authored + validated episode with no new LLM calls.
     fn load_reused(
         &self,
@@ -406,6 +488,7 @@ impl LlmAuthor {
         let secs = self.measure_or_estimate(&ctx.world, &plan_cmds.0, &plan_cmds.1);
         let dur = DurationPolicy::for_request(ctx.target_duration);
         if !dur.in_range(secs) {
+            eprintln!("CACHED EPISODE MEASURED RUNTIME: {secs:.1}s");
             tracing::warn!(
                 "reused episode {:.1}s outside 45-60s; re-authoring instead of replaying",
                 secs
@@ -475,13 +558,16 @@ impl LlmAuthor {
                 )
             };
             let outcome = match serde_json::from_str::<serde_json::Value>(&content) {
-                Ok(v) => match serde_json::from_value::<AuthoredEpisode>(v) {
-                    Ok(ep) => match self.adapt_validate(&ctx.world, &ep) {
-                        Ok(_) => Ok((ep, user)),
-                        Err(e) => Err(format!("episode failed validation: {e}")),
-                    },
-                    Err(e) => Err(format!("parse AuthoredEpisode failed: {e}")),
-                },
+                Ok(mut v) => {
+                    normalize_environment_event_aliases(&mut v);
+                    match serde_json::from_value::<AuthoredEpisode>(v) {
+                        Ok(ep) => match self.adapt_validate(&ctx.world, &ep) {
+                            Ok(_) => Ok((ep, user)),
+                            Err(e) => Err(format!("episode failed validation: {e}")),
+                        },
+                        Err(e) => Err(format!("parse AuthoredEpisode failed: {e}")),
+                    }
+                }
                 Err(e) => Err(format!("invalid JSON: {e}")),
             };
             match outcome {
@@ -878,6 +964,78 @@ impl LlmAuthor {
             repair_needed,
             repair_direction,
         })
+    }
+}
+
+/// Gemma occasionally copies the action token `play_environment_effect` into
+/// an EnvironmentCue's typed `event` field. The cue target already carries the
+/// unambiguous event identity, so normalize that one known cross-field alias
+/// before deserializing. Other unknown values remain hard schema errors.
+fn normalize_environment_event_aliases(value: &mut serde_json::Value) {
+    let Some(beats) = value
+        .get_mut("beats")
+        .and_then(serde_json::Value::as_array_mut)
+    else {
+        return;
+    };
+    for beat in beats {
+        if let Some(cues) = beat
+            .get_mut("environment_cues")
+            .and_then(serde_json::Value::as_array_mut)
+        {
+            for cue in cues {
+                let is_generic_alias = cue
+                    .get("event")
+                    .and_then(serde_json::Value::as_str)
+                    .is_some_and(|event| event == "play_environment_effect");
+                if !is_generic_alias {
+                    continue;
+                }
+                let target = cue
+                    .get("target")
+                    .and_then(serde_json::Value::as_str)
+                    .unwrap_or_default()
+                    .to_ascii_lowercase();
+                let event = if target.contains("indicator") {
+                    Some("elevator_indicator")
+                } else if target.contains("panel") || target.contains("button") {
+                    Some("control_panel")
+                } else if target.contains("door") {
+                    Some("elevator_doors")
+                } else if target.contains("impossible") || target.contains("floor") {
+                    Some("impossible_floor_reveal")
+                } else if target.contains("interior") && target.contains("light") {
+                    Some("interior_light")
+                } else if target.contains("light") {
+                    Some("lighting_shift")
+                } else {
+                    None
+                };
+                if let Some(event) = event {
+                    cue["event"] = serde_json::Value::String(event.into());
+                }
+            }
+        }
+        if let Some(camera) = beat
+            .get_mut("camera_cue")
+            .and_then(serde_json::Value::as_object_mut)
+        {
+            let alias = camera
+                .get("purpose")
+                .and_then(serde_json::Value::as_str)
+                .and_then(|purpose| match purpose {
+                    "tension" | "establish" | "establishing" | "wide" => Some("spatial"),
+                    "closeup" | "close_up" => Some("speaker"),
+                    "two_shot" | "group" => Some("interaction"),
+                    "object" | "prop_insert" => Some("insert"),
+                    "response" => Some("reaction"),
+                    "over_shoulder" | "ots" => Some("over_the_shoulder"),
+                    _ => None,
+                });
+            if let Some(alias) = alias {
+                camera.insert("purpose".into(), serde_json::Value::String(alias.into()));
+            }
+        }
     }
 }
 
@@ -1281,28 +1439,33 @@ fn whole_episode_user_prompt(
         .join(", ");
 
     let example = r#"{
+  "schema_version": 2,
   "episode_title": "The Ventilation Void",
-  "logline": "Mara and Voss argue as the elevator opens onto a floor that should not exist.",
+  "logline": "Mara and Ellis argue as the elevator opens onto a floor that should not exist.",
   "tone": ["tense", "absurd"],
   "target_duration_seconds": 50.0,
-  "active_characters": ["mara", "voss"],
+  "active_characters": ["mara", "ellis"],
   "primary_location": "floor_3_hallway",
-  "central_goal": {"character": "mara", "goal": "keep the elevator secret from Voss"},
+  "central_goal": {"character": "mara", "goal": "keep the elevator secret from Ellis"},
   "beats": [
     {
       "id": "beat_1",
       "narrative_purpose": "Hook: the elevator dings on a non-existent floor.",
-      "blocking": "Voss at hall_center staring at indicator; Mara at maintenance_panel reaching for panel.",
-      "visible_action": "Voss turns toward indicator; Mara activates panel",
-      "intended_reaction": "Mara flinches; Voss squints",
+      "blocking": "Ellis at hall_center staring at indicator; Mara at maintenance_panel reaching for panel.",
+      "visible_action": "Ellis turns toward indicator; Mara activates panel",
+      "intended_reaction": "Mara flinches; Ellis squints",
       "camera_purpose": "establish tension on the impossible ding",
       "performance_intent": "suspicious, strained",
+      "blocking_cues": [{"actor": "mara", "destination": "maintenance_panel", "locomotion": "walk"}],
+      "environment_cues": [{"target": "elevator_indicator", "event": "elevator_indicator", "value": "B0", "duration": 0.4}],
+      "sound_cues": [{"sound": "elevator_ding", "source": {"kind": "environment", "id": "elevator_indicator"}, "gain": 0.9}],
+      "camera_cue": {"purpose": "spatial", "subjects": [{"kind": "environment", "id": "elevator_indicator"}, {"kind": "character", "id": "ellis"}], "required_visible_event": "indicator changes to B0"},
       "target_start_second": 0.0,
       "actions": [
-        {"actor": "voss", "action": "look_at", "target": "elevator_indicator"},
-        {"actor": "voss", "action": "speak", "text": "The indicator says Sub-Basement Zero. We are on three."}
+        {"actor": "ellis", "action": "look_at", "target": "elevator_indicator", "performance": {"motion": "reveal_look", "intensity": 0.6, "gaze": {"kind": "environment", "id": "elevator_indicator"}}},
+        {"actor": "ellis", "action": "speak", "text": "The indicator says Sub-Basement Zero. We are on three.", "delivery": {"emotion": "stunned", "energy": 0.55, "pace": "measured", "emphasis": ["Zero"]}}
       ],
-      "camera_intent": {"type": "establish", "subject": "voss"},
+      "camera_intent": {"type": "establish", "subject": "ellis"},
       "completion_condition": {"type": "dialogue_finished"}
     },
     {
@@ -1313,10 +1476,12 @@ fn whole_episode_user_prompt(
       "intended_reaction": "Voss frowns and steps back",
       "camera_purpose": "two-character context then speaker",
       "performance_intent": "evasive, bureaucratic annoyance",
+      "blocking_cues": [{"actor": "mara", "destination": "hall_center", "face": {"kind": "character", "id": "voss"}, "locomotion": "hurry"}],
+      "camera_cue": {"purpose": "interaction", "subjects": [{"kind": "character", "id": "mara"}, {"kind": "character", "id": "voss"}], "required_visible_event": "Mara blocks Voss's view"},
       "target_start_second": 10.0,
       "actions": [
-        {"actor": "mara", "action": "move_to", "target": "voss"},
-        {"actor": "mara", "action": "speak", "text": "Don't look at the light. Faulty bulb."}
+        {"actor": "mara", "action": "move_to", "target": "hall_center", "performance": {"motion": "approach_stop", "intensity": 0.7}},
+        {"actor": "mara", "action": "speak", "text": "Don't look at the light. Faulty bulb.", "delivery": {"emotion": "urgent", "energy": 0.65, "pace": "fast", "emphasis": ["don't"]}}
       ],
       "camera_intent": {"type": "conversation", "subject": "mara"},
       "completion_condition": {"type": "dialogue_finished"}
@@ -1333,6 +1498,7 @@ fn whole_episode_user_prompt(
          RECENT EPISODES:\n{}\n\
          PROTECTED CANONICAL FACTS:\n{:?}{}\n\n\
          Author ONE complete episode as a single JSON object matching the `AuthoredEpisode` schema:\n\
+         - schema_version: integer 2\n\
          - episode_title: string\n\
          - logline: string\n\
          - tone: array of strings\n\
@@ -1359,6 +1525,15 @@ fn whole_episode_user_prompt(
          Every beat MUST include a concrete blocking description, one readable visible action, an intended reaction, camera purpose, and performance intent. Use actual staging marks, props, the elevator, panel, indicator, doors, or another valid entity as targets whenever the beat needs physical business.\n\n",
     );
     p.push_str(
+        "SCHEMA V2 PRODUCTION CUES:\n\
+         - Every beat must include camera_cue with a typed purpose, typed subjects, and required_visible_event.\n\
+         - Every beat must include at least one executable blocking_cue, non-speech physical/reaction action, or environment_cue. Prose-only blocking, visible_action, and camera_purpose do not count.\n\
+         - EntityRef values use {\"kind\": \"character|group|prop|environment|mark\", plus \"id\" or group \"ids\"}.\n\
+         - Use performance.motion semantic ids and anticipation/execution/hold/recovery phases for temporary acting; recovery must return the overlay to neutral.\n\
+         - Spoken actions must include delivery emotion, energy, pace, emphasis, pause_style, and vocal_effort so the persistent cast voice can perform the line.\n\
+         - Environment and sound cues must visibly/audibly participate in the story, not merely repeat prose metadata.\n\n",
+    );
+    p.push_str(
         "DURATION (the only hard runtime constraint): the rendered episode must run 45-60 seconds, measured from REAL spoken dialogue plus action timing. Build that time from dialogue AND visible business; no padding, no silence.\n\
          - Use exactly 6 beats.\n\
          - Include EXACTLY 14-20 spoken lines (count every speak/shout/whisper action). Each line must have 8-16 words (no one-word lines). Dialogue fills 35-50 seconds; the rest is actions/reactions/transitions. At least 14 lines required; 10 or fewer will be rejected.\n\
@@ -1373,8 +1548,11 @@ fn whole_episode_user_prompt(
     p.push_str(&format!(
         "HARD RULES:\n\
          - active_characters MUST be a subset of [{}]; at least two characters.\n\
+         - For the current approved production cast, active_characters MUST contain exactly [\"mara\", \"ellis\"]. Do not cast Voss or Nox until distinct licensed GLBs exist for them.\n\
+         - schema_version MUST be 2.\n\
          - primary_location MUST be one of [{}].\n\
          - actions[*].action must be one of these tokens only: {}.\n\
+         - environment_cues[*].event must be exactly one of: elevator_doors, elevator_indicator, control_panel, interior_light, impossible_floor_reveal, lighting_shift. `play_environment_effect` is an action token, never an environment event value.\n\
          - camera_intent.type must be one of these camera intents only: {}.\n\
          - completion_condition.type must be exactly one of: dialogue_finished, arrival, timer, event_done, animation_finished.\n\
          - payoff must be a non-empty string.\n\

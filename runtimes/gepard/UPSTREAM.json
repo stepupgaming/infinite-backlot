@@ -1,0 +1,8 @@
+{
+  "inference_repository": "https://github.com/nineninesix-ai/gepard-inference",
+  "inference_commit": "fa19f5793db3f9f8413da6da69bd32659bd4ac4d",
+  "space_repository": "https://huggingface.co/spaces/nineninesix/gepard",
+  "space_commit": "6676f44c5cdfd6d66a34e6fc0a3e00db6cf6e600",
+  "checkpoint": "F:\\Models\\InfiniteBacklot\\gepard-1.0",
+  "weights_in_repository": false
+}

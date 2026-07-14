@@ -123,6 +123,30 @@ pub struct Diagnostics {
 /// Manifest for downstream tools (PRD §26.1).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TimingReport {
+    #[serde(default = "timing_schema_version")]
+    pub schema_version: u32,
+    #[serde(default)]
+    pub llm_authoring: f32,
+    #[serde(default)]
+    pub tts: f32,
+    #[serde(default)]
+    pub speech_alignment: f32,
+    #[serde(default)]
+    pub kimodo_generation: f32,
+    #[serde(default)]
+    pub motion_processing: f32,
+    #[serde(default)]
+    pub timeline_assembly: f32,
+    #[serde(default)]
+    pub bevy_capture: f32,
+    #[serde(default)]
+    pub audio_mixing: f32,
+    #[serde(default)]
+    pub encoding: f32,
+    #[serde(default)]
+    pub review_packaging: f32,
+    #[serde(default)]
+    pub total_production_time: f32,
     /// Wall-clock secs for each phase.
     pub llm_authoring_secs: f32,
     pub tts_generation_secs: f32,
@@ -134,12 +158,18 @@ pub struct TimingReport {
     pub total_end_to_end_secs: f32,
     /// Effective GPU render FPS = captured_frames / bevy_capture_secs.
     pub effective_fps: Option<f32>,
+    #[serde(default)]
+    pub model_phases: Vec<backlot_runtime::PhaseTiming>,
     /// ISO timestamp when production began.
     #[serde(default)]
     pub started_at: String,
     /// ISO timestamp when production ended.
     #[serde(default)]
     pub ended_at: String,
+}
+
+fn timing_schema_version() -> u32 {
+    2
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -221,6 +251,7 @@ impl EpisodePackage {
             &serde_json::json!({
                 "vertical_captioned": "output/vertical_captioned.mp4",
                 "vertical_clean": "output/vertical_clean.mp4",
+                "vertical_muted": "output/vertical_muted.mp4",
                 "frames_dir": "frames",
                 "review_frame_index": "review/frame_index.json",
                 "contact_sheet": "review/contact_sheet.jpg",

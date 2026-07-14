@@ -61,7 +61,7 @@ const SCENARIOS: &[Scenario] = &[
         title: "The Elevator Inspection",
         logline: "An inspector discovers the elevator has been adding floors that do not exist.",
         tone: &["surreal", "comedy", "mystery"],
-        active: &["mara", "ellis", "voss", "nox"],
+        active: &["mara", "ellis"],
         goal_char: "mara",
         goal_text: "complete the inspection without revealing the impossible fourth floor",
         thread: "unknown_floor",
@@ -70,7 +70,7 @@ const SCENARIOS: &[Scenario] = &[
         title: "Code Violation Number Four",
         logline: "Inspector Voss cites the building for a floor that is not on the map.",
         tone: &["comedy", "bureaucratic", "mystery"],
-        active: &["mara", "voss", "ellis", "nox"],
+        active: &["mara", "ellis"],
         goal_char: "mara",
         goal_text: "distract the inspector before the elevator misbehaves",
         thread: "inspection",
@@ -79,7 +79,7 @@ const SCENARIOS: &[Scenario] = &[
         title: "The Tenant Who Does Not Leave",
         logline: "Ellis decides to meet the neighbor in 4A, who is never seen leaving.",
         tone: &["surreal", "mystery", "unease"],
-        active: &["ellis", "nox", "mara", "voss"],
+        active: &["ellis", "mara"],
         goal_char: "ellis",
         goal_text: "learn who (or what) lives in apartment 4A",
         thread: "missing_tenant",
@@ -181,12 +181,12 @@ fn build_outline(_s: &Scenario, duration: f32) -> Vec<BeatOutline> {
         (
             "reveal",
             "A tenant who is never seen leaving offers a calm, impossible explanation.",
-            &["nox", "ellis"],
+            &["mara", "ellis"],
         ),
         (
             "payoff",
             "The inspector cites the nonexistent floor for lacking an emergency exit.",
-            &["voss", "elevator"],
+            &["ellis", "elevator"],
         ),
     ];
     let n = steps.len();
@@ -219,7 +219,16 @@ fn build_beat_command(
     beat: &BeatOutline,
 ) -> Result<BeatCommand> {
     let mut rng = SeededRng::new(ctx.seed).derive(hash_str(&beat.id));
-    let c: HashMap<&str, &str> = s.active.iter().map(|c| (*c, *c)).collect();
+    let c: HashMap<&str, &str> = [
+        ("mara", "mara"),
+        ("ellis", "ellis"),
+        // Legacy story roles are performed by the approved two-person cast in
+        // deterministic diagnostics; they are not spawned as duplicate bodies.
+        ("nox", "mara"),
+        ("voss", "ellis"),
+    ]
+    .into_iter()
+    .collect();
     let a = |actor: &str, action: &str, target: Option<&str>, text: Option<&str>| ActionCommand {
         actor: actor.to_string(),
         action: action.to_string(),
@@ -227,6 +236,8 @@ fn build_beat_command(
         text: text.map(str::to_string),
         intensity: None,
         duration_override: None,
+        performance: None,
+        delivery: None,
     };
 
     let (actions, camera, completion, fallback): (Vec<ActionCommand>, CameraIntent, CompletionCondition, Option<String>) =
@@ -246,7 +257,7 @@ fn build_beat_command(
             ),
             "complication" => (
                 vec![
-                    a(c["mara"], "inspect", Some("elevator_indicator"), None),
+                    a(c["mara"], "activate", Some("elevator_control_panel"), None),
                     a(c["mara"], "speak", None, Some("That's not a floor. That's a complaint.")),
                     a(c["ellis"], "point_at", Some("elevator_indicator"), None),
                     a(c["ellis"], "speak", None, Some("It's glowing. I think it's proud of itself.")),
@@ -267,7 +278,7 @@ fn build_beat_command(
                     a(rng.pick(s.active).unwrap_or("nox"), "speak", None, Some("You will adjust. They always do.")),
                 ],
                 CameraIntent { r#type: "comedic_wide".into(), subject: "hall_center".into(), reaction_subject: Some(c["ellis"].to_string()) },
-                CompletionCondition { r#type: "dialogue_finished".into(), actor: Some("nox".into()), seconds: None },
+                CompletionCondition { r#type: "dialogue_finished".into(), actor: Some(c["nox"].into()), seconds: None },
                 Some("Cut power briefly, then restore with a single defiant light.".into()),
             ),
             "reveal" => (
@@ -279,7 +290,7 @@ fn build_beat_command(
                     a(c["ellis"], "react", None, Some("...borrowed?")),
                     a(c["mara"], "conceal_object", Some("maintenance_override_key"), None),
                 ],
-                CameraIntent { r#type: "speaker_closeup".into(), subject: "nox".into(), reaction_subject: Some(c["ellis"].to_string()) },
+                CameraIntent { r#type: "speaker_closeup".into(), subject: c["nox"].into(), reaction_subject: Some(c["ellis"].to_string()) },
                 CompletionCondition { r#type: "dialogue_finished".into(), actor: Some(c["nox"].into()), seconds: None },
                 Some("Nox tilts their head a degree too far and the moment passes.".into()),
             ),
@@ -304,6 +315,52 @@ fn build_beat_command(
             ),
         };
 
+    let sounds = match beat.beat_type.as_str() {
+        "hook" => vec![SoundCue {
+            sound: "door_motor".into(),
+            source: Some(EntityRef::Environment {
+                id: "elevator_doors".into(),
+            }),
+            gain: 0.65,
+            start_offset: 0.2,
+        }],
+        "complication" => vec![
+            SoundCue {
+                sound: "panel_beep".into(),
+                source: Some(EntityRef::Environment {
+                    id: "elevator_control_panel".into(),
+                }),
+                gain: 0.75,
+                start_offset: 0.55,
+            },
+            SoundCue {
+                sound: "indicator_glitch".into(),
+                source: Some(EntityRef::Environment {
+                    id: "elevator_indicator".into(),
+                }),
+                gain: 0.65,
+                start_offset: 1.0,
+            },
+        ],
+        "escalation" => vec![SoundCue {
+            sound: "electrical_flicker".into(),
+            source: Some(EntityRef::Environment {
+                id: "hallway_light".into(),
+            }),
+            gain: 0.7,
+            start_offset: 0.2,
+        }],
+        "payoff" => vec![SoundCue {
+            sound: "elevator_ding".into(),
+            source: Some(EntityRef::Environment {
+                id: "elevator_indicator".into(),
+            }),
+            gain: 0.85,
+            start_offset: 0.1,
+        }],
+        _ => vec![],
+    };
+
     Ok(BeatCommand {
         beat_id: beat.id.clone(),
         dramatic_purpose: beat.beat_type.clone(),
@@ -313,6 +370,13 @@ fn build_beat_command(
         completion_condition: completion,
         fallback,
         notes: None,
+        blocking: vec![],
+        environment: vec![],
+        sounds,
+        camera_cue: None,
+        visible_action: None,
+        intended_reaction: None,
+        performance_intent: None,
     })
 }
 
@@ -360,6 +424,29 @@ fn resolve_subject_char(
         .unwrap_or_else(|| subject.to_string())
 }
 
+fn camera_entity_id(entity: &EntityRef) -> Option<String> {
+    match entity {
+        EntityRef::Character { id }
+        | EntityRef::Prop { id }
+        | EntityRef::Environment { id }
+        | EntityRef::Mark { id } => Some(id.clone()),
+        EntityRef::Group { ids } => ids.first().cloned(),
+    }
+}
+
+fn camera_purpose_intent(purpose: &CameraPurpose) -> &'static str {
+    match purpose {
+        CameraPurpose::Speaker => "speaker_closeup",
+        CameraPurpose::Reaction => "reaction",
+        CameraPurpose::OverTheShoulder => "over_the_shoulder",
+        CameraPurpose::Insert => "insert_object",
+        CameraPurpose::Interaction => "conversation",
+        CameraPurpose::Reveal => "reveal",
+        CameraPurpose::Payoff => "cliffhanger_hold",
+        CameraPurpose::Spatial => "establish",
+    }
+}
+
 /// Plan the expanded camera coverage for an episode.
 pub fn plan_shots(
     world: &WorldState,
@@ -392,7 +479,15 @@ pub fn plan_shots(
     for (i, rb) in validated.resolved_beats.iter().enumerate() {
         let (b0, b1) = beat_bounds[i];
         let seg = (b1 - b0).max(0.1);
-        let speaker = resolve_subject_char(world, &rb.camera_intent.subject, &active, dialogue, b0);
+        let typed_subject = rb
+            .command
+            .camera_cue
+            .as_ref()
+            .and_then(|cue| cue.subjects.first())
+            .and_then(camera_entity_id);
+        let speaker = typed_subject.clone().unwrap_or_else(|| {
+            resolve_subject_char(world, &rb.camera_intent.subject, &active, dialogue, b0)
+        });
         let reaction = rb
             .camera_intent
             .reaction_subject
@@ -413,7 +508,9 @@ pub fn plan_shots(
         let react_start = (b1 - react_len).max(ctx_end + 1.0);
 
         // Hook: open close on the performer, not a wide.
-        let ctx_intent = if is_hook {
+        let ctx_intent = if let Some(cue) = &rb.command.camera_cue {
+            camera_purpose_intent(&cue.purpose).to_string()
+        } else if is_hook {
             "tension_push".to_string()
         } else {
             "group_coverage".to_string()
@@ -431,8 +528,8 @@ pub fn plan_shots(
             shots.push(CameraShotSpec {
                 start: ctx_end,
                 end: react_start,
-                intent: if is_hook {
-                    "speaker_closeup"
+                intent: if let Some(cue) = &rb.command.camera_cue {
+                    camera_purpose_intent(&cue.purpose)
                 } else {
                     "speaker_closeup"
                 }
@@ -457,15 +554,10 @@ pub fn plan_shots(
     }
 
     // Insert / reveal close-ups around key prop moments.
-    for (time, _prop) in inserts {
-        // Find a character active near this time to frame.
-        let subj = resolve_subject_char(
-            world,
-            &active.first().cloned().unwrap_or_default(),
-            &active,
-            dialogue,
-            *time,
-        );
+    for (time, prop) in inserts {
+        // Insert subjects remain the actual prop/environment feature. They are
+        // never rewritten to the current speaker.
+        let subj = prop.clone();
         let start = (*time - 1.0).max(0.0);
         let end = (*time + 1.4).min(duration);
         if end - start >= 1.0 {

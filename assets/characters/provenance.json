@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "source": {
+    "title": "KayKit Character Pack: Adventures 1.0",
+    "author": "Kay Lousberg / KayKit",
+    "url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+    "revision": "1.0 repository main snapshot downloaded 2026-07-13",
+    "license": "CC0-1.0",
+    "license_file": "LICENSE-KAYKIT.txt"
+  },
+  "imports": [
+    {
+      "destination": "ellis.glb",
+      "sha256": "93e6e25213009952276d9cf34f5d96a243767334c66f280db0433ddfabb91545",
+      "source_file": "Characters/gltf/Rogue_Hooded.glb",
+      "modifications": "renamed only; embedded skin, materials, and 76 native clips retained"
+    },
+    {
+      "destination": "mara.glb",
+      "sha256": "cf898585da33fab50c724d31605fb931eb2912e6d2280092141e98ca81ad507d",
+      "source_file": "Characters/gltf/Mage.glb",
+      "modifications": "renamed only; embedded skin, materials, and 76 native clips retained"
+    }
+  ],
+  "production_policy": "Only assets with a recorded source, immutable license copy, and checksum may ship. Generated or modified derivatives append their tool revision and transformation notes here."
+}

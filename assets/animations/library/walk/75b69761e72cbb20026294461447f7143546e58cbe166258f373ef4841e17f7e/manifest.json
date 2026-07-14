@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "walk",
+  "cache_key": "75b69761e72cbb20026294461447f7143546e58cbe166258f373ef4841e17f7e",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A performer walks forward naturally with confident heel-to-toe steps, relaxed arm swing, stable floor contact, and a clean balanced stop in neutral standing.",
+  "seed": 12648437,
+  "approval": "approved",
+  "clip": "clip.motion",
+  "preview": null
+}

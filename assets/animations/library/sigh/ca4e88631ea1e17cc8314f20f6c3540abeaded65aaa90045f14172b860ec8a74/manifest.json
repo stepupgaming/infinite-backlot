@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "sigh",
+  "cache_key": "ca4e88631ea1e17cc8314f20f6c3540abeaded65aaa90045f14172b860ec8a74",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A performer exhales visibly, shoulders and chest drop, posture softens with a small weight shift, then returns to quiet neutral standing with lowered arms.",
+  "seed": 12648435,
+  "approval": "approved",
+  "clip": "clip.motion",
+  "preview": null
+}

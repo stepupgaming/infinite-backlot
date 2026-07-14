@@ -353,19 +353,15 @@ impl LlmClient {
             s
         };
 
-        // Attempt 1: json_object. Most broadly supported; local servers such as
-        // llama.cpp frequently fail strict schemas for large nested shapes.
+        // Attempt 1 mirrors Gemmy's proven local-MTP path: ordinary chat
+        // completion plus prompt-level JSON discipline, followed by balanced
+        // object extraction. llama.cpp response_format grammars constrain every
+        // sampled token and substantially reduce draft-MTP acceptance/throughput.
         let instruction0 = format!(
             "Output ONLY a single valid JSON object conforming to the schema named \
              `{schema_name}`. Do not include commentary, markdown fences, or multiple objects."
         );
-        match self
-            .chat(
-                messages(&instruction0),
-                Some(ResponseFormatLocal::JsonObject),
-            )
-            .await
-        {
+        match self.chat(messages(&instruction0), None).await {
             Ok(r) => {
                 if let Some(m) = r.choices.into_iter().next().map(|c| c.message) {
                     let text = combined(&m);
@@ -377,11 +373,12 @@ impl LlmClient {
             Err(e) => {
                 let mut g = self.metrics.lock().unwrap();
                 g.schema_repairs += 1;
-                tracing::warn!("json_object attempt failed ({e}); retrying as json_schema");
+                tracing::warn!("unconstrained MTP attempt failed ({e}); retrying with grammar");
             }
         }
 
-        // Attempt 2+: strict json_schema as a fallback.
+        // Repair attempts may use a grammar only after the fast Gemmy-style
+        // path failed to produce a balanced object.
         let strict_fmt = ResponseFormatLocal::JsonSchema {
             json_schema: JsonSchemaBody {
                 name: schema_name.into(),

@@ -1,0 +1,8 @@
+{
+  "source": "C:\\Projects\\gemmy\\runtimes\\kimodo",
+  "upstream": "https://github.com/nv-tlabs/kimodo",
+  "skeleton": "somaskel77",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "weights_in_repository": false,
+  "excluded": [".venv", "__pycache__", ".git", "outputs"]
+}

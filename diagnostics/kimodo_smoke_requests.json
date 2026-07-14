@@ -1,0 +1,14 @@
+[
+  {
+    "semantic": "panel_press",
+    "prompt": "A person takes one deliberate step toward a wall control panel, raises the right hand, presses one button, releases it, lowers the arm, and returns to a relaxed standing pose.",
+    "duration": 3.0,
+    "output_stem": "C:/Projects/bevy-infinite/diagnostics/kimodo-smoke/panel_press",
+    "seed": 73142,
+    "root_waypoints": [
+      {"frame": 0, "x": 0.0, "z": 0.0},
+      {"frame": 45, "x": 0.0, "z": 0.35},
+      {"frame": 89, "x": 0.0, "z": 0.35}
+    ]
+  }
+]

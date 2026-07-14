@@ -435,6 +435,32 @@ impl Pose {
     pub fn get(&self, j: SemanticJoint) -> Option<&Xform> {
         self.0.get(&j)
     }
+
+    /// Blend two local poses. Missing joints are treated as identity transforms,
+    /// which makes this suitable for temporary upper-body overlays.
+    pub fn blend(a: &Pose, b: &Pose, weight: f32) -> Pose {
+        let w = weight.clamp(0.0, 1.0);
+        let mut out = Pose::default();
+        for joint in SemanticJoint::all() {
+            let av = a.get(*joint).cloned().unwrap_or_else(Xform::identity);
+            let bv = b.get(*joint).cloned().unwrap_or_else(Xform::identity);
+            let lerp3 = |x: [f32; 3], y: [f32; 3]| {
+                [
+                    x[0] + (y[0] - x[0]) * w,
+                    x[1] + (y[1] - x[1]) * w,
+                    x[2] + (y[2] - x[2]) * w,
+                ]
+            };
+            let blended = Xform {
+                pos: lerp3(av.pos, bv.pos),
+                rot: lerp3(av.rot, bv.rot),
+            };
+            if blended.pos != [0.0; 3] || blended.rot != [0.0; 3] {
+                out.set(*joint, blended);
+            }
+        }
+        out
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -559,7 +585,7 @@ pub fn character_pose(state: PerformanceState, t: f32, walk_phase: f32) -> Pose 
             );
         }
         PerformanceState::Talk => {
-            let nod = (t * 4.0).sin() * 0.08;
+            let nod = (t * 4.0).sin() * 0.14;
             pose.set(
                 Head,
                 Xform {
@@ -571,7 +597,7 @@ pub fn character_pose(state: PerformanceState, t: f32, walk_phase: f32) -> Pose 
                 rsh,
                 Xform {
                     pos: [0.0; 3],
-                    rot: [-0.3 + (t * 3.0).sin() * 0.25, 0.0, -0.5],
+                    rot: [-0.16 + (t * 3.0).sin() * 0.34, 0.0, -0.28],
                 },
             );
             pose.set(
@@ -583,25 +609,33 @@ pub fn character_pose(state: PerformanceState, t: f32, walk_phase: f32) -> Pose 
             );
         }
         PerformanceState::Listen => {
+            let shift = (t * 1.2).sin() * 0.025;
             pose.set(
                 Head,
                 Xform {
                     pos: [0.0; 3],
-                    rot: [0.0, 0.15, 0.0],
+                    rot: [0.03, 0.08, 0.0],
+                },
+            );
+            pose.set(
+                Chest,
+                Xform {
+                    pos: [shift, 0.0, 0.0],
+                    rot: [0.0, 0.04, -shift],
                 },
             );
             pose.set(
                 lsh,
                 Xform {
                     pos: [0.0; 3],
-                    rot: [0.2, 0.0, 0.2],
+                    rot: [0.05, 0.0, 0.13],
                 },
             );
             pose.set(
                 rsh,
                 Xform {
                     pos: [0.0; 3],
-                    rot: [0.2, 0.0, -0.2],
+                    rot: [0.05, 0.0, -0.13],
                 },
             );
         }
@@ -637,19 +671,19 @@ pub fn character_pose(state: PerformanceState, t: f32, walk_phase: f32) -> Pose 
             );
         }
         PerformanceState::Gesture => {
-            let w = (t * 3.0).sin() * 0.4;
+            let w = (t * 3.0).sin() * 0.18;
             pose.set(
                 rsh,
                 Xform {
                     pos: [0.0; 3],
-                    rot: [-1.0, 0.0, -0.3 + w],
+                    rot: [-0.62, 0.0, -0.22 + w],
                 },
             );
             pose.set(
                 lsh,
                 Xform {
                     pos: [0.0; 3],
-                    rot: [-0.6, 0.0, 0.4],
+                    rot: [-0.18, 0.0, 0.18],
                 },
             );
             pose.set(

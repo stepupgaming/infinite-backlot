@@ -12,6 +12,8 @@ path = "src/main.rs"
 [dependencies]
 backlot-core.workspace = true
 backlot-llm.workspace = true
+backlot-runtime.workspace = true
+backlot-motion.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 tracing.workspace = true

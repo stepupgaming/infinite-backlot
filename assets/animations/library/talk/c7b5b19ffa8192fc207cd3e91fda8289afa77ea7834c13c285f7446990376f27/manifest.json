@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "talk",
+  "cache_key": "c7b5b19ffa8192fc207cd3e91fda8289afa77ea7834c13c285f7446990376f27",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A performer speaks conversationally with grounded posture, natural asymmetric hand gestures, attentive head motion, small weight shifts, and lowers both arms back to relaxed neutral standing.",
+  "seed": 12648436,
+  "approval": "approved",
+  "clip": "clip.motion",
+  "preview": null
+}

@@ -4,6 +4,8 @@ members = [
     "crates/backlot-core",
     "crates/backlot-llm",
     "crates/backlot-app",
+    "crates/backlot-motion",
+    "crates/backlot-runtime",
 ]
 
 [workspace.package]
@@ -16,6 +18,8 @@ rust-version = "1.85"
 # Internal crates
 backlot-core = { path = "crates/backlot-core" }
 backlot-llm = { path = "crates/backlot-llm" }
+backlot-motion = { path = "crates/backlot-motion" }
+backlot-runtime = { path = "crates/backlot-runtime" }
 
 # Serialization / data
 serde = { version = "1", features = ["derive"] }
@@ -26,6 +30,8 @@ thiserror = "1"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 rand = "0.8"
+blake3 = "1"
+bincode = { version = "2", features = ["serde"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 

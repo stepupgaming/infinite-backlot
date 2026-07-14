@@ -8,9 +8,9 @@
 
 use crate::avatar::{character_pose, CameraTargetRole, HumanoidRig, PerformanceState, Pose, Xform};
 use crate::package::{Caption, DialogueLine, TimedEvent};
-use crate::validation::{validate_beat_command, validate_plan, ValidatedPlan};
+use crate::protocol::{ActionPhases, EnvironmentEventKind, PerformanceCue, SoundCue};
+use crate::validation::ValidatedPlan;
 use crate::world::WorldState;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 // ===========================================================================
@@ -25,6 +25,7 @@ pub struct ScheduledAction {
     pub text: Option<String>,
     pub start: f32,
     pub dur: f32,
+    pub performance: Option<PerformanceCue>,
 }
 
 #[derive(Debug, Clone)]
@@ -52,6 +53,24 @@ pub struct PropAttach {
 }
 
 #[derive(Debug, Clone)]
+pub struct ScheduledEnvironmentCue {
+    pub target: String,
+    pub event: EnvironmentEventKind,
+    pub start: f32,
+    pub duration: f32,
+    pub from: Option<f32>,
+    pub to: Option<f32>,
+    pub value: Option<String>,
+    pub easing: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct ScheduledSoundCue {
+    pub cue: SoundCue,
+    pub start: f32,
+}
+
+#[derive(Debug, Clone)]
 pub struct Schedule {
     pub duration: f32,
     pub characters: Vec<CharTrack>,
@@ -63,6 +82,8 @@ pub struct Schedule {
     pub prop_attach: Vec<PropAttach>,
     /// Insert markers (prop reveals, elevator indicators) for the director.
     pub inserts: Vec<(f32, String)>,
+    pub environment: Vec<ScheduledEnvironmentCue>,
+    pub sounds: Vec<ScheduledSoundCue>,
 }
 
 #[derive(Debug, Clone)]
@@ -74,7 +95,10 @@ pub enum ActionKind {
     Point,
     Look,
     Listen,
-    Other,
+    Interact,
+    Environment,
+    Narrative,
+    Unknown,
 }
 
 pub fn action_kind(a: &str) -> ActionKind {
@@ -82,15 +106,64 @@ pub fn action_kind(a: &str) -> ActionKind {
         "move_to" | "approach" | "retreat_from" | "follow" | "flee_to" | "enter_room"
         | "exit_room" => ActionKind::Move,
         "speak" | "whisper" | "shout" => ActionKind::Speak,
-        "react" => ActionKind::React,
+        "react" | "laugh" | "sigh" | "display_emotion" | "conceal_emotion" | "interrupt" => {
+            ActionKind::React
+        }
         "gesture" => ActionKind::Gesture,
         "point_at" => ActionKind::Point,
         "look_at" | "turn_toward" => ActionKind::Look,
-        "sigh" | "laugh" | "display_emotion" | "conceal_emotion" | "pause" | "interrupt" => {
-            ActionKind::Listen
+        "pause" => ActionKind::Listen,
+        "pick_up" | "put_down" | "give" | "take" | "inspect" | "open" | "close" | "activate"
+        | "deactivate" | "hide_object" | "reveal_object" | "carry" | "drop" | "throw_safe"
+        | "knock_on" | "conceal_object" | "sit_at" | "stand_at" | "write_note" => {
+            ActionKind::Interact
         }
-        _ => ActionKind::Other,
+        "flicker_lights"
+        | "cut_power"
+        | "ring_alarm"
+        | "open_elevator"
+        | "close_elevator"
+        | "spawn_authorized_prop"
+        | "move_authorized_prop"
+        | "change_room_state"
+        | "play_environment_effect"
+        | "trigger_safe_physics_event"
+        | "change_location_condition" => ActionKind::Environment,
+        "add_fact"
+        | "remove_false_belief"
+        | "create_rumor"
+        | "resolve_thread"
+        | "create_thread"
+        | "change_relationship"
+        | "assign_secret"
+        | "schedule_future_event" => ActionKind::Narrative,
+        _ => ActionKind::Unknown,
     }
+}
+
+pub fn action_phase_weight(phases: ActionPhases, normalized_time: f32) -> f32 {
+    let total =
+        (phases.anticipation + phases.execution + phases.hold + phases.recovery).max(0.0001);
+    let t = normalized_time.clamp(0.0, 1.0) * total;
+    let a = phases.anticipation.max(0.0);
+    let x = phases.execution.max(0.0);
+    let h = phases.hold.max(0.0);
+    let r = phases.recovery.max(0.0);
+    if a > 0.0 && t < a {
+        return smoothstep(t / a);
+    }
+    if t < a + x + h {
+        return 1.0;
+    }
+    if r > 0.0 && t < a + x + h + r {
+        return 1.0 - smoothstep((t - a - x - h) / r);
+    }
+    0.0
+}
+
+fn smoothstep(t: f32) -> f32 {
+    let t = t.clamp(0.0, 1.0);
+    t * t * (3.0 - 2.0 * t)
 }
 
 /// Resolve a target id to a static world position (marks, character homes, or
@@ -180,6 +253,8 @@ pub fn build_schedule(
     let mut flicker: Vec<(f32, f32)> = Vec::new();
     let mut prop_attach: Vec<PropAttach> = Vec::new();
     let mut inserts: Vec<(f32, String)> = Vec::new();
+    let mut environment: Vec<ScheduledEnvironmentCue> = Vec::new();
+    let mut sounds: Vec<ScheduledSoundCue> = Vec::new();
     let mut camera_shots: Vec<CameraShotSpec> = Vec::new();
 
     let mut clock = 0.0f32;
@@ -203,6 +278,7 @@ pub fn build_schedule(
                     text: ra.text.clone(),
                     start: beat_start + t,
                     dur,
+                    performance: ra.performance.clone(),
                 });
             }
             // dialogue + captions for speech
@@ -221,11 +297,7 @@ pub fn build_schedule(
                     text: text.clone(),
                     voice_id: voice.clone(),
                 });
-                captions.push(Caption {
-                    start: s,
-                    end: e,
-                    text,
-                });
+                captions.extend(caption_phrases(&text, s, e));
             }
             // events log
             events.push(TimedEvent {
@@ -266,6 +338,24 @@ pub fn build_schedule(
             }
             t += dur;
         }
+        for cue in &rb.command.environment {
+            environment.push(ScheduledEnvironmentCue {
+                target: cue.target.clone(),
+                event: cue.event.clone(),
+                start: beat_start + cue.start_offset.max(0.0),
+                duration: cue.duration.max(0.01),
+                from: cue.from,
+                to: cue.to,
+                value: cue.value.clone(),
+                easing: cue.easing.clone(),
+            });
+        }
+        for cue in &rb.command.sounds {
+            sounds.push(ScheduledSoundCue {
+                cue: cue.clone(),
+                start: beat_start + cue.start_offset.max(0.0),
+            });
+        }
         let beat_end =
             (beat_start + t + 0.6).max(rb.completion.seconds.unwrap_or(0.0).max(beat_start + t));
         clock = beat_end;
@@ -293,7 +383,150 @@ pub fn build_schedule(
         flicker,
         prop_attach,
         inserts,
+        environment,
+        sounds,
     }
+}
+
+/// Split a spoken line into punctuation-aware, two-line-safe caption phrases.
+/// Cues consume the measured WAV interval and stay within the 0.8–3.0 second
+/// reading window whenever the source line duration permits it.
+pub fn caption_phrases(text: &str, start: f32, end: f32) -> Vec<Caption> {
+    let normalized = text.split_whitespace().collect::<Vec<_>>().join(" ");
+    if normalized.is_empty() || end <= start {
+        return vec![];
+    }
+    let mut phrases = Vec::<String>::new();
+    let mut phrase = String::new();
+    for word in normalized.split_whitespace() {
+        let candidate_len = phrase.len() + usize::from(!phrase.is_empty()) + word.len();
+        if candidate_len > 38 && !phrase.is_empty() {
+            phrases.push(std::mem::take(&mut phrase));
+        }
+        if !phrase.is_empty() {
+            phrase.push(' ');
+        }
+        phrase.push_str(word);
+        if word.ends_with(['.', '!', '?', ';', ':']) && phrase.len() >= 14 {
+            phrases.push(std::mem::take(&mut phrase));
+        }
+    }
+    if !phrase.is_empty() {
+        phrases.push(phrase);
+    }
+
+    let duration = end - start;
+    let minimum_count = (duration / 3.0).ceil().max(1.0) as usize;
+    while phrases.len() < minimum_count {
+        let Some((index, _)) = phrases
+            .iter()
+            .enumerate()
+            .filter(|(_, value)| value.split_whitespace().count() > 1)
+            .max_by_key(|(_, value)| value.len())
+        else {
+            break;
+        };
+        let words: Vec<_> = phrases[index].split_whitespace().collect();
+        let midpoint = words.len() / 2;
+        let left = words[..midpoint].join(" ");
+        let right = words[midpoint..].join(" ");
+        phrases.splice(index..=index, [left, right]);
+    }
+
+    let total_weight: usize = phrases
+        .iter()
+        .map(|value| value.chars().count().max(1))
+        .sum();
+    let mut cursor = start;
+    let phrase_count = phrases.len();
+    phrases
+        .into_iter()
+        .enumerate()
+        .map(|(index, text)| {
+            let remaining_cues = phrase_count - index;
+            let remaining_time = end - cursor;
+            let cue_duration = if remaining_cues == 1 {
+                remaining_time
+            } else {
+                let weighted =
+                    duration * text.chars().count().max(1) as f32 / total_weight.max(1) as f32;
+                weighted
+                    .clamp(0.8, 3.0)
+                    .min(remaining_time - 0.8 * (remaining_cues - 1) as f32)
+                    .max(0.01)
+            };
+            let caption = Caption {
+                start: cursor,
+                end: (cursor + cue_duration).min(end),
+                text,
+            };
+            cursor = caption.end;
+            caption
+        })
+        .collect()
+}
+
+/// Rebuild captions from Parakeet word boundaries while preserving the exact
+/// authored caption text. ASR is timing evidence, never a dialogue rewrite.
+pub fn apply_word_aligned_captions(
+    schedule: &mut Schedule,
+    alignments: &HashMap<(String, String), crate::asr::WordAlignment>,
+) {
+    let mut captions = Vec::new();
+    for dialogue in &schedule.dialogue {
+        let key = (dialogue.actor.clone(), dialogue.text.clone());
+        let Some(alignment) = alignments.get(&key).filter(|value| !value.words.is_empty()) else {
+            captions.extend(caption_phrases(
+                &dialogue.text,
+                dialogue.start,
+                dialogue.end,
+            ));
+            continue;
+        };
+        let authored_words: Vec<&str> = dialogue.text.split_whitespace().collect();
+        if authored_words.is_empty() {
+            continue;
+        }
+        let mut groups: Vec<(usize, usize, String)> = Vec::new();
+        let mut first = 0usize;
+        let mut current = String::new();
+        for (index, word) in authored_words.iter().enumerate() {
+            let candidate = current.len() + usize::from(!current.is_empty()) + word.len();
+            if candidate > 38 && !current.is_empty() {
+                groups.push((first, index, std::mem::take(&mut current)));
+                first = index;
+            }
+            if !current.is_empty() {
+                current.push(' ');
+            }
+            current.push_str(word);
+            if word.ends_with(['.', '!', '?', ';', ':']) && current.len() >= 14 {
+                groups.push((first, index + 1, std::mem::take(&mut current)));
+                first = index + 1;
+            }
+        }
+        if !current.is_empty() {
+            groups.push((first, authored_words.len(), current));
+        }
+        for (first, exclusive_end, text) in groups {
+            let map_index = |index: usize| -> usize {
+                ((index as f32 / authored_words.len() as f32) * alignment.words.len() as f32)
+                    .floor()
+                    .clamp(0.0, alignment.words.len().saturating_sub(1) as f32)
+                    as usize
+            };
+            let start_word = map_index(first);
+            let end_word = map_index(exclusive_end.saturating_sub(1));
+            captions.push(Caption {
+                start: (dialogue.start + alignment.words[start_word].start)
+                    .clamp(dialogue.start, dialogue.end),
+                end: (dialogue.start + alignment.words[end_word].end)
+                    .clamp(dialogue.start, dialogue.end),
+                text,
+            });
+        }
+    }
+    schedule.captions = captions;
 }
 
 /// Compress a schedule so it opens with content almost immediately and never
@@ -398,6 +631,15 @@ pub fn compact_dead_air(sched: &mut Schedule, max_dead_air: f32) {
     for ins in &mut sched.inserts {
         ins.0 = warp(ins.0);
     }
+    for cue in &mut sched.environment {
+        let ns = warp(cue.start);
+        let ne = warp(cue.start + cue.duration);
+        cue.start = ns;
+        cue.duration = (ne - ns).max(0.01);
+    }
+    for cue in &mut sched.sounds {
+        cue.start = warp(cue.start);
+    }
     for pa in &mut sched.prop_attach {
         pa.start = warp(pa.start);
         pa.end = warp(pa.end);
@@ -456,6 +698,8 @@ mod timeline_tests {
             flicker: vec![],
             prop_attach: vec![],
             inserts: vec![],
+            environment: vec![],
+            sounds: vec![],
         };
         compact_dead_air(&mut sched, 4.0);
         // First line starts within ~1s (was 4.0s cold open).
@@ -492,6 +736,9 @@ pub struct CharFrame {
     pub state: PerformanceState,
     pub walk_phase: f32,
     pub speaking: bool,
+    pub action_local_time: f32,
+    pub action_weight: f32,
+    pub focus_target: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -509,6 +756,9 @@ pub struct FrameState {
     pub flicker: bool,
     /// Elevator door open amount in [0,1] (0 = closed, 1 = fully open).
     pub elevator_open: f32,
+    pub elevator_indicator: Option<String>,
+    pub panel_active: f32,
+    pub impossible_reveal: f32,
 }
 
 /// Compute the world state at absolute time `t` (deterministic).
@@ -529,6 +779,8 @@ pub fn evaluate_at(
         let mut yaw = 0.0f32;
         let mut active_state: Option<(PerformanceState, bool)> = None;
         let mut focus_target: Option<String> = None;
+        let mut action_local_time = 0.0f32;
+        let mut action_weight = 0.0f32;
         // gather this character's actions sorted by start
         let mut acts: Vec<&ScheduledAction> = ct.actions.iter().collect();
         acts.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap());
@@ -560,24 +812,37 @@ pub fn evaluate_at(
                         }
                     }
                 }
-                _ if t >= a.start && t < a.start + a.dur => match action_kind(&a.action) {
-                    ActionKind::Speak => active_state = Some((PerformanceState::Talk, true)),
-                    ActionKind::React => active_state = Some((PerformanceState::React, false)),
-                    ActionKind::Gesture => active_state = Some((PerformanceState::Gesture, false)),
-                    ActionKind::Point => {
-                        active_state = Some((PerformanceState::Point, false));
-                        focus_target = a.target.clone();
+                _ if t >= a.start && t < a.start + a.dur => {
+                    let local = ((t - a.start) / a.dur.max(0.001)).clamp(0.0, 1.0);
+                    action_local_time = t - a.start;
+                    action_weight = action_phase_weight(
+                        a.performance.as_ref().map(|p| p.phases).unwrap_or_default(),
+                        local,
+                    );
+                    match action_kind(&a.action) {
+                        ActionKind::Speak => active_state = Some((PerformanceState::Talk, true)),
+                        ActionKind::React => active_state = Some((PerformanceState::React, false)),
+                        ActionKind::Gesture => {
+                            active_state = Some((PerformanceState::Gesture, false))
+                        }
+                        ActionKind::Point => {
+                            active_state = Some((PerformanceState::Point, false));
+                            focus_target = a.target.clone();
+                        }
+                        ActionKind::Look => {
+                            active_state = Some((PerformanceState::Look, false));
+                            focus_target = a.target.clone();
+                        }
+                        ActionKind::Listen => {
+                            active_state = Some((PerformanceState::Listen, false))
+                        }
+                        ActionKind::Interact => {
+                            active_state = Some((PerformanceState::Gesture, false))
+                        }
+                        ActionKind::Environment | ActionKind::Narrative | ActionKind::Unknown => {}
+                        ActionKind::Move => {}
                     }
-                    ActionKind::Look => {
-                        active_state = Some((PerformanceState::Look, false));
-                        focus_target = a.target.clone();
-                    }
-                    ActionKind::Listen => active_state = Some((PerformanceState::Listen, false)),
-                    // Object interactions need readable body business rather than
-                    // silently retaining a previous pose.
-                    ActionKind::Other => active_state = Some((PerformanceState::Gesture, false)),
-                    ActionKind::Move => {}
-                },
+                }
                 _ => {}
             }
         }
@@ -617,19 +882,35 @@ pub fn evaluate_at(
             state,
             walk_phase: t,
             speaking,
+            action_local_time,
+            action_weight: if moving { 1.0 } else { action_weight },
+            focus_target,
         });
     }
 
     // Second pass: poses + focus yaw (face conversational partner).
     let mut posed: Vec<(CharFrame, Pose)> = Vec::new();
     for f in &frames {
-        let mut pose = character_pose(f.state, t, f.walk_phase);
+        let idle = character_pose(PerformanceState::Idle, t, f.walk_phase);
+        let active = character_pose(f.state, f.action_local_time, f.walk_phase);
+        let mut pose = if matches!(
+            f.state,
+            PerformanceState::Idle | PerformanceState::Walk | PerformanceState::Listen
+        ) {
+            active
+        } else {
+            Pose::blend(&idle, &active, f.action_weight)
+        };
         // gaze toward conversational partner if listening/speaking
         if matches!(
             f.state,
             PerformanceState::Listen | PerformanceState::Talk | PerformanceState::Look
         ) {
-            let partner = frames.iter().find(|o| o.id != f.id).map(|o| o.root.pos);
+            let partner = f
+                .focus_target
+                .as_ref()
+                .and_then(|target| frames.iter().find(|o| o.id == *target).map(|o| o.root.pos))
+                .or_else(|| frames.iter().find(|o| o.id != f.id).map(|o| o.root.pos));
             if let Some(p) = partner {
                 let dx = p[0] - f.root.pos[0];
                 let dz = p[2] - f.root.pos[2];
@@ -664,15 +945,54 @@ pub fn evaluate_at(
 
     // Elevator door state: once an `open_elevator` action has started, the doors
     // stay open for the rest of the episode.
-    let elevator_open = sched
+    let legacy_elevator_open = sched
         .characters
         .iter()
         .flat_map(|c| c.actions.iter())
         .any(|a| a.action == "open_elevator" && a.start <= t)
         .then(|| 1.0f32)
         .unwrap_or(0.0);
+    let cue_value = |kind: EnvironmentEventKind| -> f32 {
+        sched
+            .environment
+            .iter()
+            .filter(|cue| cue.event == kind && t >= cue.start)
+            .map(|cue| {
+                let k = smoothstep(((t - cue.start) / cue.duration.max(0.01)).clamp(0.0, 1.0));
+                cue.from.unwrap_or(0.0) + (cue.to.unwrap_or(1.0) - cue.from.unwrap_or(0.0)) * k
+            })
+            .last()
+            .unwrap_or(0.0)
+    };
+    let elevator_open = legacy_elevator_open.max(cue_value(EnvironmentEventKind::ElevatorDoors));
+    let panel_active = cue_value(EnvironmentEventKind::ControlPanel);
+    let impossible_reveal = cue_value(EnvironmentEventKind::ImpossibleFloorReveal);
+    let elevator_indicator = sched
+        .environment
+        .iter()
+        .filter(|cue| cue.event == EnvironmentEventKind::ElevatorIndicator && t >= cue.start)
+        .last()
+        .and_then(|cue| cue.value.clone());
 
     let (eye, look) = if let Some(shot) = active_shot {
+        let static_subject = if posed.iter().any(|(frame, _)| frame.id == shot.subject) {
+            None
+        } else {
+            crate::stage::feature_position(&shot.subject)
+                .or_else(|| resolve_pos(&shot.subject, world, &char_home_map(sched)))
+                .map(|mut position| {
+                    position[1] = if shot.subject.contains("indicator") {
+                        2.65
+                    } else if shot.subject.contains("panel") {
+                        1.25
+                    } else if shot.subject.contains("elevator") {
+                        1.45
+                    } else {
+                        position[1].max(0.8)
+                    };
+                    position
+                })
+        };
         let subject_char = posed
             .iter()
             .find(|(f, _)| f.id == shot.subject)
@@ -705,16 +1025,26 @@ pub fn evaluate_at(
             .iter()
             .find(|(f, _)| f.id == frame_char_id)
             .or_else(|| posed.iter().find(|(f, _)| f.id == subject_char));
-        let frame_pos = frame_frame
-            .map(|(f, p)| {
-                rigs.get(&f.id)
-                    .map(|r| r.camera_target(CameraTargetRole::Head, &f.root, p))
-                    .unwrap_or(f.root.pos)
-            })
-            .unwrap_or([0.0, 1.5, 0.0]);
-        let yaw = frame_frame.map(|(f, _)| f.root.rot[1]).unwrap_or(0.0);
+        let frame_pos = static_subject.unwrap_or_else(|| {
+            frame_frame
+                .map(|(f, p)| {
+                    rigs.get(&f.id)
+                        .map(|r| r.camera_target(CameraTargetRole::Head, &f.root, p))
+                        .unwrap_or(f.root.pos)
+                })
+                .unwrap_or([0.0, 1.5, 0.0])
+        });
+        let yaw = if static_subject.is_some() {
+            0.0
+        } else {
+            frame_frame.map(|(f, _)| f.root.rot[1]).unwrap_or(0.0)
+        };
         // Frame around the chest so the performer is vertically centred.
-        let chest = [frame_pos[0], frame_pos[1] - 0.55, frame_pos[2]];
+        let chest = if static_subject.is_some() {
+            frame_pos
+        } else {
+            [frame_pos[0], frame_pos[1] - 0.55, frame_pos[2]]
+        };
         let react_pos = shot
             .reaction
             .as_ref()
@@ -798,6 +1128,9 @@ pub fn evaluate_at(
         props,
         flicker,
         elevator_open,
+        elevator_indicator,
+        panel_active,
+        impossible_reveal,
     }
 }
 
@@ -816,19 +1149,19 @@ pub fn char_home_map(sched: &Schedule) -> HashMap<String, [f32; 3]> {
 /// (roughly 0.55 m below the head) so the framing subject is vertically centred.
 pub fn camera_offset(intent: &str, react: Option<[f32; 3]>) -> ((f32, f32, f32), CameraTargetRole) {
     let o = match intent {
-        "establish" | "comedic_wide" | "group_coverage" => (0.0, 1.1, 4.5),
-        "speaker_closeup" | "follow" | "conversation" => (0.0, 0.3, 2.4),
+        "establish" | "comedic_wide" | "group_coverage" => (0.0, 1.1, 5.6),
+        "speaker_closeup" | "follow" | "conversation" => (0.0, 0.3, 3.4),
         "reaction" => {
             let r = react.unwrap_or([0.0, 1.5, 0.0]);
             // approach the reactor from its side, slightly closer
-            (r[0].signum().max(1.0) * 1.2, 0.4, 2.4)
+            (r[0].signum().max(1.0) * 1.2, 0.4, 3.3)
         }
-        "reveal" | "insert_object" => (0.8, 0.2, 2.0),
-        "tension_push" => (0.0, 0.4, 1.9),
-        "cliffhanger_hold" => (0.0, 0.5, 2.1),
-        "over_the_shoulder" => (-1.0, 0.4, 2.4),
-        "exit_transition" => (0.0, 1.5, 4.0),
-        _ => (0.0, 0.4, 2.6),
+        "reveal" | "insert_object" => (0.8, 0.2, 2.8),
+        "tension_push" => (0.0, 0.4, 3.1),
+        "cliffhanger_hold" => (0.0, 0.5, 3.2),
+        "over_the_shoulder" => (-1.0, 0.4, 3.5),
+        "exit_transition" => (0.0, 1.5, 5.0),
+        _ => (0.0, 0.4, 3.5),
     };
     (o, CameraTargetRole::Head)
 }
@@ -845,9 +1178,10 @@ fn clamp_camera_to_hallway(eye: [f32; 3], _subj: &[f32; 3]) -> [f32; 3] {
     let mut e = eye;
     e[0] = e[0].clamp(-7.0, 7.0);
     e[2] = e[2].clamp(-2.4, 9.0);
-    // Elevator cabin sits at x≈3, z in [-3.0, -1.0]; keep the camera in front.
-    if e[2] < -1.0 && e[0] > 2.0 && e[0] < 4.0 {
-        e[2] = -0.6;
+    // Elevator cabin occupies the rear-left bay; keep cameras in the hallway
+    // side of its doors rather than inside the shell.
+    if e[2] < -3.0 && e[0] > -6.8 && e[0] < -3.5 {
+        e[2] = -2.4;
     }
     e
 }

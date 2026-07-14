@@ -1,0 +1,11 @@
+[
+  {
+    "index": 0,
+    "semantic": "panel_press",
+    "npz": "C:\\Projects\\bevy-infinite\\diagnostics\\kimodo-smoke\\panel_press.npz",
+    "bvh": "C:\\Projects\\bevy-infinite\\diagnostics\\kimodo-smoke\\panel_press.bvh",
+    "constraints": "C:\\Projects\\bevy-infinite\\diagnostics\\kimodo-smoke\\panel_press.constraints.json",
+    "elapsed_ms": 23946,
+    "success": true
+  }
+]

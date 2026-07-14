@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "point",
+  "cache_key": "ebf2b14f1598caaefeb5c9fd47a36fa268e69d0c2da8d6bc50ef93ccc154ff92",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A performer anticipates, raises one arm to point clearly at something ahead, holds the readable point briefly, lowers the arm completely, and returns to relaxed neutral standing.",
+  "seed": 12648434,
+  "approval": "approved",
+  "clip": "clip.motion",
+  "preview": null
+}

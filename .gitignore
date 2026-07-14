@@ -1,6 +1,15 @@
 # Build artifacts
 /target
 /output
+/runtimes/**/.venv
+/runtimes/**/__pycache__
+/runtimes/**/*.pyc
+/runtimes/**/outputs
+/assets/animations/library/**/raw
+/runtimes/llama.cpp/*.dll
+/runtimes/llama.cpp/*.exe
+/runtimes/gepard/space_reference/speakers/*.pt
+/diagnostics/gepard-smoke/*.wav
 **/*.rs.bk
 
 # Rust lockfile is committed for applications (reproducible builds)

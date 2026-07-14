@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "idle",
+  "cache_key": "4308affafcefe1753a5478f9a86e0d538d6d8928d0bcef19623265a8978b9d69",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A performer stands in a relaxed natural idle with stable planted feet, subtle breathing, small weight shifts, loose arms, and alert head movement, returning seamlessly to the initial stance.",
+  "seed": 12648430,
+  "approval": "approved",
+  "clip": "clip.motion",
+  "preview": null
+}

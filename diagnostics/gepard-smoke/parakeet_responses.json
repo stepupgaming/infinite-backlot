@@ -1,0 +1,9 @@
+[
+  {
+    "id": "mara-smoke",
+    "output": "C:\\Projects\\bevy-infinite\\diagnostics\\gepard-smoke\\mara.words.json",
+    "word_count": 7,
+    "elapsed_ms": 1092,
+    "success": true
+  }
+]

@@ -77,6 +77,8 @@ pub struct ResolvedAction {
     pub intensity: f32,
     /// Baseline duration estimate (seconds); the executor refines movement.
     pub estimated_duration: f32,
+    pub performance: Option<PerformanceCue>,
+    pub delivery: Option<DeliverySpec>,
 }
 
 // ---------- Plan validation ----------
@@ -179,6 +181,13 @@ pub fn validate_plan(
                 },
                 fallback: None,
                 notes: None,
+                blocking: vec![],
+                environment: vec![],
+                sounds: vec![],
+                camera_cue: None,
+                visible_action: None,
+                intended_reaction: None,
+                performance_intent: None,
             },
             resolved_actions: Vec::new(),
             camera_intent: CameraIntent {
@@ -436,6 +445,13 @@ pub fn adapt_beat_command(
                     },
                     fallback: None,
                     notes: None,
+                    blocking: vec![],
+                    environment: vec![],
+                    sounds: vec![],
+                    camera_cue: None,
+                    visible_action: None,
+                    intended_reaction: None,
+                    performance_intent: None,
                 }
             })
         }
@@ -625,6 +641,33 @@ pub fn adapt_beat_command(
         completion_condition,
         fallback,
         notes,
+        blocking: obj
+            .get("blocking")
+            .and_then(|v| serde_json::from_value(v.clone()).ok())
+            .unwrap_or_default(),
+        environment: obj
+            .get("environment")
+            .and_then(|v| serde_json::from_value(v.clone()).ok())
+            .unwrap_or_default(),
+        sounds: obj
+            .get("sounds")
+            .and_then(|v| serde_json::from_value(v.clone()).ok())
+            .unwrap_or_default(),
+        camera_cue: obj
+            .get("camera_cue")
+            .and_then(|v| serde_json::from_value(v.clone()).ok()),
+        visible_action: obj
+            .get("visible_action")
+            .and_then(|v| v.as_str())
+            .map(str::to_string),
+        intended_reaction: obj
+            .get("intended_reaction")
+            .and_then(|v| v.as_str())
+            .map(str::to_string),
+        performance_intent: obj
+            .get("performance_intent")
+            .and_then(|v| v.as_str())
+            .map(str::to_string),
     }
 }
 
@@ -650,8 +693,62 @@ pub fn adapt_authored_episode(
     ep: &AuthoredEpisode,
     world: &WorldState,
 ) -> Result<(EpisodePlan, HashMap<String, BeatCommand>), Vec<ValidationError>> {
+    if ep.schema_version > crate::protocol::CURRENT_AUTHORED_SCHEMA_VERSION {
+        return Err(vec![ValidationError::new(
+            "schema_version",
+            &format!(
+                "unsupported authored episode schema {}; runtime supports through {}",
+                ep.schema_version,
+                crate::protocol::CURRENT_AUTHORED_SCHEMA_VERSION
+            ),
+        )]);
+    }
     if ep.beats.is_empty() {
         return Err(vec![ValidationError::new("beats", "episode has no beats")]);
+    }
+
+    // Schema-v1 caches are intentionally accepted and migrated by the adapter.
+    // Newly-authored schema-v2 episodes must contain executable visual business;
+    // prose descriptions are useful direction but cannot drive the timeline.
+    if ep.schema_version >= 2 {
+        let mut visual_errors = Vec::new();
+        for (index, beat) in ep.beats.iter().enumerate() {
+            let has_executable_action = beat.actions.iter().any(|action| {
+                !matches!(
+                    action.action.as_str(),
+                    "speak"
+                        | "whisper"
+                        | "shout"
+                        | "pause"
+                        | "add_fact"
+                        | "remove_false_belief"
+                        | "create_rumor"
+                        | "resolve_thread"
+                        | "create_thread"
+                        | "change_relationship"
+                        | "assign_secret"
+                        | "schedule_future_event"
+                )
+            });
+            if beat.blocking_cues.is_empty()
+                && beat.environment_cues.is_empty()
+                && !has_executable_action
+            {
+                visual_errors.push(ValidationError::new(
+                    &format!("beats[{index}]"),
+                    "schema-v2 beat has no executable blocking cue, physical action, environment event, or reaction",
+                ));
+            }
+            if beat.camera_cue.is_none() {
+                visual_errors.push(ValidationError::new(
+                    &format!("beats[{index}].camera_cue"),
+                    "schema-v2 beat must declare a typed camera purpose and subjects",
+                ));
+            }
+        }
+        if !visual_errors.is_empty() {
+            return Err(visual_errors);
+        }
     }
 
     // 1. Canonical, unique, non-empty beat ids.
@@ -756,6 +853,8 @@ pub fn adapt_authored_episode(
                     text: a.text.clone(),
                     intensity: a.intensity,
                     duration_override: a.duration_override,
+                    performance: a.performance.clone(),
+                    delivery: a.delivery.clone(),
                 }
             })
             .collect();
@@ -785,6 +884,13 @@ pub fn adapt_authored_episode(
             },
             fallback: b.fallback.clone(),
             notes: b.notes.clone(),
+            blocking: b.blocking_cues.clone(),
+            environment: b.environment_cues.clone(),
+            sounds: b.sound_cues.clone(),
+            camera_cue: b.camera_cue.clone(),
+            visible_action: b.visible_action.clone(),
+            intended_reaction: b.intended_reaction.clone(),
+            performance_intent: b.performance_intent.clone(),
         };
 
         beats_outline.push(outline);
@@ -908,6 +1014,8 @@ pub fn validate_beat_command(
             text: a.text.clone(),
             intensity: a.intensity.unwrap_or(0.6),
             estimated_duration: est,
+            performance: a.performance.clone(),
+            delivery: a.delivery.clone(),
         });
     }
 

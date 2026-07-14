@@ -1,0 +1,7 @@
+{
+  "source": "C:/Projects/gemmy/runtimes/parakeet-asr and runtimes/video-review/parakeet_transcribe.py",
+  "imported_at": "2026-07-13",
+  "model": "nvidia/parakeet-tdt-0.6b-v2",
+  "execution": "uv run --frozen --no-sync",
+  "local_changes": "Added one-load JSON batch worker; model weights and .venv excluded."
+}

@@ -13,6 +13,7 @@
 use std::collections::{HashMap, VecDeque};
 use std::path::{Path, PathBuf};
 
+use bevy::app::AnimationSystems;
 use bevy::asset::{AssetApp, RenderAssetUsages};
 use bevy::camera::{ClearColorConfig, PerspectiveProjection, RenderTarget};
 use bevy::core_pipeline::Core3d;
@@ -25,14 +26,17 @@ use bevy::render::camera::CameraRenderGraph;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat, TextureUsages};
 use bevy::render::renderer::RenderDevice;
 use bevy::render::view::screenshot::{Screenshot, ScreenshotCaptured};
+use bevy::transform::TransformSystems;
 use bevy::window::WindowPlugin;
+use bevy::world_serialization::WorldInstanceReady;
 
 use backlot_core::author::EpisodeAuthor;
-use backlot_core::avatar::{HumanoidRig, SemanticJoint};
+use backlot_core::avatar::{HumanoidRig, PerformanceState, SemanticJoint};
 use backlot_core::render::{
     finalize_production, prepare_production, write_png, ProduceConfig, ProduceReport,
     ProductionTimingContext,
 };
+use backlot_core::stage;
 use backlot_core::timeline::{evaluate_at, Schedule};
 use backlot_core::world::WorldState;
 
@@ -51,6 +55,43 @@ struct RigPartTag {
     shape: PartShape,
 }
 
+#[derive(Component)]
+struct CastRoot {
+    char_id: String,
+}
+
+#[derive(Component, Clone)]
+struct PendingCastAnimation {
+    char_id: String,
+    graph: Handle<AnimationGraph>,
+    nodes: Vec<AnimationNodeIndex>,
+    clips: Vec<Handle<AnimationClip>>,
+}
+
+#[derive(Component, Clone)]
+struct CastAnimationPlayer {
+    char_id: String,
+    nodes: Vec<AnimationNodeIndex>,
+    clips: Vec<Handle<AnimationClip>>,
+}
+
+#[derive(Clone)]
+struct CastBoneBinding {
+    char_id: String,
+    rest: Transform,
+}
+
+#[derive(Resource, Default)]
+struct CastBoneBindings {
+    bones: HashMap<Entity, CastBoneBinding>,
+}
+
+#[derive(Resource, Default)]
+struct CastLoadState {
+    expected: usize,
+    ready: usize,
+}
+
 /// A prop mesh bound to a world prop id.
 #[derive(Component)]
 struct PropTag {
@@ -64,6 +105,18 @@ struct ElevatorDoor {
     direction: f32,
 }
 
+#[derive(Component)]
+struct ElevatorIndicator;
+
+#[derive(Component)]
+struct ControlPanelButton;
+
+#[derive(Component)]
+struct ImpossibleFloorBackdrop;
+
+#[derive(Component)]
+struct ElevatorInteriorLight;
+
 /// Marker for the per-frame screenshot entity we spawn to trigger readback.
 #[derive(Component)]
 struct CaptureMarker;
@@ -72,6 +125,7 @@ struct CaptureMarker;
 #[derive(Resource)]
 struct CapturePlan {
     schedule: Schedule,
+    motion_plan: backlot_core::motion::ProductionMotionPlan,
     rigs: HashMap<String, HumanoidRig>,
     world: WorldState,
     fps: u32,
@@ -107,6 +161,9 @@ pub fn produce_episode_bevy(
         .join("episodes")
         .join(backlot_core::serial_id("episode", episode_number, 6));
     let frames_dir = ep_dir.join("frames");
+    if frames_dir.exists() {
+        std::fs::remove_dir_all(&frames_dir).map_err(io_err(&frames_dir))?;
+    }
     std::fs::create_dir_all(&frames_dir).map_err(io_err(&frames_dir))?;
 
     // Stage 1: shared authoring/validation/TTS/schedule/rigs.
@@ -128,13 +185,23 @@ pub fn produce_episode_bevy(
     // is what we actually capture; the primary window only exists so Bevy can
     // initialize the `RenderDevice`. We keep it hidden so production runs
     // headlessly without popping a visible window.
-    app.add_plugins(DefaultPlugins.set(WindowPlugin {
-        primary_window: Some(Window {
-            visible: false,
-            ..default()
-        }),
-        ..default()
-    }))
+    let asset_root = std::env::current_dir()
+        .unwrap_or_else(|_| PathBuf::from("."))
+        .join("assets");
+    app.add_plugins(
+        DefaultPlugins
+            .set(AssetPlugin {
+                file_path: asset_root.to_string_lossy().into_owned(),
+                ..default()
+            })
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    visible: false,
+                    ..default()
+                }),
+                ..default()
+            }),
+    )
     .insert_resource(ClearColor(Color::srgb(0.03, 0.03, 0.05)));
 
     // Targeted error handler: tolerate ONLY the transient "Resource does not
@@ -175,6 +242,7 @@ pub fn produce_episode_bevy(
     spawn_scene(&mut app, &prep, &world, rw, rh, cap_handle.clone());
     app.insert_resource(CapturePlan {
         schedule: prep.schedule.clone(),
+        motion_plan: prep.motion_plan.clone(),
         rigs: prep.rigs.clone(),
         world: prep.world_before.clone(),
         fps,
@@ -183,8 +251,27 @@ pub fn produce_episode_bevy(
         capture_image: cap_handle,
     });
     app.insert_resource(CaptureProgress::default());
+    let diagnostic_puppets = std::env::var("BACKLOT_DIAGNOSTIC_PUPPETS")
+        .map(|value| value == "1")
+        .unwrap_or(false);
+    app.insert_resource(CastLoadState {
+        expected: if diagnostic_puppets {
+            0
+        } else {
+            prep.schedule.characters.len()
+        },
+        ready: 0,
+    });
+    app.insert_resource(CastBoneBindings::default());
     app.add_systems(Update, apply_frame_system);
+    app.add_systems(
+        PostUpdate,
+        apply_cast_acting_overlay
+            .after(AnimationSystems)
+            .before(TransformSystems::Propagate),
+    );
     app.add_observer(on_captured);
+    app.add_observer(on_cast_instance_ready);
 
     // Run Bevy's renderer lifecycle once (this is what `App::run` does).
     app.finish();
@@ -214,7 +301,7 @@ pub fn produce_episode_bevy(
         if captured >= n_frames {
             break;
         }
-        if guard > (n_frames as usize) * 3 + 200 {
+        if guard > (n_frames as usize) * 12 + 1000 {
             tracing::warn!(
                 "bevy capture stalled: captured {captured}/{n_frames}; stopping",
                 captured = captured,
@@ -272,6 +359,224 @@ pub fn produce_episode_bevy(
         let _ = std::fs::remove_dir_all(&frames_dir);
     }
     Ok(report)
+}
+
+/// Canonical acting correction applied after imported clip evaluation. It
+/// establishes a relaxed show-ready rest pose and layers bounded semantic
+/// accents, so a missing/poor source curve cannot strand a performer in the
+/// glTF bind pose. Kimodo-processed clips use the same late correction slot for
+/// gaze, hand contact and foot locking.
+fn apply_cast_acting_overlay(
+    mut commands: Commands,
+    plan: Res<CapturePlan>,
+    progress: Res<CaptureProgress>,
+    mut bones: Query<(Entity, &Name, &mut Transform)>,
+    parents: Query<&ChildOf>,
+    cast_roots: Query<&CastRoot>,
+    mut bindings: ResMut<CastBoneBindings>,
+    attachments: Query<(Entity, &Name)>,
+    mut removed_attachments: Local<std::collections::HashSet<Entity>>,
+    mut reported: Local<bool>,
+) {
+    if progress.requested == 0 {
+        return;
+    }
+    let frame_number = progress
+        .requested
+        .saturating_sub(1)
+        .min(plan.n_frames.saturating_sub(1));
+    let time = frame_number as f32 / plan.fps.max(1) as f32;
+    let state = evaluate_at(&plan.schedule, &plan.rigs, &plan.world, time);
+    for (entity, name) in &attachments {
+        if is_cast_hand_prop(name.as_str()) && removed_attachments.insert(entity) {
+            commands.entity(entity).despawn();
+        }
+    }
+    let mut matched_bones = 0usize;
+    let mut corrected_bones = 0usize;
+    let mut bound_characters = std::collections::HashSet::new();
+    for (entity, name, mut transform) in &mut bones {
+        let binding = if let Some(binding) = bindings.bones.get(&entity).cloned() {
+            binding
+        } else {
+            // WorldInstanceReady can precede Bevy's final scene-world entity
+            // replacement. Bind any live descendant lazily and freeze its
+            // target-rig rest transform exactly once.
+            let mut ancestor = entity;
+            let mut owner = None;
+            for _ in 0..32 {
+                if let Ok(root) = cast_roots.get(ancestor) {
+                    owner = Some(root.char_id.clone());
+                    break;
+                }
+                let Ok(parent) = parents.get(ancestor) else {
+                    break;
+                };
+                ancestor = parent.parent();
+            }
+            let Some(char_id) = owner else {
+                continue;
+            };
+            let binding = CastBoneBinding {
+                char_id,
+                rest: *transform,
+            };
+            bindings.bones.insert(entity, binding.clone());
+            binding
+        };
+        let char_id = binding.char_id.as_str();
+        bound_characters.insert(char_id.to_string());
+        matched_bones += 1;
+        let Some((frame, _)) = state.chars.iter().find(|(frame, _)| frame.id == char_id) else {
+            continue;
+        };
+        // Start from the immutable target-rig rest transform on every update.
+        // Capture needs several app updates per output frame while the GPU
+        // readback is in flight; additive multiplication against the previous
+        // update would otherwise accumulate into flips and corkscrews.
+        transform.translation = binding.rest.translation;
+        transform.rotation = binding.rest.rotation;
+        let weight = frame.action_weight.clamp(0.0, 1.0);
+        let pulse = (time * 3.1 + if char_id == "mara" { 0.0 } else { 1.7 }).sin();
+        let talk = if frame.state == PerformanceState::Talk {
+            (frame.action_local_time * 5.2).sin() * weight
+        } else {
+            0.0
+        };
+
+        // KayKit's rig reference pose has both upper arms horizontal. Normalize
+        // that cast-specific rest pose once before applying SOMA motion deltas;
+        // this is retarget alignment, not a substitute animation layer.
+        match name.as_str() {
+            "upperarm.l" => transform.rotation *= Quat::from_rotation_z(1.12),
+            "upperarm.r" => transform.rotation *= Quat::from_rotation_z(-1.12),
+            _ => {}
+        }
+
+        // Sample approved SOMA/Kimodo motion as a delta over the cast's native
+        // relaxed pose. Frame zero is the source rest reference, so the same
+        // processed clip works on both approved cast rigs without replacing
+        // their native proportions or secondary animation.
+        if let Some((segment, clip)) = plan.motion_plan.active(char_id, time) {
+            if let Some(track) = clip
+                .tracks
+                .iter()
+                .find(|track| track.joint == name.as_str())
+            {
+                if let Some(first) = track.rotations.first() {
+                    let normalized =
+                        ((time - segment.start) / segment.duration.max(0.001)).clamp(0.0, 1.0);
+                    let sample = ((normalized * clip.duration * clip.sample_rate).round() as usize)
+                        .min(track.rotations.len().saturating_sub(1));
+                    if let Some(current) = track.rotations.get(sample) {
+                        let source_rest = Quat::from_xyzw(first[0], first[1], first[2], first[3]);
+                        let source_pose =
+                            Quat::from_xyzw(current[0], current[1], current[2], current[3]);
+                        let delta = (source_rest.inverse() * source_pose).normalize();
+                        transform.rotation *= Quat::IDENTITY.slerp(delta, weight);
+
+                        let channels: &[usize] = match name.as_str() {
+                            "foot.l" => &[0, 1, 2],
+                            "foot.r" => &[3, 4, 5],
+                            _ => &[],
+                        };
+                        if let Some(offsets) = clip.foot_lock_offsets.get(sample) {
+                            let mut correction = Vec3::ZERO;
+                            let mut count = 0.0;
+                            for channel in channels {
+                                if let Some(offset) = offsets.get(*channel) {
+                                    correction += Vec3::from_array(*offset);
+                                    count += 1.0;
+                                }
+                            }
+                            if count > 0.0 {
+                                transform.translation +=
+                                    (correction / count).clamp_length_max(0.05);
+                            }
+                        }
+                        continue;
+                    }
+                }
+            }
+        }
+
+        // Imported animation is authoritative. Acting accents are additive and
+        // action-local, so an overlay with zero weight returns exactly to the
+        // sampled base pose instead of replacing it with a hard-coded bind pose.
+        let additive = match name.as_str() {
+            "upperarm.l" => {
+                let lift = match frame.state {
+                    PerformanceState::Gesture | PerformanceState::Point => 0.72 * weight,
+                    PerformanceState::React => 0.42 * weight,
+                    PerformanceState::Talk => 0.18 * talk.max(0.0),
+                    _ => 0.0,
+                };
+                Quat::from_euler(
+                    EulerRot::XYZ,
+                    0.0,
+                    0.025 * pulse,
+                    -0.72 * lift.clamp(0.0, 1.0),
+                )
+            }
+            "upperarm.r" => {
+                let lift = match frame.state {
+                    PerformanceState::Point => 0.92 * weight,
+                    PerformanceState::Gesture => 0.68 * weight,
+                    PerformanceState::React => 0.42 * weight,
+                    PerformanceState::Talk => 0.20 * talk.max(0.0),
+                    _ => 0.0,
+                };
+                Quat::from_euler(
+                    EulerRot::XYZ,
+                    0.0,
+                    -0.025 * pulse,
+                    0.72 * lift.clamp(0.0, 1.0),
+                )
+            }
+            "lowerarm.l" => Quat::from_rotation_z(-0.18 * talk.max(0.0)),
+            "lowerarm.r" => {
+                let flex = if matches!(
+                    frame.state,
+                    PerformanceState::Gesture | PerformanceState::Point
+                ) {
+                    0.55 * weight
+                } else {
+                    0.22 * talk.max(0.0)
+                };
+                Quat::from_rotation_z(flex)
+            }
+            "head" => {
+                let reaction_pitch = if frame.state == PerformanceState::React {
+                    -0.12 * weight
+                } else {
+                    0.015 * pulse
+                };
+                Quat::from_euler(EulerRot::YXZ, 0.035 * talk, reaction_pitch, 0.0)
+            }
+            "spine" => Quat::from_euler(
+                EulerRot::XYZ,
+                0.018 * pulse,
+                if frame.state == PerformanceState::Listen {
+                    0.06
+                } else {
+                    0.0
+                },
+                0.025 * talk,
+            ),
+            _ => continue,
+        };
+        transform.rotation *= additive;
+        corrected_bones += 1;
+    }
+    if !*reported {
+        eprintln!(
+            "CAST OVERLAY players={} matched_bones={} corrected_bones={}",
+            bound_characters.len(),
+            matched_bones,
+            corrected_bones
+        );
+        *reported = true;
+    }
 }
 
 /// Spawn the static + dynamic scene elements into the app world.
@@ -447,7 +752,7 @@ fn spawn_scene(
         Mesh3d(unit_cube.clone()),
         MeshMaterial3d(elevator_mat),
         Transform {
-            translation: Vec3::new(-5.5, 1.4, -5.0),
+            translation: Vec3::from_array(stage::ELEVATOR_CENTER),
             rotation: Quat::IDENTITY,
             scale: Vec3::new(2.2, 2.8, 1.6),
         },
@@ -542,10 +847,82 @@ fn spawn_scene(
     bw.spawn((
         Mesh3d(unit_cube.clone()),
         MeshMaterial3d(indicator_mat),
+        ElevatorIndicator,
         Transform {
-            translation: Vec3::new(-5.5, 2.65, -4.16),
+            translation: Vec3::from_array(stage::ELEVATOR_INDICATOR),
             rotation: Quat::IDENTITY,
             scale: Vec3::new(0.18, 0.18, 0.06),
+        },
+    ));
+
+    // Readable elevator interior: dark rear wall, brushed side returns, a
+    // luminous threshold, and a control panel that physically responds.
+    let interior_mat = {
+        let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
+        mats.add(StandardMaterial {
+            base_color: Color::srgb(0.10, 0.13, 0.18),
+            metallic: 0.35,
+            perceptual_roughness: 0.42,
+            ..default()
+        })
+    };
+    let impossible_mat = {
+        let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
+        mats.add(StandardMaterial {
+            base_color: Color::srgb(0.08, 0.28, 0.34),
+            emissive: Color::srgb(0.05, 0.8, 0.92).into(),
+            perceptual_roughness: 0.25,
+            ..default()
+        })
+    };
+    for (translation, scale) in [
+        (Vec3::new(-5.5, 1.35, -5.72), Vec3::new(1.9, 2.7, 0.08)),
+        (Vec3::new(-6.47, 1.35, -5.0), Vec3::new(0.08, 2.7, 1.45)),
+        (Vec3::new(-4.53, 1.35, -5.0), Vec3::new(0.08, 2.7, 1.45)),
+        (Vec3::new(-5.5, 0.03, -5.0), Vec3::new(1.9, 0.06, 1.45)),
+    ] {
+        bw.spawn((
+            Mesh3d(unit_cube.clone()),
+            MeshMaterial3d(interior_mat.clone()),
+            Transform {
+                translation,
+                scale,
+                ..default()
+            },
+        ));
+    }
+    bw.spawn((
+        Mesh3d(unit_cube.clone()),
+        MeshMaterial3d(impossible_mat.clone()),
+        ImpossibleFloorBackdrop,
+        Transform {
+            translation: Vec3::from_array(stage::IMPOSSIBLE_FLOOR),
+            scale: Vec3::new(0.01, 0.01, 0.01),
+            ..default()
+        },
+    ));
+    // Panel housing and a separate animated button.
+    bw.spawn((
+        Mesh3d(unit_cube.clone()),
+        MeshMaterial3d(frame_mat.clone()),
+        Transform {
+            translation: Vec3::new(
+                stage::ELEVATOR_CONTROL_PANEL[0],
+                1.3,
+                stage::ELEVATOR_CONTROL_PANEL[2] - 0.08,
+            ),
+            scale: Vec3::new(0.38, 0.9, 0.10),
+            ..default()
+        },
+    ));
+    bw.spawn((
+        Mesh3d(unit_cube.clone()),
+        MeshMaterial3d(impossible_mat),
+        ControlPanelButton,
+        Transform {
+            translation: Vec3::from_array(stage::ELEVATOR_CONTROL_PANEL),
+            scale: Vec3::new(0.14, 0.14, 0.06),
+            ..default()
         },
     ));
 
@@ -586,7 +963,12 @@ fn spawn_scene(
             radius: 0.3,
             ..default()
         },
-        Transform::from_xyz(-5.5, 2.4, -4.6),
+        Transform::from_xyz(
+            stage::ELEVATOR_CENTER[0],
+            2.4,
+            stage::ELEVATOR_DOORS[2] - 0.4,
+        ),
+        ElevatorInteriorLight,
     ));
     // Soft cool fill from the opposite side to separate characters from walls.
     bw.spawn((
@@ -601,35 +983,77 @@ fn spawn_scene(
         Transform::from_xyz(3.0, 3.0, 3.0),
     ));
 
-    // --- Characters: articulated rigs rendered as capsule/sphere humanoids ---
-    for rig in prep.rigs.values() {
-        for part in &rig.parts {
-            let mat = {
-                let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
-                mats.add(StandardMaterial {
-                    base_color: clamp_color(part.color),
-                    perceptual_roughness: 0.7,
-                    ..default()
+    // Production cast: recognizable, skinned CC0 performers. Diagnostic
+    // primitives remain available only when explicitly requested by tests.
+    let diagnostic_puppets = std::env::var("BACKLOT_DIAGNOSTIC_PUPPETS")
+        .map(|value| value == "1")
+        .unwrap_or(false);
+    if diagnostic_puppets {
+        for rig in prep.rigs.values() {
+            for part in &rig.parts {
+                let mat = {
+                    let mut mats = bw.resource_mut::<Assets<StandardMaterial>>();
+                    mats.add(StandardMaterial {
+                        base_color: clamp_color(part.color),
+                        perceptual_roughness: 0.7,
+                        ..default()
+                    })
+                };
+                let (mesh, shape) = match part.joint {
+                    SemanticJoint::Head
+                    | SemanticJoint::Jaw
+                    | SemanticJoint::LeftEye
+                    | SemanticJoint::RightEye
+                    | SemanticJoint::Gaze
+                    | SemanticJoint::PropGrip => (unit_sphere.clone(), PartShape::Sphere),
+                    _ => (unit_capsule.clone(), PartShape::Capsule),
+                };
+                bw.spawn((
+                    Mesh3d(mesh),
+                    MeshMaterial3d(mat),
+                    RigPartTag {
+                        char_id: rig.character_id.clone(),
+                        joint: part.joint,
+                        shape,
+                    },
+                    Transform::IDENTITY,
+                ));
+            }
+        }
+    } else {
+        let asset_server = bw.resource::<AssetServer>().clone();
+        for track in &prep.schedule.characters {
+            let Some(rig) = prep.rigs.get(&track.id) else {
+                continue;
+            };
+            let asset_path = if rig.character_id == "mara" || rig.character_id == "nox" {
+                "characters/mara.glb"
+            } else {
+                "characters/ellis.glb"
+            };
+            let scene: Handle<WorldAsset> =
+                asset_server.load(GltfAssetLabel::Scene(0).from_asset(asset_path));
+            let clip_handles = (0..76)
+                .map(|clip_index| {
+                    asset_server.load(GltfAssetLabel::Animation(clip_index).from_asset(asset_path))
                 })
-            };
-            let (mesh, shape) = match part.joint {
-                SemanticJoint::Head
-                | SemanticJoint::Jaw
-                | SemanticJoint::LeftEye
-                | SemanticJoint::RightEye
-                | SemanticJoint::Gaze
-                | SemanticJoint::PropGrip => (unit_sphere.clone(), PartShape::Sphere),
-                _ => (unit_capsule.clone(), PartShape::Capsule),
-            };
+                .collect::<Vec<Handle<AnimationClip>>>();
+            let (graph, nodes) = AnimationGraph::from_clips(clip_handles.clone());
+            let graph = bw.resource_mut::<Assets<AnimationGraph>>().add(graph);
             bw.spawn((
-                Mesh3d(mesh),
-                MeshMaterial3d(mat),
-                RigPartTag {
+                WorldAssetRoot(scene),
+                // KayKit is authored at roughly 2.2 m including silhouette
+                // accessories. Normalize once to the 1.8 m canonical stage rig.
+                Transform::from_scale(Vec3::splat(0.82)),
+                CastRoot {
                     char_id: rig.character_id.clone(),
-                    joint: part.joint,
-                    shape,
                 },
-                Transform::IDENTITY,
+                PendingCastAnimation {
+                    char_id: rig.character_id.clone(),
+                    graph,
+                    nodes,
+                    clips: clip_handles,
+                },
             ));
         }
     }
@@ -678,27 +1102,193 @@ fn spawn_scene(
     ));
 }
 
+fn on_cast_instance_ready(
+    trigger: On<WorldInstanceReady>,
+    mut commands: Commands,
+    pending: Query<&PendingCastAnimation>,
+    children: Query<&Children>,
+    names: Query<&Name>,
+    transforms: Query<&Transform>,
+    mut players: Query<&mut AnimationPlayer>,
+    mut load_state: ResMut<CastLoadState>,
+    mut bindings: ResMut<CastBoneBindings>,
+) {
+    let Ok(pending) = pending.get(trigger.entity) else {
+        return;
+    };
+    let mut attached = false;
+    let mut named_descendants = 0usize;
+    for child in children.iter_descendants(trigger.entity) {
+        if names
+            .get(child)
+            .map(|name| is_cast_hand_prop(name.as_str()))
+            .unwrap_or(false)
+        {
+            commands.entity(child).insert(Visibility::Hidden);
+            continue;
+        }
+        if let (Ok(_), Ok(rest)) = (names.get(child), transforms.get(child)) {
+            named_descendants += 1;
+            bindings.bones.insert(
+                child,
+                CastBoneBinding {
+                    char_id: pending.char_id.clone(),
+                    rest: *rest,
+                },
+            );
+        }
+        if players.get_mut(child).is_ok() {
+            // The graph handle is applied at the end of this observer. Playback
+            // starts in `apply_frame_system` on the next update, when the handle
+            // is guaranteed to be present on the player entity.
+            commands.entity(child).insert((
+                AnimationGraphHandle(pending.graph.clone()),
+                CastAnimationPlayer {
+                    char_id: pending.char_id.clone(),
+                    nodes: pending.nodes.clone(),
+                    clips: pending.clips.clone(),
+                },
+            ));
+            attached = true;
+        }
+    }
+    if attached {
+        eprintln!(
+            "CAST INSTANCE char={} named_descendants={} animation_player_attached=true",
+            pending.char_id, named_descendants
+        );
+        load_state.ready += 1;
+        commands
+            .entity(trigger.entity)
+            .remove::<PendingCastAnimation>();
+    }
+}
+
+fn is_cast_hand_prop(name: &str) -> bool {
+    matches!(
+        name,
+        "Spellbook"
+            | "Spellbook_open"
+            | "1H_Wand"
+            | "2H_Staff"
+            | "Knife_Offhand"
+            | "1H_Crossbow"
+            | "2H_Crossbow"
+            | "Knife"
+            | "Throwable"
+    )
+}
+
+fn native_clip_index(state: PerformanceState) -> usize {
+    match state {
+        PerformanceState::Idle
+        | PerformanceState::Listen
+        | PerformanceState::Look
+        | PerformanceState::Talk
+        | PerformanceState::Gesture
+        | PerformanceState::Point => 66,
+        PerformanceState::Walk => 72,
+        PerformanceState::React => 34,
+    }
+}
+
 /// Apply the authoritative per-frame state to the scene, then request capture.
 fn apply_frame_system(
     mut commands: Commands,
     plan: Res<CapturePlan>,
     mut progress: ResMut<CaptureProgress>,
+    mut scene_warmup: Local<u32>,
+    load_state: Res<CastLoadState>,
+    mut cast_roots: Query<
+        (&CastRoot, &mut Transform),
+        (
+            Without<Camera3d>,
+            Without<RigPartTag>,
+            Without<PropTag>,
+            Without<ElevatorDoor>,
+            Without<ElevatorIndicator>,
+            Without<ControlPanelButton>,
+            Without<ImpossibleFloorBackdrop>,
+        ),
+    >,
+    mut cast_players: Query<(&CastAnimationPlayer, &mut AnimationPlayer)>,
+    clip_assets: Res<Assets<AnimationClip>>,
     mut parts: Query<
         (&RigPartTag, &mut Transform),
-        (Without<PropTag>, Without<ElevatorDoor>, Without<Camera3d>),
+        (
+            Without<PropTag>,
+            Without<ElevatorDoor>,
+            Without<ElevatorIndicator>,
+            Without<ControlPanelButton>,
+            Without<ImpossibleFloorBackdrop>,
+            Without<CastRoot>,
+            Without<Camera3d>,
+        ),
     >,
     mut props: Query<
         (&PropTag, &mut Transform),
         (
             Without<RigPartTag>,
             Without<ElevatorDoor>,
+            Without<ElevatorIndicator>,
+            Without<ControlPanelButton>,
+            Without<ImpossibleFloorBackdrop>,
+            Without<CastRoot>,
             Without<Camera3d>,
         ),
     >,
     mut elevator_doors: Query<
         (&ElevatorDoor, &mut Transform),
-        (Without<RigPartTag>, Without<PropTag>, Without<Camera3d>),
+        (
+            Without<RigPartTag>,
+            Without<PropTag>,
+            Without<ElevatorIndicator>,
+            Without<ControlPanelButton>,
+            Without<ImpossibleFloorBackdrop>,
+            Without<CastRoot>,
+            Without<Camera3d>,
+        ),
     >,
+    mut indicator: Query<
+        &mut Transform,
+        (
+            With<ElevatorIndicator>,
+            Without<ControlPanelButton>,
+            Without<ImpossibleFloorBackdrop>,
+            Without<RigPartTag>,
+            Without<PropTag>,
+            Without<ElevatorDoor>,
+            Without<CastRoot>,
+            Without<Camera3d>,
+        ),
+    >,
+    mut panel: Query<
+        &mut Transform,
+        (
+            With<ControlPanelButton>,
+            Without<ElevatorIndicator>,
+            Without<ImpossibleFloorBackdrop>,
+            Without<RigPartTag>,
+            Without<PropTag>,
+            Without<ElevatorDoor>,
+            Without<CastRoot>,
+            Without<Camera3d>,
+        ),
+    >,
+    mut reveal: Query<
+        &mut Transform,
+        (
+            With<ImpossibleFloorBackdrop>,
+            Without<ElevatorIndicator>,
+            Without<ControlPanelButton>,
+            Without<RigPartTag>,
+            Without<PropTag>,
+            Without<ElevatorDoor>,
+            Without<CastRoot>,
+            Without<Camera3d>,
+        ),
+    >,
+    mut interior_light: Query<&mut PointLight, With<ElevatorInteriorLight>>,
     mut cam: Query<
         &mut Transform,
         (
@@ -709,6 +1299,30 @@ fn apply_frame_system(
         ),
     >,
 ) {
+    if load_state.ready < load_state.expected {
+        return;
+    }
+    // Screenshot readback is asynchronous. Keep exactly one frame in flight so
+    // timeline state cannot advance while the GPU is still returning the
+    // previous image; otherwise early frames are black and later PNGs are
+    // paired with the wrong requested timestamp.
+    if !progress.queue.is_empty() {
+        return;
+    }
+    // WorldInstanceReady only guarantees that the scene hierarchy exists. The
+    // graph's separately-labelled glTF clips may still be streaming. Advancing
+    // deterministic capture before all clips are resident bakes the bind pose
+    // into every frame because capture runs much faster than real time.
+    let mut clips_ready = true;
+    for (cast, _) in cast_players.iter_mut() {
+        clips_ready &= cast
+            .clips
+            .iter()
+            .all(|clip| clip_assets.get(clip).is_some());
+    }
+    if !clips_ready {
+        return;
+    }
     let n = plan.n_frames.max(1);
     let req = progress.requested;
     let idx = req.min(n - 1);
@@ -718,6 +1332,51 @@ fn apply_frame_system(
 
     // Characters: drive each rig part from the shared world state.
     for (cf, pose) in &state.chars {
+        for (cast, mut transform) in cast_roots.iter_mut() {
+            if cast.char_id == cf.id {
+                transform.translation = Vec3::new(cf.root.pos[0], cf.root.pos[1], cf.root.pos[2]);
+                transform.rotation = Quat::from_euler(
+                    EulerRot::XYZ,
+                    cf.root.rot[0],
+                    cf.root.rot[1],
+                    cf.root.rot[2],
+                );
+            }
+        }
+        for (cast, mut player) in cast_players.iter_mut() {
+            if cast.char_id == cf.id {
+                let generated_motion_active = plan.motion_plan.active(&cf.id, t).is_some();
+                // A reviewed Kimodo clip owns the complete visible performance.
+                // KayKit contributes only a frozen neutral target-rig pose; its
+                // stock locomotion/acting clips must never play underneath the
+                // retargeted SOMA motion.
+                let clip_index = if generated_motion_active {
+                    native_clip_index(PerformanceState::Idle)
+                } else {
+                    native_clip_index(cf.state)
+                };
+                if let Some(node) = cast.nodes.get(clip_index).copied() {
+                    let sample_time = if generated_motion_active {
+                        0.05
+                    } else {
+                        match cf.state {
+                            PerformanceState::Idle
+                            | PerformanceState::Listen
+                            | PerformanceState::Look
+                            | PerformanceState::Talk
+                            | PerformanceState::Walk => t + 0.25,
+                            _ => cf.action_local_time.max(0.0) + 0.05,
+                        }
+                    };
+                    player.stop_all();
+                    player
+                        .play(node)
+                        .repeat()
+                        .set_speed(0.0)
+                        .seek_to(sample_time);
+                }
+            }
+        }
         if let Some(rig) = plan.rigs.get(&cf.id) {
             let wm = rig.world_matrices(&cf.root, pose);
             for (tag, mut tr) in parts.iter_mut() {
@@ -764,25 +1423,94 @@ fn apply_frame_system(
         let slide = 0.9 * state.elevator_open.clamp(0.0, 1.0);
         tr.translation.x = door.closed_x + door.direction * slide;
     }
+    if let Ok(mut transform) = indicator.single_mut() {
+        let pulse = if state.elevator_indicator.is_some() {
+            1.0 + 0.16 * (t * 8.0).sin().abs()
+        } else {
+            1.0
+        };
+        transform.scale = Vec3::new(0.18 * pulse, 0.18 * pulse, 0.06);
+    }
+    if let Ok(mut transform) = panel.single_mut() {
+        let active = state.panel_active.clamp(0.0, 1.0);
+        transform.translation.z = stage::ELEVATOR_CONTROL_PANEL[2] - 0.025 * active;
+        transform.scale = Vec3::new(0.14 + 0.04 * active, 0.14 + 0.04 * active, 0.06);
+    }
+    if let Ok(mut transform) = reveal.single_mut() {
+        let amount = state.impossible_reveal.clamp(0.0, 1.0);
+        transform.scale = Vec3::new((1.75 * amount).max(0.01), (2.55 * amount).max(0.01), 0.04);
+    }
+    if let Ok(mut light) = interior_light.single_mut() {
+        light.intensity = 1400.0 + state.impossible_reveal.clamp(0.0, 1.0) * 2600.0;
+        if state.flicker && (t * 18.0).sin() > 0.0 {
+            light.intensity *= 0.25;
+        }
+    }
 
     // Camera.
     if let Ok(mut cam_tr) = cam.single_mut() {
-        cam_tr.translation = Vec3::new(
+        let mut eye = Vec3::new(
             state.camera_eye[0],
             state.camera_eye[1],
             state.camera_eye[2],
         );
-        cam_tr.look_at(
-            Vec3::new(
-                state.camera_look[0],
-                state.camera_look[1],
-                state.camera_look[2],
-            ),
-            Vec3::Y,
+        let mut look = Vec3::new(
+            state.camera_look[0],
+            state.camera_look[1],
+            state.camera_look[2],
         );
+        // Authored shot offsets are composed around staging marks. Follow the
+        // actual evaluated actor root so locomotion cannot leave the subject
+        // behind while preserving the chosen shot size and screen direction.
+        if let Some(shot) = plan
+            .schedule
+            .camera_shots
+            .iter()
+            .find(|shot| t >= shot.start && t < shot.end)
+        {
+            if let Some((subject, _)) = state
+                .chars
+                .iter()
+                .find(|(character, _)| character.id == shot.subject)
+            {
+                let desired_look = Vec3::new(
+                    subject.root.pos[0],
+                    subject.root.pos[1] + 1.23,
+                    subject.root.pos[2],
+                );
+                let distance = if shot.intent.contains("group")
+                    || shot.intent.contains("establish")
+                    || shot.intent.contains("spatial")
+                {
+                    5.8
+                } else if shot.intent.contains("closeup") {
+                    3.4
+                } else {
+                    4.2
+                };
+                // The playable hallway is on the +Z side of every staging
+                // mark. Re-anchor there instead of translating a candidate
+                // across walls when the performer has changed marks.
+                eye = Vec3::new(
+                    desired_look.x,
+                    desired_look.y + 0.3,
+                    desired_look.z + distance,
+                );
+                look = desired_look;
+            }
+        }
+        cam_tr.translation = eye;
+        cam_tr.look_at(look, Vec3::Y);
     }
 
     // Request a capture for this frame (read back on the next update).
+    // Give newly instantiated skinned worlds time to reach the render world.
+    // No timeline time advances during this warmup, so frame zero remains
+    // deterministic and the exported video does not begin with black frames.
+    if req == 0 && *scene_warmup < 90 {
+        *scene_warmup += 1;
+        return;
+    }
     if req < plan.n_frames {
         commands.spawn((
             CaptureMarker,

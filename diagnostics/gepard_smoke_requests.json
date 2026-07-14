@@ -1,0 +1,18 @@
+[
+  {
+    "id": "mara-smoke",
+    "text": "The elevator should not know my name.",
+    "output": "C:/Projects/bevy-infinite/diagnostics/gepard-smoke/mara.wav",
+    "reference_audio": "C:/Projects/bevy-infinite/runtimes/gepard/ref_audio/nurisa_en.wav",
+    "seed": 42001,
+    "preset": {
+      "temperature": 0.3,
+      "top_k": 0,
+      "cfg_scale": 1.0,
+      "cfg_frames": 0,
+      "stop_threshold": 0.5,
+      "repetition_penalty": 1.0,
+      "repetition_window": 32
+    }
+  }
+]

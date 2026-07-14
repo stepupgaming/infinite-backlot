@@ -9,7 +9,7 @@
 
 [llm]
 # Local Gemma ("gemmy") server — llama-server speaking OpenAI-compatible /v1.
-base_url = "http://127.0.0.1:8080/v1"
+base_url = "http://127.0.0.1:8123/v1"
 # Configured Gemma model served by gemmy.
 model = "dcf179a91153e3a7ece792e48ef872180d9d6ef9b7677f0a0bd3e83cfe624d5e"
 # Most local servers accept an empty key; cloud providers need a real token.
@@ -51,27 +51,33 @@ font_path = "C:/Windows/Fonts/arial.ttf"
 [director]
 # If the model is unreachable or disabled, use the built-in deterministic
 # director so the product is always runnable.
-allow_fallback_director = true
+allow_fallback_director = false
 # Set to true to never touch the network and always use the deterministic
 # director. Set to false to attempt the real LLM first (it still falls back).
 force_fallback = false
 # REQUIRE-LLM production mode: when true the run MUST use the configured model
 # and fails clearly (never silently falls back) if the model is unreachable,
 # invalid, or any beat cannot be authored/validated.
-require_llm = false
+require_llm = true
 # How many times a single LLM piece may be repaired/re-requested before giving
 # up (only relevant when require_llm is true).
 max_repairs = 1
 
+[asr]
+provider = "parakeet"
+runtime_root = "C:/Projects/bevy-infinite/runtimes/parakeet-asr"
+model_id = "nvidia/parakeet-tdt-0.6b-v2"
+cache_dir = "C:/Projects/bevy-infinite/output/cache/asr"
+timeout_secs = 900
+
 [tts]
-# Provider: "espeak" (real local TTS), "estimating" (duration-only stub), or
-# "http" (local OpenAI-compatible /v1/audio/speech — e.g. Kokoro + FastAPI,
-# XTTS, AllTalk, Piper HTTP). When provider is "http", configure [tts.http].
-provider = "espeak"
+# Production uses the project-owned, batch-mode Gepard runtime. `espeak` is
+# reachable only through the explicit `--diagnostic-tts` CLI switch.
+provider = "gepard"
 # Full path to espeak-ng (it is not on PATH by default on this machine).
 executable = "C:/Program Files/eSpeak NG/espeak-ng"
 # Output sample rate for generated audio.
-sample_rate = 44100
+sample_rate = 22050
 # Directory for cached WAV clips (keyed by content hash).
 cache_dir = "C:/Projects/bevy-infinite/output/cache/tts"
 # Default voice id used when a character has no explicit mapping.
@@ -85,6 +91,45 @@ speed = 0.72
 # Character id -> espeak voice name. Two characters map to two distinct voices
 # (en-us / en-gb) so dialogue is clearly distinguishable.
 voice_map = { mara = "en-us", ellis = "en-gb", voss = "en-us", nox = "en-gb" }
+
+[tts.gepard]
+runtime_root = "C:/Projects/bevy-infinite/runtimes/gepard"
+model_root = "F:/Models/InfiniteBacklot/gepard-1.0"
+model_revision = "nineninesix/gepard-1.0"
+codec_revision = "NanoCodec-pinned"
+timeout_secs = 900
+
+[tts.gepard.profiles.mara]
+character_id = "mara"
+reference_wav = "C:/Projects/bevy-infinite/runtimes/gepard/ref_audio/nurisa_en.wav"
+reference_hash = "df8803e3036b3f79771f8fde2cc62022d8d3c91305b589623ef1b72f0349b923"
+language = "en"
+accent = "American"
+seed = 42001
+
+[tts.gepard.profiles.ellis]
+character_id = "ellis"
+reference_wav = "C:/Projects/bevy-infinite/runtimes/gepard/ref_audio/audio_en.wav"
+reference_hash = "5ffbd005cf5d871d787ebb84619d31672f2c9044b088735efb94efe66359063d"
+language = "en"
+accent = "British"
+seed = 42002
+
+[tts.gepard.profiles.voss]
+character_id = "voss"
+reference_wav = "C:/Projects/bevy-infinite/runtimes/gepard/ref_audio/ulan_emo.wav"
+reference_hash = "182b17b8af341ce1a7b7e6f83dc5ce2268f3d4a782cf386e47201e9c900e8179"
+language = "en"
+accent = "American"
+seed = 42003
+
+[tts.gepard.profiles.nox]
+character_id = "nox"
+reference_wav = "C:/Projects/bevy-infinite/runtimes/gepard/ref_audio/audio_ru.wav"
+reference_hash = "546aae6a8339a772f5ddd77334e01b8e841fef42a38e1b2c7197fa57e35f1889"
+language = "en"
+accent = "British"
+seed = 42004
 
 # Optional local HTTP TTS provider (used when [tts].provider = "http").
 # Install a local OpenAI-compatible TTS server to improve voice quality:

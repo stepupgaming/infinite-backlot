@@ -5,6 +5,7 @@ use backlot_core::config::Config;
 use backlot_llm::client::LlmClient;
 
 #[tokio::test]
+#[ignore = "opt-in live model test; requires the owned Gemma runtime and emits artifacts"]
 async fn smoke_llm_structured() {
     let config = Config::load("../../data/config.toml").expect("load config");
     let client = LlmClient::new(config.llm.clone()).expect("client");

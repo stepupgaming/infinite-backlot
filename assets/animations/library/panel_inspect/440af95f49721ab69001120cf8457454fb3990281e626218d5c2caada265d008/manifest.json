@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "panel_inspect",
+  "cache_key": "440af95f49721ab69001120cf8457454fb3990281e626218d5c2caada265d008",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A performer leans toward a wall control panel, examines the display closely, touches the panel carefully, recoils slightly, and returns to a neutral attentive stance.",
+  "seed": 12648432,
+  "approval": "approved",
+  "clip": "clip.motion",
+  "preview": null
+}

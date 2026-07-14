@@ -9,6 +9,196 @@ use crate::world::WorldState;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+pub const CURRENT_AUTHORED_SCHEMA_VERSION: u32 = 2;
+
+fn legacy_authored_schema_version() -> u32 {
+    1
+}
+
+// ---------------------------------------------------------------------------
+// Executable production vocabulary
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum EntityRef {
+    Character { id: String },
+    Group { ids: Vec<String> },
+    Prop { id: String },
+    Environment { id: String },
+    Mark { id: String },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+pub struct BlockingCue {
+    pub actor: String,
+    #[serde(default)]
+    pub path: Vec<String>,
+    #[serde(default)]
+    pub destination: Option<String>,
+    #[serde(default)]
+    pub face: Option<EntityRef>,
+    #[serde(default = "default_locomotion")]
+    pub locomotion: String,
+}
+
+fn default_locomotion() -> String {
+    "walk".into()
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq)]
+pub struct ActionPhases {
+    pub anticipation: f32,
+    pub execution: f32,
+    pub hold: f32,
+    pub recovery: f32,
+}
+
+impl Default for ActionPhases {
+    fn default() -> Self {
+        Self {
+            anticipation: 0.15,
+            execution: 0.45,
+            hold: 0.15,
+            recovery: 0.25,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+pub struct PerformanceCue {
+    pub motion: String,
+    #[serde(default = "default_intensity")]
+    pub intensity: f32,
+    #[serde(default)]
+    pub phases: ActionPhases,
+    #[serde(default)]
+    pub gaze: Option<EntityRef>,
+    #[serde(default)]
+    pub active_hand: Option<String>,
+    #[serde(default)]
+    pub prop_contact: Option<EntityRef>,
+    #[serde(default)]
+    pub sync: Option<String>,
+}
+
+fn default_intensity() -> f32 {
+    0.6
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum EnvironmentEventKind {
+    ElevatorDoors,
+    ElevatorIndicator,
+    ControlPanel,
+    InteriorLight,
+    ImpossibleFloorReveal,
+    LightingShift,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+pub struct EnvironmentCue {
+    pub target: String,
+    pub event: EnvironmentEventKind,
+    #[serde(default)]
+    pub from: Option<f32>,
+    #[serde(default)]
+    pub to: Option<f32>,
+    #[serde(default)]
+    pub value: Option<String>,
+    #[serde(default)]
+    pub start_offset: f32,
+    #[serde(default = "default_cue_duration")]
+    pub duration: f32,
+    #[serde(default = "default_easing")]
+    pub easing: String,
+}
+
+fn default_cue_duration() -> f32 {
+    0.8
+}
+
+fn default_easing() -> String {
+    "smoothstep".into()
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+pub struct SoundCue {
+    pub sound: String,
+    #[serde(default)]
+    pub source: Option<EntityRef>,
+    #[serde(default = "default_gain")]
+    pub gain: f32,
+    #[serde(default)]
+    pub start_offset: f32,
+}
+
+fn default_gain() -> f32 {
+    1.0
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum CameraPurpose {
+    Speaker,
+    Reaction,
+    OverTheShoulder,
+    Insert,
+    Interaction,
+    Reveal,
+    Payoff,
+    Spatial,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+pub struct CameraCue {
+    pub purpose: CameraPurpose,
+    pub subjects: Vec<EntityRef>,
+    #[serde(default)]
+    pub required_visible_event: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum DeliveryEmotion {
+    Neutral,
+    Warm,
+    Amused,
+    Anxious,
+    Urgent,
+    Hushed,
+    Stunned,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum DeliveryPace {
+    Slow,
+    Measured,
+    Natural,
+    Fast,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+pub struct DeliverySpec {
+    pub emotion: DeliveryEmotion,
+    #[serde(default = "default_intensity")]
+    pub energy: f32,
+    #[serde(default = "default_delivery_pace")]
+    pub pace: DeliveryPace,
+    #[serde(default)]
+    pub emphasis: Vec<String>,
+    #[serde(default)]
+    pub pause_style: Option<String>,
+    #[serde(default)]
+    pub vocal_effort: Option<String>,
+}
+
+fn default_delivery_pace() -> DeliveryPace {
+    DeliveryPace::Natural
+}
+
 // ---------------------------------------------------------------------------
 // Vocabulary (the bounded "tools" the director may use)
 // ---------------------------------------------------------------------------
@@ -211,6 +401,20 @@ pub struct BeatCommand {
     pub fallback: Option<String>,
     #[serde(default)]
     pub notes: Option<String>,
+    #[serde(default)]
+    pub blocking: Vec<BlockingCue>,
+    #[serde(default)]
+    pub environment: Vec<EnvironmentCue>,
+    #[serde(default)]
+    pub sounds: Vec<SoundCue>,
+    #[serde(default)]
+    pub camera_cue: Option<CameraCue>,
+    #[serde(default)]
+    pub visible_action: Option<String>,
+    #[serde(default)]
+    pub intended_reaction: Option<String>,
+    #[serde(default)]
+    pub performance_intent: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -227,6 +431,10 @@ pub struct ActionCommand {
     /// Override the default estimated duration (seconds).
     #[serde(default)]
     pub duration_override: Option<f32>,
+    #[serde(default)]
+    pub performance: Option<PerformanceCue>,
+    #[serde(default)]
+    pub delivery: Option<DeliverySpec>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -310,6 +518,8 @@ pub struct DigestThread {
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct AuthoredEpisode {
+    #[serde(default = "legacy_authored_schema_version")]
+    pub schema_version: u32,
     pub episode_title: String,
     pub logline: String,
     #[serde(default)]
@@ -356,6 +566,14 @@ pub struct AuthoredBeat {
     #[serde(default)]
     pub performance_intent: Option<String>,
     #[serde(default)]
+    pub blocking_cues: Vec<BlockingCue>,
+    #[serde(default)]
+    pub environment_cues: Vec<EnvironmentCue>,
+    #[serde(default)]
+    pub sound_cues: Vec<SoundCue>,
+    #[serde(default)]
+    pub camera_cue: Option<CameraCue>,
+    #[serde(default)]
     pub fallback: Option<String>,
     #[serde(default)]
     pub expected_state_changes: Vec<ExpectedStateChange>,
@@ -381,6 +599,10 @@ pub struct AuthoredAction {
     /// Override the default estimated duration (seconds).
     #[serde(default)]
     pub duration_override: Option<f32>,
+    #[serde(default)]
+    pub performance: Option<PerformanceCue>,
+    #[serde(default)]
+    pub delivery: Option<DeliverySpec>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]

@@ -1,0 +1,128 @@
+# GEPARD Space configuration.
+# Checkpoint, codec, preset speakers and generation defaults live here so the
+# Space can be re-pointed at a new checkpoint / voices without code changes.
+
+model:
+  # Self-describing checkpoint (carries gepard_config.json). Private repos
+  # are authorized via the HF_TOKEN Space secret.
+  checkpoint: nineninesix/gepard-1.0
+  attn_implementation: eager
+
+codec:
+  id: nvidia/nemo-nano-codec-22khz-1.89kbps-21.5fps
+  sample_rate: 22050
+
+# Preset voices: pre-encoded codec tokens (see gepard_inference/speakers.py).
+# Paths are relative to this file. An entry is either `Name: path.pt` (the
+# dropdown shows the key) or a mapping with `path` + a human-readable `label`.
+speakers:
+  Andrew:
+    path: speakers/en_andrew.pt
+    label: 🇺🇸 Andrew
+  # Oakland English
+  Marcus:
+    path: speakers/en_oak.pt
+    label: 🇺🇸 Marcus from Oakland
+  # Boston English
+  Sean:
+    path: speakers/en_boston.pt
+    label: 🇺🇸 Sean from Boston
+  Tony:
+    path: speakers/italian.pt
+    label: 🇺🇸 Tony from Boston
+  # Standard American English
+  Emma:
+    path: speakers/expresso_f.pt
+    label: 🇺🇸 Emma
+  Olivia:
+    path: speakers/puck.pt
+    label: 🇺🇸 Puck from Gemini
+  Grace:
+    path: speakers/nurisa.pt
+    label: 🇺🇸 Grace
+  Den:
+    path: speakers/den.pt
+    label: 🇺🇸 Den
+  # Mexican Spanish
+  Diego:
+    path: speakers/mex_m.pt
+    label: 🇲🇽 Diego from Mexico City
+  Sofía:
+    path: speakers/mx_f.pt
+    label: 🇲🇽 Sofía from Guadalajara
+  # Brazilian Portuguese
+  Mateus:
+    path: speakers/br_m.pt
+    label: 🇧🇷 Mateus from Rio
+  # Dutch
+  Daan:
+    path: speakers/nl_m.pt
+    label: 🇳🇱 Daan from Amsterdam
+  Sanne:
+    path: speakers/nl_f.pt
+    label: 🇳🇱 Sanne from Rotterdam
+  # Scottish English
+  Callum:
+    path: speakers/scottish.pt
+    label: 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Callum from Glasgow
+  Euan:
+    path: speakers/scottish_1.pt
+    label: 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Euan from Edinburgh
+  # Scouse (Liverpool) English
+  Liam:
+    path: speakers/scouse_enh.pt
+    label: 🏴󠁧󠁢󠁥󠁮󠁧󠁿 Liam from Liverpool
+  # Custom voices
+  Elon:
+    path: speakers/elon.pt
+    label: 🇺🇸 Elon
+
+# Example rows shown at the bottom of the UI (click a row to synthesize & play).
+# Each entry pairs a preset speaker (must match a key under `speakers:`) with a
+# phrase; the table shows that speaker's label. Add an optional `label:` here to
+# override it per row. Unknown-speaker entries are skipped at load.
+examples:
+  - speaker: Marcus
+    text: "Honestly, this town has the best food trucks on our whole side of the bay. You can walk down by the lake and grab something from a different country every block."
+  - speaker: Mateus
+    text: "Bora tomar um café e ver o pôr do sol em Copacabana? O céu fica todo alaranjado e a galera toca aquele samba na areia."
+  - speaker: Sean
+    text: "How about them Sox last night? Grabbed a coffee at Dunkin' on the way in and sat in traffic on Storrow the whole time. Typical Boston, but I wouldn't live anywhere else."
+  - speaker: Emma
+    text: "Thanks so much for calling in today — I'd be happy to help you get this sorted out. Just give me your account number and I'll take a look right away."
+  - speaker: Diego
+    text: "¡Hola! ¿Qué tal? Me está encantando aprender español. La verdad es que es un idioma muy bonito y la gente en México siempre es súper amable. ¡Espero poder visitar el país muy pronto!"
+  - speaker: Daan
+    text: "Ik heb vanochtend door de hele stad gefietst en was toch nog gewoon op tijd op mijn werk. Het weer was echt heerlijk vandaag."
+  - speaker: Callum
+    text: "Aye, it's a pure braw day for a walk up the hills, so it is. If we set off now we'll be at the top well before lunch."
+  - speaker: Liam
+    text: "Ey, fancy a brew before we head down to the match, lad? We've got loads of time yet, the ground's only twenty minutes from mine."
+  - speaker: Elon
+    text: "So the long-term goal here is to make life multiplanetary, and honestly, when you really think about it, it's going to be pretty exciting."
+  - speaker: Grace
+    text: "Yesterday I decided I was finally going to become a responsible, organized person."
+
+# Default generation parameters (initial slider values in the UI).
+# Mirrors the reference notebook: temperature=0.3, cfg_scale=3, cfg_frames=None
+# (cfg_frames: 0 means "guide the whole utterance").
+defaults:
+  temperature: 0.3
+  top_k: 0
+  cfg_scale: 3.0
+  cfg_frames: 0
+  stop_threshold: 0.5
+  max_frames: 1075
+  repetition_penalty: 1.0
+  repetition_window: 32
+
+generation:
+  # Text-CFG (cfg_scale > 1) rescues short phrases from running away, but on
+  # longer text it rushes delivery (~2x) and flattens prosody. So CFG is only
+  # applied when the input has <= this many text tokens; past it, cfg_scale is
+  # forced to 1.0 (off) regardless of the slider. Set to null to never gate.
+  cfg_max_text_tokens: 10
+
+app:
+  max_ref_seconds: 60     # uploaded/recorded reference audio is truncated to this
+  gpu_duration: 120       # ZeroGPU seconds budget per request

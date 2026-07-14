@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "look",
+  "cache_key": "1ecfaa2e7cc3641d536591e570fb5444c00d1f0fb3fae97a03511784785a5614",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A performer notices something off to one side, leads with the eyes and head, turns the upper torso slightly, holds the look, then returns naturally to neutral standing.",
+  "seed": 12648431,
+  "approval": "approved",
+  "clip": "clip.motion",
+  "preview": null
+}

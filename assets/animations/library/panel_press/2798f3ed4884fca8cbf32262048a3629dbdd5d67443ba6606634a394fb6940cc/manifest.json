@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "panel_press",
+  "cache_key": "2798f3ed4884fca8cbf32262048a3629dbdd5d67443ba6606634a394fb6940cc",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person takes one deliberate step toward a wall control panel, raises the right hand, presses one button, releases it, lowers the arm, and returns to a relaxed standing pose.",
+  "seed": 73142,
+  "approval": "approved",
+  "clip": "clip.motion",
+  "preview": null
+}

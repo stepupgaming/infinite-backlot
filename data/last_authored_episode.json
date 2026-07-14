@@ -35,7 +35,7 @@
           "actor": "voss",
           "action": "speak",
           "target": null,
-          "text": "This elevator just announced arrival at Floor Negative Twelve. That is highly irregular.",
+          "text": "Floor Negative Twelve? That is highly irregular.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -53,7 +53,7 @@
           "actor": "mara",
           "action": "speak",
           "target": null,
-          "text": "The wiring in this building is ancient and prone to very strange glitches.",
+          "text": "Old wiring glitches. Relax, inspector.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -105,7 +105,7 @@
           "actor": "ellis",
           "action": "speak",
           "target": null,
-          "text": "Did you hear that? The elevator is singing in a language I don't know!",
+          "text": "Listen! The elevator is singing right now!",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -123,7 +123,7 @@
           "actor": "voss",
           "action": "speak",
           "target": null,
-          "text": "Singing is not a recognized feature in the standard building occupancy code.",
+          "text": "Singing: safety violation.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -166,7 +166,7 @@
           "actor": "mara",
           "action": "speak",
           "target": null,
-          "text": "It is just air pressure escaping the shaft. Please stop bothering the inspector.",
+          "text": "Just shaft pressure. Stop bothering the inspector.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -184,7 +184,7 @@
           "actor": "voss",
           "action": "speak",
           "target": null,
-          "text": "Air pressure does not typically recite epic poetry in a minor key, Madam.",
+          "text": "Air pressure does not recite epic poetry.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -218,7 +218,7 @@
           "actor": "ellis",
           "action": "shout",
           "target": null,
-          "text": "Look! The interior looks like a nebula made of liquid grape soda!",
+          "text": "Look! Liquid grape-soda space is inside there!",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -236,7 +236,7 @@
           "actor": "voss",
           "action": "speak",
           "target": null,
-          "text": "I am marking this down as an unauthorized atmospheric modification in the hallway.",
+          "text": "Unauthorized. Documented.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -245,7 +245,7 @@
           "actor": "mara",
           "action": "speak",
           "target": null,
-          "text": "It is just a very aggressive mood lighting installation for the lobby.",
+          "text": "Just lobby lighting, inspector. Relax.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -288,7 +288,7 @@
           "actor": "voss",
           "action": "speak",
           "target": null,
-          "text": "This violates section four regarding non-standard dimensions in public transit areas.",
+          "text": "Impossible dimensions violate public transit law.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -297,7 +297,7 @@
           "actor": "mara",
           "action": "speak",
           "target": null,
-          "text": "We can fix the dimensions by Monday if you just sign this waiver.",
+          "text": "We'll fix everything Monday. Sign this waiver.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -306,7 +306,7 @@
           "actor": "ellis",
           "action": "speak",
           "target": null,
-          "text": "Can I go inside? I want to see if it tastes like grapes!",
+          "text": "Can I enter? It smells extremely delicious!",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -340,7 +340,7 @@
           "actor": "voss",
           "action": "speak",
           "target": null,
-          "text": "My clipboard! The elevator has consumed my official documentation and my dignity!",
+          "text": "It consumed my official clipboard completely!",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -349,7 +349,7 @@
           "actor": "mara",
           "action": "speak",
           "target": null,
-          "text": "I told you the maintenance was going to be a real nightmare today.",
+          "text": "I warned you maintenance was completely nightmarish.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null
@@ -358,7 +358,7 @@
           "actor": "ellis",
           "action": "speak",
           "target": null,
-          "text": "At least the grape soda smell is actually quite pleasant, don't you think?",
+          "text": "At least the grape smell is pleasant.",
           "intensity": null,
           "performance_intent": null,
           "duration_override": null

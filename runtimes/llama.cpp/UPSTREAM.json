@@ -1,0 +1,7 @@
+{
+  "source": "C:\\Projects\\gemmy\\runtimes\\llama.cpp",
+  "llama_cpp_build": 9692,
+  "commit": "f3e182816",
+  "platform": "windows-x86_64",
+  "weights_in_repository": false
+}

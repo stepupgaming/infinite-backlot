@@ -18,6 +18,22 @@ pub struct Config {
     /// Text-to-speech configuration (real local engine or estimating stub).
     #[serde(default)]
     pub tts: TtsConfig,
+    #[serde(default)]
+    pub asr: AsrConfig,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AsrConfig {
+    #[serde(default = "default_asr_provider")]
+    pub provider: String,
+    #[serde(default = "default_parakeet_runtime")]
+    pub runtime_root: String,
+    #[serde(default = "default_parakeet_model")]
+    pub model_id: String,
+    #[serde(default = "default_asr_cache")]
+    pub cache_dir: String,
+    #[serde(default = "default_gepard_timeout")]
+    pub timeout_secs: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -144,6 +160,40 @@ pub struct TtsConfig {
     /// XTTS, AllTalk, Piper-HTTP, etc.) without coupling the app to one engine.
     #[serde(default)]
     pub http: Option<HttpTtsConfig>,
+    /// Project-owned, one-load-per-episode Gepard batch provider.
+    #[serde(default)]
+    pub gepard: Option<GepardTtsConfig>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VoiceProfileConfig {
+    /// Stable cast identity. The reference file is immutable once approved.
+    pub character_id: String,
+    pub reference_wav: String,
+    #[serde(default)]
+    pub reference_hash: String,
+    #[serde(default)]
+    pub language: Option<String>,
+    #[serde(default)]
+    pub accent: Option<String>,
+    #[serde(default)]
+    pub seed: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GepardTtsConfig {
+    #[serde(default = "default_gepard_runtime")]
+    pub runtime_root: String,
+    #[serde(default = "default_gepard_model")]
+    pub model_root: String,
+    #[serde(default = "default_gepard_revision")]
+    pub model_revision: String,
+    #[serde(default = "default_gepard_codec_revision")]
+    pub codec_revision: String,
+    #[serde(default = "default_gepard_timeout")]
+    pub timeout_secs: f32,
+    #[serde(default)]
+    pub profiles: HashMap<String, VoiceProfileConfig>,
 }
 
 /// Configuration for a local OpenAI-compatible HTTP TTS provider.
@@ -192,6 +242,7 @@ impl Default for Config {
             runtime: RuntimeConfig::default(),
             director: DirectorConfig::default(),
             tts: TtsConfig::default(),
+            asr: AsrConfig::default(),
         }
     }
 }
@@ -253,6 +304,19 @@ impl Default for TtsConfig {
             speed: 1.0,
             voice_map: HashMap::new(),
             http: None,
+            gepard: None,
+        }
+    }
+}
+
+impl Default for AsrConfig {
+    fn default() -> Self {
+        Self {
+            provider: default_asr_provider(),
+            runtime_root: default_parakeet_runtime(),
+            model_id: default_parakeet_model(),
+            cache_dir: default_asr_cache(),
+            timeout_secs: default_gepard_timeout(),
         }
     }
 }
@@ -336,4 +400,31 @@ fn default_speed() -> f32 {
 }
 fn default_true() -> bool {
     true
+}
+fn default_gepard_runtime() -> String {
+    "runtimes/gepard".into()
+}
+fn default_gepard_model() -> String {
+    r"F:\Models\InfiniteBacklot\gepard-1.0".into()
+}
+fn default_gepard_revision() -> String {
+    "gepard-1.0".into()
+}
+fn default_gepard_codec_revision() -> String {
+    "nanocodec-pinned".into()
+}
+fn default_gepard_timeout() -> f32 {
+    900.0
+}
+fn default_asr_provider() -> String {
+    "parakeet".into()
+}
+fn default_parakeet_runtime() -> String {
+    "runtimes/parakeet-asr".into()
+}
+fn default_parakeet_model() -> String {
+    "nvidia/parakeet-tdt-0.6b-v2".into()
+}
+fn default_asr_cache() -> String {
+    "output/cache/asr".into()
 }
