@@ -6,6 +6,8 @@ The connected neighborhood, five hero-location upgrades, shared material library
 - Composition tool: `tools/blender/build_neighborhood_art_pass.py`
 - Reusable-kit tool: `tools/blender/build_environment_art_kit.py`
 - Tour authoring tool: `tools/blender/build_neighborhood_art_tour.py`
+- Expansion-cell, linked-master, and expansion-tour tool: `tools/blender/build_world_expansion.py`
+- Expansion asset-intake report: `assets/reference/world-expansion/asset_intake_report.json`
 - External model assets: none
 - External texture assets: none
 - License: project-owned

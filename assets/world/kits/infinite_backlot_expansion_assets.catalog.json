@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "library_id": "infinite_backlot_expansion_assets",
+  "source": "assets/source/blender/world/kits/infinite_backlot_expansion_assets.blend",
+  "runtime_asset": "assets/world/kits/infinite_backlot_expansion_assets.glb",
+  "assets": [
+    {
+      "asset_id": "corner_window",
+      "collection": "ASSET_CORNER_WINDOW",
+      "category": "architecture",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 3.2
+    },
+    {
+      "asset_id": "shop_entrance_canopy",
+      "collection": "ASSET_SHOP_ENTRANCE_CANOPY",
+      "category": "architecture",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "exterior_stair_system",
+      "collection": "ASSET_EXTERIOR_STAIR_SYSTEM",
+      "category": "architecture",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "roof_hvac_cluster",
+      "collection": "ASSET_ROOF_HVAC_CLUSTER",
+      "category": "architecture",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "rolling_shutter",
+      "collection": "ASSET_ROLLING_SHUTTER",
+      "category": "architecture",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "loading_dock",
+      "collection": "ASSET_LOADING_DOCK",
+      "category": "architecture",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "utility_conduit_bundle",
+      "collection": "ASSET_UTILITY_CONDUIT_BUNDLE",
+      "category": "architecture",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "transit_shelter",
+      "collection": "ASSET_TRANSIT_SHELTER",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 4.3
+    },
+    {
+      "asset_id": "transit_map",
+      "collection": "ASSET_TRANSIT_MAP",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "newspaper_box",
+      "collection": "ASSET_NEWSPAPER_BOX",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "parking_meter",
+      "collection": "ASSET_PARKING_METER",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "utility_cabinet",
+      "collection": "ASSET_UTILITY_CABINET",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "traffic_signal",
+      "collection": "ASSET_TRAFFIC_SIGNAL",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "bollard_family",
+      "collection": "ASSET_BOLLARD_FAMILY",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "planter_family",
+      "collection": "ASSET_PLANTER_FAMILY",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "tree_guard",
+      "collection": "ASSET_TREE_GUARD",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "bike_rack_variant",
+      "collection": "ASSET_BIKE_RACK_VARIANT",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "folding_barrier",
+      "collection": "ASSET_FOLDING_BARRIER",
+      "category": "public_space",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "flyer_cluster",
+      "collection": "ASSET_FLYER_CLUSTER",
+      "category": "storytelling",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.2
+    },
+    {
+      "asset_id": "water_tower_silhouette",
+      "collection": "ASSET_WATER_TOWER_SILHOUETTE",
+      "category": "background",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.8
+    },
+    {
+      "asset_id": "chimney_cluster",
+      "collection": "ASSET_CHIMNEY_CLUSTER",
+      "category": "background",
+      "quality_tier": "production",
+      "provenance": "project-owned-procedural",
+      "license": "repository license",
+      "scale_m": 2.8
+    }
+  ],
+  "materials": [
+    {
+      "material_id": "MAT_EXP_BURGUNDY",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_RUST",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_TEAL",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_BRASS",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_CYAN",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_CONCRETE",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_PATCH",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_STEEL",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_SAFETY",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_GLASS",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_CIVIC_TILE",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_MOSS",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_POSTER_CREAM",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_POSTER_RED",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_WHITE",
+      "gltf_compatible": true
+    },
+    {
+      "material_id": "MAT_EXP_BLACK",
+      "gltf_compatible": true
+    }
+  ],
+  "techniques_applied": [
+    "direct_modeling",
+    "geometry_nodes",
+    "asset_browser",
+    "linked_collections",
+    "material_nodes",
+    "deterministic_glb_export"
+  ],
+  "provenance": {
+    "author": "Infinite Backlot project",
+    "license": "repository license",
+    "external_assets": []
+  }
+}

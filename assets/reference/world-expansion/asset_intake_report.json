@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "source": "assets/source/blender/world/kits/infinite_backlot_expansion_assets.blend",
+  "runtime_glb": "assets/world/kits/infinite_backlot_expansion_assets.glb",
+  "provenance": "assets/world/kits/infinite_backlot_expansion_assets.provenance.json",
+  "mesh_objects": 67,
+  "triangles": 804,
+  "materials": 6,
+  "linked_libraries": [],
+  "unexpected_cameras_or_lights": [],
+  "missing_textures": [],
+  "duplicate_semantic_ids": [],
+  "glb": {
+    "nodes": 67,
+    "meshes": 67,
+    "materials": 6,
+    "images": 0,
+    "cameras": 0,
+    "extensions_required": []
+  },
+  "errors": [],
+  "warnings": []
+}

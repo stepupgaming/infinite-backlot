@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "module_id": "cell_street_extension",
+  "cell_id": "CELL_STREET_EXTENSION",
+  "asset": "assets/world/cells/cell_street_extension.glb",
+  "source_blend": "assets/source/blender/world/cells/cell_street_extension.blend",
+  "category": "street_extension",
+  "version": 1,
+  "quality_tier": "hero",
+  "bounds": {
+    "min": [
+      -14,
+      -0.5,
+      -8
+    ],
+    "max": [
+      14,
+      8,
+      12
+    ]
+  },
+  "sockets": [
+    {
+      "id": "WORLD_SOCKET_WEST",
+      "node": "WORLD_SOCKET_WEST",
+      "position": [
+        -14.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_EAST",
+      "node": "WORLD_SOCKET_EAST",
+      "position": [
+        14.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_SERVICE",
+      "node": "WORLD_SOCKET_SERVICE",
+      "position": [
+        10.0,
+        0.0,
+        -9.0
+      ],
+      "socket_type": "SERVICE",
+      "clearance_m": 4.0
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_STREET_EXTENSION_01",
+      "node": "MARK_STREET_EXTENSION_01",
+      "position": [
+        -9.0,
+        0.0,
+        -5.1
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_STREET_EXTENSION_02",
+      "node": "MARK_STREET_EXTENSION_02",
+      "position": [
+        -3.0,
+        0.0,
+        -5.1
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_STREET_EXTENSION_03",
+      "node": "MARK_STREET_EXTENSION_03",
+      "position": [
+        3.0,
+        0.0,
+        -5.1
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_STREET_EXTENSION_04",
+      "node": "MARK_STREET_EXTENSION_04",
+      "position": [
+        9.0,
+        0.0,
+        -5.1
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_STREET_EXTENSION_05",
+      "node": "MARK_STREET_EXTENSION_05",
+      "position": [
+        9.0,
+        0.0,
+        5.1
+      ],
+      "radius_m": 0.65
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_STREET_EXTENSION_WIDE",
+      "node": "CAM_STREET_EXTENSION_WIDE",
+      "position": [
+        -13.0,
+        6.0,
+        13.0
+      ],
+      "look_at": [
+        0,
+        3,
+        -5
+      ],
+      "lens_mm": 38.0
+    },
+    {
+      "id": "CAM_HINGE_HOUR_TWO_SHOT",
+      "node": "CAM_HINGE_HOUR_TWO_SHOT",
+      "position": [
+        -5.0,
+        1.7,
+        -1.5
+      ],
+      "look_at": [
+        0.0,
+        1.2,
+        -5.1
+      ],
+      "lens_mm": 52.0
+    },
+    {
+      "id": "CAM_LOADING_FRONTAGE",
+      "node": "CAM_LOADING_FRONTAGE",
+      "position": [
+        13.0,
+        2.2,
+        -1.5
+      ],
+      "look_at": [
+        9.0,
+        1.6,
+        -6.0
+      ],
+      "lens_mm": 46.0
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_LOADING_SHUTTER",
+      "node": "INTERACT_LOADING_SHUTTER",
+      "position": [
+        9.2,
+        1.0,
+        -5.7
+      ],
+      "interaction_type": "rolling_shutter"
+    }
+  ],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_STREET_EXTENSION",
+      "node": "COLLIDER_STREET_EXTENSION",
+      "position": [
+        0.0,
+        -0.3,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "lighting": [
+    {
+      "id": "LIGHT_STREET_EXTENSION",
+      "node": "LIGHT_STREET_EXTENSION",
+      "position": [
+        0.0,
+        6.0,
+        -2.0
+      ],
+      "role": "LIGHT_STREET",
+      "light_type": "point",
+      "color_rgb": [
+        1.0,
+        0.62,
+        0.38
+      ],
+      "intensity": 16000.0,
+      "range": 17.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_HINGE_SIGN",
+      "node": "LIGHT_HINGE_SIGN",
+      "position": [
+        -2.0,
+        3.0,
+        -5.5
+      ],
+      "role": "LIGHT_SIGN",
+      "light_type": "point",
+      "color_rgb": [
+        0.1,
+        0.85,
+        1.0
+      ],
+      "intensity": 9000.0,
+      "range": 9.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false
+    }
+  ],
+  "cutaway_groups": [],
+  "runtime_controls": [],
+  "lighting_policy": "semantic_runtime_lights",
+  "background_requirements": [
+    "burgundy_teal_skyline",
+    "warm_cyan_practicals"
+  ],
+  "neighbor_compatibility": [
+    "CELL_ODD_HOURS_CORNER",
+    "CELL_PUBLIC_TRANSIT_POCKET"
+  ],
+  "future_streaming_priority": "near",
+  "world_state_hooks": [
+    "time_of_day",
+    "municipal_notice_state"
+  ],
+  "tags": [
+    "hero",
+    "production",
+    "world_cell",
+    "expansion"
+  ],
+  "provenance": {
+    "author": "Infinite Backlot project",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_expansion.py",
+    "external_assets": []
+  }
+}

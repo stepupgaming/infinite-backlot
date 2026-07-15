@@ -9,8 +9,11 @@ Current roots:
 ```text
 assets/source/blender/world/apartment_building/*.blend
 assets/source/blender/world/neighborhood/*.blend
+assets/source/blender/world/cells/*.blend
 assets/world/apartment_building/*.glb
 assets/world/neighborhood/*.glb
+assets/world/cells/*.glb
+assets/world/cells/world_cells.json
 assets/world/registry.json
 assets/reference/world-modules/*.png
 ```
@@ -89,6 +92,7 @@ Fast preflight:
 ```bash
 uv run --no-project python tools/world/preflight.py
 uv run --no-project python tools/world/world_art_preflight.py
+uv run --no-project python tools/world/test_world_expansion.py -v
 cargo test -p backlot-core --test world_modules
 ```
 

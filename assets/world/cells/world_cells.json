@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "world_id": "infinite_backlot_expandable_world",
+  "master_runtime_asset": "assets/world/neighborhood/infinite_backlot_expanded_world.glb",
+  "cells": [
+    {
+      "cell_id": "CELL_APARTMENT_BLOCK",
+      "runtime_asset": "assets/world/neighborhood/infinite_backlot_block.glb",
+      "quality_tier": "hero",
+      "bounds": {
+        "min": [
+          -17,
+          -1,
+          -25
+        ],
+        "max": [
+          8,
+          16,
+          -4
+        ]
+      },
+      "connection_sockets": [
+        "WORLD_SOCKET_WEST",
+        "WORLD_SOCKET_SERVICE"
+      ],
+      "staging_regions": [
+        "lobby",
+        "entrance",
+        "street"
+      ],
+      "camera_regions": [
+        "interior",
+        "exterior"
+      ],
+      "interaction_regions": [
+        "doors",
+        "mailboxes",
+        "elevator"
+      ],
+      "lighting_policy": "connected-master semantic lights",
+      "background_requirements": [
+        "urban skyline"
+      ],
+      "neighbor_compatibility": [
+        "CELL_SERVICE_ALLEY",
+        "CELL_PUBLIC_TRANSIT_POCKET"
+      ],
+      "future_streaming_priority": "near",
+      "world_state_hooks": [
+        "doors",
+        "elevator"
+      ]
+    },
+    {
+      "cell_id": "CELL_ODD_HOURS_CORNER",
+      "runtime_asset": "assets/world/neighborhood/infinite_backlot_block.glb",
+      "quality_tier": "hero",
+      "bounds": {
+        "min": [
+          8,
+          -1,
+          -16
+        ],
+        "max": [
+          27,
+          8,
+          2
+        ]
+      },
+      "connection_sockets": [
+        "WORLD_SOCKET_EAST",
+        "WORLD_SOCKET_TRANSIT"
+      ],
+      "staging_regions": [
+        "storefront",
+        "store interior"
+      ],
+      "camera_regions": [
+        "street",
+        "store"
+      ],
+      "interaction_regions": [
+        "store door",
+        "counter"
+      ],
+      "lighting_policy": "connected-master semantic lights",
+      "background_requirements": [
+        "commercial continuation"
+      ],
+      "neighbor_compatibility": [
+        "CELL_STREET_EXTENSION"
+      ],
+      "future_streaming_priority": "near",
+      "world_state_hooks": [
+        "store_open",
+        "sign_power"
+      ]
+    },
+    {
+      "cell_id": "CELL_CONNECTED_NEIGHBORHOOD",
+      "runtime_asset": "assets/world/neighborhood/infinite_backlot_expanded_world.glb",
+      "quality_tier": "hero",
+      "bounds": {
+        "min": [
+          -42,
+          -1,
+          -50
+        ],
+        "max": [
+          50,
+          21,
+          20
+        ]
+      },
+      "connection_sockets": [
+        "WORLD_SOCKET_WEST",
+        "WORLD_SOCKET_EAST",
+        "WORLD_SOCKET_TRANSIT",
+        "WORLD_SOCKET_NORTH",
+        "WORLD_SOCKET_PARK",
+        "WORLD_SOCKET_SERVICE",
+        "WORLD_SOCKET_OUTSKIRTS"
+      ],
+      "staging_regions": [
+        "apartment block",
+        "Odd Hours corner",
+        "street extension",
+        "transit pocket",
+        "industrial transition"
+      ],
+      "camera_regions": [
+        "connected tour",
+        "portrait staging",
+        "expansion overview"
+      ],
+      "interaction_regions": [
+        "doors",
+        "public seating",
+        "service access"
+      ],
+      "lighting_policy": "semantic runtime lights per composed cell",
+      "background_requirements": [
+        "urban skyline",
+        "industrial silhouettes",
+        "outskirts continuation"
+      ],
+      "neighbor_compatibility": [
+        "future city",
+        "future park",
+        "future outskirts"
+      ],
+      "future_streaming_priority": "near",
+      "world_state_hooks": [
+        "time_of_day",
+        "store_open",
+        "service_access"
+      ]
+    },
+    {
+      "cell_id": "CELL_STREET_EXTENSION",
+      "runtime_asset": "assets/world/cells/cell_street_extension.glb",
+      "quality_tier": "hero",
+      "bounds": {
+        "min": [
+          -14,
+          -0.5,
+          -8
+        ],
+        "max": [
+          14,
+          8,
+          12
+        ]
+      },
+      "connection_sockets": [
+        "WORLD_SOCKET_WEST",
+        "WORLD_SOCKET_EAST",
+        "WORLD_SOCKET_SERVICE"
+      ],
+      "staging_regions": [
+        "MARK_STREET_EXTENSION_01",
+        "MARK_STREET_EXTENSION_02",
+        "MARK_STREET_EXTENSION_03",
+        "MARK_STREET_EXTENSION_04",
+        "MARK_STREET_EXTENSION_05"
+      ],
+      "camera_regions": [
+        "CAM_STREET_EXTENSION_WIDE",
+        "CAM_HINGE_HOUR_TWO_SHOT",
+        "CAM_LOADING_FRONTAGE"
+      ],
+      "interaction_regions": [
+        "INTERACT_LOADING_SHUTTER"
+      ],
+      "lighting_policy": "semantic_runtime_lights",
+      "background_requirements": [
+        "burgundy_teal_skyline",
+        "warm_cyan_practicals"
+      ],
+      "neighbor_compatibility": [
+        "CELL_ODD_HOURS_CORNER",
+        "CELL_PUBLIC_TRANSIT_POCKET"
+      ],
+      "future_streaming_priority": "near",
+      "world_state_hooks": [
+        "time_of_day",
+        "municipal_notice_state"
+      ]
+    },
+    {
+      "cell_id": "CELL_PUBLIC_TRANSIT_POCKET",
+      "runtime_asset": "assets/world/cells/cell_public_transit_pocket.glb",
+      "quality_tier": "hero",
+      "bounds": {
+        "min": [
+          -13,
+          -0.5,
+          -10
+        ],
+        "max": [
+          13,
+          7,
+          9
+        ]
+      },
+      "connection_sockets": [
+        "WORLD_SOCKET_EAST",
+        "WORLD_SOCKET_WEST",
+        "WORLD_SOCKET_TRANSIT"
+      ],
+      "staging_regions": [
+        "MARK_TRANSIT_POCKET_01",
+        "MARK_TRANSIT_POCKET_02",
+        "MARK_TRANSIT_POCKET_03",
+        "MARK_TRANSIT_POCKET_04",
+        "MARK_TRANSIT_POCKET_05",
+        "MARK_TRANSIT_POCKET_06"
+      ],
+      "camera_regions": [
+        "CAM_TRANSIT_WIDE",
+        "CAM_TRANSIT_CONVERSATION",
+        "CAM_NOTICE_BOARD"
+      ],
+      "interaction_regions": [
+        "INTERACT_TRANSIT_MAP",
+        "INTERACT_TRANSIT_BENCH"
+      ],
+      "lighting_policy": "semantic_runtime_lights",
+      "background_requirements": [
+        "burgundy_teal_skyline",
+        "warm_cyan_practicals"
+      ],
+      "neighbor_compatibility": [
+        "CELL_APARTMENT_BLOCK",
+        "CELL_STREET_EXTENSION"
+      ],
+      "future_streaming_priority": "near",
+      "world_state_hooks": [
+        "time_of_day",
+        "municipal_notice_state"
+      ]
+    },
+    {
+      "cell_id": "CELL_INDUSTRIAL_TRANSITION",
+      "runtime_asset": "assets/world/cells/cell_industrial_transition.glb",
+      "quality_tier": "hero",
+      "bounds": {
+        "min": [
+          -18,
+          -0.8,
+          -15
+        ],
+        "max": [
+          9,
+          16,
+          15
+        ]
+      },
+      "connection_sockets": [
+        "WORLD_SOCKET_SOUTH",
+        "WORLD_SOCKET_NORTH",
+        "WORLD_SOCKET_OUTSKIRTS",
+        "WORLD_SOCKET_SERVICE"
+      ],
+      "staging_regions": [
+        "MARK_INDUSTRIAL_01",
+        "MARK_INDUSTRIAL_02",
+        "MARK_INDUSTRIAL_03",
+        "MARK_INDUSTRIAL_04",
+        "MARK_INDUSTRIAL_05",
+        "MARK_INDUSTRIAL_06"
+      ],
+      "camera_regions": [
+        "CAM_INDUSTRIAL_APPROACH",
+        "CAM_UNDERPASS_LONG",
+        "CAM_OUTSKIRTS_REVEAL"
+      ],
+      "interaction_regions": [
+        "INTERACT_SERVICE_SHED"
+      ],
+      "lighting_policy": "semantic_runtime_lights",
+      "background_requirements": [
+        "burgundy_teal_skyline",
+        "warm_cyan_practicals"
+      ],
+      "neighbor_compatibility": [
+        "CELL_SERVICE_ALLEY",
+        "future_outskirts"
+      ],
+      "future_streaming_priority": "medium",
+      "world_state_hooks": [
+        "time_of_day",
+        "municipal_notice_state"
+      ]
+    }
+  ],
+  "socket_vocabulary": [
+    "WORLD_SOCKET_NORTH",
+    "WORLD_SOCKET_SOUTH",
+    "WORLD_SOCKET_EAST",
+    "WORLD_SOCKET_WEST",
+    "WORLD_SOCKET_TRANSIT",
+    "WORLD_SOCKET_PARK",
+    "WORLD_SOCKET_SERVICE",
+    "WORLD_SOCKET_OUTSKIRTS"
+  ]
+}

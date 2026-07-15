@@ -2,7 +2,7 @@
   "schema_version": 1,
   "registry_version": 2,
   "coordinate_system": "Bevy right-handed Y-up",
-  "module_count": 30,
+  "module_count": 34,
   "modules": [
     {
       "schema_version": 1,
@@ -6678,9 +6678,10 @@
           ],
           "look_at": [
             3,
-            7,
-            3
-          ]
+            3,
+            -7
+          ],
+          "lens_mm": 48.0
         },
         {
           "id": "CAM_SIDEWALK_TWO_SHOT",
@@ -6692,9 +6693,10 @@
           ],
           "look_at": [
             7.8,
-            5.6,
-            1.15
-          ]
+            1.15,
+            -5.6
+          ],
+          "lens_mm": 56.0
         },
         {
           "id": "CAM_CROSSWALK_LOW",
@@ -6706,9 +6708,10 @@
           ],
           "look_at": [
             14.0,
-            0.0,
-            0.8
-          ]
+            0.8,
+            -0.0
+          ],
+          "lens_mm": 38.0
         },
         {
           "id": "CAM_STREET_BUILDING_ESTABLISH_MASTER_2",
@@ -6720,9 +6723,10 @@
           ],
           "look_at": [
             0,
-            7,
-            5
-          ]
+            5,
+            -7
+          ],
+          "lens_mm": 42.0
         },
         {
           "id": "CAM_ENTRANCE_LOW_WIDE",
@@ -6734,9 +6738,10 @@
           ],
           "look_at": [
             0.0,
-            7.0,
-            2.2
-          ]
+            2.2,
+            -7.0
+          ],
+          "lens_mm": 34.0
         },
         {
           "id": "CAM_LOBBY_ENTRANCE_WIDE",
@@ -6748,9 +6753,10 @@
           ],
           "look_at": [
             0.0,
-            11.8,
-            1.35
-          ]
+            1.35,
+            -11.8
+          ],
+          "lens_mm": 38.0
         },
         {
           "id": "CAM_ELEVATOR_FROM_MAILBOXES",
@@ -6762,9 +6768,10 @@
           ],
           "look_at": [
             0.0,
-            14.6,
-            1.35
-          ]
+            1.35,
+            -14.6
+          ],
+          "lens_mm": 48.0
         },
         {
           "id": "CAM_MAILBOX_TWO_SHOT",
@@ -6776,9 +6783,10 @@
           ],
           "look_at": [
             -2.7,
-            11.25,
-            1.15
-          ]
+            1.15,
+            -11.25
+          ],
+          "lens_mm": 54.0
         },
         {
           "id": "CAM_HALL_LONG",
@@ -6790,9 +6798,10 @@
           ],
           "look_at": [
             0.0,
-            20.7,
-            1.15
-          ]
+            1.15,
+            -20.7
+          ],
+          "lens_mm": 52.0
         },
         {
           "id": "CAM_ALLEY_LONG_LENS",
@@ -6804,9 +6813,10 @@
           ],
           "look_at": [
             -10.0,
-            17.7,
-            1.1
-          ]
+            1.1,
+            -17.7
+          ],
+          "lens_mm": 66.0
         },
         {
           "id": "CAM_ALLEY_DUMPSTER_TWO_SHOT",
@@ -6818,9 +6828,10 @@
           ],
           "look_at": [
             -10.8,
-            18.2,
-            1.1
-          ]
+            1.1,
+            -18.2
+          ],
+          "lens_mm": 48.0
         },
         {
           "id": "CAM_ALLEY_SERVICE_DOOR",
@@ -6832,9 +6843,10 @@
           ],
           "look_at": [
             -7.3,
-            9.4,
-            1.1
-          ]
+            1.1,
+            -9.4
+          ],
+          "lens_mm": 52.0
         },
         {
           "id": "CAM_STORE_COUNTER_TWO_SHOT",
@@ -6846,9 +6858,10 @@
           ],
           "look_at": [
             20.35,
-            9.0,
-            1.25
-          ]
+            1.25,
+            -9.0
+          ],
+          "lens_mm": 52.0
         },
         {
           "id": "CAM_STORE_AISLE_LONG",
@@ -6860,9 +6873,10 @@
           ],
           "look_at": [
             17.0,
-            11.4,
-            1.2
-          ]
+            1.2,
+            -11.4
+          ],
+          "lens_mm": 44.0
         },
         {
           "id": "CAM_STORE_FRONT_WIDE",
@@ -6874,9 +6888,10 @@
           ],
           "look_at": [
             17.0,
-            11.0,
-            1.5
-          ]
+            1.5,
+            -11.0
+          ],
+          "lens_mm": 38.0
         },
         {
           "id": "CAM_MASTER_STREET_WIDE",
@@ -6888,9 +6903,10 @@
           ],
           "look_at": [
             0.0,
-            9.0,
-            4.8
-          ]
+            4.8,
+            -9.0
+          ],
+          "lens_mm": 40.0
         },
         {
           "id": "CAM_MASTER_ENTRANCE",
@@ -6902,9 +6918,10 @@
           ],
           "look_at": [
             0.0,
-            7.0,
-            1.8
-          ]
+            1.8,
+            -7.0
+          ],
+          "lens_mm": 42.0
         },
         {
           "id": "CAM_MASTER_LOBBY",
@@ -6916,9 +6933,10 @@
           ],
           "look_at": [
             0.0,
-            13.0,
-            1.3
-          ]
+            1.3,
+            -13.0
+          ],
+          "lens_mm": 40.0
         },
         {
           "id": "CAM_MASTER_ALLEY",
@@ -6930,9 +6948,10 @@
           ],
           "look_at": [
             -10.0,
-            16.0,
-            1.1
-          ]
+            1.1,
+            -16.0
+          ],
+          "lens_mm": 58.0
         },
         {
           "id": "CAM_MASTER_STORE",
@@ -6944,9 +6963,10 @@
           ],
           "look_at": [
             17.0,
-            11.0,
-            1.3
-          ]
+            1.3,
+            -11.0
+          ],
+          "lens_mm": 42.0
         },
         {
           "id": "CAM_WORLD_ART_TOUR",
@@ -6958,9 +6978,10 @@
           ],
           "look_at": [
             5.0,
-            7.0,
-            2.5
-          ]
+            2.5,
+            -7.0
+          ],
+          "lens_mm": 38.0
         }
       ],
       "interactions": [
@@ -7168,6 +7189,218 @@
           "collision_role": "solid"
         }
       ],
+      "lighting": [
+        {
+          "id": "LIGHT_LOBBY_KEY",
+          "node": "LIGHT_LOBBY_KEY",
+          "position": [
+            -1.8,
+            3.0,
+            -11.0
+          ],
+          "role": "LIGHT_INTERIOR_KEY",
+          "light_type": "point",
+          "color_rgb": [
+            1.0,
+            0.72,
+            0.48
+          ],
+          "intensity": 15000.0,
+          "range": 9.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false,
+          "emissive_node": "LobbyFixture"
+        },
+        {
+          "id": "LIGHT_LOBBY_FILL",
+          "node": "LIGHT_LOBBY_FILL",
+          "position": [
+            2.4,
+            2.4,
+            -9.2
+          ],
+          "role": "LIGHT_INTERIOR_FILL",
+          "light_type": "point",
+          "color_rgb": [
+            0.35,
+            0.72,
+            1.0
+          ],
+          "intensity": 8000.0,
+          "range": 8.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        },
+        {
+          "id": "LIGHT_ENTRY_PRACTICAL",
+          "node": "LIGHT_ENTRY_PRACTICAL",
+          "position": [
+            0.0,
+            2.8,
+            -6.3
+          ],
+          "role": "LIGHT_PRACTICAL",
+          "light_type": "point",
+          "color_rgb": [
+            1.0,
+            0.58,
+            0.3
+          ],
+          "intensity": 9000.0,
+          "range": 8.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false,
+          "emissive_node": "AddressSign"
+        },
+        {
+          "id": "LIGHT_STREET_POOL",
+          "node": "LIGHT_STREET_POOL",
+          "position": [
+            7.0,
+            5.2,
+            -3.8
+          ],
+          "role": "LIGHT_STREET",
+          "light_type": "point",
+          "color_rgb": [
+            1.0,
+            0.68,
+            0.42
+          ],
+          "intensity": 18000.0,
+          "range": 16.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        },
+        {
+          "id": "LIGHT_ODD_HOURS_SIGN",
+          "node": "LIGHT_ODD_HOURS_SIGN",
+          "position": [
+            17.0,
+            3.0,
+            -6.0
+          ],
+          "role": "LIGHT_SIGN",
+          "light_type": "point",
+          "color_rgb": [
+            0.12,
+            0.85,
+            1.0
+          ],
+          "intensity": 11000.0,
+          "range": 9.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false,
+          "emissive_node": "StoreSign"
+        },
+        {
+          "id": "LIGHT_STORE_KEY",
+          "node": "LIGHT_STORE_KEY",
+          "position": [
+            17.0,
+            3.1,
+            -10.0
+          ],
+          "role": "LIGHT_STORE",
+          "light_type": "point",
+          "color_rgb": [
+            0.68,
+            0.88,
+            1.0
+          ],
+          "intensity": 17000.0,
+          "range": 11.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false,
+          "emissive_node": "StoreCeilingPractical"
+        },
+        {
+          "id": "LIGHT_ALLEY_POOL",
+          "node": "LIGHT_ALLEY_POOL",
+          "position": [
+            -10.0,
+            3.0,
+            -14.0
+          ],
+          "role": "LIGHT_ALLEY",
+          "light_type": "point",
+          "color_rgb": [
+            0.26,
+            0.64,
+            1.0
+          ],
+          "intensity": 10000.0,
+          "range": 10.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        },
+        {
+          "id": "LIGHT_EXTERIOR_SKY",
+          "node": "LIGHT_EXTERIOR_SKY",
+          "position": [
+            5.0,
+            12.0,
+            -2.0
+          ],
+          "role": "LIGHT_EXTERIOR_AMBIENT",
+          "light_type": "directional",
+          "color_rgb": [
+            0.52,
+            0.62,
+            0.82
+          ],
+          "intensity": 3200.0,
+          "range": 40.0,
+          "direction": [
+            -0.35,
+            -1.0,
+            -0.45
+          ],
+          "runtime_controlled": false
+        }
+      ],
+      "runtime_controls": [
+        {
+          "id": "CONTROL_MAIN_ENTRY",
+          "node": "PROP_entry_door",
+          "kind": "door",
+          "default_state": "open"
+        },
+        {
+          "id": "CONTROL_STORE_ENTRY",
+          "node": "PROP_entry_door.004",
+          "kind": "door",
+          "default_state": "open"
+        }
+      ],
       "tags": [
         "hero",
         "production",
@@ -7183,9 +7416,1194 @@
         "generator": "tools/blender/build_neighborhood_art_pass.py",
         "baseline": "b09db1c3e1b3eb2bbbb8d58e1a089d45c670b43d"
       },
-      "asset_sha256": "5ceef53420272264f385c567c5adc3fa582421cbeaab05a64fdda28ae5501190",
-      "glb_sha256": "5ceef53420272264f385c567c5adc3fa582421cbeaab05a64fdda28ae5501190",
+      "asset_sha256": "50ab888bcaf632072188d6105a21cfd39f41eab8aeb99fab52265414f304c018",
+      "glb_sha256": "50ab888bcaf632072188d6105a21cfd39f41eab8aeb99fab52265414f304c018",
       "preview": "assets/reference/world-art-pass/master_neighborhood.png"
+    },
+    {
+      "schema_version": 1,
+      "module_id": "cell_street_extension",
+      "cell_id": "CELL_STREET_EXTENSION",
+      "asset": "assets/world/cells/cell_street_extension.glb",
+      "source_blend": "assets/source/blender/world/cells/cell_street_extension.blend",
+      "category": "street_extension",
+      "version": 1,
+      "quality_tier": "hero",
+      "bounds": {
+        "min": [
+          -14,
+          -0.5,
+          -8
+        ],
+        "max": [
+          14,
+          8,
+          12
+        ]
+      },
+      "sockets": [
+        {
+          "id": "WORLD_SOCKET_WEST",
+          "node": "WORLD_SOCKET_WEST",
+          "position": [
+            -14.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_EAST",
+          "node": "WORLD_SOCKET_EAST",
+          "position": [
+            14.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_SERVICE",
+          "node": "WORLD_SOCKET_SERVICE",
+          "position": [
+            10.0,
+            0.0,
+            -9.0
+          ],
+          "socket_type": "SERVICE",
+          "clearance_m": 4.0
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_STREET_EXTENSION_01",
+          "node": "MARK_STREET_EXTENSION_01",
+          "position": [
+            -9.0,
+            0.0,
+            -5.1
+          ],
+          "radius_m": 0.65
+        },
+        {
+          "id": "MARK_STREET_EXTENSION_02",
+          "node": "MARK_STREET_EXTENSION_02",
+          "position": [
+            -3.0,
+            0.0,
+            -5.1
+          ],
+          "radius_m": 0.65
+        },
+        {
+          "id": "MARK_STREET_EXTENSION_03",
+          "node": "MARK_STREET_EXTENSION_03",
+          "position": [
+            3.0,
+            0.0,
+            -5.1
+          ],
+          "radius_m": 0.65
+        },
+        {
+          "id": "MARK_STREET_EXTENSION_04",
+          "node": "MARK_STREET_EXTENSION_04",
+          "position": [
+            9.0,
+            0.0,
+            -5.1
+          ],
+          "radius_m": 0.65
+        },
+        {
+          "id": "MARK_STREET_EXTENSION_05",
+          "node": "MARK_STREET_EXTENSION_05",
+          "position": [
+            9.0,
+            0.0,
+            5.1
+          ],
+          "radius_m": 0.65
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_STREET_EXTENSION_WIDE",
+          "node": "CAM_STREET_EXTENSION_WIDE",
+          "position": [
+            -13.0,
+            6.0,
+            13.0
+          ],
+          "look_at": [
+            0,
+            3,
+            -5
+          ],
+          "lens_mm": 38.0
+        },
+        {
+          "id": "CAM_HINGE_HOUR_TWO_SHOT",
+          "node": "CAM_HINGE_HOUR_TWO_SHOT",
+          "position": [
+            -5.0,
+            1.7,
+            -1.5
+          ],
+          "look_at": [
+            0.0,
+            1.2,
+            -5.1
+          ],
+          "lens_mm": 52.0
+        },
+        {
+          "id": "CAM_LOADING_FRONTAGE",
+          "node": "CAM_LOADING_FRONTAGE",
+          "position": [
+            13.0,
+            2.2,
+            -1.5
+          ],
+          "look_at": [
+            9.0,
+            1.6,
+            -6.0
+          ],
+          "lens_mm": 46.0
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_LOADING_SHUTTER",
+          "node": "INTERACT_LOADING_SHUTTER",
+          "position": [
+            9.2,
+            1.0,
+            -5.7
+          ],
+          "interaction_type": "rolling_shutter"
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_STREET_EXTENSION",
+          "node": "COLLIDER_STREET_EXTENSION",
+          "position": [
+            0.0,
+            -0.3,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "lighting": [
+        {
+          "id": "LIGHT_STREET_EXTENSION",
+          "node": "LIGHT_STREET_EXTENSION",
+          "position": [
+            0.0,
+            6.0,
+            -2.0
+          ],
+          "role": "LIGHT_STREET",
+          "light_type": "point",
+          "color_rgb": [
+            1.0,
+            0.62,
+            0.38
+          ],
+          "intensity": 16000.0,
+          "range": 17.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        },
+        {
+          "id": "LIGHT_HINGE_SIGN",
+          "node": "LIGHT_HINGE_SIGN",
+          "position": [
+            -2.0,
+            3.0,
+            -5.5
+          ],
+          "role": "LIGHT_SIGN",
+          "light_type": "point",
+          "color_rgb": [
+            0.1,
+            0.85,
+            1.0
+          ],
+          "intensity": 9000.0,
+          "range": 9.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        }
+      ],
+      "cutaway_groups": [],
+      "runtime_controls": [],
+      "lighting_policy": "semantic_runtime_lights",
+      "background_requirements": [
+        "burgundy_teal_skyline",
+        "warm_cyan_practicals"
+      ],
+      "neighbor_compatibility": [
+        "CELL_ODD_HOURS_CORNER",
+        "CELL_PUBLIC_TRANSIT_POCKET"
+      ],
+      "future_streaming_priority": "near",
+      "world_state_hooks": [
+        "time_of_day",
+        "municipal_notice_state"
+      ],
+      "tags": [
+        "hero",
+        "production",
+        "world_cell",
+        "expansion"
+      ],
+      "provenance": {
+        "author": "Infinite Backlot project",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_expansion.py",
+        "external_assets": []
+      },
+      "asset_sha256": "958f49185f6dc6ac8b460e5b32fc0000528dfec2d43083d2aa1a11477eba1036",
+      "glb_sha256": "958f49185f6dc6ac8b460e5b32fc0000528dfec2d43083d2aa1a11477eba1036",
+      "preview": "assets/reference/world-expansion/hero_previews/cell_street_extension.png"
+    },
+    {
+      "schema_version": 1,
+      "module_id": "cell_public_transit_pocket",
+      "cell_id": "CELL_PUBLIC_TRANSIT_POCKET",
+      "asset": "assets/world/cells/cell_public_transit_pocket.glb",
+      "source_blend": "assets/source/blender/world/cells/cell_public_transit_pocket.blend",
+      "category": "public_transit_pocket",
+      "version": 1,
+      "quality_tier": "hero",
+      "bounds": {
+        "min": [
+          -13,
+          -0.5,
+          -10
+        ],
+        "max": [
+          13,
+          7,
+          9
+        ]
+      },
+      "sockets": [
+        {
+          "id": "WORLD_SOCKET_EAST",
+          "node": "WORLD_SOCKET_EAST",
+          "position": [
+            13.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_WEST",
+          "node": "WORLD_SOCKET_WEST",
+          "position": [
+            -13.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_TRANSIT",
+          "node": "WORLD_SOCKET_TRANSIT",
+          "position": [
+            0.0,
+            0.0,
+            10.0
+          ],
+          "socket_type": "TRANSIT",
+          "clearance_m": 4.0
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_TRANSIT_POCKET_01",
+          "node": "MARK_TRANSIT_POCKET_01",
+          "position": [
+            -5.0,
+            0.0,
+            2.0
+          ],
+          "radius_m": 0.7
+        },
+        {
+          "id": "MARK_TRANSIT_POCKET_02",
+          "node": "MARK_TRANSIT_POCKET_02",
+          "position": [
+            -2.0,
+            0.0,
+            2.0
+          ],
+          "radius_m": 0.7
+        },
+        {
+          "id": "MARK_TRANSIT_POCKET_03",
+          "node": "MARK_TRANSIT_POCKET_03",
+          "position": [
+            1.0,
+            0.0,
+            2.0
+          ],
+          "radius_m": 0.7
+        },
+        {
+          "id": "MARK_TRANSIT_POCKET_04",
+          "node": "MARK_TRANSIT_POCKET_04",
+          "position": [
+            5.0,
+            0.0,
+            -2.0
+          ],
+          "radius_m": 0.7
+        },
+        {
+          "id": "MARK_TRANSIT_POCKET_05",
+          "node": "MARK_TRANSIT_POCKET_05",
+          "position": [
+            8.0,
+            0.0,
+            -5.0
+          ],
+          "radius_m": 0.7
+        },
+        {
+          "id": "MARK_TRANSIT_POCKET_06",
+          "node": "MARK_TRANSIT_POCKET_06",
+          "position": [
+            0.0,
+            0.0,
+            -5.0
+          ],
+          "radius_m": 0.7
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_TRANSIT_WIDE",
+          "node": "CAM_TRANSIT_WIDE",
+          "position": [
+            -14.0,
+            6.0,
+            14.0
+          ],
+          "look_at": [
+            0,
+            2,
+            0
+          ],
+          "lens_mm": 36.0
+        },
+        {
+          "id": "CAM_TRANSIT_CONVERSATION",
+          "node": "CAM_TRANSIT_CONVERSATION",
+          "position": [
+            4.0,
+            1.7,
+            6.0
+          ],
+          "look_at": [
+            -1.0,
+            1.2,
+            2.0
+          ],
+          "lens_mm": 54.0
+        },
+        {
+          "id": "CAM_NOTICE_BOARD",
+          "node": "CAM_NOTICE_BOARD",
+          "position": [
+            11.0,
+            1.8,
+            1.0
+          ],
+          "look_at": [
+            7.0,
+            1.5,
+            -2.0
+          ],
+          "lens_mm": 58.0
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_TRANSIT_MAP",
+          "node": "INTERACT_TRANSIT_MAP",
+          "position": [
+            7.0,
+            1.3,
+            -1.2
+          ],
+          "interaction_type": "map"
+        },
+        {
+          "id": "INTERACT_TRANSIT_BENCH",
+          "node": "INTERACT_TRANSIT_BENCH",
+          "position": [
+            -2.0,
+            0.5,
+            2.2
+          ],
+          "interaction_type": "bench"
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_TRANSIT_PLAZA",
+          "node": "COLLIDER_TRANSIT_PLAZA",
+          "position": [
+            0.0,
+            -0.28,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "lighting": [
+        {
+          "id": "LIGHT_TRANSIT_SHELTER",
+          "node": "LIGHT_TRANSIT_SHELTER",
+          "position": [
+            -2.0,
+            3.0,
+            3.0
+          ],
+          "role": "LIGHT_PRACTICAL",
+          "light_type": "point",
+          "color_rgb": [
+            0.18,
+            0.82,
+            1.0
+          ],
+          "intensity": 10000.0,
+          "range": 10.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        },
+        {
+          "id": "LIGHT_TRANSIT_PLAZA",
+          "node": "LIGHT_TRANSIT_PLAZA",
+          "position": [
+            6.0,
+            5.0,
+            -2.0
+          ],
+          "role": "LIGHT_STREET",
+          "light_type": "point",
+          "color_rgb": [
+            1.0,
+            0.64,
+            0.38
+          ],
+          "intensity": 15000.0,
+          "range": 16.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        }
+      ],
+      "cutaway_groups": [],
+      "runtime_controls": [],
+      "lighting_policy": "semantic_runtime_lights",
+      "background_requirements": [
+        "burgundy_teal_skyline",
+        "warm_cyan_practicals"
+      ],
+      "neighbor_compatibility": [
+        "CELL_APARTMENT_BLOCK",
+        "CELL_STREET_EXTENSION"
+      ],
+      "future_streaming_priority": "near",
+      "world_state_hooks": [
+        "time_of_day",
+        "municipal_notice_state"
+      ],
+      "tags": [
+        "hero",
+        "production",
+        "world_cell",
+        "expansion"
+      ],
+      "provenance": {
+        "author": "Infinite Backlot project",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_expansion.py",
+        "external_assets": []
+      },
+      "asset_sha256": "5e644279d8a76409b0f6ccc69826a2ed053ee4332309f0a59ea105c03e7e377b",
+      "glb_sha256": "5e644279d8a76409b0f6ccc69826a2ed053ee4332309f0a59ea105c03e7e377b",
+      "preview": "assets/reference/world-expansion/hero_previews/cell_public_transit_pocket.png"
+    },
+    {
+      "schema_version": 1,
+      "module_id": "cell_industrial_transition",
+      "cell_id": "CELL_INDUSTRIAL_TRANSITION",
+      "asset": "assets/world/cells/cell_industrial_transition.glb",
+      "source_blend": "assets/source/blender/world/cells/cell_industrial_transition.blend",
+      "category": "industrial_transition",
+      "version": 1,
+      "quality_tier": "hero",
+      "bounds": {
+        "min": [
+          -18,
+          -0.8,
+          -15
+        ],
+        "max": [
+          9,
+          16,
+          15
+        ]
+      },
+      "sockets": [
+        {
+          "id": "WORLD_SOCKET_SOUTH",
+          "node": "WORLD_SOCKET_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            15.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_NORTH",
+          "node": "WORLD_SOCKET_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -15.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_OUTSKIRTS",
+          "node": "WORLD_SOCKET_OUTSKIRTS",
+          "position": [
+            0.0,
+            0.0,
+            -15.0
+          ],
+          "socket_type": "OUTSKIRTS",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_SERVICE",
+          "node": "WORLD_SOCKET_SERVICE",
+          "position": [
+            6.0,
+            0.0,
+            -10.0
+          ],
+          "socket_type": "SERVICE",
+          "clearance_m": 4.0
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_INDUSTRIAL_01",
+          "node": "MARK_INDUSTRIAL_01",
+          "position": [
+            0.0,
+            0.0,
+            11.0
+          ],
+          "radius_m": 0.7
+        },
+        {
+          "id": "MARK_INDUSTRIAL_02",
+          "node": "MARK_INDUSTRIAL_02",
+          "position": [
+            0.0,
+            0.0,
+            5.0
+          ],
+          "radius_m": 0.7
+        },
+        {
+          "id": "MARK_INDUSTRIAL_03",
+          "node": "MARK_INDUSTRIAL_03",
+          "position": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "radius_m": 0.7
+        },
+        {
+          "id": "MARK_INDUSTRIAL_04",
+          "node": "MARK_INDUSTRIAL_04",
+          "position": [
+            0.0,
+            0.0,
+            -7.0
+          ],
+          "radius_m": 0.7
+        },
+        {
+          "id": "MARK_INDUSTRIAL_05",
+          "node": "MARK_INDUSTRIAL_05",
+          "position": [
+            3.0,
+            0.0,
+            -10.0
+          ],
+          "radius_m": 0.7
+        },
+        {
+          "id": "MARK_INDUSTRIAL_06",
+          "node": "MARK_INDUSTRIAL_06",
+          "position": [
+            0.0,
+            0.0,
+            -13.0
+          ],
+          "radius_m": 0.7
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INDUSTRIAL_APPROACH",
+          "node": "CAM_INDUSTRIAL_APPROACH",
+          "position": [
+            -10.0,
+            5.0,
+            16.0
+          ],
+          "look_at": [
+            0,
+            2,
+            0
+          ],
+          "lens_mm": 38.0
+        },
+        {
+          "id": "CAM_UNDERPASS_LONG",
+          "node": "CAM_UNDERPASS_LONG",
+          "position": [
+            4.0,
+            1.7,
+            8.0
+          ],
+          "look_at": [
+            0.0,
+            1.3,
+            -8.0
+          ],
+          "lens_mm": 56.0
+        },
+        {
+          "id": "CAM_OUTSKIRTS_REVEAL",
+          "node": "CAM_OUTSKIRTS_REVEAL",
+          "position": [
+            12.0,
+            5.0,
+            -10.0
+          ],
+          "look_at": [
+            0,
+            3,
+            -14
+          ],
+          "lens_mm": 42.0
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_SERVICE_SHED",
+          "node": "INTERACT_SERVICE_SHED",
+          "position": [
+            4.0,
+            1.0,
+            -7.2
+          ],
+          "interaction_type": "service_door"
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_INDUSTRIAL_ROAD",
+          "node": "COLLIDER_INDUSTRIAL_ROAD",
+          "position": [
+            0.0,
+            -0.3,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "lighting": [
+        {
+          "id": "LIGHT_UNDERPASS",
+          "node": "LIGHT_UNDERPASS",
+          "position": [
+            0.0,
+            5.0,
+            -1.0
+          ],
+          "role": "LIGHT_ALLEY",
+          "light_type": "point",
+          "color_rgb": [
+            0.12,
+            0.65,
+            1.0
+          ],
+          "intensity": 13000.0,
+          "range": 12.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        },
+        {
+          "id": "LIGHT_SERVICE_SHED",
+          "node": "LIGHT_SERVICE_SHED",
+          "position": [
+            4.0,
+            3.5,
+            -7.0
+          ],
+          "role": "LIGHT_PRACTICAL",
+          "light_type": "point",
+          "color_rgb": [
+            1.0,
+            0.52,
+            0.2
+          ],
+          "intensity": 9000.0,
+          "range": 8.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        }
+      ],
+      "cutaway_groups": [],
+      "runtime_controls": [],
+      "lighting_policy": "semantic_runtime_lights",
+      "background_requirements": [
+        "burgundy_teal_skyline",
+        "warm_cyan_practicals"
+      ],
+      "neighbor_compatibility": [
+        "CELL_SERVICE_ALLEY",
+        "future_outskirts"
+      ],
+      "future_streaming_priority": "medium",
+      "world_state_hooks": [
+        "time_of_day",
+        "municipal_notice_state"
+      ],
+      "tags": [
+        "hero",
+        "production",
+        "world_cell",
+        "expansion"
+      ],
+      "provenance": {
+        "author": "Infinite Backlot project",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_expansion.py",
+        "external_assets": []
+      },
+      "asset_sha256": "5cf2fe70ecc319c3cb4d734816b02ebf1add13e19a02fbbde5c6f2e081b923ed",
+      "glb_sha256": "5cf2fe70ecc319c3cb4d734816b02ebf1add13e19a02fbbde5c6f2e081b923ed",
+      "preview": "assets/reference/world-expansion/hero_previews/cell_industrial_transition.png"
+    },
+    {
+      "schema_version": 1,
+      "module_id": "infinite_backlot_expanded_world",
+      "cell_id": "CELL_CONNECTED_NEIGHBORHOOD",
+      "asset": "assets/world/neighborhood/infinite_backlot_expanded_world.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/infinite_backlot_expanded_world.blend",
+      "category": "expanded_connected_world",
+      "version": 1,
+      "quality_tier": "hero",
+      "bounds": {
+        "min": [
+          -42,
+          -1,
+          -50
+        ],
+        "max": [
+          50,
+          21,
+          20
+        ]
+      },
+      "sockets": [
+        {
+          "id": "WORLD_SOCKET_WEST",
+          "node": "WORLD_SOCKET_WEST",
+          "position": [
+            -42.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_EAST",
+          "node": "WORLD_SOCKET_EAST",
+          "position": [
+            50.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_TRANSIT",
+          "node": "WORLD_SOCKET_TRANSIT",
+          "position": [
+            -29.0,
+            0.0,
+            10.0
+          ],
+          "socket_type": "TRANSIT",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_NORTH",
+          "node": "WORLD_SOCKET_NORTH",
+          "position": [
+            15.0,
+            0.0,
+            -50.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_PARK",
+          "node": "WORLD_SOCKET_PARK",
+          "position": [
+            -29.0,
+            0.0,
+            -8.0
+          ],
+          "socket_type": "PARK",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_SERVICE",
+          "node": "WORLD_SOCKET_SERVICE",
+          "position": [
+            21.0,
+            0.0,
+            -45.0
+          ],
+          "socket_type": "SERVICE",
+          "clearance_m": 4.0
+        },
+        {
+          "id": "WORLD_SOCKET_OUTSKIRTS",
+          "node": "WORLD_SOCKET_OUTSKIRTS",
+          "position": [
+            15.0,
+            0.0,
+            -50.0
+          ],
+          "socket_type": "OUTSKIRTS",
+          "clearance_m": 4.0
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_EXPANDED_ROUTE_01",
+          "node": "MARK_EXPANDED_ROUTE_01",
+          "position": [
+            -29.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.75
+        },
+        {
+          "id": "MARK_EXPANDED_ROUTE_02",
+          "node": "MARK_EXPANDED_ROUTE_02",
+          "position": [
+            -15.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.75
+        },
+        {
+          "id": "MARK_EXPANDED_ROUTE_03",
+          "node": "MARK_EXPANDED_ROUTE_03",
+          "position": [
+            5.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.75
+        },
+        {
+          "id": "MARK_EXPANDED_ROUTE_04",
+          "node": "MARK_EXPANDED_ROUTE_04",
+          "position": [
+            22.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.75
+        },
+        {
+          "id": "MARK_EXPANDED_ROUTE_05",
+          "node": "MARK_EXPANDED_ROUTE_05",
+          "position": [
+            36.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.75
+        },
+        {
+          "id": "MARK_EXPANDED_ROUTE_06",
+          "node": "MARK_EXPANDED_ROUTE_06",
+          "position": [
+            15.0,
+            0.0,
+            -25.0
+          ],
+          "radius_m": 0.75
+        },
+        {
+          "id": "MARK_EXPANDED_ROUTE_07",
+          "node": "MARK_EXPANDED_ROUTE_07",
+          "position": [
+            15.0,
+            0.0,
+            -42.0
+          ],
+          "radius_m": 0.75
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_EXPANDED_OVERVIEW",
+          "node": "CAM_EXPANDED_OVERVIEW",
+          "position": [
+            -45.0,
+            18.0,
+            35.0
+          ],
+          "look_at": [
+            8,
+            3,
+            -10
+          ],
+          "lens_mm": 40.0
+        },
+        {
+          "id": "CAM_EXPANDED_TRANSIT",
+          "node": "CAM_EXPANDED_TRANSIT",
+          "position": [
+            -42.0,
+            7.0,
+            15.0
+          ],
+          "look_at": [
+            -29,
+            2,
+            0
+          ],
+          "lens_mm": 38.0
+        },
+        {
+          "id": "CAM_EXPANDED_STREET",
+          "node": "CAM_EXPANDED_STREET",
+          "position": [
+            25.0,
+            8.0,
+            18.0
+          ],
+          "look_at": [
+            36,
+            3,
+            -4
+          ],
+          "lens_mm": 42.0
+        },
+        {
+          "id": "CAM_EXPANDED_INDUSTRIAL",
+          "node": "CAM_EXPANDED_INDUSTRIAL",
+          "position": [
+            30.0,
+            8.0,
+            -20.0
+          ],
+          "look_at": [
+            15,
+            3,
+            -37
+          ],
+          "lens_mm": 44.0
+        }
+      ],
+      "interactions": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_EXPANDED_WORLD_GROUND",
+          "node": "COLLIDER_EXPANDED_WORLD_GROUND",
+          "position": [
+            4.0,
+            -0.35,
+            -10.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "lighting": [
+        {
+          "id": "LIGHT_EXPANDED_WEST",
+          "node": "LIGHT_EXPANDED_WEST",
+          "position": [
+            -29.0,
+            8.0,
+            -0.0
+          ],
+          "role": "LIGHT_STREET",
+          "light_type": "point",
+          "color_rgb": [
+            0.25,
+            0.68,
+            1.0
+          ],
+          "intensity": 17000.0,
+          "range": 22.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        },
+        {
+          "id": "LIGHT_EXPANDED_EAST",
+          "node": "LIGHT_EXPANDED_EAST",
+          "position": [
+            36.0,
+            8.0,
+            -0.0
+          ],
+          "role": "LIGHT_STREET",
+          "light_type": "point",
+          "color_rgb": [
+            1.0,
+            0.62,
+            0.35
+          ],
+          "intensity": 18000.0,
+          "range": 22.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        },
+        {
+          "id": "LIGHT_EXPANDED_NORTH",
+          "node": "LIGHT_EXPANDED_NORTH",
+          "position": [
+            15.0,
+            7.0,
+            -35.0
+          ],
+          "role": "LIGHT_ALLEY",
+          "light_type": "point",
+          "color_rgb": [
+            0.15,
+            0.65,
+            1.0
+          ],
+          "intensity": 15000.0,
+          "range": 18.0,
+          "direction": [
+            0,
+            -1,
+            0
+          ],
+          "runtime_controlled": false
+        }
+      ],
+      "cutaway_groups": [],
+      "runtime_controls": [],
+      "lighting_policy": "semantic_runtime_lights",
+      "background_requirements": [
+        "burgundy_teal_skyline",
+        "warm_cyan_practicals"
+      ],
+      "neighbor_compatibility": [
+        "future_city",
+        "future_outskirts"
+      ],
+      "future_streaming_priority": "near",
+      "world_state_hooks": [
+        "time_of_day",
+        "municipal_notice_state"
+      ],
+      "tags": [
+        "hero",
+        "production",
+        "world_cell",
+        "expansion"
+      ],
+      "provenance": {
+        "author": "Infinite Backlot project",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_expansion.py",
+        "external_assets": []
+      },
+      "composed_cells": [
+        "CELL_APARTMENT_BLOCK",
+        "CELL_ODD_HOURS_CORNER",
+        "CELL_STREET_EXTENSION",
+        "CELL_PUBLIC_TRANSIT_POCKET",
+        "CELL_SERVICE_ALLEY",
+        "CELL_INDUSTRIAL_TRANSITION"
+      ],
+      "asset_sha256": "b7c23f6b7abb193a8d6e841fc8be23a529ec90a4176261370608a12656065d86",
+      "glb_sha256": "b7c23f6b7abb193a8d6e841fc8be23a529ec90a4176261370608a12656065d86",
+      "preview": "assets/reference/world-expansion/hero_previews/infinite_backlot_expanded_world.png"
     }
   ],
   "quality_tiers": [

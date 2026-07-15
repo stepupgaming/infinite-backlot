@@ -99,8 +99,15 @@ def semantic(name,loc,kind,**props):
     return o
 
 
+def runtime_light(name,loc,role,color,intensity,range_m,light_type="point",direction=(0,0,-1),spot_angle_degrees=None,runtime_controlled=False,emissive_node=None):
+    o=semantic(name,loc,"runtime_light",role=role,light_type=light_type,color_rgb=list(color),intensity=float(intensity),range=float(range_m),direction=list(direction),runtime_controlled=runtime_controlled)
+    if spot_angle_degrees is not None:o["spot_angle_degrees"]=float(spot_angle_degrees)
+    if emissive_node:o["emissive_node"]=emissive_node
+    return o
+
+
 def camera(name,loc,target,lens=42):
-    d=bpy.data.cameras.new(name);d.lens=lens;d.sensor_width=36;o=bpy.data.objects.new(name,d);bpy.data.collections["CAMERAS"].objects.link(o);o.location=loc;o.rotation_euler=(Vector(target)-o.location).to_track_quat("-Z","Y").to_euler();o["semantic_kind"]="camera_anchor";o["semantic_id"]=name;o["look_at"]=list(target);return o
+    d=bpy.data.cameras.new(name);d.lens=lens;d.sensor_width=36;o=bpy.data.objects.new(name,d);bpy.data.collections["CAMERAS"].objects.link(o);o.location=loc;o.rotation_euler=(Vector(target)-o.location).to_track_quat("-Z","Y").to_euler();o["semantic_kind"]="camera_anchor";o["semantic_id"]=name;o["look_at"]=list(target);o["lens_mm"]=float(lens);return o
 
 
 def collider(name,loc,dims):
@@ -293,8 +300,13 @@ def custom_sidecar(module_id,category,source,asset,bounds):
         if isinstance(value,(list,tuple)):return [json_value(v) for v in value]
         if isinstance(value,(str,int,float,bool)) or value is None:return value
         return str(value)
-    def point(o):return {"id":o.get("semantic_id",o.name),"node":o.name,"position":[round(o.location.x,4),round(o.location.z,4),round(-o.location.y,4)],**{k:json_value(o[k]) for k in o.keys() if k not in {"semantic_kind","semantic_id","_RNA_UI"}}}
-    groups={k:[] for k in ("sockets","staging_marks","camera_anchors","interactions","cutaway_groups","collision_groups")}
+    def bevy_vec(value):return [round(value[0],4),round(value[2],4),round(-value[1],4)]
+    def point(o):
+        metadata={k:json_value(o[k]) for k in o.keys() if k not in {"semantic_kind","semantic_id","_RNA_UI"}}
+        if "look_at" in metadata:metadata["look_at"]=bevy_vec(metadata["look_at"])
+        return {"id":o.get("semantic_id",o.name),"node":o.name,"position":bevy_vec(o.location),**metadata}
+    groups={k:[] for k in ("sockets","staging_marks","camera_anchors","interactions","cutaway_groups","collision_groups","lighting")}
+    runtime_controls=[]
     for o in scene.objects:
         kind=o.get("semantic_kind")
         if kind=="socket":groups["sockets"].append(point(o))
@@ -303,7 +315,11 @@ def custom_sidecar(module_id,category,source,asset,bounds):
         elif kind=="camera_anchor":groups["camera_anchors"].append(point(o))
         elif kind=="cutaway":groups["cutaway_groups"].append(point(o))
         elif kind=="collider":groups["collision_groups"].append(point(o))
-    return {"schema_version":1,"module_id":module_id,"asset":str(asset.relative_to(ROOT)).replace('\\','/'),"source_blend":str(source.relative_to(ROOT)).replace('\\','/'),"category":category,"version":2 if module_id!="infinite_backlot_block" else 1,"quality_tier":"hero","bounds":{"min":bounds[0],"max":bounds[1]},**groups,"tags":["hero","production","connected","environment_art_pass"],"material_library":"assets/source/blender/world/kits/infinite_backlot_material_library.blend","detail_kit":"assets/source/blender/world/kits/infinite_backlot_detail_kit.blend","dressing_preset":"lived_in","provenance":{"author":"Infinite Backlot project","license":"project-owned","generator":"tools/blender/build_neighborhood_art_pass.py","baseline":"b09db1c3e1b3eb2bbbb8d58e1a089d45c670b43d"}}
+        elif kind=="runtime_light":
+            light=point(o);light["direction"]=bevy_vec(light["direction"]);groups["lighting"].append(light)
+        if o.get("runtime_control_id"):
+            runtime_controls.append({"id":o["runtime_control_id"],"node":o.name,"kind":o.get("runtime_control_kind","prop"),"default_state":o.get("runtime_default_state","static")})
+    return {"schema_version":1,"module_id":module_id,"asset":str(asset.relative_to(ROOT)).replace('\\','/'),"source_blend":str(source.relative_to(ROOT)).replace('\\','/'),"category":category,"version":2 if module_id!="infinite_backlot_block" else 1,"quality_tier":"hero","bounds":{"min":bounds[0],"max":bounds[1]},**groups,"runtime_controls":runtime_controls,"tags":["hero","production","connected","environment_art_pass"],"material_library":"assets/source/blender/world/kits/infinite_backlot_material_library.blend","detail_kit":"assets/source/blender/world/kits/infinite_backlot_detail_kit.blend","dressing_preset":"lived_in","provenance":{"author":"Infinite Backlot project","license":"project-owned","generator":"tools/blender/build_neighborhood_art_pass.py","baseline":"b09db1c3e1b3eb2bbbb8d58e1a089d45c670b43d"}}
 
 
 def realize_instances():
@@ -362,6 +378,21 @@ def build_master():
     for name,loc in [("MARK_MASTER_STREET",(5,4.8,0)),("MARK_MASTER_ENTRANCE",(0,5.5,0)),("MARK_MASTER_LOBBY",(0,11,0)),("MARK_MASTER_ELEVATOR",(0,14,0)),("MARK_MASTER_HALL",(0,18.5,0)),("MARK_MASTER_ALLEY",(-10,14.5,0)),("MARK_MASTER_STORE",(17,7,0))]:semantic(name,loc,"staging_mark",radius_m=.65)
     semantic("TRANSITION_STREET_TO_ENTRANCE",(0,5.6,0),"interaction",interaction_type="transition");semantic("TRANSITION_ENTRANCE_TO_LOBBY",(0,7.5,0),"interaction",interaction_type="transition");semantic("TRANSITION_LOBBY_TO_ELEVATOR",(0,14.5,0),"interaction",interaction_type="transition");semantic("TRANSITION_HALL_TO_ALLEY",(-7.15,18.5,0),"interaction",interaction_type="transition");semantic("TRANSITION_SIDEWALK_TO_STORE",(17,6.5,0),"interaction",interaction_type="transition")
     camera("CAM_MASTER_STREET_WIDE",(17,-14,6),(0,9,4.8),40);camera("CAM_MASTER_ENTRANCE",(-4,2,1.7),(0,7,1.8),42);camera("CAM_MASTER_LOBBY",(0,8,1.7),(0,13,1.3),40);camera("CAM_MASTER_ALLEY",(-10,7.8,1.7),(-10,16,1.1),58);camera("CAM_MASTER_STORE",(17,4.2,1.7),(17,11,1.3),42)
+    # Blender lights remain preview-only; these typed intents are the Bevy contract.
+    runtime_light("LIGHT_LOBBY_KEY",(-1.8,11,3.0),"LIGHT_INTERIOR_KEY",(1.0,.72,.48),15000,9,emissive_node="LobbyFixture")
+    runtime_light("LIGHT_LOBBY_FILL",(2.4,9.2,2.4),"LIGHT_INTERIOR_FILL",(.35,.72,1.0),8000,8)
+    runtime_light("LIGHT_ENTRY_PRACTICAL",(0,6.3,2.8),"LIGHT_PRACTICAL",(1.0,.58,.30),9000,8,emissive_node="AddressSign")
+    runtime_light("LIGHT_STREET_POOL",(7,3.8,5.2),"LIGHT_STREET",(1.0,.68,.42),18000,16)
+    runtime_light("LIGHT_ODD_HOURS_SIGN",(17,6.0,3.0),"LIGHT_SIGN",(.12,.85,1.0),11000,9,emissive_node="StoreSign")
+    runtime_light("LIGHT_STORE_KEY",(17,10.0,3.1),"LIGHT_STORE",(.68,.88,1.0),17000,11,emissive_node="StoreCeilingPractical")
+    runtime_light("LIGHT_ALLEY_POOL",(-10,14.0,3.0),"LIGHT_ALLEY",(.26,.64,1.0),10000,10)
+    runtime_light("LIGHT_EXTERIOR_SKY",(5,2.0,12.0),"LIGHT_EXTERIOR_AMBIENT",(.52,.62,.82),3200,40,light_type="directional",direction=(-.35,.45,-1))
+    for obj in bpy.context.scene.objects:
+        if obj.get("kit_asset_id")!="entry_door":continue
+        if (Vector(obj.location)-Vector((0,6.76,0))).length<1.5:
+            obj["runtime_control_id"]="CONTROL_MAIN_ENTRY";obj["runtime_control_kind"]="door";obj["runtime_default_state"]="open"
+        elif (Vector(obj.location)-Vector((17,6.28,0))).length<1.5:
+            obj["runtime_control_id"]="CONTROL_STORE_ENTRY";obj["runtime_control_kind"]="door";obj["runtime_default_state"]="open"
     collider("COLLIDER_MASTER_ACTOR_GROUND",(5,8,-.30),(44,34,.35));dedupe_semantic_ids()
     scene=bpy.context.scene;scene["module_id"]="infinite_backlot_block";scene["quality_tier"]="hero";scene["continuous_spatial_layout"]=True
     # Tour camera is authored at human scale and never renders helpers.
@@ -379,7 +410,7 @@ def update_registry(hero_sidecars,master):
     # Quality-tier classification prevents blockouts from masquerading as final art.
     background={"neighborhood_skyline_facades_a","neighborhood_storefront_row_a","neighborhood_street_straight_a","apartment_hall_straight_a","apartment_hall_short_a"}
     needs={"apartment_interior_recurring_a","neighborhood_diner_a","apartment_main_entrance_a","apartment_elevator_lobby_a"}
-    hero_ids={s["module_id"] for s in hero_sidecars}
+    hero_ids={"apartment_exterior_a","apartment_lobby_a","neighborhood_intersection_a","neighborhood_convenience_store_a","neighborhood_alley_a","cell_street_extension","cell_public_transit_pocket","cell_industrial_transition","infinite_backlot_expanded_world"}|{s["module_id"] for s in hero_sidecars}
     for m in reg["modules"]:
         if m["module_id"] in hero_ids:m["quality_tier"]="hero"
         elif m["module_id"] in background:m["quality_tier"]="background"

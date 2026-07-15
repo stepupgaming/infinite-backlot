@@ -1,0 +1,35 @@
+{
+  "module_id": "infinite_backlot_block",
+  "runtime_glb": "assets/world/neighborhood/infinite_backlot_block.glb",
+  "registry_version": 2,
+  "renderer": "Bevy 0.19 GPU offscreen screenshot readback",
+  "timing": {
+    "duration_secs": 20.0,
+    "fps": 12,
+    "frames": 240,
+    "width": 960,
+    "height": 540
+  },
+  "captured_frames": 240,
+  "named_world_nodes": 1406,
+  "hidden_semantic_helpers": 85,
+  "runtime_controls_bound": 2,
+  "runtime_lights_spawned": 8,
+  "staging_marks_registered": 31,
+  "camera_anchors_registered": 21,
+  "interactions_registered": 14,
+  "transitions_registered": 5,
+  "collision_proxies_registered": 6,
+  "actor_asset": "assets/characters/mara.glb",
+  "locomotion": "KayKit native walk clip 72 sampled deterministically over authored path-warped staging marks",
+  "material_contract": "Blender master GLB materials and object transforms loaded directly; no Rust environment duplicate",
+  "output_mp4": "C:\\Projects\\bevy-infinite\\output/connected-world-proof\\lobby_to_odd_hours.mp4",
+  "gpu_adapter": "NVIDIA GeForce RTX 5060 Ti",
+  "render_backend": "Vulkan",
+  "visual_acceptance": "accepted after one camera correction; props removed, actor visible across lobby/street/store",
+  "known_limits": [
+    "coarse collision proxies; no navmesh claim",
+    "native KayKit walk clip over authored route, not a new Kimodo retarget",
+    "lower body is briefly occluded by lobby/store foreground furniture"
+  ]
+}

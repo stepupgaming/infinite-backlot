@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "module_id": "cell_industrial_transition",
+  "cell_id": "CELL_INDUSTRIAL_TRANSITION",
+  "asset": "assets/world/cells/cell_industrial_transition.glb",
+  "source_blend": "assets/source/blender/world/cells/cell_industrial_transition.blend",
+  "category": "industrial_transition",
+  "version": 1,
+  "quality_tier": "hero",
+  "bounds": {
+    "min": [
+      -18,
+      -0.8,
+      -15
+    ],
+    "max": [
+      9,
+      16,
+      15
+    ]
+  },
+  "sockets": [
+    {
+      "id": "WORLD_SOCKET_SOUTH",
+      "node": "WORLD_SOCKET_SOUTH",
+      "position": [
+        0.0,
+        0.0,
+        15.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_NORTH",
+      "node": "WORLD_SOCKET_NORTH",
+      "position": [
+        0.0,
+        0.0,
+        -15.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_OUTSKIRTS",
+      "node": "WORLD_SOCKET_OUTSKIRTS",
+      "position": [
+        0.0,
+        0.0,
+        -15.0
+      ],
+      "socket_type": "OUTSKIRTS",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_SERVICE",
+      "node": "WORLD_SOCKET_SERVICE",
+      "position": [
+        6.0,
+        0.0,
+        -10.0
+      ],
+      "socket_type": "SERVICE",
+      "clearance_m": 4.0
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_INDUSTRIAL_01",
+      "node": "MARK_INDUSTRIAL_01",
+      "position": [
+        0.0,
+        0.0,
+        11.0
+      ],
+      "radius_m": 0.7
+    },
+    {
+      "id": "MARK_INDUSTRIAL_02",
+      "node": "MARK_INDUSTRIAL_02",
+      "position": [
+        0.0,
+        0.0,
+        5.0
+      ],
+      "radius_m": 0.7
+    },
+    {
+      "id": "MARK_INDUSTRIAL_03",
+      "node": "MARK_INDUSTRIAL_03",
+      "position": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "radius_m": 0.7
+    },
+    {
+      "id": "MARK_INDUSTRIAL_04",
+      "node": "MARK_INDUSTRIAL_04",
+      "position": [
+        0.0,
+        0.0,
+        -7.0
+      ],
+      "radius_m": 0.7
+    },
+    {
+      "id": "MARK_INDUSTRIAL_05",
+      "node": "MARK_INDUSTRIAL_05",
+      "position": [
+        3.0,
+        0.0,
+        -10.0
+      ],
+      "radius_m": 0.7
+    },
+    {
+      "id": "MARK_INDUSTRIAL_06",
+      "node": "MARK_INDUSTRIAL_06",
+      "position": [
+        0.0,
+        0.0,
+        -13.0
+      ],
+      "radius_m": 0.7
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INDUSTRIAL_APPROACH",
+      "node": "CAM_INDUSTRIAL_APPROACH",
+      "position": [
+        -10.0,
+        5.0,
+        16.0
+      ],
+      "look_at": [
+        0,
+        2,
+        0
+      ],
+      "lens_mm": 38.0
+    },
+    {
+      "id": "CAM_UNDERPASS_LONG",
+      "node": "CAM_UNDERPASS_LONG",
+      "position": [
+        4.0,
+        1.7,
+        8.0
+      ],
+      "look_at": [
+        0.0,
+        1.3,
+        -8.0
+      ],
+      "lens_mm": 56.0
+    },
+    {
+      "id": "CAM_OUTSKIRTS_REVEAL",
+      "node": "CAM_OUTSKIRTS_REVEAL",
+      "position": [
+        12.0,
+        5.0,
+        -10.0
+      ],
+      "look_at": [
+        0,
+        3,
+        -14
+      ],
+      "lens_mm": 42.0
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_SERVICE_SHED",
+      "node": "INTERACT_SERVICE_SHED",
+      "position": [
+        4.0,
+        1.0,
+        -7.2
+      ],
+      "interaction_type": "service_door"
+    }
+  ],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_INDUSTRIAL_ROAD",
+      "node": "COLLIDER_INDUSTRIAL_ROAD",
+      "position": [
+        0.0,
+        -0.3,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "lighting": [
+    {
+      "id": "LIGHT_UNDERPASS",
+      "node": "LIGHT_UNDERPASS",
+      "position": [
+        0.0,
+        5.0,
+        -1.0
+      ],
+      "role": "LIGHT_ALLEY",
+      "light_type": "point",
+      "color_rgb": [
+        0.12,
+        0.65,
+        1.0
+      ],
+      "intensity": 13000.0,
+      "range": 12.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_SERVICE_SHED",
+      "node": "LIGHT_SERVICE_SHED",
+      "position": [
+        4.0,
+        3.5,
+        -7.0
+      ],
+      "role": "LIGHT_PRACTICAL",
+      "light_type": "point",
+      "color_rgb": [
+        1.0,
+        0.52,
+        0.2
+      ],
+      "intensity": 9000.0,
+      "range": 8.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false
+    }
+  ],
+  "cutaway_groups": [],
+  "runtime_controls": [],
+  "lighting_policy": "semantic_runtime_lights",
+  "background_requirements": [
+    "burgundy_teal_skyline",
+    "warm_cyan_practicals"
+  ],
+  "neighbor_compatibility": [
+    "CELL_SERVICE_ALLEY",
+    "future_outskirts"
+  ],
+  "future_streaming_priority": "medium",
+  "world_state_hooks": [
+    "time_of_day",
+    "municipal_notice_state"
+  ],
+  "tags": [
+    "hero",
+    "production",
+    "world_cell",
+    "expansion"
+  ],
+  "provenance": {
+    "author": "Infinite Backlot project",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_expansion.py",
+    "external_assets": []
+  }
+}

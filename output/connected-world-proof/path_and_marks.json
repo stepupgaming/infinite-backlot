@@ -1,0 +1,225 @@
+{
+  "camera_schedule": [
+    {
+      "anchor": "CAM_MASTER_LOBBY",
+      "end": 5.0,
+      "start": 0.0
+    },
+    {
+      "anchor": "CAM_MASTER_ENTRANCE",
+      "end": 10.0,
+      "start": 5.0
+    },
+    {
+      "anchor": "CAM_SIDEWALK_TWO_SHOT",
+      "end": 15.0,
+      "start": 10.0
+    },
+    {
+      "anchor": "CAM_MASTER_STORE",
+      "end": 20.0,
+      "start": 15.0
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_MAIN_DOOR",
+      "interaction_type": "door",
+      "node": "INTERACT_MAIN_DOOR",
+      "position": [
+        0.0,
+        1.0,
+        -6.400000095367432
+      ]
+    },
+    {
+      "id": "INTERACT_DIRECTORY",
+      "interaction_type": "directory",
+      "node": "INTERACT_DIRECTORY",
+      "position": [
+        3.549999952316284,
+        1.2000000476837158,
+        -10.449999809265137
+      ]
+    },
+    {
+      "id": "INTERACT_MAILBOXES",
+      "interaction_type": "mailboxes",
+      "node": "INTERACT_MAILBOXES",
+      "position": [
+        -3.5,
+        1.100000023841858,
+        -11.399999618530273
+      ]
+    },
+    {
+      "id": "INTERACT_ELEVATOR_PANEL",
+      "interaction_type": "panel",
+      "node": "INTERACT_ELEVATOR_PANEL",
+      "position": [
+        1.649999976158142,
+        1.149999976158142,
+        -14.5600004196167
+      ]
+    },
+    {
+      "id": "INTERACT_DUMPSTER",
+      "interaction_type": "dumpster",
+      "node": "INTERACT_DUMPSTER",
+      "position": [
+        -11.5,
+        1.0,
+        -18.299999237060547
+      ]
+    },
+    {
+      "id": "INTERACT_SERVICE_DOOR",
+      "interaction_type": "door",
+      "node": "INTERACT_SERVICE_DOOR",
+      "position": [
+        -7.25,
+        1.0,
+        -9.300000190734863
+      ]
+    },
+    {
+      "id": "INTERACT_STORE_DOOR",
+      "interaction_type": "door",
+      "node": "INTERACT_STORE_DOOR",
+      "position": [
+        17.0,
+        1.0,
+        -6.300000190734863
+      ]
+    },
+    {
+      "id": "INTERACT_COUNTER",
+      "interaction_type": "counter",
+      "node": "INTERACT_COUNTER",
+      "position": [
+        20.200000762939453,
+        1.0,
+        -8.600000381469727
+      ]
+    },
+    {
+      "id": "INTERACT_REFRIGERATOR",
+      "interaction_type": "refrigerator",
+      "node": "INTERACT_REFRIGERATOR",
+      "position": [
+        17.0,
+        1.2000000476837158,
+        -14.899999618530273
+      ]
+    },
+    {
+      "id": "TRANSITION_STREET_TO_ENTRANCE",
+      "interaction_type": "transition",
+      "node": "TRANSITION_STREET_TO_ENTRANCE",
+      "position": [
+        0.0,
+        0.0,
+        -5.599999904632568
+      ]
+    },
+    {
+      "id": "TRANSITION_ENTRANCE_TO_LOBBY",
+      "interaction_type": "transition",
+      "node": "TRANSITION_ENTRANCE_TO_LOBBY",
+      "position": [
+        0.0,
+        0.0,
+        -7.5
+      ]
+    },
+    {
+      "id": "TRANSITION_LOBBY_TO_ELEVATOR",
+      "interaction_type": "transition",
+      "node": "TRANSITION_LOBBY_TO_ELEVATOR",
+      "position": [
+        0.0,
+        0.0,
+        -14.5
+      ]
+    },
+    {
+      "id": "TRANSITION_HALL_TO_ALLEY",
+      "interaction_type": "transition",
+      "node": "TRANSITION_HALL_TO_ALLEY",
+      "position": [
+        -7.150000095367432,
+        0.0,
+        -18.5
+      ]
+    },
+    {
+      "id": "TRANSITION_SIDEWALK_TO_STORE",
+      "interaction_type": "transition",
+      "node": "TRANSITION_SIDEWALK_TO_STORE",
+      "position": [
+        17.0,
+        0.0,
+        -6.5
+      ]
+    }
+  ],
+  "module_id": "infinite_backlot_block",
+  "path": [
+    {
+      "mark_id": "MARK_MASTER_LOBBY",
+      "position": [
+        0.0,
+        0.0,
+        -11.0
+      ]
+    },
+    {
+      "mark_id": "MARK_MASTER_ENTRANCE",
+      "position": [
+        0.0,
+        0.0,
+        -5.5
+      ]
+    },
+    {
+      "mark_id": "MARK_MASTER_STREET",
+      "position": [
+        5.0,
+        0.0,
+        -4.800000190734863
+      ]
+    },
+    {
+      "mark_id": "MARK_STREET_CORNER_TWO_SHOT_B",
+      "position": [
+        8.5,
+        0.20000000298023224,
+        -5.599999904632568
+      ]
+    },
+    {
+      "mark_id": "MARK_STORE_WINDOW",
+      "position": [
+        13.600000381469727,
+        0.0,
+        -7.300000190734863
+      ]
+    },
+    {
+      "mark_id": "MARK_STORE_ENTRANCE",
+      "position": [
+        17.0,
+        0.0,
+        -5.5
+      ]
+    },
+    {
+      "mark_id": "MARK_MASTER_STORE",
+      "position": [
+        17.0,
+        0.0,
+        -7.0
+      ]
+    }
+  ]
+}

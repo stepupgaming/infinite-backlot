@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "module_id": "infinite_backlot_expanded_world",
+  "cell_id": "CELL_CONNECTED_NEIGHBORHOOD",
+  "asset": "assets/world/neighborhood/infinite_backlot_expanded_world.glb",
+  "source_blend": "assets/source/blender/world/neighborhood/infinite_backlot_expanded_world.blend",
+  "category": "expanded_connected_world",
+  "version": 1,
+  "quality_tier": "hero",
+  "bounds": {
+    "min": [
+      -42,
+      -1,
+      -50
+    ],
+    "max": [
+      50,
+      21,
+      20
+    ]
+  },
+  "sockets": [
+    {
+      "id": "WORLD_SOCKET_WEST",
+      "node": "WORLD_SOCKET_WEST",
+      "position": [
+        -42.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_EAST",
+      "node": "WORLD_SOCKET_EAST",
+      "position": [
+        50.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_TRANSIT",
+      "node": "WORLD_SOCKET_TRANSIT",
+      "position": [
+        -29.0,
+        0.0,
+        10.0
+      ],
+      "socket_type": "TRANSIT",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_NORTH",
+      "node": "WORLD_SOCKET_NORTH",
+      "position": [
+        15.0,
+        0.0,
+        -50.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_PARK",
+      "node": "WORLD_SOCKET_PARK",
+      "position": [
+        -29.0,
+        0.0,
+        -8.0
+      ],
+      "socket_type": "PARK",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_SERVICE",
+      "node": "WORLD_SOCKET_SERVICE",
+      "position": [
+        21.0,
+        0.0,
+        -45.0
+      ],
+      "socket_type": "SERVICE",
+      "clearance_m": 4.0
+    },
+    {
+      "id": "WORLD_SOCKET_OUTSKIRTS",
+      "node": "WORLD_SOCKET_OUTSKIRTS",
+      "position": [
+        15.0,
+        0.0,
+        -50.0
+      ],
+      "socket_type": "OUTSKIRTS",
+      "clearance_m": 4.0
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_EXPANDED_ROUTE_01",
+      "node": "MARK_EXPANDED_ROUTE_01",
+      "position": [
+        -29.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.75
+    },
+    {
+      "id": "MARK_EXPANDED_ROUTE_02",
+      "node": "MARK_EXPANDED_ROUTE_02",
+      "position": [
+        -15.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.75
+    },
+    {
+      "id": "MARK_EXPANDED_ROUTE_03",
+      "node": "MARK_EXPANDED_ROUTE_03",
+      "position": [
+        5.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.75
+    },
+    {
+      "id": "MARK_EXPANDED_ROUTE_04",
+      "node": "MARK_EXPANDED_ROUTE_04",
+      "position": [
+        22.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.75
+    },
+    {
+      "id": "MARK_EXPANDED_ROUTE_05",
+      "node": "MARK_EXPANDED_ROUTE_05",
+      "position": [
+        36.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.75
+    },
+    {
+      "id": "MARK_EXPANDED_ROUTE_06",
+      "node": "MARK_EXPANDED_ROUTE_06",
+      "position": [
+        15.0,
+        0.0,
+        -25.0
+      ],
+      "radius_m": 0.75
+    },
+    {
+      "id": "MARK_EXPANDED_ROUTE_07",
+      "node": "MARK_EXPANDED_ROUTE_07",
+      "position": [
+        15.0,
+        0.0,
+        -42.0
+      ],
+      "radius_m": 0.75
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_EXPANDED_OVERVIEW",
+      "node": "CAM_EXPANDED_OVERVIEW",
+      "position": [
+        -45.0,
+        18.0,
+        35.0
+      ],
+      "look_at": [
+        8,
+        3,
+        -10
+      ],
+      "lens_mm": 40.0
+    },
+    {
+      "id": "CAM_EXPANDED_TRANSIT",
+      "node": "CAM_EXPANDED_TRANSIT",
+      "position": [
+        -42.0,
+        7.0,
+        15.0
+      ],
+      "look_at": [
+        -29,
+        2,
+        0
+      ],
+      "lens_mm": 38.0
+    },
+    {
+      "id": "CAM_EXPANDED_STREET",
+      "node": "CAM_EXPANDED_STREET",
+      "position": [
+        25.0,
+        8.0,
+        18.0
+      ],
+      "look_at": [
+        36,
+        3,
+        -4
+      ],
+      "lens_mm": 42.0
+    },
+    {
+      "id": "CAM_EXPANDED_INDUSTRIAL",
+      "node": "CAM_EXPANDED_INDUSTRIAL",
+      "position": [
+        30.0,
+        8.0,
+        -20.0
+      ],
+      "look_at": [
+        15,
+        3,
+        -37
+      ],
+      "lens_mm": 44.0
+    }
+  ],
+  "interactions": [],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_EXPANDED_WORLD_GROUND",
+      "node": "COLLIDER_EXPANDED_WORLD_GROUND",
+      "position": [
+        4.0,
+        -0.35,
+        -10.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "lighting": [
+    {
+      "id": "LIGHT_EXPANDED_WEST",
+      "node": "LIGHT_EXPANDED_WEST",
+      "position": [
+        -29.0,
+        8.0,
+        -0.0
+      ],
+      "role": "LIGHT_STREET",
+      "light_type": "point",
+      "color_rgb": [
+        0.25,
+        0.68,
+        1.0
+      ],
+      "intensity": 17000.0,
+      "range": 22.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_EXPANDED_EAST",
+      "node": "LIGHT_EXPANDED_EAST",
+      "position": [
+        36.0,
+        8.0,
+        -0.0
+      ],
+      "role": "LIGHT_STREET",
+      "light_type": "point",
+      "color_rgb": [
+        1.0,
+        0.62,
+        0.35
+      ],
+      "intensity": 18000.0,
+      "range": 22.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_EXPANDED_NORTH",
+      "node": "LIGHT_EXPANDED_NORTH",
+      "position": [
+        15.0,
+        7.0,
+        -35.0
+      ],
+      "role": "LIGHT_ALLEY",
+      "light_type": "point",
+      "color_rgb": [
+        0.15,
+        0.65,
+        1.0
+      ],
+      "intensity": 15000.0,
+      "range": 18.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false
+    }
+  ],
+  "cutaway_groups": [],
+  "runtime_controls": [],
+  "lighting_policy": "semantic_runtime_lights",
+  "background_requirements": [
+    "burgundy_teal_skyline",
+    "warm_cyan_practicals"
+  ],
+  "neighbor_compatibility": [
+    "future_city",
+    "future_outskirts"
+  ],
+  "future_streaming_priority": "near",
+  "world_state_hooks": [
+    "time_of_day",
+    "municipal_notice_state"
+  ],
+  "tags": [
+    "hero",
+    "production",
+    "world_cell",
+    "expansion"
+  ],
+  "provenance": {
+    "author": "Infinite Backlot project",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_expansion.py",
+    "external_assets": []
+  },
+  "composed_cells": [
+    "CELL_APARTMENT_BLOCK",
+    "CELL_ODD_HOURS_CORNER",
+    "CELL_STREET_EXTENSION",
+    "CELL_PUBLIC_TRANSIT_POCKET",
+    "CELL_SERVICE_ALLEY",
+    "CELL_INDUSTRIAL_TRANSITION"
+  ]
+}

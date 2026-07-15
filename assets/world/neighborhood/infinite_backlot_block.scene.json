@@ -508,9 +508,10 @@
       ],
       "look_at": [
         3,
-        7,
-        3
-      ]
+        3,
+        -7
+      ],
+      "lens_mm": 48.0
     },
     {
       "id": "CAM_SIDEWALK_TWO_SHOT",
@@ -522,9 +523,10 @@
       ],
       "look_at": [
         7.8,
-        5.6,
-        1.15
-      ]
+        1.15,
+        -5.6
+      ],
+      "lens_mm": 56.0
     },
     {
       "id": "CAM_CROSSWALK_LOW",
@@ -536,9 +538,10 @@
       ],
       "look_at": [
         14.0,
-        0.0,
-        0.8
-      ]
+        0.8,
+        -0.0
+      ],
+      "lens_mm": 38.0
     },
     {
       "id": "CAM_STREET_BUILDING_ESTABLISH_MASTER_2",
@@ -550,9 +553,10 @@
       ],
       "look_at": [
         0,
-        7,
-        5
-      ]
+        5,
+        -7
+      ],
+      "lens_mm": 42.0
     },
     {
       "id": "CAM_ENTRANCE_LOW_WIDE",
@@ -564,9 +568,10 @@
       ],
       "look_at": [
         0.0,
-        7.0,
-        2.2
-      ]
+        2.2,
+        -7.0
+      ],
+      "lens_mm": 34.0
     },
     {
       "id": "CAM_LOBBY_ENTRANCE_WIDE",
@@ -578,9 +583,10 @@
       ],
       "look_at": [
         0.0,
-        11.8,
-        1.35
-      ]
+        1.35,
+        -11.8
+      ],
+      "lens_mm": 38.0
     },
     {
       "id": "CAM_ELEVATOR_FROM_MAILBOXES",
@@ -592,9 +598,10 @@
       ],
       "look_at": [
         0.0,
-        14.6,
-        1.35
-      ]
+        1.35,
+        -14.6
+      ],
+      "lens_mm": 48.0
     },
     {
       "id": "CAM_MAILBOX_TWO_SHOT",
@@ -606,9 +613,10 @@
       ],
       "look_at": [
         -2.7,
-        11.25,
-        1.15
-      ]
+        1.15,
+        -11.25
+      ],
+      "lens_mm": 54.0
     },
     {
       "id": "CAM_HALL_LONG",
@@ -620,9 +628,10 @@
       ],
       "look_at": [
         0.0,
-        20.7,
-        1.15
-      ]
+        1.15,
+        -20.7
+      ],
+      "lens_mm": 52.0
     },
     {
       "id": "CAM_ALLEY_LONG_LENS",
@@ -634,9 +643,10 @@
       ],
       "look_at": [
         -10.0,
-        17.7,
-        1.1
-      ]
+        1.1,
+        -17.7
+      ],
+      "lens_mm": 66.0
     },
     {
       "id": "CAM_ALLEY_DUMPSTER_TWO_SHOT",
@@ -648,9 +658,10 @@
       ],
       "look_at": [
         -10.8,
-        18.2,
-        1.1
-      ]
+        1.1,
+        -18.2
+      ],
+      "lens_mm": 48.0
     },
     {
       "id": "CAM_ALLEY_SERVICE_DOOR",
@@ -662,9 +673,10 @@
       ],
       "look_at": [
         -7.3,
-        9.4,
-        1.1
-      ]
+        1.1,
+        -9.4
+      ],
+      "lens_mm": 52.0
     },
     {
       "id": "CAM_STORE_COUNTER_TWO_SHOT",
@@ -676,9 +688,10 @@
       ],
       "look_at": [
         20.35,
-        9.0,
-        1.25
-      ]
+        1.25,
+        -9.0
+      ],
+      "lens_mm": 52.0
     },
     {
       "id": "CAM_STORE_AISLE_LONG",
@@ -690,9 +703,10 @@
       ],
       "look_at": [
         17.0,
-        11.4,
-        1.2
-      ]
+        1.2,
+        -11.4
+      ],
+      "lens_mm": 44.0
     },
     {
       "id": "CAM_STORE_FRONT_WIDE",
@@ -704,9 +718,10 @@
       ],
       "look_at": [
         17.0,
-        11.0,
-        1.5
-      ]
+        1.5,
+        -11.0
+      ],
+      "lens_mm": 38.0
     },
     {
       "id": "CAM_MASTER_STREET_WIDE",
@@ -718,9 +733,10 @@
       ],
       "look_at": [
         0.0,
-        9.0,
-        4.8
-      ]
+        4.8,
+        -9.0
+      ],
+      "lens_mm": 40.0
     },
     {
       "id": "CAM_MASTER_ENTRANCE",
@@ -732,9 +748,10 @@
       ],
       "look_at": [
         0.0,
-        7.0,
-        1.8
-      ]
+        1.8,
+        -7.0
+      ],
+      "lens_mm": 42.0
     },
     {
       "id": "CAM_MASTER_LOBBY",
@@ -746,9 +763,10 @@
       ],
       "look_at": [
         0.0,
-        13.0,
-        1.3
-      ]
+        1.3,
+        -13.0
+      ],
+      "lens_mm": 40.0
     },
     {
       "id": "CAM_MASTER_ALLEY",
@@ -760,9 +778,10 @@
       ],
       "look_at": [
         -10.0,
-        16.0,
-        1.1
-      ]
+        1.1,
+        -16.0
+      ],
+      "lens_mm": 58.0
     },
     {
       "id": "CAM_MASTER_STORE",
@@ -774,9 +793,10 @@
       ],
       "look_at": [
         17.0,
-        11.0,
-        1.3
-      ]
+        1.3,
+        -11.0
+      ],
+      "lens_mm": 42.0
     },
     {
       "id": "CAM_WORLD_ART_TOUR",
@@ -788,9 +808,10 @@
       ],
       "look_at": [
         5.0,
-        7.0,
-        2.5
-      ]
+        2.5,
+        -7.0
+      ],
+      "lens_mm": 38.0
     }
   ],
   "interactions": [
@@ -998,6 +1019,218 @@
       "collision_role": "solid"
     }
   ],
+  "lighting": [
+    {
+      "id": "LIGHT_LOBBY_KEY",
+      "node": "LIGHT_LOBBY_KEY",
+      "position": [
+        -1.8,
+        3.0,
+        -11.0
+      ],
+      "role": "LIGHT_INTERIOR_KEY",
+      "light_type": "point",
+      "color_rgb": [
+        1.0,
+        0.72,
+        0.48
+      ],
+      "intensity": 15000.0,
+      "range": 9.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false,
+      "emissive_node": "LobbyFixture"
+    },
+    {
+      "id": "LIGHT_LOBBY_FILL",
+      "node": "LIGHT_LOBBY_FILL",
+      "position": [
+        2.4,
+        2.4,
+        -9.2
+      ],
+      "role": "LIGHT_INTERIOR_FILL",
+      "light_type": "point",
+      "color_rgb": [
+        0.35,
+        0.72,
+        1.0
+      ],
+      "intensity": 8000.0,
+      "range": 8.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_ENTRY_PRACTICAL",
+      "node": "LIGHT_ENTRY_PRACTICAL",
+      "position": [
+        0.0,
+        2.8,
+        -6.3
+      ],
+      "role": "LIGHT_PRACTICAL",
+      "light_type": "point",
+      "color_rgb": [
+        1.0,
+        0.58,
+        0.3
+      ],
+      "intensity": 9000.0,
+      "range": 8.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false,
+      "emissive_node": "AddressSign"
+    },
+    {
+      "id": "LIGHT_STREET_POOL",
+      "node": "LIGHT_STREET_POOL",
+      "position": [
+        7.0,
+        5.2,
+        -3.8
+      ],
+      "role": "LIGHT_STREET",
+      "light_type": "point",
+      "color_rgb": [
+        1.0,
+        0.68,
+        0.42
+      ],
+      "intensity": 18000.0,
+      "range": 16.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_ODD_HOURS_SIGN",
+      "node": "LIGHT_ODD_HOURS_SIGN",
+      "position": [
+        17.0,
+        3.0,
+        -6.0
+      ],
+      "role": "LIGHT_SIGN",
+      "light_type": "point",
+      "color_rgb": [
+        0.12,
+        0.85,
+        1.0
+      ],
+      "intensity": 11000.0,
+      "range": 9.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false,
+      "emissive_node": "StoreSign"
+    },
+    {
+      "id": "LIGHT_STORE_KEY",
+      "node": "LIGHT_STORE_KEY",
+      "position": [
+        17.0,
+        3.1,
+        -10.0
+      ],
+      "role": "LIGHT_STORE",
+      "light_type": "point",
+      "color_rgb": [
+        0.68,
+        0.88,
+        1.0
+      ],
+      "intensity": 17000.0,
+      "range": 11.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false,
+      "emissive_node": "StoreCeilingPractical"
+    },
+    {
+      "id": "LIGHT_ALLEY_POOL",
+      "node": "LIGHT_ALLEY_POOL",
+      "position": [
+        -10.0,
+        3.0,
+        -14.0
+      ],
+      "role": "LIGHT_ALLEY",
+      "light_type": "point",
+      "color_rgb": [
+        0.26,
+        0.64,
+        1.0
+      ],
+      "intensity": 10000.0,
+      "range": 10.0,
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_EXTERIOR_SKY",
+      "node": "LIGHT_EXTERIOR_SKY",
+      "position": [
+        5.0,
+        12.0,
+        -2.0
+      ],
+      "role": "LIGHT_EXTERIOR_AMBIENT",
+      "light_type": "directional",
+      "color_rgb": [
+        0.52,
+        0.62,
+        0.82
+      ],
+      "intensity": 3200.0,
+      "range": 40.0,
+      "direction": [
+        -0.35,
+        -1.0,
+        -0.45
+      ],
+      "runtime_controlled": false
+    }
+  ],
+  "runtime_controls": [
+    {
+      "id": "CONTROL_MAIN_ENTRY",
+      "node": "PROP_entry_door",
+      "kind": "door",
+      "default_state": "open"
+    },
+    {
+      "id": "CONTROL_STORE_ENTRY",
+      "node": "PROP_entry_door.004",
+      "kind": "door",
+      "default_state": "open"
+    }
+  ],
   "tags": [
     "hero",
     "production",
@@ -1013,6 +1246,6 @@
     "generator": "tools/blender/build_neighborhood_art_pass.py",
     "baseline": "b09db1c3e1b3eb2bbbb8d58e1a089d45c670b43d"
   },
-  "asset_sha256": "5ceef53420272264f385c567c5adc3fa582421cbeaab05a64fdda28ae5501190",
-  "glb_sha256": "5ceef53420272264f385c567c5adc3fa582421cbeaab05a64fdda28ae5501190"
+  "asset_sha256": "50ab888bcaf632072188d6105a21cfd39f41eab8aeb99fab52265414f304c018",
+  "glb_sha256": "50ab888bcaf632072188d6105a21cfd39f41eab8aeb99fab52265414f304c018"
 }

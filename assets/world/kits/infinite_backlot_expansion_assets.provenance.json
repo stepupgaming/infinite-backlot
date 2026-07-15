@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "asset_id": "infinite_backlot_expansion_assets",
+  "author": "Infinite Backlot project",
+  "license": "repository license",
+  "source_kind": "project-owned procedural Blender authoring",
+  "commercial_use": true,
+  "redistribution": "under the repository license",
+  "external_sources": [],
+  "modifications": [
+    "Authored directly for the Infinite Backlot world-art bible",
+    "Normalized to meters and Blender/Bevy axes",
+    "glTF-compatible Principled materials",
+    "Reusable collection-level Asset Browser entries",
+    "Geometry Nodes bollard family retained in editable source"
+  ],
+  "generator": "tools/blender/build_world_expansion.py"
+}

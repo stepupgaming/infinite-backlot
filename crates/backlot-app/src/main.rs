@@ -6,6 +6,8 @@
 
 mod backlot_scene;
 mod bevy_capture;
+mod connected_world;
+mod connected_world_proof;
 mod pipeline;
 mod player;
 mod scene;
@@ -32,6 +34,35 @@ use state::*;
 
 fn main() {
     let cli_args: Vec<String> = std::env::args().collect();
+    let connected_world_proof = cli_args.iter().any(|arg| arg == "--connected-world-proof");
+    let connected_world_lighting_preview = cli_args
+        .iter()
+        .any(|arg| arg == "--connected-world-lighting-preview");
+    if connected_world_proof || connected_world_lighting_preview {
+        let project_root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+        let output_dir = if connected_world_lighting_preview {
+            project_root.join("output/connected-world-lighting-preview")
+        } else {
+            project_root.join("output/connected-world-proof")
+        };
+        match connected_world_proof::produce_connected_world_proof(
+            &project_root,
+            &output_dir,
+            connected_world_lighting_preview,
+        ) {
+            Ok(summary) => {
+                println!(
+                    "CONNECTED WORLD PROOF COMPLETE module={} frames={} output={}",
+                    summary.module_id, summary.captured_frames, summary.output_mp4
+                );
+                return;
+            }
+            Err(error) => {
+                eprintln!("CONNECTED WORLD PROOF FAILED: {error}");
+                std::process::exit(1);
+            }
+        }
+    }
     if cli_args.iter().any(|arg| arg == "--motion-review") {
         std::env::set_var("BACKLOT_MOTION_REVIEW", "1");
     }
