@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "small_startle",
+  "cache_key": "ec20085fff47b5bd813b58c82822b1ff36b5a5887fbe27c874799ac2b1649644",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person has a small sudden startle: quick head and shoulder reaction, brief torso recoil, feet mostly planted, then a wary recovery.",
+  "seed": 82014,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

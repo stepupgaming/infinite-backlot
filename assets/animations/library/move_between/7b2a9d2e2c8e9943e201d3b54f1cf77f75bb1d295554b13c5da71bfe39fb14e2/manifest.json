@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "move_between",
+  "cache_key": "7b2a9d2e2c8e9943e201d3b54f1cf77f75bb1d295554b13c5da71bfe39fb14e2",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person advances two steps into the space between two other people, squares the body to mediate, raises calming hands, and plants firmly.",
+  "seed": 82019,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

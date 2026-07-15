@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "hurried_walk",
+  "cache_key": "bda7247bfe8e5eb37b94607c0c7a4d069a4542a80574d5e1b821765fa78c409a",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A hurried person walks forward quickly without running, leaning slightly into the motion, with controlled foot contacts and a clean stop.",
+  "seed": 82002,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

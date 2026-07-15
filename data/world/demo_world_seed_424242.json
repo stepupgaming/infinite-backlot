@@ -1,0 +1,513 @@
+{
+  "schema_version": 1,
+  "world_seed": 424242,
+  "registry_version": 1,
+  "layout_algorithm": "backlot_demo_socket_assembler_v1",
+  "layout_fingerprint": "c329a757a1e413941dac5be7ec59b45d9c1541c6bb110373e0fbd882bc1674c9",
+  "instances": [
+    {
+      "instance_id": "demo_00_street_main",
+      "role": "street_main",
+      "module_id": "neighborhood_street_straight_a",
+      "module_version": 1,
+      "category": "street",
+      "transform": {
+        "translation": [
+          0,
+          0,
+          0
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_01_street_intersection",
+      "role": "street_intersection",
+      "module_id": "neighborhood_intersection_a",
+      "module_version": 1,
+      "category": "intersection",
+      "transform": {
+        "translation": [
+          0,
+          0,
+          21
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_02_building_exterior",
+      "role": "building_exterior",
+      "module_id": "apartment_exterior_a",
+      "module_version": 1,
+      "category": "building_exterior",
+      "transform": {
+        "translation": [
+          -10,
+          0,
+          11
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_03_building_entrance",
+      "role": "building_entrance",
+      "module_id": "apartment_main_entrance_a",
+      "module_version": 1,
+      "category": "building_entrance",
+      "transform": {
+        "translation": [
+          -10,
+          0,
+          15
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_04_ground_lobby",
+      "role": "ground_lobby",
+      "module_id": "apartment_lobby_a",
+      "module_version": 1,
+      "category": "lobby",
+      "transform": {
+        "translation": [
+          -10,
+          0,
+          20
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_05_ground_elevator",
+      "role": "ground_elevator",
+      "module_id": "apartment_elevator_lobby_a",
+      "module_version": 1,
+      "category": "elevator_lobby",
+      "transform": {
+        "translation": [
+          -10,
+          0,
+          27
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_06_floor_one_hall",
+      "role": "floor_one_hall",
+      "module_id": "apartment_hall_straight_a",
+      "module_version": 1,
+      "category": "indoor_hallway",
+      "transform": {
+        "translation": [
+          -10,
+          4,
+          33
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_07_floor_one_doorway",
+      "role": "floor_one_doorway",
+      "module_id": "apartment_doorway_section_a",
+      "module_version": 1,
+      "category": "apartment_doorway",
+      "transform": {
+        "translation": [
+          -10,
+          4,
+          40
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_08_floor_two_hall",
+      "role": "floor_two_hall",
+      "module_id": "apartment_hall_short_a",
+      "module_version": 1,
+      "category": "indoor_hallway",
+      "transform": {
+        "translation": [
+          -2,
+          8,
+          33
+        ],
+        "yaw_degrees": 90,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_09_floor_two_junction",
+      "role": "floor_two_junction",
+      "module_id": "apartment_hall_t_junction_a",
+      "module_version": 1,
+      "category": "indoor_junction",
+      "transform": {
+        "translation": [
+          4,
+          8,
+          33
+        ],
+        "yaw_degrees": 90,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_10_vertical_stair",
+      "role": "vertical_stair",
+      "module_id": "apartment_stairwell_a",
+      "module_version": 1,
+      "category": "stairwell",
+      "transform": {
+        "translation": [
+          -17,
+          0,
+          29
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_11_service_room",
+      "role": "service_room",
+      "module_id": "apartment_boiler_room_a",
+      "module_version": 1,
+      "category": "mechanical_room",
+      "transform": {
+        "translation": [
+          -18,
+          0,
+          22
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_12_service_loading",
+      "role": "service_loading",
+      "module_id": "apartment_service_loading_a",
+      "module_version": 1,
+      "category": "service_entrance",
+      "transform": {
+        "translation": [
+          -18,
+          0,
+          14
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_13_alley",
+      "role": "alley",
+      "module_id": "neighborhood_alley_a",
+      "module_version": 1,
+      "category": "alley",
+      "transform": {
+        "translation": [
+          -18,
+          0,
+          2
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_14_storefront_row",
+      "role": "storefront_row",
+      "module_id": "neighborhood_storefront_row_a",
+      "module_version": 1,
+      "category": "storefront_row",
+      "transform": {
+        "translation": [
+          12,
+          0,
+          12
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_15_hero_store",
+      "role": "hero_store",
+      "module_id": "neighborhood_convenience_store_a",
+      "module_version": 1,
+      "category": "hero_business",
+      "transform": {
+        "translation": [
+          12,
+          0,
+          22
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_16_pocket_park",
+      "role": "pocket_park",
+      "module_id": "neighborhood_pocket_park_a",
+      "module_version": 1,
+      "category": "park",
+      "transform": {
+        "translation": [
+          20,
+          0,
+          30
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_17_courtyard",
+      "role": "courtyard",
+      "module_id": "neighborhood_courtyard_a",
+      "module_version": 1,
+      "category": "courtyard",
+      "transform": {
+        "translation": [
+          -1,
+          0,
+          38
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    },
+    {
+      "instance_id": "demo_18_skyline",
+      "role": "skyline",
+      "module_id": "neighborhood_skyline_facades_a",
+      "module_version": 1,
+      "category": "skyline_proxy",
+      "transform": {
+        "translation": [
+          0,
+          0,
+          58
+        ],
+        "yaw_degrees": 0,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "runtime_state_overrides": {}
+    }
+  ],
+  "connections": [
+    {
+      "from_role": "street_main",
+      "from_socket": "ROAD_NORTH",
+      "to_role": "street_intersection",
+      "to_socket": "ROAD_SOUTH"
+    },
+    {
+      "from_role": "street_main",
+      "from_socket": "SIDEWALK_WEST",
+      "to_role": "building_exterior",
+      "to_socket": "SOCKET_EXTERIOR"
+    },
+    {
+      "from_role": "building_exterior",
+      "from_socket": "SOCKET_EXTERIOR",
+      "to_role": "building_entrance",
+      "to_socket": "SOCKET_EXTERIOR"
+    },
+    {
+      "from_role": "building_entrance",
+      "from_socket": "SOCKET_HALL_NORTH",
+      "to_role": "ground_lobby",
+      "to_socket": "SOCKET_HALL_SOUTH"
+    },
+    {
+      "from_role": "ground_lobby",
+      "from_socket": "SOCKET_ELEVATOR",
+      "to_role": "ground_elevator",
+      "to_socket": "SOCKET_ELEVATOR"
+    },
+    {
+      "from_role": "ground_lobby",
+      "from_socket": "SOCKET_HALL_NORTH",
+      "to_role": "vertical_stair",
+      "to_socket": "SOCKET_HALL_SOUTH"
+    },
+    {
+      "from_role": "ground_elevator",
+      "from_socket": "SOCKET_HALL_SOUTH",
+      "to_role": "floor_one_hall",
+      "to_socket": "SOCKET_HALL_SOUTH"
+    },
+    {
+      "from_role": "floor_one_hall",
+      "from_socket": "SOCKET_HALL_NORTH",
+      "to_role": "floor_one_doorway",
+      "to_socket": "SOCKET_HALL_SOUTH"
+    },
+    {
+      "from_role": "vertical_stair",
+      "from_socket": "SOCKET_STAIRS_UP",
+      "to_role": "floor_two_hall",
+      "to_socket": "SOCKET_HALL_SOUTH"
+    },
+    {
+      "from_role": "floor_two_hall",
+      "from_socket": "SOCKET_HALL_NORTH",
+      "to_role": "floor_two_junction",
+      "to_socket": "SOCKET_HALL_SOUTH"
+    },
+    {
+      "from_role": "service_room",
+      "from_socket": "SOCKET_DOOR",
+      "to_role": "service_loading",
+      "to_socket": "SOCKET_HALL_NORTH"
+    },
+    {
+      "from_role": "service_loading",
+      "from_socket": "SOCKET_EXTERIOR",
+      "to_role": "alley",
+      "to_socket": "ALLEY_NORTH"
+    },
+    {
+      "from_role": "street_intersection",
+      "from_socket": "ROAD_EAST",
+      "to_role": "storefront_row",
+      "to_socket": "SIDEWALK_SOUTH"
+    },
+    {
+      "from_role": "storefront_row",
+      "from_socket": "BUILDING_ENTRANCE_A",
+      "to_role": "hero_store",
+      "to_socket": "BUILDING_ENTRANCE_MAIN"
+    },
+    {
+      "from_role": "hero_store",
+      "from_socket": "ALLEY_NORTH",
+      "to_role": "courtyard",
+      "to_socket": "ALLEY_EAST"
+    },
+    {
+      "from_role": "street_intersection",
+      "from_socket": "ROAD_NORTH",
+      "to_role": "pocket_park",
+      "to_socket": "SIDEWALK_SOUTH"
+    },
+    {
+      "from_role": "courtyard",
+      "from_socket": "SIDEWALK_NORTH",
+      "to_role": "skyline",
+      "to_socket": "LOT_BACKGROUND"
+    }
+  ],
+  "notes": "Demonstration layout; vertical floor translations prove reusable floor arrangements but runtime streaming is not implemented."
+}

@@ -1,0 +1,6183 @@
+{
+  "schema_version": 1,
+  "registry_version": 1,
+  "coordinate_system": "Bevy right-handed Y-up",
+  "module_count": 29,
+  "modules": [
+    {
+      "schema_version": 1,
+      "module_id": "apartment_exterior_a",
+      "asset": "assets/world/apartment_building/apartment_exterior_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_exterior_a.blend",
+      "category": "building_exterior",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -7.0,
+          0,
+          -2.5
+        ],
+        "max": [
+          7.0,
+          11,
+          2.5
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_EXTERIOR",
+          "node": "SOCKET_EXTERIOR",
+          "position": [
+            0.0,
+            0.0,
+            2.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_ROOFTOP",
+          "node": "SOCKET_ROOFTOP",
+          "position": [
+            0.0,
+            0.0,
+            -2.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.5
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.1
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            4.76,
+            1.65,
+            2.2
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            3.92,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -8.68,
+            2.1,
+            2.75
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.4
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -6.3,
+            1.7,
+            3.1
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            10.08,
+            6.82,
+            3.9
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_MAIN_DOOR",
+          "node": "INTERACT_MAIN_DOOR",
+          "position": [
+            4.2,
+            1.0,
+            1.4
+          ],
+          "interaction_type": "main_door"
+        }
+      ],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "hero",
+        "exterior"
+      ],
+      "glb_sha256": "17556bb187c2ce4e68ce3276bb71f4c0ab12a2cb63bd3b12bcb8ae07be3107db",
+      "preview": "assets/reference/world-modules/apartment_exterior_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_main_entrance_a",
+      "asset": "assets/world/apartment_building/apartment_main_entrance_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_main_entrance_a.blend",
+      "category": "building_entrance",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -3.5,
+          0,
+          -2.5
+        ],
+        "max": [
+          3.5,
+          4,
+          2.5
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_EXTERIOR",
+          "node": "SOCKET_EXTERIOR",
+          "position": [
+            0.0,
+            0.0,
+            2.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_NORTH",
+          "node": "SOCKET_HALL_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -2.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.5
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.1
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            2.38,
+            1.65,
+            2.2
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            1.96,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -4.34,
+            2.1,
+            2.75
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.4
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -3.15,
+            1.7,
+            3.1
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            5.04,
+            2.5,
+            3.9
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_MAIN_DOOR",
+          "node": "INTERACT_MAIN_DOOR",
+          "position": [
+            2.1,
+            1.0,
+            1.4
+          ],
+          "interaction_type": "main_door"
+        }
+      ],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            2.0,
+            2.5
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "entrance",
+        "camera_safe"
+      ],
+      "glb_sha256": "1ac3ded6c37a40cebac084b84a44b496143939642634b5af70419446aab999c9",
+      "preview": "assets/reference/world-modules/apartment_main_entrance_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_lobby_a",
+      "asset": "assets/world/apartment_building/apartment_lobby_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_lobby_a.blend",
+      "category": "lobby",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -4.5,
+          0,
+          -4.0
+        ],
+        "max": [
+          4.5,
+          3.6,
+          4.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_ELEVATOR",
+          "node": "SOCKET_ELEVATOR",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_NORTH",
+          "node": "SOCKET_HALL_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -4.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_SOUTH",
+          "node": "SOCKET_HALL_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            4.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            2.4
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -2.4
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            3.06,
+            1.65,
+            3.52
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            2.52,
+            1.0,
+            1.6
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -5.58,
+            2.1,
+            4.4
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -2.24
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -4.05,
+            1.7,
+            4.96
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            6.48,
+            2.5,
+            6.24
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_DIRECTORY",
+          "node": "INTERACT_DIRECTORY",
+          "position": [
+            2.7,
+            1.0,
+            2.24
+          ],
+          "interaction_type": "directory"
+        }
+      ],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.8,
+            4.0
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "conversation",
+        "hero"
+      ],
+      "glb_sha256": "ba2ec9a307ebfd168d35aaf37cc97c013b42e29aac4373ad28531f3d0fd39aec",
+      "preview": "assets/reference/world-modules/apartment_lobby_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_elevator_lobby_a",
+      "asset": "assets/world/apartment_building/apartment_elevator_lobby_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_elevator_lobby_a.blend",
+      "category": "elevator_lobby",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -4.0,
+          0,
+          -3.0
+        ],
+        "max": [
+          4.0,
+          3.4,
+          3.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_ELEVATOR",
+          "node": "SOCKET_ELEVATOR",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_SOUTH",
+          "node": "SOCKET_HALL_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            3.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_PANEL_OPERATOR",
+          "node": "MARK_PANEL_OPERATOR",
+          "position": [
+            1.1,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.5
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            2.72,
+            1.65,
+            2.64
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            2.24,
+            1.0,
+            1.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -4.96,
+            2.1,
+            3.3
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.68
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -3.6,
+            1.7,
+            3.72
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            5.76,
+            2.5,
+            4.68
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_ELEVATOR_DOORS",
+          "node": "INTERACT_ELEVATOR_DOORS",
+          "position": [
+            2.4,
+            1.0,
+            1.68
+          ],
+          "interaction_type": "elevator_doors"
+        },
+        {
+          "id": "INTERACT_ELEVATOR_PANEL",
+          "node": "INTERACT_ELEVATOR_PANEL",
+          "position": [
+            2.4,
+            1.0,
+            1.68
+          ],
+          "interaction_type": "elevator_panel"
+        }
+      ],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.7,
+            3.0
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "elevator",
+        "reveal"
+      ],
+      "glb_sha256": "3273250f66f78cbd277c02dd878835767c9bd2b16d6108743a5be04a5dd0c5e1",
+      "preview": "assets/reference/world-modules/apartment_elevator_lobby_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_hall_straight_a",
+      "asset": "assets/world/apartment_building/apartment_hall_straight_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_hall_straight_a.blend",
+      "category": "indoor_hallway",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -2.4,
+          0,
+          -4.5
+        ],
+        "max": [
+          2.4,
+          3.2,
+          4.5
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_HALL_NORTH",
+          "node": "SOCKET_HALL_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -4.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_SOUTH",
+          "node": "SOCKET_HALL_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            4.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            2.7
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -2.7
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.344,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            1.632,
+            1.65,
+            3.96
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            1.344,
+            1.0,
+            1.8
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -2.976,
+            2.1,
+            4.95
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -2.52
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -2.16,
+            1.7,
+            5.58
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            3.456,
+            2.5,
+            7.02
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.6,
+            4.5
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "hall",
+        "conversation"
+      ],
+      "glb_sha256": "d26b241d585179a63a8a166289a14730caf1136945fe90842805d626498a5b87",
+      "preview": "assets/reference/world-modules/apartment_hall_straight_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_hall_short_a",
+      "asset": "assets/world/apartment_building/apartment_hall_short_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_hall_short_a.blend",
+      "category": "indoor_hallway",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -2.4,
+          0,
+          -2.5
+        ],
+        "max": [
+          2.4,
+          3.2,
+          2.5
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_HALL_NORTH",
+          "node": "SOCKET_HALL_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -2.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_SOUTH",
+          "node": "SOCKET_HALL_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            2.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.5
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.344,
+            0.0,
+            -1.1
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            1.632,
+            1.65,
+            2.2
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            1.344,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -2.976,
+            2.1,
+            2.75
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.4
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -2.16,
+            1.7,
+            3.1
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            3.456,
+            2.5,
+            3.9
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.6,
+            2.5
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "hall",
+        "short"
+      ],
+      "glb_sha256": "93b9bd7bdacaf1284aa5d04ffd3ab0503064998e3fcfae5e754aae5a84081a32",
+      "preview": "assets/reference/world-modules/apartment_hall_short_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_hall_corner_a",
+      "asset": "assets/world/apartment_building/apartment_hall_corner_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_hall_corner_a.blend",
+      "category": "indoor_junction",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -3.0,
+          0,
+          -3.0
+        ],
+        "max": [
+          3.0,
+          3.2,
+          3.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_HALL_EAST",
+          "node": "SOCKET_HALL_EAST",
+          "position": [
+            3.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_SOUTH",
+          "node": "SOCKET_HALL_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            3.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.68,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            2.04,
+            1.65,
+            2.64
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            1.68,
+            1.0,
+            1.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -3.72,
+            2.1,
+            3.3
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.68
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -2.7,
+            1.7,
+            3.72
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            4.32,
+            2.5,
+            4.68
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.6,
+            3.0
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "corner",
+        "blocking"
+      ],
+      "glb_sha256": "73c09120cba70c848e0f10ca1a8d26d26e5625ff60999de3b062f2c37f983f07",
+      "preview": "assets/reference/world-modules/apartment_hall_corner_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_hall_t_junction_a",
+      "asset": "assets/world/apartment_building/apartment_hall_t_junction_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_hall_t_junction_a.blend",
+      "category": "indoor_junction",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -4.0,
+          0,
+          -3.0
+        ],
+        "max": [
+          4.0,
+          3.2,
+          3.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_HALL_EAST",
+          "node": "SOCKET_HALL_EAST",
+          "position": [
+            4.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_SOUTH",
+          "node": "SOCKET_HALL_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            3.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_WEST",
+          "node": "SOCKET_HALL_WEST",
+          "position": [
+            -4.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            2.72,
+            1.65,
+            2.64
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            2.24,
+            1.0,
+            1.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -4.96,
+            2.1,
+            3.3
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.68
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -3.6,
+            1.7,
+            3.72
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            5.76,
+            2.5,
+            4.68
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.6,
+            3.0
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "junction",
+        "blocking"
+      ],
+      "glb_sha256": "fe676f032375cdf01520fac07a39069cf276cdef11142eb69685cd42cb7e10ce",
+      "preview": "assets/reference/world-modules/apartment_hall_t_junction_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_doorway_section_a",
+      "asset": "assets/world/apartment_building/apartment_doorway_section_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_doorway_section_a.blend",
+      "category": "apartment_doorway",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -2.5,
+          0,
+          -2.0
+        ],
+        "max": [
+          2.5,
+          3.2,
+          2.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_DOOR",
+          "node": "SOCKET_DOOR",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_NORTH",
+          "node": "SOCKET_HALL_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -2.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_SOUTH",
+          "node": "SOCKET_HALL_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            2.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.2
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.2
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -0.88
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.4,
+            0.0,
+            -0.88
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            1.7,
+            1.65,
+            1.76
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            1.4,
+            1.0,
+            0.8
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -3.1,
+            2.1,
+            2.2
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.12
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -2.25,
+            1.7,
+            2.48
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            3.6,
+            2.5,
+            3.12
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_APARTMENT_DOOR",
+          "node": "INTERACT_APARTMENT_DOOR",
+          "position": [
+            1.5,
+            1.0,
+            1.12
+          ],
+          "interaction_type": "apartment_door"
+        }
+      ],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.6,
+            2.0
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "doorway",
+        "entry"
+      ],
+      "glb_sha256": "77db7416d8adcb2e45855362e3d9e239b61e5195b39fb6034e1f38dd922113f9",
+      "preview": "assets/reference/world-modules/apartment_doorway_section_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_stairwell_a",
+      "asset": "assets/world/apartment_building/apartment_stairwell_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_stairwell_a.blend",
+      "category": "stairwell",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -3.0,
+          0,
+          -3.5
+        ],
+        "max": [
+          3.0,
+          6.4,
+          3.5
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_HALL_SOUTH",
+          "node": "SOCKET_HALL_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            3.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_STAIRS_DOWN",
+          "node": "SOCKET_STAIRS_DOWN",
+          "position": [
+            0.0,
+            0.0,
+            3.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_STAIRS_UP",
+          "node": "SOCKET_STAIRS_UP",
+          "position": [
+            0.0,
+            0.0,
+            -3.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            2.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -2.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.54
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.68,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            2.04,
+            1.65,
+            3.08
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            1.68,
+            1.0,
+            1.4
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -3.72,
+            2.1,
+            3.85
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.96
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -2.7,
+            1.7,
+            4.34
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            4.32,
+            3.968,
+            5.46
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_STAIR_DOOR",
+          "node": "INTERACT_STAIR_DOOR",
+          "position": [
+            1.8,
+            1.0,
+            1.96
+          ],
+          "interaction_type": "stair_door"
+        }
+      ],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            3.2,
+            3.5
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "stairs",
+        "vertical"
+      ],
+      "glb_sha256": "05f15296d9e1a58786a4efbc78c29848ba20b29fa705f38c5af081a2d1430f67",
+      "preview": "assets/reference/world-modules/apartment_stairwell_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_laundry_a",
+      "asset": "assets/world/apartment_building/apartment_laundry_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_laundry_a.blend",
+      "category": "utility_room",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -3.5,
+          0,
+          -3.0
+        ],
+        "max": [
+          3.5,
+          3.2,
+          3.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_DOOR",
+          "node": "SOCKET_DOOR",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            2.38,
+            1.65,
+            2.64
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            1.96,
+            1.0,
+            1.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -4.34,
+            2.1,
+            3.3
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.68
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -3.15,
+            1.7,
+            3.72
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            5.04,
+            2.5,
+            4.68
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_DRYER",
+          "node": "INTERACT_DRYER",
+          "position": [
+            2.1,
+            1.0,
+            1.68
+          ],
+          "interaction_type": "dryer"
+        },
+        {
+          "id": "INTERACT_WASHER",
+          "node": "INTERACT_WASHER",
+          "position": [
+            2.1,
+            1.0,
+            1.68
+          ],
+          "interaction_type": "washer"
+        }
+      ],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.6,
+            3.0
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "laundry",
+        "conversation"
+      ],
+      "glb_sha256": "7d48405c4fefa29dded7f4d65b6be8cc1b183ccad71da3eec4b39113f0326f5f",
+      "preview": "assets/reference/world-modules/apartment_laundry_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_maintenance_a",
+      "asset": "assets/world/apartment_building/apartment_maintenance_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_maintenance_a.blend",
+      "category": "utility_room",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -3.5,
+          0,
+          -3.0
+        ],
+        "max": [
+          3.5,
+          3.2,
+          3.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_DOOR",
+          "node": "SOCKET_DOOR",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            2.38,
+            1.65,
+            2.64
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            1.96,
+            1.0,
+            1.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -4.34,
+            2.1,
+            3.3
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.68
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -3.15,
+            1.7,
+            3.72
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            5.04,
+            2.5,
+            4.68
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_BREAKER_PANEL",
+          "node": "INTERACT_BREAKER_PANEL",
+          "position": [
+            2.1,
+            1.0,
+            1.68
+          ],
+          "interaction_type": "breaker_panel"
+        },
+        {
+          "id": "INTERACT_WORKBENCH",
+          "node": "INTERACT_WORKBENCH",
+          "position": [
+            2.1,
+            1.0,
+            1.68
+          ],
+          "interaction_type": "workbench"
+        }
+      ],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.6,
+            3.0
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "maintenance",
+        "props"
+      ],
+      "glb_sha256": "0822e8286a9ea5a52155b3c57c897b3a4584cedcef72c5655483baa26e59d220",
+      "preview": "assets/reference/world-modules/apartment_maintenance_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_boiler_room_a",
+      "asset": "assets/world/apartment_building/apartment_boiler_room_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_boiler_room_a.blend",
+      "category": "mechanical_room",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -4.5,
+          0,
+          -3.5
+        ],
+        "max": [
+          4.5,
+          3.8,
+          3.5
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_DOOR",
+          "node": "SOCKET_DOOR",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_SOUTH",
+          "node": "SOCKET_HALL_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            3.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            2.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -2.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.54
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            3.06,
+            1.65,
+            3.08
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            2.52,
+            1.0,
+            1.4
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -5.58,
+            2.1,
+            3.85
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.96
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -4.05,
+            1.7,
+            4.34
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            6.48,
+            2.5,
+            5.46
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_BOILER",
+          "node": "INTERACT_BOILER",
+          "position": [
+            2.7,
+            1.0,
+            1.96
+          ],
+          "interaction_type": "boiler"
+        },
+        {
+          "id": "INTERACT_VALVE",
+          "node": "INTERACT_VALVE",
+          "position": [
+            2.7,
+            1.0,
+            1.96
+          ],
+          "interaction_type": "valve"
+        }
+      ],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.9,
+            3.5
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "basement",
+        "mechanical"
+      ],
+      "glb_sha256": "9b30e104aa2527134856d1622350d7f95b6cc5e8f4215a77a01a5b271165507e",
+      "preview": "assets/reference/world-modules/apartment_boiler_room_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_rooftop_a",
+      "asset": "assets/world/apartment_building/apartment_rooftop_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_rooftop_a.blend",
+      "category": "rooftop",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -7.0,
+          0,
+          -5.5
+        ],
+        "max": [
+          7.0,
+          2.8,
+          5.5
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_ROOFTOP",
+          "node": "SOCKET_ROOFTOP",
+          "position": [
+            0.0,
+            0.0,
+            -5.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_STAIRS_DOWN",
+          "node": "SOCKET_STAIRS_DOWN",
+          "position": [
+            0.0,
+            0.0,
+            5.5
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            3.3
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -3.3
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            4.76,
+            1.65,
+            4.84
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            3.92,
+            1.0,
+            2.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -8.68,
+            2.1,
+            6.05
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -3.08
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -6.3,
+            1.7,
+            6.82
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            10.08,
+            2.5,
+            8.58
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_ROOFTOP_DOOR",
+          "node": "INTERACT_ROOFTOP_DOOR",
+          "position": [
+            4.2,
+            1.0,
+            3.08
+          ],
+          "interaction_type": "rooftop_door"
+        }
+      ],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "exterior",
+        "skyline",
+        "conversation"
+      ],
+      "glb_sha256": "dd7e7f753da937e177b0ad6b12ffd42c08c07b3d688e935f91b622681b0b2356",
+      "preview": "assets/reference/world-modules/apartment_rooftop_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_interior_recurring_a",
+      "asset": "assets/world/apartment_building/apartment_interior_recurring_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_interior_recurring_a.blend",
+      "category": "apartment_interior",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -4.5,
+          0,
+          -4.0
+        ],
+        "max": [
+          4.5,
+          3.2,
+          4.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SOCKET_DOOR",
+          "node": "SOCKET_DOOR",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            2.4
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -2.4
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            3.06,
+            1.65,
+            3.52
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            2.52,
+            1.0,
+            1.6
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -5.58,
+            2.1,
+            4.4
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -2.24
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -4.05,
+            1.7,
+            4.96
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            6.48,
+            2.5,
+            6.24
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_KITCHEN_COUNTER",
+          "node": "INTERACT_KITCHEN_COUNTER",
+          "position": [
+            2.7,
+            1.0,
+            2.24
+          ],
+          "interaction_type": "kitchen_counter"
+        },
+        {
+          "id": "INTERACT_SOFA",
+          "node": "INTERACT_SOFA",
+          "position": [
+            2.7,
+            1.0,
+            2.24
+          ],
+          "interaction_type": "sofa"
+        }
+      ],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.6,
+            4.0
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "hero",
+        "interior",
+        "recurring"
+      ],
+      "glb_sha256": "3d09c021ae428db69e562e93dc1050ab45382649230d48341f8252bd9b782e2c",
+      "preview": "assets/reference/world-modules/apartment_interior_recurring_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "apartment_service_loading_a",
+      "asset": "assets/world/apartment_building/apartment_service_loading_a.glb",
+      "source_blend": "assets/source/blender/world/apartment_building/apartment_service_loading_a.blend",
+      "category": "service_entrance",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -4.0,
+          0,
+          -3.0
+        ],
+        "max": [
+          4.0,
+          3.8,
+          3.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "LOT_LOADING",
+          "node": "LOT_LOADING",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "LOT",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_EXTERIOR",
+          "node": "SOCKET_EXTERIOR",
+          "position": [
+            0.0,
+            0.0,
+            3.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SOCKET_HALL_NORTH",
+          "node": "SOCKET_HALL_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -3.0
+          ],
+          "socket_type": "SOCKET",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            2.72,
+            1.65,
+            2.64
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            2.24,
+            1.0,
+            1.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -4.96,
+            2.1,
+            3.3
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.68
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -3.6,
+            1.7,
+            3.72
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            5.76,
+            2.5,
+            4.68
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_LOADING_DOOR",
+          "node": "INTERACT_LOADING_DOOR",
+          "position": [
+            2.4,
+            1.0,
+            1.68
+          ],
+          "interaction_type": "loading_door"
+        }
+      ],
+      "cutaway_groups": [
+        {
+          "id": "CUTAWAY_FRONT",
+          "node": "CUTAWAY_FRONT",
+          "position": [
+            0.0,
+            1.9,
+            3.0
+          ]
+        }
+      ],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "service",
+        "loading"
+      ],
+      "glb_sha256": "54b659dff9a93b5544102a4b205e8b16e6347e583b35bbd482170da0722a450f",
+      "preview": "assets/reference/world-modules/apartment_service_loading_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_street_straight_a",
+      "asset": "assets/world/neighborhood/neighborhood_street_straight_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_street_straight_a.blend",
+      "category": "street",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -6.0,
+          0,
+          -12.0
+        ],
+        "max": [
+          6.0,
+          0.4,
+          12.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "ROAD_NORTH",
+          "node": "ROAD_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -12.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "ROAD_SOUTH",
+          "node": "ROAD_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            12.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_EAST",
+          "node": "SIDEWALK_EAST",
+          "position": [
+            6.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_WEST",
+          "node": "SIDEWALK_WEST",
+          "position": [
+            -6.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            7.2
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -7.2
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            4.08,
+            1.65,
+            10.56
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            3.36,
+            1.0,
+            4.8
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -7.44,
+            2.1,
+            13.2
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -6.72
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -5.4,
+            1.7,
+            14.88
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            8.64,
+            2.5,
+            18.72
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "street",
+        "vehicle"
+      ],
+      "glb_sha256": "eb4d7297fdac21e399e1ea91c0e26ae97e1627b34fa093321afa84f15b1ceee3",
+      "preview": "assets/reference/world-modules/neighborhood_street_straight_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_street_corner_a",
+      "asset": "assets/world/neighborhood/neighborhood_street_corner_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_street_corner_a.blend",
+      "category": "street_corner",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -9.0,
+          0,
+          -9.0
+        ],
+        "max": [
+          9.0,
+          0.4,
+          9.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "ROAD_EAST",
+          "node": "ROAD_EAST",
+          "position": [
+            9.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "ROAD_SOUTH",
+          "node": "ROAD_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            9.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_NORTH",
+          "node": "SIDEWALK_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -9.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_WEST",
+          "node": "SIDEWALK_WEST",
+          "position": [
+            -9.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            5.4
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -5.4
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            6.12,
+            1.65,
+            7.92
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            5.04,
+            1.0,
+            3.6
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -11.16,
+            2.1,
+            9.9
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -5.04
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -8.1,
+            1.7,
+            11.16
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            12.96,
+            2.5,
+            14.04
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "street",
+        "corner"
+      ],
+      "glb_sha256": "0abcf81a5ce73da31cc0aabe1e45a3fe1fcfd17446c9a7c9b652182b19b3bd72",
+      "preview": "assets/reference/world-modules/neighborhood_street_corner_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_intersection_a",
+      "asset": "assets/world/neighborhood/neighborhood_intersection_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_intersection_a.blend",
+      "category": "intersection",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -11.0,
+          0,
+          -11.0
+        ],
+        "max": [
+          11.0,
+          0.4,
+          11.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "ROAD_EAST",
+          "node": "ROAD_EAST",
+          "position": [
+            11.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "ROAD_NORTH",
+          "node": "ROAD_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -11.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "ROAD_SOUTH",
+          "node": "ROAD_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            11.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "ROAD_WEST",
+          "node": "ROAD_WEST",
+          "position": [
+            -11.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ROAD",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            6.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -6.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            7.48,
+            1.65,
+            9.68
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            6.16,
+            1.0,
+            4.4
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -13.64,
+            2.1,
+            12.1
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -6.16
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -9.9,
+            1.7,
+            13.64
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            15.84,
+            2.5,
+            17.16
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "intersection",
+        "crosswalk"
+      ],
+      "glb_sha256": "0140461c2a2b60de48c7e466320f6298e4315171804bd6802a6518ace54eda8a",
+      "preview": "assets/reference/world-modules/neighborhood_intersection_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_alley_a",
+      "asset": "assets/world/neighborhood/neighborhood_alley_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_alley_a.blend",
+      "category": "alley",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -3.5,
+          0,
+          -9.0
+        ],
+        "max": [
+          3.5,
+          4.5,
+          9.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "ALLEY_NORTH",
+          "node": "ALLEY_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -9.0
+          ],
+          "socket_type": "ALLEY",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "ALLEY_SOUTH",
+          "node": "ALLEY_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            9.0
+          ],
+          "socket_type": "ALLEY",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "LOT_SERVICE",
+          "node": "LOT_SERVICE",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "LOT",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            5.4
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -5.4
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            2.38,
+            1.65,
+            7.92
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            1.96,
+            1.0,
+            3.6
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -4.34,
+            2.1,
+            9.9
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -5.04
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -3.15,
+            1.7,
+            11.16
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            5.04,
+            2.79,
+            14.04
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_DUMPSTER",
+          "node": "INTERACT_DUMPSTER",
+          "position": [
+            2.1,
+            1.0,
+            5.04
+          ],
+          "interaction_type": "dumpster"
+        }
+      ],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "alley",
+        "service"
+      ],
+      "glb_sha256": "dfd0f5b6f5afd6994b83f7d2b6d32135129ac8df10efe673c68ff7dd6a8ec2b5",
+      "preview": "assets/reference/world-modules/neighborhood_alley_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_courtyard_a",
+      "asset": "assets/world/neighborhood/neighborhood_courtyard_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_courtyard_a.blend",
+      "category": "courtyard",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -9.0,
+          0,
+          -8.0
+        ],
+        "max": [
+          9.0,
+          2.0,
+          8.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "ALLEY_EAST",
+          "node": "ALLEY_EAST",
+          "position": [
+            9.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ALLEY",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "BUILDING_ENTRANCE_WEST",
+          "node": "BUILDING_ENTRANCE_WEST",
+          "position": [
+            -9.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "BUILDING",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_NORTH",
+          "node": "SIDEWALK_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -8.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            4.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -4.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            6.12,
+            1.65,
+            7.04
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            5.04,
+            1.0,
+            3.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -11.16,
+            2.1,
+            8.8
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -4.48
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -8.1,
+            1.7,
+            9.92
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            12.96,
+            2.5,
+            12.48
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "courtyard",
+        "conversation"
+      ],
+      "glb_sha256": "2d993afc6082a357c2a0fe7588e82195486fbf2bd4166caf23d119de581419da",
+      "preview": "assets/reference/world-modules/neighborhood_courtyard_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_parking_loading_a",
+      "asset": "assets/world/neighborhood/neighborhood_parking_loading_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_parking_loading_a.blend",
+      "category": "parking",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -9.0,
+          0,
+          -7.0
+        ],
+        "max": [
+          9.0,
+          1.0,
+          7.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "ALLEY_WEST",
+          "node": "ALLEY_WEST",
+          "position": [
+            -9.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ALLEY",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "LOT_LOADING",
+          "node": "LOT_LOADING",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "LOT",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "LOT_STREET",
+          "node": "LOT_STREET",
+          "position": [
+            0.0,
+            0.0,
+            7.0
+          ],
+          "socket_type": "LOT",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            4.2
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -4.2
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            6.12,
+            1.65,
+            6.16
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            5.04,
+            1.0,
+            2.8
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -11.16,
+            2.1,
+            7.7
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -3.92
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -8.1,
+            1.7,
+            8.68
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            12.96,
+            2.5,
+            10.92
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "parking",
+        "loading"
+      ],
+      "glb_sha256": "b84589619866c0a1b52413789f01b165dd15267289b5a11e8cf2d72bb1d0664d",
+      "preview": "assets/reference/world-modules/neighborhood_parking_loading_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_bus_stop_a",
+      "asset": "assets/world/neighborhood/neighborhood_bus_stop_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_bus_stop_a.blend",
+      "category": "transit",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -6.0,
+          0,
+          -3.0
+        ],
+        "max": [
+          6.0,
+          3.0,
+          3.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SIDEWALK_EAST",
+          "node": "SIDEWALK_EAST",
+          "position": [
+            6.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_WEST",
+          "node": "SIDEWALK_WEST",
+          "position": [
+            -6.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "TRANSIT_BUS",
+          "node": "TRANSIT_BUS",
+          "position": [
+            -6.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "TRANSIT",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            4.08,
+            1.65,
+            2.64
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            3.36,
+            1.0,
+            1.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -7.44,
+            2.1,
+            3.3
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.68
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -5.4,
+            1.7,
+            3.72
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            8.64,
+            2.5,
+            4.68
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_BUS_SIGN",
+          "node": "INTERACT_BUS_SIGN",
+          "position": [
+            3.6,
+            1.0,
+            1.68
+          ],
+          "interaction_type": "bus_sign"
+        }
+      ],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "bus_stop",
+        "conversation"
+      ],
+      "glb_sha256": "2ee9df26543f4ca982adc41840a4b11673939a83907dd82624d3a79e6bd5088a",
+      "preview": "assets/reference/world-modules/neighborhood_bus_stop_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_pocket_park_a",
+      "asset": "assets/world/neighborhood/neighborhood_pocket_park_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_pocket_park_a.blend",
+      "category": "park",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -8.0,
+          0,
+          -7.0
+        ],
+        "max": [
+          8.0,
+          3.0,
+          7.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "SIDEWALK_NORTH",
+          "node": "SIDEWALK_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -7.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_SOUTH",
+          "node": "SIDEWALK_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            7.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            4.2
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -4.2
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            5.44,
+            1.65,
+            6.16
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            4.48,
+            1.0,
+            2.8
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -9.92,
+            2.1,
+            7.7
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -3.92
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -7.2,
+            1.7,
+            8.68
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            11.52,
+            2.5,
+            10.92
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_BENCH",
+          "node": "INTERACT_BENCH",
+          "position": [
+            4.8,
+            1.0,
+            3.92
+          ],
+          "interaction_type": "bench"
+        }
+      ],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "park",
+        "planted"
+      ],
+      "glb_sha256": "0f41a587c5aa04591a611bf45417f3b862589abb4b1adabf17096110885a2500",
+      "preview": "assets/reference/world-modules/neighborhood_pocket_park_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_storefront_row_a",
+      "asset": "assets/world/neighborhood/neighborhood_storefront_row_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_storefront_row_a.blend",
+      "category": "storefront_row",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -11.0,
+          0,
+          -3.0
+        ],
+        "max": [
+          11.0,
+          6.5,
+          3.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "BUILDING_ENTRANCE_A",
+          "node": "BUILDING_ENTRANCE_A",
+          "position": [
+            11.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "BUILDING",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "BUILDING_ENTRANCE_B",
+          "node": "BUILDING_ENTRANCE_B",
+          "position": [
+            -11.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "BUILDING",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "BUILDING_ENTRANCE_C",
+          "node": "BUILDING_ENTRANCE_C",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "BUILDING",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_SOUTH",
+          "node": "SIDEWALK_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            3.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            7.48,
+            1.65,
+            2.64
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            6.16,
+            1.0,
+            1.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -13.64,
+            2.1,
+            3.3
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.68
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -9.9,
+            1.7,
+            3.72
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            15.84,
+            4.03,
+            4.68
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "facade",
+        "business"
+      ],
+      "glb_sha256": "a80fb3e044c38d490c1bd1be18bf794b5a3cc8524a4a082a8f3fb030dfec8c7d",
+      "preview": "assets/reference/world-modules/neighborhood_storefront_row_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_convenience_store_a",
+      "asset": "assets/world/neighborhood/neighborhood_convenience_store_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_convenience_store_a.blend",
+      "category": "hero_business",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -5.0,
+          0,
+          -4.5
+        ],
+        "max": [
+          5.0,
+          4.0,
+          4.5
+        ]
+      },
+      "sockets": [
+        {
+          "id": "ALLEY_NORTH",
+          "node": "ALLEY_NORTH",
+          "position": [
+            0.0,
+            0.0,
+            -4.5
+          ],
+          "socket_type": "ALLEY",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "BUILDING_ENTRANCE_MAIN",
+          "node": "BUILDING_ENTRANCE_MAIN",
+          "position": [
+            5.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "BUILDING",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_SOUTH",
+          "node": "SIDEWALK_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            4.5
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            2.7
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -2.7
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.6
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            3.4,
+            1.65,
+            3.96
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            2.8,
+            1.0,
+            1.8
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -6.2,
+            2.1,
+            4.95
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -2.52
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -4.5,
+            1.7,
+            5.58
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            7.2,
+            2.5,
+            7.02
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_COUNTER",
+          "node": "INTERACT_COUNTER",
+          "position": [
+            3.0,
+            1.0,
+            2.52
+          ],
+          "interaction_type": "counter"
+        },
+        {
+          "id": "INTERACT_STORE_DOOR",
+          "node": "INTERACT_STORE_DOOR",
+          "position": [
+            3.0,
+            1.0,
+            2.52
+          ],
+          "interaction_type": "store_door"
+        }
+      ],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "hero",
+        "business",
+        "interior_shell"
+      ],
+      "glb_sha256": "ca4d577de6af76a81078c8068f2deae1e4cd6dc5e0533d8a9942a06f07236ac0",
+      "preview": "assets/reference/world-modules/neighborhood_convenience_store_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_laundromat_a",
+      "asset": "assets/world/neighborhood/neighborhood_laundromat_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_laundromat_a.blend",
+      "category": "business_exterior",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -4.5,
+          0,
+          -3.0
+        ],
+        "max": [
+          4.5,
+          4.5,
+          3.0
+        ]
+      },
+      "sockets": [
+        {
+          "id": "BUILDING_ENTRANCE_MAIN",
+          "node": "BUILDING_ENTRANCE_MAIN",
+          "position": [
+            4.5,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "BUILDING",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_SOUTH",
+          "node": "SIDEWALK_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            3.0
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -1.8
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.32
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            3.06,
+            1.65,
+            2.64
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            2.52,
+            1.0,
+            1.2
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -5.58,
+            2.1,
+            3.3
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.68
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -4.05,
+            1.7,
+            3.72
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            6.48,
+            2.79,
+            4.68
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_LAUNDROMAT_DOOR",
+          "node": "INTERACT_LAUNDROMAT_DOOR",
+          "position": [
+            2.7,
+            1.0,
+            1.68
+          ],
+          "interaction_type": "laundromat_door"
+        }
+      ],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "business",
+        "facade"
+      ],
+      "glb_sha256": "2e1bd70d8cd3d09be4de2aff98f86700a8cc2e482944f02c437f3d4e7ad2b4dd",
+      "preview": "assets/reference/world-modules/neighborhood_laundromat_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_diner_a",
+      "asset": "assets/world/neighborhood/neighborhood_diner_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_diner_a.blend",
+      "category": "business_exterior",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -6.0,
+          0,
+          -3.5
+        ],
+        "max": [
+          6.0,
+          5.0,
+          3.5
+        ]
+      },
+      "sockets": [
+        {
+          "id": "ALLEY_EAST",
+          "node": "ALLEY_EAST",
+          "position": [
+            6.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "ALLEY",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "BUILDING_ENTRANCE_MAIN",
+          "node": "BUILDING_ENTRANCE_MAIN",
+          "position": [
+            6.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "BUILDING",
+          "clearance_m": 1.5
+        },
+        {
+          "id": "SIDEWALK_SOUTH",
+          "node": "SIDEWALK_SOUTH",
+          "position": [
+            0.0,
+            0.0,
+            3.5
+          ],
+          "socket_type": "SIDEWALK",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            2.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -2.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.54
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            4.08,
+            1.65,
+            3.08
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            3.36,
+            1.0,
+            1.4
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -7.44,
+            2.1,
+            3.85
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.96
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -5.4,
+            1.7,
+            4.34
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            8.64,
+            3.1,
+            5.46
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "id": "INTERACT_DINER_DOOR",
+          "node": "INTERACT_DINER_DOOR",
+          "position": [
+            3.6,
+            1.0,
+            1.96
+          ],
+          "interaction_type": "diner_door"
+        }
+      ],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "business",
+        "facade",
+        "hero_candidate"
+      ],
+      "glb_sha256": "fc317d52109cd69635befb4e254adaaf9905436f262bb695a03c189210c52fce",
+      "preview": "assets/reference/world-modules/neighborhood_diner_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    },
+    {
+      "schema_version": 1,
+      "module_id": "neighborhood_skyline_facades_a",
+      "asset": "assets/world/neighborhood/neighborhood_skyline_facades_a.glb",
+      "source_blend": "assets/source/blender/world/neighborhood/neighborhood_skyline_facades_a.blend",
+      "category": "skyline_proxy",
+      "version": 1,
+      "bounds": {
+        "min": [
+          -16.0,
+          0,
+          -3.5
+        ],
+        "max": [
+          16.0,
+          18,
+          3.5
+        ]
+      },
+      "sockets": [
+        {
+          "id": "LOT_BACKGROUND",
+          "node": "LOT_BACKGROUND",
+          "position": [
+            -16.0,
+            0.0,
+            -0.0
+          ],
+          "socket_type": "LOT",
+          "clearance_m": 1.5
+        }
+      ],
+      "staging_marks": [
+        {
+          "id": "MARK_CONVERSATION_A",
+          "node": "MARK_CONVERSATION_A",
+          "position": [
+            -1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_CONVERSATION_B",
+          "node": "MARK_CONVERSATION_B",
+          "position": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_ENTRY",
+          "node": "MARK_ENTRY",
+          "position": [
+            0.0,
+            0.0,
+            2.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_EXIT",
+          "node": "MARK_EXIT",
+          "position": [
+            0.0,
+            0.0,
+            -2.1
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_OBSERVER",
+          "node": "MARK_OBSERVER",
+          "position": [
+            0.0,
+            0.0,
+            -1.54
+          ],
+          "radius_m": 0.55
+        },
+        {
+          "id": "MARK_REVEAL_CLEAR",
+          "node": "MARK_REVEAL_CLEAR",
+          "position": [
+            1.8,
+            0.0,
+            -1.5
+          ],
+          "radius_m": 0.55
+        }
+      ],
+      "camera_anchors": [
+        {
+          "id": "CAM_INTERACTION",
+          "node": "CAM_INTERACTION",
+          "position": [
+            10.88,
+            1.65,
+            3.08
+          ],
+          "lens_mm": 62.0,
+          "look_at": [
+            8.96,
+            1.0,
+            1.4
+          ]
+        },
+        {
+          "id": "CAM_REVEAL",
+          "node": "CAM_REVEAL",
+          "position": [
+            -19.84,
+            2.1,
+            3.85
+          ],
+          "lens_mm": 45.0,
+          "look_at": [
+            0.0,
+            1.2,
+            -1.96
+          ]
+        },
+        {
+          "id": "CAM_TWO_SHOT",
+          "node": "CAM_TWO_SHOT",
+          "position": [
+            -14.4,
+            1.7,
+            4.34
+          ],
+          "lens_mm": 52.0,
+          "look_at": [
+            0.0,
+            1.15,
+            -0.0
+          ]
+        },
+        {
+          "id": "CAM_WIDE",
+          "node": "CAM_WIDE",
+          "position": [
+            23.04,
+            11.16,
+            5.46
+          ],
+          "lens_mm": 38.0,
+          "look_at": [
+            0.0,
+            1.1,
+            -0.0
+          ]
+        }
+      ],
+      "interactions": [],
+      "cutaway_groups": [],
+      "collision_groups": [
+        {
+          "id": "COLLIDER_FLOOR",
+          "node": "COLLIDER_FLOOR",
+          "position": [
+            0.0,
+            -0.18,
+            -0.0
+          ],
+          "collision_role": "solid"
+        }
+      ],
+      "tags": [
+        "distant",
+        "proxy",
+        "skyline"
+      ],
+      "glb_sha256": "748d94b70369f9d764564487d59653bd38e88967e6b607ceaa375e2700b2c562",
+      "preview": "assets/reference/world-modules/neighborhood_skyline_facades_a.png",
+      "provenance": {
+        "author": "Infinite Backlot procedural Blender authoring",
+        "license": "repository license",
+        "generator": "tools/blender/build_world_kits.py"
+      }
+    }
+  ]
+}

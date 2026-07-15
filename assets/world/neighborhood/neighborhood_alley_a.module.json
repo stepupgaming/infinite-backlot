@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "module_id": "neighborhood_alley_a",
+  "asset": "assets/world/neighborhood/neighborhood_alley_a.glb",
+  "source_blend": "assets/source/blender/world/neighborhood/neighborhood_alley_a.blend",
+  "category": "alley",
+  "version": 1,
+  "bounds": {
+    "min": [
+      -3.5,
+      0,
+      -9.0
+    ],
+    "max": [
+      3.5,
+      4.5,
+      9.0
+    ]
+  },
+  "sockets": [
+    {
+      "id": "ALLEY_NORTH",
+      "node": "ALLEY_NORTH",
+      "position": [
+        0.0,
+        0.0,
+        -9.0
+      ],
+      "socket_type": "ALLEY",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "ALLEY_SOUTH",
+      "node": "ALLEY_SOUTH",
+      "position": [
+        0.0,
+        0.0,
+        9.0
+      ],
+      "socket_type": "ALLEY",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "LOT_SERVICE",
+      "node": "LOT_SERVICE",
+      "position": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "LOT",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CONVERSATION_A",
+      "node": "MARK_CONVERSATION_A",
+      "position": [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_CONVERSATION_B",
+      "node": "MARK_CONVERSATION_B",
+      "position": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ENTRY",
+      "node": "MARK_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        5.4
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_EXIT",
+      "node": "MARK_EXIT",
+      "position": [
+        0.0,
+        0.0,
+        -5.4
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_OBSERVER",
+      "node": "MARK_OBSERVER",
+      "position": [
+        0.0,
+        0.0,
+        -1.6
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_REVEAL_CLEAR",
+      "node": "MARK_REVEAL_CLEAR",
+      "position": [
+        1.8,
+        0.0,
+        -1.5
+      ],
+      "radius_m": 0.55
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INTERACTION",
+      "node": "CAM_INTERACTION",
+      "position": [
+        2.38,
+        1.65,
+        7.92
+      ],
+      "lens_mm": 62.0,
+      "look_at": [
+        1.96,
+        1.0,
+        3.6
+      ]
+    },
+    {
+      "id": "CAM_REVEAL",
+      "node": "CAM_REVEAL",
+      "position": [
+        -4.34,
+        2.1,
+        9.9
+      ],
+      "lens_mm": 45.0,
+      "look_at": [
+        0.0,
+        1.2,
+        -5.04
+      ]
+    },
+    {
+      "id": "CAM_TWO_SHOT",
+      "node": "CAM_TWO_SHOT",
+      "position": [
+        -3.15,
+        1.7,
+        11.16
+      ],
+      "lens_mm": 52.0,
+      "look_at": [
+        0.0,
+        1.15,
+        -0.0
+      ]
+    },
+    {
+      "id": "CAM_WIDE",
+      "node": "CAM_WIDE",
+      "position": [
+        5.04,
+        2.79,
+        14.04
+      ],
+      "lens_mm": 38.0,
+      "look_at": [
+        0.0,
+        1.1,
+        -0.0
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_DUMPSTER",
+      "node": "INTERACT_DUMPSTER",
+      "position": [
+        2.1,
+        1.0,
+        5.04
+      ],
+      "interaction_type": "dumpster"
+    }
+  ],
+  "cutaway_groups": [],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_FLOOR",
+      "node": "COLLIDER_FLOOR",
+      "position": [
+        0.0,
+        -0.18,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "alley",
+    "service"
+  ],
+  "glb_sha256": "dfd0f5b6f5afd6994b83f7d2b6d32135129ac8df10efe673c68ff7dd6a8ec2b5",
+  "preview": "assets/reference/world-modules/neighborhood_alley_a.png",
+  "provenance": {
+    "author": "Infinite Backlot procedural Blender authoring",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_kits.py"
+  }
+}

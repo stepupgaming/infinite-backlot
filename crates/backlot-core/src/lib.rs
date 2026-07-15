@@ -22,6 +22,7 @@ pub mod timeline;
 pub mod tts;
 pub mod validation;
 pub mod world;
+pub mod world_modules;
 
 pub use author::{AuthorSource, DeterministicAuthor, EpisodeAuthor, PlannedEpisode};
 pub use avatar::{

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "casual_talk",
+  "cache_key": "2349dc1dcea548d9815355a6cfea954bfe3a27c74a82f67cc05e040c4eb8b521",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person talks casually with grounded posture, natural asymmetric hand gestures, responsive head movement, and both arms returning to rest.",
+  "seed": 82011,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

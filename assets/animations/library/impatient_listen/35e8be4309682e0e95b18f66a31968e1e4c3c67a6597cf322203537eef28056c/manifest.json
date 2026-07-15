@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "impatient_listen",
+  "cache_key": "35e8be4309682e0e95b18f66a31968e1e4c3c67a6597cf322203537eef28056c",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person listens impatiently, shifts weight, briefly folds and releases the arms, glances aside, and returns to a readable waiting stance.",
+  "seed": 82010,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

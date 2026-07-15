@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "module_id": "apartment_service_loading_a",
+  "asset": "assets/world/apartment_building/apartment_service_loading_a.glb",
+  "source_blend": "assets/source/blender/world/apartment_building/apartment_service_loading_a.blend",
+  "category": "service_entrance",
+  "version": 1,
+  "bounds": {
+    "min": [
+      -4.0,
+      0,
+      -3.0
+    ],
+    "max": [
+      4.0,
+      3.8,
+      3.0
+    ]
+  },
+  "sockets": [
+    {
+      "id": "LOT_LOADING",
+      "node": "LOT_LOADING",
+      "position": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "LOT",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SOCKET_EXTERIOR",
+      "node": "SOCKET_EXTERIOR",
+      "position": [
+        0.0,
+        0.0,
+        3.0
+      ],
+      "socket_type": "SOCKET",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SOCKET_HALL_NORTH",
+      "node": "SOCKET_HALL_NORTH",
+      "position": [
+        0.0,
+        0.0,
+        -3.0
+      ],
+      "socket_type": "SOCKET",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CONVERSATION_A",
+      "node": "MARK_CONVERSATION_A",
+      "position": [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_CONVERSATION_B",
+      "node": "MARK_CONVERSATION_B",
+      "position": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ENTRY",
+      "node": "MARK_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        1.8
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_EXIT",
+      "node": "MARK_EXIT",
+      "position": [
+        0.0,
+        0.0,
+        -1.8
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_OBSERVER",
+      "node": "MARK_OBSERVER",
+      "position": [
+        0.0,
+        0.0,
+        -1.32
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_REVEAL_CLEAR",
+      "node": "MARK_REVEAL_CLEAR",
+      "position": [
+        1.8,
+        0.0,
+        -1.32
+      ],
+      "radius_m": 0.55
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INTERACTION",
+      "node": "CAM_INTERACTION",
+      "position": [
+        2.72,
+        1.65,
+        2.64
+      ],
+      "lens_mm": 62.0,
+      "look_at": [
+        2.24,
+        1.0,
+        1.2
+      ]
+    },
+    {
+      "id": "CAM_REVEAL",
+      "node": "CAM_REVEAL",
+      "position": [
+        -4.96,
+        2.1,
+        3.3
+      ],
+      "lens_mm": 45.0,
+      "look_at": [
+        0.0,
+        1.2,
+        -1.68
+      ]
+    },
+    {
+      "id": "CAM_TWO_SHOT",
+      "node": "CAM_TWO_SHOT",
+      "position": [
+        -3.6,
+        1.7,
+        3.72
+      ],
+      "lens_mm": 52.0,
+      "look_at": [
+        0.0,
+        1.15,
+        -0.0
+      ]
+    },
+    {
+      "id": "CAM_WIDE",
+      "node": "CAM_WIDE",
+      "position": [
+        5.76,
+        2.5,
+        4.68
+      ],
+      "lens_mm": 38.0,
+      "look_at": [
+        0.0,
+        1.1,
+        -0.0
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_LOADING_DOOR",
+      "node": "INTERACT_LOADING_DOOR",
+      "position": [
+        2.4,
+        1.0,
+        1.68
+      ],
+      "interaction_type": "loading_door"
+    }
+  ],
+  "cutaway_groups": [
+    {
+      "id": "CUTAWAY_FRONT",
+      "node": "CUTAWAY_FRONT",
+      "position": [
+        0.0,
+        1.9,
+        3.0
+      ]
+    }
+  ],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_FLOOR",
+      "node": "COLLIDER_FLOOR",
+      "position": [
+        0.0,
+        -0.18,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "service",
+    "loading"
+  ],
+  "glb_sha256": "54b659dff9a93b5544102a4b205e8b16e6347e583b35bbd482170da0722a450f",
+  "preview": "assets/reference/world-modules/apartment_service_loading_a.png",
+  "provenance": {
+    "author": "Infinite Backlot procedural Blender authoring",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_kits.py"
+  }
+}

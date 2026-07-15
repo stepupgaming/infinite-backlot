@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "module_id": "apartment_hall_straight_a",
+  "asset": "assets/world/apartment_building/apartment_hall_straight_a.glb",
+  "source_blend": "assets/source/blender/world/apartment_building/apartment_hall_straight_a.blend",
+  "category": "indoor_hallway",
+  "version": 1,
+  "bounds": {
+    "min": [
+      -2.4,
+      0,
+      -4.5
+    ],
+    "max": [
+      2.4,
+      3.2,
+      4.5
+    ]
+  },
+  "sockets": [
+    {
+      "id": "SOCKET_HALL_NORTH",
+      "node": "SOCKET_HALL_NORTH",
+      "position": [
+        0.0,
+        0.0,
+        -4.5
+      ],
+      "socket_type": "SOCKET",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SOCKET_HALL_SOUTH",
+      "node": "SOCKET_HALL_SOUTH",
+      "position": [
+        0.0,
+        0.0,
+        4.5
+      ],
+      "socket_type": "SOCKET",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CONVERSATION_A",
+      "node": "MARK_CONVERSATION_A",
+      "position": [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_CONVERSATION_B",
+      "node": "MARK_CONVERSATION_B",
+      "position": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ENTRY",
+      "node": "MARK_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        2.7
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_EXIT",
+      "node": "MARK_EXIT",
+      "position": [
+        0.0,
+        0.0,
+        -2.7
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_OBSERVER",
+      "node": "MARK_OBSERVER",
+      "position": [
+        0.0,
+        0.0,
+        -1.6
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_REVEAL_CLEAR",
+      "node": "MARK_REVEAL_CLEAR",
+      "position": [
+        1.344,
+        0.0,
+        -1.5
+      ],
+      "radius_m": 0.55
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INTERACTION",
+      "node": "CAM_INTERACTION",
+      "position": [
+        1.632,
+        1.65,
+        3.96
+      ],
+      "lens_mm": 62.0,
+      "look_at": [
+        1.344,
+        1.0,
+        1.8
+      ]
+    },
+    {
+      "id": "CAM_REVEAL",
+      "node": "CAM_REVEAL",
+      "position": [
+        -2.976,
+        2.1,
+        4.95
+      ],
+      "lens_mm": 45.0,
+      "look_at": [
+        0.0,
+        1.2,
+        -2.52
+      ]
+    },
+    {
+      "id": "CAM_TWO_SHOT",
+      "node": "CAM_TWO_SHOT",
+      "position": [
+        -2.16,
+        1.7,
+        5.58
+      ],
+      "lens_mm": 52.0,
+      "look_at": [
+        0.0,
+        1.15,
+        -0.0
+      ]
+    },
+    {
+      "id": "CAM_WIDE",
+      "node": "CAM_WIDE",
+      "position": [
+        3.456,
+        2.5,
+        7.02
+      ],
+      "lens_mm": 38.0,
+      "look_at": [
+        0.0,
+        1.1,
+        -0.0
+      ]
+    }
+  ],
+  "interactions": [],
+  "cutaway_groups": [
+    {
+      "id": "CUTAWAY_FRONT",
+      "node": "CUTAWAY_FRONT",
+      "position": [
+        0.0,
+        1.6,
+        4.5
+      ]
+    }
+  ],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_FLOOR",
+      "node": "COLLIDER_FLOOR",
+      "position": [
+        0.0,
+        -0.18,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "hall",
+    "conversation"
+  ],
+  "glb_sha256": "d26b241d585179a63a8a166289a14730caf1136945fe90842805d626498a5b87",
+  "preview": "assets/reference/world-modules/apartment_hall_straight_a.png",
+  "provenance": {
+    "author": "Infinite Backlot procedural Blender authoring",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_kits.py"
+  }
+}

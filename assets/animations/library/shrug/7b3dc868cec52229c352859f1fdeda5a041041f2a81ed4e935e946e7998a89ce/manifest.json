@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "shrug",
+  "cache_key": "7b3dc868cec52229c352859f1fdeda5a041041f2a81ed4e935e946e7998a89ce",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person gives one clear full-body shrug with shoulders rising, elbows bending and palms turning outward, holds briefly, then relaxes completely.",
+  "seed": 82013,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

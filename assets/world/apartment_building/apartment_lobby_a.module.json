@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "module_id": "apartment_lobby_a",
+  "asset": "assets/world/apartment_building/apartment_lobby_a.glb",
+  "source_blend": "assets/source/blender/world/apartment_building/apartment_lobby_a.blend",
+  "category": "lobby",
+  "version": 1,
+  "bounds": {
+    "min": [
+      -4.5,
+      0,
+      -4.0
+    ],
+    "max": [
+      4.5,
+      3.6,
+      4.0
+    ]
+  },
+  "sockets": [
+    {
+      "id": "SOCKET_ELEVATOR",
+      "node": "SOCKET_ELEVATOR",
+      "position": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "SOCKET",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SOCKET_HALL_NORTH",
+      "node": "SOCKET_HALL_NORTH",
+      "position": [
+        0.0,
+        0.0,
+        -4.0
+      ],
+      "socket_type": "SOCKET",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SOCKET_HALL_SOUTH",
+      "node": "SOCKET_HALL_SOUTH",
+      "position": [
+        0.0,
+        0.0,
+        4.0
+      ],
+      "socket_type": "SOCKET",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CONVERSATION_A",
+      "node": "MARK_CONVERSATION_A",
+      "position": [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_CONVERSATION_B",
+      "node": "MARK_CONVERSATION_B",
+      "position": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ENTRY",
+      "node": "MARK_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        2.4
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_EXIT",
+      "node": "MARK_EXIT",
+      "position": [
+        0.0,
+        0.0,
+        -2.4
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_OBSERVER",
+      "node": "MARK_OBSERVER",
+      "position": [
+        0.0,
+        0.0,
+        -1.6
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_REVEAL_CLEAR",
+      "node": "MARK_REVEAL_CLEAR",
+      "position": [
+        1.8,
+        0.0,
+        -1.5
+      ],
+      "radius_m": 0.55
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INTERACTION",
+      "node": "CAM_INTERACTION",
+      "position": [
+        3.06,
+        1.65,
+        3.52
+      ],
+      "lens_mm": 62.0,
+      "look_at": [
+        2.52,
+        1.0,
+        1.6
+      ]
+    },
+    {
+      "id": "CAM_REVEAL",
+      "node": "CAM_REVEAL",
+      "position": [
+        -5.58,
+        2.1,
+        4.4
+      ],
+      "lens_mm": 45.0,
+      "look_at": [
+        0.0,
+        1.2,
+        -2.24
+      ]
+    },
+    {
+      "id": "CAM_TWO_SHOT",
+      "node": "CAM_TWO_SHOT",
+      "position": [
+        -4.05,
+        1.7,
+        4.96
+      ],
+      "lens_mm": 52.0,
+      "look_at": [
+        0.0,
+        1.15,
+        -0.0
+      ]
+    },
+    {
+      "id": "CAM_WIDE",
+      "node": "CAM_WIDE",
+      "position": [
+        6.48,
+        2.5,
+        6.24
+      ],
+      "lens_mm": 38.0,
+      "look_at": [
+        0.0,
+        1.1,
+        -0.0
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_DIRECTORY",
+      "node": "INTERACT_DIRECTORY",
+      "position": [
+        2.7,
+        1.0,
+        2.24
+      ],
+      "interaction_type": "directory"
+    }
+  ],
+  "cutaway_groups": [
+    {
+      "id": "CUTAWAY_FRONT",
+      "node": "CUTAWAY_FRONT",
+      "position": [
+        0.0,
+        1.8,
+        4.0
+      ]
+    }
+  ],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_FLOOR",
+      "node": "COLLIDER_FLOOR",
+      "position": [
+        0.0,
+        -0.18,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "conversation",
+    "hero"
+  ],
+  "glb_sha256": "ba2ec9a307ebfd168d35aaf37cc97c013b42e29aac4373ad28531f3d0fd39aec",
+  "preview": "assets/reference/world-modules/apartment_lobby_a.png",
+  "provenance": {
+    "author": "Infinite Backlot procedural Blender authoring",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_kits.py"
+  }
+}

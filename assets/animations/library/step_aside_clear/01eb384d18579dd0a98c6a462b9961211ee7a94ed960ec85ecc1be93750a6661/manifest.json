@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "step_aside_clear",
+  "cache_key": "01eb384d18579dd0a98c6a462b9961211ee7a94ed960ec85ecc1be93750a6661",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person notices someone approaching, takes two purposeful steps sideways to clear a path, turns slightly toward them, and settles out of the way.",
+  "seed": 82018,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

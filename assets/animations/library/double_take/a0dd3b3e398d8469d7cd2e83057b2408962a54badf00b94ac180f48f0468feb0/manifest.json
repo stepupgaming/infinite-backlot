@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "double_take",
+  "cache_key": "a0dd3b3e398d8469d7cd2e83057b2408962a54badf00b94ac180f48f0468feb0",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person looks at something, turns away, then snaps back for a clear comedic double take using head, shoulders, torso, and a small foot adjustment.",
+  "seed": 82016,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

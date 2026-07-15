@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "step_backward",
+  "cache_key": "20c7d45c5e1019798d8932e8f52a192c8a86f43fa94c7006a8e60f3878f2450d",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person takes two controlled steps backward while staying alert and facing forward, then stops with stable planted feet.",
+  "seed": 82008,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

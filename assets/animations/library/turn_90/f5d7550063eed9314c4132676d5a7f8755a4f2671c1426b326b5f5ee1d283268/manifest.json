@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "turn_90",
+  "cache_key": "f5d7550063eed9314c4132676d5a7f8755a4f2671c1426b326b5f5ee1d283268",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A standing person anticipates, shifts weight, turns the entire body ninety degrees to the left with natural pivoting footwork, and settles with planted feet.",
+  "seed": 82006,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

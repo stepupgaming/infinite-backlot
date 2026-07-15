@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "walk_stop",
+  "cache_key": "2c2347c6c523e792553f0af788dd7ecb191e3fb6c282c66b7029a59b3c04b9eb",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person walks forward naturally for several steps, visibly decelerates, plants both feet, absorbs momentum, and settles into neutral standing.",
+  "seed": 82005,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

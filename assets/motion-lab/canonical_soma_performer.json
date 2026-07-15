@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "performer_id": "canonical_soma77_motion_lab",
+  "purpose": "Native-skeleton Kimodo motion inspection without KayKit retarget ambiguity",
+  "skeleton": {
+    "id": "somaskel77",
+    "joint_count": 77,
+    "definition": "runtimes/kimodo/kimodo/assets/skeletons/somaskel77/joints.p",
+    "standard_t_pose": "runtimes/kimodo/kimodo/assets/skeletons/somaskel77/somaskel77_standard_tpose.bvh",
+    "skin": "runtimes/kimodo/kimodo/assets/skeletons/somaskel77/skin_standard.npz",
+    "forward_axis": "+Z",
+    "up_axis": "+Y",
+    "units": "meters"
+  },
+  "renderer": "runtimes/kimodo/gemmy_render_kimodo_skins.py",
+  "skin_preset": "chrome_editor",
+  "debug_channels": ["skeleton", "root_trajectory", "foot_contacts", "contact_points", "semantic", "frame_time", "constraints"],
+  "retargeting_applied": false,
+  "approval_note": "Motion-lab previews use Kimodo's bundled SOMA skin directly. Production KayKit comparison remains optional and is not an approval requirement."
+}

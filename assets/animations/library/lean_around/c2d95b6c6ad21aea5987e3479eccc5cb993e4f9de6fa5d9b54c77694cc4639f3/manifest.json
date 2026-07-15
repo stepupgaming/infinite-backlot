@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "lean_around",
+  "cache_key": "c2d95b6c6ad21aea5987e3479eccc5cb993e4f9de6fa5d9b54c77694cc4639f3",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person leans and steps slightly around a blocking actor to see past them, leads with the head and shoulders, then returns to their mark.",
+  "seed": 82020,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "module_id": "neighborhood_pocket_park_a",
+  "asset": "assets/world/neighborhood/neighborhood_pocket_park_a.glb",
+  "source_blend": "assets/source/blender/world/neighborhood/neighborhood_pocket_park_a.blend",
+  "category": "park",
+  "version": 1,
+  "bounds": {
+    "min": [
+      -8.0,
+      0,
+      -7.0
+    ],
+    "max": [
+      8.0,
+      3.0,
+      7.0
+    ]
+  },
+  "sockets": [
+    {
+      "id": "SIDEWALK_NORTH",
+      "node": "SIDEWALK_NORTH",
+      "position": [
+        0.0,
+        0.0,
+        -7.0
+      ],
+      "socket_type": "SIDEWALK",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SIDEWALK_SOUTH",
+      "node": "SIDEWALK_SOUTH",
+      "position": [
+        0.0,
+        0.0,
+        7.0
+      ],
+      "socket_type": "SIDEWALK",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CONVERSATION_A",
+      "node": "MARK_CONVERSATION_A",
+      "position": [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_CONVERSATION_B",
+      "node": "MARK_CONVERSATION_B",
+      "position": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ENTRY",
+      "node": "MARK_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        4.2
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_EXIT",
+      "node": "MARK_EXIT",
+      "position": [
+        0.0,
+        0.0,
+        -4.2
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_OBSERVER",
+      "node": "MARK_OBSERVER",
+      "position": [
+        0.0,
+        0.0,
+        -1.6
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_REVEAL_CLEAR",
+      "node": "MARK_REVEAL_CLEAR",
+      "position": [
+        1.8,
+        0.0,
+        -1.5
+      ],
+      "radius_m": 0.55
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INTERACTION",
+      "node": "CAM_INTERACTION",
+      "position": [
+        5.44,
+        1.65,
+        6.16
+      ],
+      "lens_mm": 62.0,
+      "look_at": [
+        4.48,
+        1.0,
+        2.8
+      ]
+    },
+    {
+      "id": "CAM_REVEAL",
+      "node": "CAM_REVEAL",
+      "position": [
+        -9.92,
+        2.1,
+        7.7
+      ],
+      "lens_mm": 45.0,
+      "look_at": [
+        0.0,
+        1.2,
+        -3.92
+      ]
+    },
+    {
+      "id": "CAM_TWO_SHOT",
+      "node": "CAM_TWO_SHOT",
+      "position": [
+        -7.2,
+        1.7,
+        8.68
+      ],
+      "lens_mm": 52.0,
+      "look_at": [
+        0.0,
+        1.15,
+        -0.0
+      ]
+    },
+    {
+      "id": "CAM_WIDE",
+      "node": "CAM_WIDE",
+      "position": [
+        11.52,
+        2.5,
+        10.92
+      ],
+      "lens_mm": 38.0,
+      "look_at": [
+        0.0,
+        1.1,
+        -0.0
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_BENCH",
+      "node": "INTERACT_BENCH",
+      "position": [
+        4.8,
+        1.0,
+        3.92
+      ],
+      "interaction_type": "bench"
+    }
+  ],
+  "cutaway_groups": [],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_FLOOR",
+      "node": "COLLIDER_FLOOR",
+      "position": [
+        0.0,
+        -0.18,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "park",
+    "planted"
+  ],
+  "glb_sha256": "0f41a587c5aa04591a611bf45417f3b862589abb4b1adabf17096110885a2500",
+  "preview": "assets/reference/world-modules/neighborhood_pocket_park_a.png",
+  "provenance": {
+    "author": "Infinite Backlot procedural Blender authoring",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_kits.py"
+  }
+}

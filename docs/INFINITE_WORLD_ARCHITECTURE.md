@@ -6,6 +6,35 @@ This document records the intended expansion path for Infinite Backlot. It does 
 
 The world system grows by assembling reviewed authored modules. It is not an LLM-generated mesh system.
 
+## Concrete delivery status (July 2026)
+
+### Implemented now
+
+- Twenty-nine editable Blender modules: sixteen apartment-building modules and thirteen neighborhood modules.
+- One deterministic GLB and semantic sidecar per module, with hashes, bounds, sockets, staging marks, camera anchors, interactions, cutaways, collision proxies, tags, previews, and provenance.
+- The data-driven registry at `assets/world/registry.json`, loadable through `backlot_core::world_modules` without adding a Rust scene type.
+- A seeded assembler at `tools/world/assemble_world.py` and the committed seed-424242 layout containing nineteen instances and seventeen explicit connections.
+- A one-command structural preflight covering GLB/source integrity, registry semantics, layout references, and required motion semantics.
+- A Blender-authored tour scene assembled from registered GLBs.
+- A canonical native-SOMA motion-lab contract and a broad generated-motion review workflow. This judges Kimodo output before KayKit retargeting.
+
+### Demonstrated now
+
+- Two seeded interior-floor arrangements connected to lobby, elevator, stair/service, exterior, street, alley/courtyard, hero storefront, park, and skyline roles.
+- Rebuildable module thumbnails and one contact sheet for breadth review.
+- Deterministic same-seed layout fingerprints and Rust/Python registry validation.
+- One low-cost world-tour preview and one canonical-SOMA motion showcase; these are library proofs, not episodes.
+
+### Planned later
+
+- Runtime chunk streaming and residency management.
+- Automatic geometric socket snapping and navmesh stitching (the current demonstration persists reviewed transforms and validates socket references).
+- Persistent world-delta migrations across module versions.
+- Fully automatic staging-region expansion, live camera-corridor solving, terrain/wilderness kits, and a larger city.
+- Production-ready generated characters, live multi-angle SOMA browser rendering, general hand IK, and dedicated foot locking.
+
+Nothing in this status claims infinite generation, production-ready hero characters, or automatic visual approval.
+
 ## Design principles
 
 1. **Authored identity, procedural scale.** Handcrafted hero locations carry story identity. Procedurally assembled connective areas provide breadth without flattening every location into generic output.

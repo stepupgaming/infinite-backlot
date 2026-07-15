@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "defensive_talk",
+  "cache_key": "296b12c810a4881ee62cee918856794fa29209ded52f7c10bed910fc2f85913d",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person responds defensively with a small backward weight shift, guarded torso, palms briefly raised, and a controlled recovery to neutral.",
+  "seed": 82012,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "large_recoil",
+  "cache_key": "afc830188207aebd67aeba41a086cf723133882f4fdafb444cbfcd782a6ed6b8",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person reacts with a large readable full-body recoil, throws weight backward, raises the arms protectively, catches balance, and recovers.",
+  "seed": 82015,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

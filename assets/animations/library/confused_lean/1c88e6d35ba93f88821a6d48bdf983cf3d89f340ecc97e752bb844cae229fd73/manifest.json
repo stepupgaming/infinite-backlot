@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "confused_lean",
+  "cache_key": "1c88e6d35ba93f88821a6d48bdf983cf3d89f340ecc97e752bb844cae229fd73",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A confused person leans the upper body sideways to inspect around an obstruction, balances through hips and feet, then returns upright.",
+  "seed": 82017,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

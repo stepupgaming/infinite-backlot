@@ -5,6 +5,7 @@ Provide Infinite Backlot's pinned NVIDIA Kimodo runtime and batch motion-generat
 # Ownership
 
 - `backlot_run_kimodo.py` is project-owned batch glue: invoke real upstream generation, export NPZ and standard-T-pose BVH, derive the motion sidecar, write response JSON, emit phase JSONL, and exit.
+- `backlot_batch_kimodo.py` is the one-load motion-lab batch path: keep Kimodo/SOMA resident while preserving independent prompts, seeds, durations, constraints, NPZ, BVH, and contact sidecars per clip.
 - `gemmy_run_kimodo.py`, `gemmy_render_kimodo_skins.py`, and `test_gemmy_run_kimodo.py` are retained integration/reference utilities imported with this runtime.
 - `.python-version`, `pyproject.toml`, `setup.py`, and `uv.lock` own the reproducible native-Windows Python environment.
 - `UPSTREAM.json`, `LICENSE`, and `ATTRIBUTIONS.MD` own provenance and attribution.
@@ -13,6 +14,7 @@ Provide Infinite Backlot's pinned NVIDIA Kimodo runtime and batch motion-generat
 # Local Contracts
 
 - Use `uv` for environment maintenance; never use `pip`.
+- Hermes development shells inject their own `PYTHONPATH`; direct Kimodo commands must use `env -u PYTHONPATH <kimodo-python> ...` so imports resolve from the pinned Kimodo venv rather than Hermes' packages.
 - Keep model checkpoints and Hugging Face caches out of this repository. The configured checkpoint is `F:\Models\Kimodo\Kimodo-SOMA-RP-v1.1`.
 - `backlot_run_kimodo.py` must call real upstream inference and fail when the requested checkpoint, NPZ, BVH, or required arrays are missing.
 - Batch requests use stable prompt, duration, seed, semantic, output-stem, and optional constraint/root-waypoint fields. Root-waypoint generation requires at least two distinct frames.

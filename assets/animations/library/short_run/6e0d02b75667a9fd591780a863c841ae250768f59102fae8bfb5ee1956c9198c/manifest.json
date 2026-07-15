@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "short_run",
+  "cache_key": "6e0d02b75667a9fd591780a863c841ae250768f59102fae8bfb5ee1956c9198c",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A person makes a short controlled run forward, accelerates naturally, takes energetic strides, decelerates, and recovers to balanced standing.",
+  "seed": 82004,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

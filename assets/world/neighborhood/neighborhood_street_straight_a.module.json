@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "module_id": "neighborhood_street_straight_a",
+  "asset": "assets/world/neighborhood/neighborhood_street_straight_a.glb",
+  "source_blend": "assets/source/blender/world/neighborhood/neighborhood_street_straight_a.blend",
+  "category": "street",
+  "version": 1,
+  "bounds": {
+    "min": [
+      -6.0,
+      0,
+      -12.0
+    ],
+    "max": [
+      6.0,
+      0.4,
+      12.0
+    ]
+  },
+  "sockets": [
+    {
+      "id": "ROAD_NORTH",
+      "node": "ROAD_NORTH",
+      "position": [
+        0.0,
+        0.0,
+        -12.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "ROAD_SOUTH",
+      "node": "ROAD_SOUTH",
+      "position": [
+        0.0,
+        0.0,
+        12.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SIDEWALK_EAST",
+      "node": "SIDEWALK_EAST",
+      "position": [
+        6.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "SIDEWALK",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SIDEWALK_WEST",
+      "node": "SIDEWALK_WEST",
+      "position": [
+        -6.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "SIDEWALK",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CONVERSATION_A",
+      "node": "MARK_CONVERSATION_A",
+      "position": [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_CONVERSATION_B",
+      "node": "MARK_CONVERSATION_B",
+      "position": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ENTRY",
+      "node": "MARK_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        7.2
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_EXIT",
+      "node": "MARK_EXIT",
+      "position": [
+        0.0,
+        0.0,
+        -7.2
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_OBSERVER",
+      "node": "MARK_OBSERVER",
+      "position": [
+        0.0,
+        0.0,
+        -1.6
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_REVEAL_CLEAR",
+      "node": "MARK_REVEAL_CLEAR",
+      "position": [
+        1.8,
+        0.0,
+        -1.5
+      ],
+      "radius_m": 0.55
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INTERACTION",
+      "node": "CAM_INTERACTION",
+      "position": [
+        4.08,
+        1.65,
+        10.56
+      ],
+      "lens_mm": 62.0,
+      "look_at": [
+        3.36,
+        1.0,
+        4.8
+      ]
+    },
+    {
+      "id": "CAM_REVEAL",
+      "node": "CAM_REVEAL",
+      "position": [
+        -7.44,
+        2.1,
+        13.2
+      ],
+      "lens_mm": 45.0,
+      "look_at": [
+        0.0,
+        1.2,
+        -6.72
+      ]
+    },
+    {
+      "id": "CAM_TWO_SHOT",
+      "node": "CAM_TWO_SHOT",
+      "position": [
+        -5.4,
+        1.7,
+        14.88
+      ],
+      "lens_mm": 52.0,
+      "look_at": [
+        0.0,
+        1.15,
+        -0.0
+      ]
+    },
+    {
+      "id": "CAM_WIDE",
+      "node": "CAM_WIDE",
+      "position": [
+        8.64,
+        2.5,
+        18.72
+      ],
+      "lens_mm": 38.0,
+      "look_at": [
+        0.0,
+        1.1,
+        -0.0
+      ]
+    }
+  ],
+  "interactions": [],
+  "cutaway_groups": [],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_FLOOR",
+      "node": "COLLIDER_FLOOR",
+      "position": [
+        0.0,
+        -0.18,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "street",
+    "vehicle"
+  ],
+  "glb_sha256": "eb4d7297fdac21e399e1ea91c0e26ae97e1627b34fa093321afa84f15b1ceee3",
+  "preview": "assets/reference/world-modules/neighborhood_street_straight_a.png",
+  "provenance": {
+    "author": "Infinite Backlot procedural Blender authoring",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_kits.py"
+  }
+}

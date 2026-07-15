@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "module_id": "apartment_exterior_a",
+  "asset": "assets/world/apartment_building/apartment_exterior_a.glb",
+  "source_blend": "assets/source/blender/world/apartment_building/apartment_exterior_a.blend",
+  "category": "building_exterior",
+  "version": 1,
+  "bounds": {
+    "min": [
+      -7.0,
+      0,
+      -2.5
+    ],
+    "max": [
+      7.0,
+      11,
+      2.5
+    ]
+  },
+  "sockets": [
+    {
+      "id": "SOCKET_EXTERIOR",
+      "node": "SOCKET_EXTERIOR",
+      "position": [
+        0.0,
+        0.0,
+        2.5
+      ],
+      "socket_type": "SOCKET",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SOCKET_ROOFTOP",
+      "node": "SOCKET_ROOFTOP",
+      "position": [
+        0.0,
+        0.0,
+        -2.5
+      ],
+      "socket_type": "SOCKET",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CONVERSATION_A",
+      "node": "MARK_CONVERSATION_A",
+      "position": [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_CONVERSATION_B",
+      "node": "MARK_CONVERSATION_B",
+      "position": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ENTRY",
+      "node": "MARK_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        1.5
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_EXIT",
+      "node": "MARK_EXIT",
+      "position": [
+        0.0,
+        0.0,
+        -1.5
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_OBSERVER",
+      "node": "MARK_OBSERVER",
+      "position": [
+        0.0,
+        0.0,
+        -1.1
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_REVEAL_CLEAR",
+      "node": "MARK_REVEAL_CLEAR",
+      "position": [
+        1.8,
+        0.0,
+        -1.1
+      ],
+      "radius_m": 0.55
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INTERACTION",
+      "node": "CAM_INTERACTION",
+      "position": [
+        4.76,
+        1.65,
+        2.2
+      ],
+      "lens_mm": 62.0,
+      "look_at": [
+        3.92,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "CAM_REVEAL",
+      "node": "CAM_REVEAL",
+      "position": [
+        -8.68,
+        2.1,
+        2.75
+      ],
+      "lens_mm": 45.0,
+      "look_at": [
+        0.0,
+        1.2,
+        -1.4
+      ]
+    },
+    {
+      "id": "CAM_TWO_SHOT",
+      "node": "CAM_TWO_SHOT",
+      "position": [
+        -6.3,
+        1.7,
+        3.1
+      ],
+      "lens_mm": 52.0,
+      "look_at": [
+        0.0,
+        1.15,
+        -0.0
+      ]
+    },
+    {
+      "id": "CAM_WIDE",
+      "node": "CAM_WIDE",
+      "position": [
+        10.08,
+        6.82,
+        3.9
+      ],
+      "lens_mm": 38.0,
+      "look_at": [
+        0.0,
+        1.1,
+        -0.0
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_MAIN_DOOR",
+      "node": "INTERACT_MAIN_DOOR",
+      "position": [
+        4.2,
+        1.0,
+        1.4
+      ],
+      "interaction_type": "main_door"
+    }
+  ],
+  "cutaway_groups": [],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_FLOOR",
+      "node": "COLLIDER_FLOOR",
+      "position": [
+        0.0,
+        -0.18,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "hero",
+    "exterior"
+  ],
+  "glb_sha256": "17556bb187c2ce4e68ce3276bb71f4c0ab12a2cb63bd3b12bcb8ae07be3107db",
+  "preview": "assets/reference/world-modules/apartment_exterior_a.png",
+  "provenance": {
+    "author": "Infinite Backlot procedural Blender authoring",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_kits.py"
+  }
+}

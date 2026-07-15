@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "semantic": "confident_walk",
+  "cache_key": "15943f2dd741da6e23a96f6a47adf573ce8b423fa38ae9ba3cca321eae4ae752",
+  "source_revision": "Kimodo-SOMA-RP-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "prompt": "A confident person walks forward with upright posture, clear heel-to-toe contacts, relaxed arm swing, and a balanced stop.",
+  "seed": 82001,
+  "approval": "pending",
+  "clip": "clip.motion",
+  "preview": null
+}

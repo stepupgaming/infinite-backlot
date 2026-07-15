@@ -4,6 +4,8 @@
 /runtimes/**/.venv
 /runtimes/**/__pycache__
 /runtimes/**/*.pyc
+**/__pycache__/
+**/*.pyc
 /runtimes/**/outputs
 /assets/animations/library/**/raw
 /runtimes/llama.cpp/*.dll

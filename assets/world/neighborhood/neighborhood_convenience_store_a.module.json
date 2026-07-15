@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "module_id": "neighborhood_convenience_store_a",
+  "asset": "assets/world/neighborhood/neighborhood_convenience_store_a.glb",
+  "source_blend": "assets/source/blender/world/neighborhood/neighborhood_convenience_store_a.blend",
+  "category": "hero_business",
+  "version": 1,
+  "bounds": {
+    "min": [
+      -5.0,
+      0,
+      -4.5
+    ],
+    "max": [
+      5.0,
+      4.0,
+      4.5
+    ]
+  },
+  "sockets": [
+    {
+      "id": "ALLEY_NORTH",
+      "node": "ALLEY_NORTH",
+      "position": [
+        0.0,
+        0.0,
+        -4.5
+      ],
+      "socket_type": "ALLEY",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "BUILDING_ENTRANCE_MAIN",
+      "node": "BUILDING_ENTRANCE_MAIN",
+      "position": [
+        5.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "BUILDING",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SIDEWALK_SOUTH",
+      "node": "SIDEWALK_SOUTH",
+      "position": [
+        0.0,
+        0.0,
+        4.5
+      ],
+      "socket_type": "SIDEWALK",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CONVERSATION_A",
+      "node": "MARK_CONVERSATION_A",
+      "position": [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_CONVERSATION_B",
+      "node": "MARK_CONVERSATION_B",
+      "position": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ENTRY",
+      "node": "MARK_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        2.7
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_EXIT",
+      "node": "MARK_EXIT",
+      "position": [
+        0.0,
+        0.0,
+        -2.7
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_OBSERVER",
+      "node": "MARK_OBSERVER",
+      "position": [
+        0.0,
+        0.0,
+        -1.6
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_REVEAL_CLEAR",
+      "node": "MARK_REVEAL_CLEAR",
+      "position": [
+        1.8,
+        0.0,
+        -1.5
+      ],
+      "radius_m": 0.55
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INTERACTION",
+      "node": "CAM_INTERACTION",
+      "position": [
+        3.4,
+        1.65,
+        3.96
+      ],
+      "lens_mm": 62.0,
+      "look_at": [
+        2.8,
+        1.0,
+        1.8
+      ]
+    },
+    {
+      "id": "CAM_REVEAL",
+      "node": "CAM_REVEAL",
+      "position": [
+        -6.2,
+        2.1,
+        4.95
+      ],
+      "lens_mm": 45.0,
+      "look_at": [
+        0.0,
+        1.2,
+        -2.52
+      ]
+    },
+    {
+      "id": "CAM_TWO_SHOT",
+      "node": "CAM_TWO_SHOT",
+      "position": [
+        -4.5,
+        1.7,
+        5.58
+      ],
+      "lens_mm": 52.0,
+      "look_at": [
+        0.0,
+        1.15,
+        -0.0
+      ]
+    },
+    {
+      "id": "CAM_WIDE",
+      "node": "CAM_WIDE",
+      "position": [
+        7.2,
+        2.5,
+        7.02
+      ],
+      "lens_mm": 38.0,
+      "look_at": [
+        0.0,
+        1.1,
+        -0.0
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_COUNTER",
+      "node": "INTERACT_COUNTER",
+      "position": [
+        3.0,
+        1.0,
+        2.52
+      ],
+      "interaction_type": "counter"
+    },
+    {
+      "id": "INTERACT_STORE_DOOR",
+      "node": "INTERACT_STORE_DOOR",
+      "position": [
+        3.0,
+        1.0,
+        2.52
+      ],
+      "interaction_type": "store_door"
+    }
+  ],
+  "cutaway_groups": [],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_FLOOR",
+      "node": "COLLIDER_FLOOR",
+      "position": [
+        0.0,
+        -0.18,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "hero",
+    "business",
+    "interior_shell"
+  ],
+  "glb_sha256": "ca4d577de6af76a81078c8068f2deae1e4cd6dc5e0533d8a9942a06f07236ac0",
+  "preview": "assets/reference/world-modules/neighborhood_convenience_store_a.png",
+  "provenance": {
+    "author": "Infinite Backlot procedural Blender authoring",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_kits.py"
+  }
+}

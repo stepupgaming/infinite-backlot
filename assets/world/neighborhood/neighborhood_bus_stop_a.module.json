@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "module_id": "neighborhood_bus_stop_a",
+  "asset": "assets/world/neighborhood/neighborhood_bus_stop_a.glb",
+  "source_blend": "assets/source/blender/world/neighborhood/neighborhood_bus_stop_a.blend",
+  "category": "transit",
+  "version": 1,
+  "bounds": {
+    "min": [
+      -6.0,
+      0,
+      -3.0
+    ],
+    "max": [
+      6.0,
+      3.0,
+      3.0
+    ]
+  },
+  "sockets": [
+    {
+      "id": "SIDEWALK_EAST",
+      "node": "SIDEWALK_EAST",
+      "position": [
+        6.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "SIDEWALK",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SIDEWALK_WEST",
+      "node": "SIDEWALK_WEST",
+      "position": [
+        -6.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "SIDEWALK",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "TRANSIT_BUS",
+      "node": "TRANSIT_BUS",
+      "position": [
+        -6.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "TRANSIT",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CONVERSATION_A",
+      "node": "MARK_CONVERSATION_A",
+      "position": [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_CONVERSATION_B",
+      "node": "MARK_CONVERSATION_B",
+      "position": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ENTRY",
+      "node": "MARK_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        1.8
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_EXIT",
+      "node": "MARK_EXIT",
+      "position": [
+        0.0,
+        0.0,
+        -1.8
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_OBSERVER",
+      "node": "MARK_OBSERVER",
+      "position": [
+        0.0,
+        0.0,
+        -1.32
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_REVEAL_CLEAR",
+      "node": "MARK_REVEAL_CLEAR",
+      "position": [
+        1.8,
+        0.0,
+        -1.32
+      ],
+      "radius_m": 0.55
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INTERACTION",
+      "node": "CAM_INTERACTION",
+      "position": [
+        4.08,
+        1.65,
+        2.64
+      ],
+      "lens_mm": 62.0,
+      "look_at": [
+        3.36,
+        1.0,
+        1.2
+      ]
+    },
+    {
+      "id": "CAM_REVEAL",
+      "node": "CAM_REVEAL",
+      "position": [
+        -7.44,
+        2.1,
+        3.3
+      ],
+      "lens_mm": 45.0,
+      "look_at": [
+        0.0,
+        1.2,
+        -1.68
+      ]
+    },
+    {
+      "id": "CAM_TWO_SHOT",
+      "node": "CAM_TWO_SHOT",
+      "position": [
+        -5.4,
+        1.7,
+        3.72
+      ],
+      "lens_mm": 52.0,
+      "look_at": [
+        0.0,
+        1.15,
+        -0.0
+      ]
+    },
+    {
+      "id": "CAM_WIDE",
+      "node": "CAM_WIDE",
+      "position": [
+        8.64,
+        2.5,
+        4.68
+      ],
+      "lens_mm": 38.0,
+      "look_at": [
+        0.0,
+        1.1,
+        -0.0
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_BUS_SIGN",
+      "node": "INTERACT_BUS_SIGN",
+      "position": [
+        3.6,
+        1.0,
+        1.68
+      ],
+      "interaction_type": "bus_sign"
+    }
+  ],
+  "cutaway_groups": [],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_FLOOR",
+      "node": "COLLIDER_FLOOR",
+      "position": [
+        0.0,
+        -0.18,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "bus_stop",
+    "conversation"
+  ],
+  "glb_sha256": "2ee9df26543f4ca982adc41840a4b11673939a83907dd82624d3a79e6bd5088a",
+  "preview": "assets/reference/world-modules/neighborhood_bus_stop_a.png",
+  "provenance": {
+    "author": "Infinite Backlot procedural Blender authoring",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_kits.py"
+  }
+}

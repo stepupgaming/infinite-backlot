@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "module_id": "neighborhood_courtyard_a",
+  "asset": "assets/world/neighborhood/neighborhood_courtyard_a.glb",
+  "source_blend": "assets/source/blender/world/neighborhood/neighborhood_courtyard_a.blend",
+  "category": "courtyard",
+  "version": 1,
+  "bounds": {
+    "min": [
+      -9.0,
+      0,
+      -8.0
+    ],
+    "max": [
+      9.0,
+      2.0,
+      8.0
+    ]
+  },
+  "sockets": [
+    {
+      "id": "ALLEY_EAST",
+      "node": "ALLEY_EAST",
+      "position": [
+        9.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "ALLEY",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "BUILDING_ENTRANCE_WEST",
+      "node": "BUILDING_ENTRANCE_WEST",
+      "position": [
+        -9.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "BUILDING",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SIDEWALK_NORTH",
+      "node": "SIDEWALK_NORTH",
+      "position": [
+        0.0,
+        0.0,
+        -8.0
+      ],
+      "socket_type": "SIDEWALK",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CONVERSATION_A",
+      "node": "MARK_CONVERSATION_A",
+      "position": [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_CONVERSATION_B",
+      "node": "MARK_CONVERSATION_B",
+      "position": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ENTRY",
+      "node": "MARK_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        4.8
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_EXIT",
+      "node": "MARK_EXIT",
+      "position": [
+        0.0,
+        0.0,
+        -4.8
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_OBSERVER",
+      "node": "MARK_OBSERVER",
+      "position": [
+        0.0,
+        0.0,
+        -1.6
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_REVEAL_CLEAR",
+      "node": "MARK_REVEAL_CLEAR",
+      "position": [
+        1.8,
+        0.0,
+        -1.5
+      ],
+      "radius_m": 0.55
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_INTERACTION",
+      "node": "CAM_INTERACTION",
+      "position": [
+        6.12,
+        1.65,
+        7.04
+      ],
+      "lens_mm": 62.0,
+      "look_at": [
+        5.04,
+        1.0,
+        3.2
+      ]
+    },
+    {
+      "id": "CAM_REVEAL",
+      "node": "CAM_REVEAL",
+      "position": [
+        -11.16,
+        2.1,
+        8.8
+      ],
+      "lens_mm": 45.0,
+      "look_at": [
+        0.0,
+        1.2,
+        -4.48
+      ]
+    },
+    {
+      "id": "CAM_TWO_SHOT",
+      "node": "CAM_TWO_SHOT",
+      "position": [
+        -8.1,
+        1.7,
+        9.92
+      ],
+      "lens_mm": 52.0,
+      "look_at": [
+        0.0,
+        1.15,
+        -0.0
+      ]
+    },
+    {
+      "id": "CAM_WIDE",
+      "node": "CAM_WIDE",
+      "position": [
+        12.96,
+        2.5,
+        12.48
+      ],
+      "lens_mm": 38.0,
+      "look_at": [
+        0.0,
+        1.1,
+        -0.0
+      ]
+    }
+  ],
+  "interactions": [],
+  "cutaway_groups": [],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_FLOOR",
+      "node": "COLLIDER_FLOOR",
+      "position": [
+        0.0,
+        -0.18,
+        -0.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "courtyard",
+    "conversation"
+  ],
+  "glb_sha256": "2d993afc6082a357c2a0fe7588e82195486fbf2bd4166caf23d119de581419da",
+  "preview": "assets/reference/world-modules/neighborhood_courtyard_a.png",
+  "provenance": {
+    "author": "Infinite Backlot procedural Blender authoring",
+    "license": "repository license",
+    "generator": "tools/blender/build_world_kits.py"
+  }
+}
