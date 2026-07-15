@@ -17,6 +17,18 @@ assets/reference/world-modules/*.png
 
 Each module has one editable `.blend`, one GLB, one `.module.json` sidecar, and one low-cost thumbnail. Sources are intentionally independent files so one module can be revised without opening a monolithic city scene.
 
+The focused environment-art layer adds linked reusable libraries and one continuous hero block:
+
+```text
+assets/source/blender/world/kits/infinite_backlot_material_library.blend
+assets/source/blender/world/kits/infinite_backlot_detail_kit.blend
+assets/source/blender/world/neighborhood/infinite_backlot_block.blend
+assets/world/neighborhood/infinite_backlot_block.glb
+assets/world/neighborhood/infinite_backlot_block.scene.json
+```
+
+See `docs/WORLD_ART_PASS.md`. Registry version 2 assigns every entry an explicit `blockout`, `background`, `production`, or `hero` quality tier; structural validity alone is not a production-art claim.
+
 ## Blender MCP authoring
 
 Blender MCP is the preferred interactive authoring path. The current kit was built with:
@@ -76,6 +88,7 @@ Fast preflight:
 
 ```bash
 uv run --no-project python tools/world/preflight.py
+uv run --no-project python tools/world/world_art_preflight.py
 cargo test -p backlot-core --test world_modules
 ```
 

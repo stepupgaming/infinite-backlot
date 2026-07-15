@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "world_seed": 424242,
-  "registry_version": 1,
+  "registry_version": 2,
   "layout_algorithm": "backlot_demo_socket_assembler_v1",
   "layout_fingerprint": "c329a757a1e413941dac5be7ec59b45d9c1541c6bb110373e0fbd882bc1674c9",
   "instances": [
@@ -30,7 +30,7 @@
       "instance_id": "demo_01_street_intersection",
       "role": "street_intersection",
       "module_id": "neighborhood_intersection_a",
-      "module_version": 1,
+      "module_version": 2,
       "category": "intersection",
       "transform": {
         "translation": [
@@ -51,7 +51,7 @@
       "instance_id": "demo_02_building_exterior",
       "role": "building_exterior",
       "module_id": "apartment_exterior_a",
-      "module_version": 1,
+      "module_version": 2,
       "category": "building_exterior",
       "transform": {
         "translation": [
@@ -93,7 +93,7 @@
       "instance_id": "demo_04_ground_lobby",
       "role": "ground_lobby",
       "module_id": "apartment_lobby_a",
-      "module_version": 1,
+      "module_version": 2,
       "category": "lobby",
       "transform": {
         "translation": [
@@ -282,7 +282,7 @@
       "instance_id": "demo_13_alley",
       "role": "alley",
       "module_id": "neighborhood_alley_a",
-      "module_version": 1,
+      "module_version": 2,
       "category": "alley",
       "transform": {
         "translation": [
@@ -324,7 +324,7 @@
       "instance_id": "demo_15_hero_store",
       "role": "hero_store",
       "module_id": "neighborhood_convenience_store_a",
-      "module_version": 1,
+      "module_version": 2,
       "category": "hero_business",
       "transform": {
         "translation": [

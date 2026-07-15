@@ -4,223 +4,225 @@
   "asset": "assets/world/neighborhood/neighborhood_convenience_store_a.glb",
   "source_blend": "assets/source/blender/world/neighborhood/neighborhood_convenience_store_a.blend",
   "category": "hero_business",
-  "version": 1,
+  "version": 2,
+  "quality_tier": "hero",
   "bounds": {
     "min": [
-      -5.0,
+      -5.5,
       0,
       -4.5
     ],
     "max": [
-      5.0,
-      4.0,
+      5.5,
+      4.6,
       4.5
     ]
   },
   "sockets": [
-    {
-      "id": "ALLEY_NORTH",
-      "node": "ALLEY_NORTH",
-      "position": [
-        0.0,
-        0.0,
-        -4.5
-      ],
-      "socket_type": "ALLEY",
-      "clearance_m": 1.5
-    },
-    {
-      "id": "BUILDING_ENTRANCE_MAIN",
-      "node": "BUILDING_ENTRANCE_MAIN",
-      "position": [
-        5.0,
-        0.0,
-        -0.0
-      ],
-      "socket_type": "BUILDING",
-      "clearance_m": 1.5
-    },
     {
       "id": "SIDEWALK_SOUTH",
       "node": "SIDEWALK_SOUTH",
       "position": [
         0.0,
         0.0,
-        4.5
+        5.9
       ],
       "socket_type": "SIDEWALK",
+      "clearance_m": 2
+    },
+    {
+      "id": "BUILDING_ENTRANCE_MAIN",
+      "node": "BUILDING_ENTRANCE_MAIN",
+      "position": [
+        0.0,
+        0.0,
+        4.5
+      ],
+      "socket_type": "ENTRANCE",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "ALLEY_NORTH",
+      "node": "ALLEY_NORTH",
+      "position": [
+        -5.5,
+        0.0,
+        -4.5
+      ],
+      "socket_type": "ALLEY",
       "clearance_m": 1.5
     }
   ],
   "staging_marks": [
     {
-      "id": "MARK_CONVERSATION_A",
-      "node": "MARK_CONVERSATION_A",
+      "id": "MARK_STORE_ENTRANCE",
+      "node": "MARK_STORE_ENTRANCE",
       "position": [
-        -1.0,
         0.0,
-        -0.0
+        0.0,
+        5.5
       ],
       "radius_m": 0.55
     },
     {
-      "id": "MARK_CONVERSATION_B",
-      "node": "MARK_CONVERSATION_B",
+      "id": "MARK_STORE_COUNTER_CUSTOMER",
+      "node": "MARK_STORE_COUNTER_CUSTOMER",
       "position": [
-        1.0,
+        2.75,
         0.0,
-        -0.0
+        2.3
       ],
       "radius_m": 0.55
     },
     {
-      "id": "MARK_ENTRY",
-      "node": "MARK_ENTRY",
+      "id": "MARK_STORE_COUNTER_CLERK",
+      "node": "MARK_STORE_COUNTER_CLERK",
       "position": [
+        4.1,
         0.0,
-        0.0,
-        2.7
+        1.5
       ],
       "radius_m": 0.55
     },
     {
-      "id": "MARK_EXIT",
-      "node": "MARK_EXIT",
+      "id": "MARK_AISLE_END",
+      "node": "MARK_AISLE_END",
       "position": [
         0.0,
         0.0,
-        -2.7
+        1.5
       ],
       "radius_m": 0.55
     },
     {
-      "id": "MARK_OBSERVER",
-      "node": "MARK_OBSERVER",
+      "id": "MARK_STORE_WINDOW",
+      "node": "MARK_STORE_WINDOW",
       "position": [
+        -3.4,
         0.0,
-        0.0,
-        -1.6
-      ],
-      "radius_m": 0.55
-    },
-    {
-      "id": "MARK_REVEAL_CLEAR",
-      "node": "MARK_REVEAL_CLEAR",
-      "position": [
-        1.8,
-        0.0,
-        -1.5
+        3.7
       ],
       "radius_m": 0.55
     }
   ],
   "camera_anchors": [
     {
-      "id": "CAM_INTERACTION",
-      "node": "CAM_INTERACTION",
+      "id": "CAM_STORE_COUNTER_TWO_SHOT",
+      "node": "CAM_STORE_COUNTER_TWO_SHOT",
       "position": [
-        3.4,
+        0.8,
         1.65,
-        3.96
-      ],
-      "lens_mm": 62.0,
-      "look_at": [
-        2.8,
-        1.0,
         1.8
+      ],
+      "look_at": [
+        3.35,
+        -2.0,
+        1.25
       ]
     },
     {
-      "id": "CAM_REVEAL",
-      "node": "CAM_REVEAL",
+      "id": "CAM_STORE_AISLE_LONG",
+      "node": "CAM_STORE_AISLE_LONG",
       "position": [
-        -6.2,
-        2.1,
-        4.95
+        -4.3,
+        1.65,
+        2.2
       ],
-      "lens_mm": 45.0,
       "look_at": [
         0.0,
-        1.2,
-        -2.52
+        0.4,
+        1.2
       ]
     },
     {
-      "id": "CAM_TWO_SHOT",
-      "node": "CAM_TWO_SHOT",
+      "id": "CAM_STORE_FRONT_WIDE",
+      "node": "CAM_STORE_FRONT_WIDE",
       "position": [
-        -4.5,
-        1.7,
-        5.58
+        0.0,
+        2.0,
+        7.3
       ],
-      "lens_mm": 52.0,
       "look_at": [
         0.0,
-        1.15,
-        -0.0
+        0.0,
+        1.5
       ]
     },
     {
-      "id": "CAM_WIDE",
-      "node": "CAM_WIDE",
+      "id": "CAM_HERO_PREVIEW",
+      "node": "CAM_HERO_PREVIEW",
       "position": [
-        7.2,
-        2.5,
-        7.02
+        10.0,
+        5.5,
+        16.0
       ],
-      "lens_mm": 38.0,
       "look_at": [
         0.0,
-        1.1,
-        -0.0
+        -0.2,
+        2.1
       ]
     }
   ],
   "interactions": [
     {
+      "id": "INTERACT_STORE_DOOR",
+      "node": "INTERACT_STORE_DOOR",
+      "position": [
+        0.0,
+        1.0,
+        4.7
+      ],
+      "interaction_type": "door"
+    },
+    {
       "id": "INTERACT_COUNTER",
       "node": "INTERACT_COUNTER",
       "position": [
-        3.0,
+        3.2,
         1.0,
-        2.52
+        2.4
       ],
       "interaction_type": "counter"
     },
     {
-      "id": "INTERACT_STORE_DOOR",
-      "node": "INTERACT_STORE_DOOR",
+      "id": "INTERACT_REFRIGERATOR",
+      "node": "INTERACT_REFRIGERATOR",
       "position": [
-        3.0,
-        1.0,
-        2.52
+        0.0,
+        1.2,
+        -3.9
       ],
-      "interaction_type": "store_door"
+      "interaction_type": "refrigerator"
     }
   ],
   "cutaway_groups": [],
   "collision_groups": [
     {
-      "id": "COLLIDER_FLOOR",
-      "node": "COLLIDER_FLOOR",
+      "id": "COLLIDER_STORE_FLOOR",
+      "node": "COLLIDER_STORE_FLOOR",
       "position": [
-        0.0,
-        -0.18,
-        -0.0
+        0,
+        -0.22,
+        0
       ],
       "collision_role": "solid"
     }
   ],
   "tags": [
     "hero",
-    "business",
-    "interior_shell"
+    "production",
+    "connected",
+    "environment_art_pass"
   ],
-  "glb_sha256": "ca4d577de6af76a81078c8068f2deae1e4cd6dc5e0533d8a9942a06f07236ac0",
-  "preview": "assets/reference/world-modules/neighborhood_convenience_store_a.png",
+  "material_library": "assets/source/blender/world/kits/infinite_backlot_material_library.blend",
+  "detail_kit": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+  "dressing_preset": "lived_in",
   "provenance": {
-    "author": "Infinite Backlot procedural Blender authoring",
-    "license": "repository license",
-    "generator": "tools/blender/build_world_kits.py"
-  }
+    "author": "Infinite Backlot project",
+    "license": "project-owned",
+    "generator": "tools/blender/build_neighborhood_art_pass.py",
+    "baseline": "b09db1c3e1b3eb2bbbb8d58e1a089d45c670b43d"
+  },
+  "asset_sha256": "19dbfd4e4abf4deef3b7d4a8aa2b61e7b990fbba0fb31c15f924ff0253452787",
+  "glb_sha256": "19dbfd4e4abf4deef3b7d4a8aa2b61e7b990fbba0fb31c15f924ff0253452787"
 }

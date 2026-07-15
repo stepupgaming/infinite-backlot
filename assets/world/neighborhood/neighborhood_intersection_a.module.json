@@ -4,17 +4,18 @@
   "asset": "assets/world/neighborhood/neighborhood_intersection_a.glb",
   "source_blend": "assets/source/blender/world/neighborhood/neighborhood_intersection_a.blend",
   "category": "intersection",
-  "version": 1,
+  "version": 2,
+  "quality_tier": "hero",
   "bounds": {
     "min": [
-      -11.0,
-      0,
-      -11.0
+      -17.5,
+      -0.5,
+      -17.5
     ],
     "max": [
-      11.0,
-      0.4,
-      11.0
+      20,
+      9,
+      12.5
     ]
   },
   "sockets": [
@@ -22,168 +23,144 @@
       "id": "ROAD_EAST",
       "node": "ROAD_EAST",
       "position": [
-        11.0,
+        17.0,
         0.0,
         -0.0
       ],
       "socket_type": "ROAD",
-      "clearance_m": 1.5
-    },
-    {
-      "id": "ROAD_NORTH",
-      "node": "ROAD_NORTH",
-      "position": [
-        0.0,
-        0.0,
-        -11.0
-      ],
-      "socket_type": "ROAD",
-      "clearance_m": 1.5
-    },
-    {
-      "id": "ROAD_SOUTH",
-      "node": "ROAD_SOUTH",
-      "position": [
-        0.0,
-        0.0,
-        11.0
-      ],
-      "socket_type": "ROAD",
-      "clearance_m": 1.5
+      "clearance_m": 4
     },
     {
       "id": "ROAD_WEST",
       "node": "ROAD_WEST",
       "position": [
-        -11.0,
+        -17.0,
         0.0,
         -0.0
       ],
       "socket_type": "ROAD",
-      "clearance_m": 1.5
+      "clearance_m": 4
+    },
+    {
+      "id": "ROAD_NORTH",
+      "node": "ROAD_NORTH",
+      "position": [
+        10.0,
+        0.0,
+        -12.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4
+    },
+    {
+      "id": "ROAD_SOUTH",
+      "node": "ROAD_SOUTH",
+      "position": [
+        10.0,
+        0.0,
+        12.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4
     }
   ],
   "staging_marks": [
     {
-      "id": "MARK_CONVERSATION_A",
-      "node": "MARK_CONVERSATION_A",
+      "id": "MARK_CROSSWALK",
+      "node": "MARK_CROSSWALK",
       "position": [
-        -1.0,
+        10.0,
         0.0,
         -0.0
       ],
-      "radius_m": 0.55
+      "radius_m": 0.65
     },
     {
-      "id": "MARK_CONVERSATION_B",
-      "node": "MARK_CONVERSATION_B",
+      "id": "MARK_STREET_CORNER_TWO_SHOT_A",
+      "node": "MARK_STREET_CORNER_TWO_SHOT_A",
       "position": [
-        1.0,
-        0.0,
-        -0.0
+        2.2,
+        0.2,
+        -5.6
       ],
-      "radius_m": 0.55
+      "radius_m": 0.65
     },
     {
-      "id": "MARK_ENTRY",
-      "node": "MARK_ENTRY",
+      "id": "MARK_STREET_CORNER_TWO_SHOT_B",
+      "node": "MARK_STREET_CORNER_TWO_SHOT_B",
       "position": [
-        0.0,
-        0.0,
-        6.6
+        3.5,
+        0.2,
+        -5.6
       ],
-      "radius_m": 0.55
+      "radius_m": 0.65
     },
     {
-      "id": "MARK_EXIT",
-      "node": "MARK_EXIT",
+      "id": "MARK_BUS_STOP_BENCH",
+      "node": "MARK_BUS_STOP_BENCH",
       "position": [
-        0.0,
-        0.0,
-        -6.6
+        -8.0,
+        0.2,
+        -5.5
       ],
-      "radius_m": 0.55
-    },
-    {
-      "id": "MARK_OBSERVER",
-      "node": "MARK_OBSERVER",
-      "position": [
-        0.0,
-        0.0,
-        -1.6
-      ],
-      "radius_m": 0.55
-    },
-    {
-      "id": "MARK_REVEAL_CLEAR",
-      "node": "MARK_REVEAL_CLEAR",
-      "position": [
-        1.8,
-        0.0,
-        -1.5
-      ],
-      "radius_m": 0.55
+      "radius_m": 0.65
     }
   ],
   "camera_anchors": [
     {
-      "id": "CAM_INTERACTION",
-      "node": "CAM_INTERACTION",
+      "id": "CAM_STREET_BUILDING_ESTABLISH",
+      "node": "CAM_STREET_BUILDING_ESTABLISH",
       "position": [
-        7.48,
+        16.0,
+        5.8,
+        15.0
+      ],
+      "look_at": [
+        -2,
+        7,
+        3
+      ]
+    },
+    {
+      "id": "CAM_SIDEWALK_TWO_SHOT",
+      "node": "CAM_SIDEWALK_TWO_SHOT",
+      "position": [
+        -2.0,
         1.65,
-        9.68
+        -2.5
       ],
-      "lens_mm": 62.0,
       "look_at": [
-        6.16,
-        1.0,
-        4.4
+        2.8,
+        5.6,
+        1.15
       ]
     },
     {
-      "id": "CAM_REVEAL",
-      "node": "CAM_REVEAL",
+      "id": "CAM_CROSSWALK_LOW",
+      "node": "CAM_CROSSWALK_LOW",
       "position": [
-        -13.64,
-        2.1,
-        12.1
+        14.0,
+        1.4,
+        7.0
       ],
-      "lens_mm": 45.0,
       "look_at": [
+        9.0,
         0.0,
-        1.2,
-        -6.16
+        0.8
       ]
     },
     {
-      "id": "CAM_TWO_SHOT",
-      "node": "CAM_TWO_SHOT",
+      "id": "CAM_HERO_PREVIEW",
+      "node": "CAM_HERO_PREVIEW",
       "position": [
-        -9.9,
-        1.7,
-        13.64
+        16.0,
+        6.0,
+        16.0
       ],
-      "lens_mm": 52.0,
       "look_at": [
-        0.0,
-        1.15,
-        -0.0
-      ]
-    },
-    {
-      "id": "CAM_WIDE",
-      "node": "CAM_WIDE",
-      "position": [
-        15.84,
-        2.5,
-        17.16
-      ],
-      "lens_mm": 38.0,
-      "look_at": [
-        0.0,
-        1.1,
-        -0.0
+        -2.0,
+        4.0,
+        1.2
       ]
     }
   ],
@@ -191,25 +168,31 @@
   "cutaway_groups": [],
   "collision_groups": [
     {
-      "id": "COLLIDER_FLOOR",
-      "node": "COLLIDER_FLOOR",
+      "id": "COLLIDER_STREET",
+      "node": "COLLIDER_STREET",
       "position": [
-        0.0,
-        -0.18,
-        -0.0
+        0,
+        -0.25,
+        0
       ],
       "collision_role": "solid"
     }
   ],
   "tags": [
-    "intersection",
-    "crosswalk"
+    "hero",
+    "production",
+    "connected",
+    "environment_art_pass"
   ],
-  "glb_sha256": "0140461c2a2b60de48c7e466320f6298e4315171804bd6802a6518ace54eda8a",
-  "preview": "assets/reference/world-modules/neighborhood_intersection_a.png",
+  "material_library": "assets/source/blender/world/kits/infinite_backlot_material_library.blend",
+  "detail_kit": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+  "dressing_preset": "lived_in",
   "provenance": {
-    "author": "Infinite Backlot procedural Blender authoring",
-    "license": "repository license",
-    "generator": "tools/blender/build_world_kits.py"
-  }
+    "author": "Infinite Backlot project",
+    "license": "project-owned",
+    "generator": "tools/blender/build_neighborhood_art_pass.py",
+    "baseline": "b09db1c3e1b3eb2bbbb8d58e1a089d45c670b43d"
+  },
+  "asset_sha256": "7cd0dea8e9f9a4dd075bc5b72dc3ad8feb26381fd3c616f690ea3dff7e9b4e1e",
+  "glb_sha256": "7cd0dea8e9f9a4dd075bc5b72dc3ad8feb26381fd3c616f690ea3dff7e9b4e1e"
 }

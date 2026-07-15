@@ -1,0 +1,1018 @@
+{
+  "schema_version": 1,
+  "module_id": "infinite_backlot_block",
+  "asset": "assets/world/neighborhood/infinite_backlot_block.glb",
+  "source_blend": "assets/source/blender/world/neighborhood/infinite_backlot_block.blend",
+  "category": "connected_neighborhood",
+  "version": 1,
+  "quality_tier": "hero",
+  "bounds": {
+    "min": [
+      -30,
+      -0.5,
+      -36
+    ],
+    "max": [
+      41,
+      21,
+      15
+    ]
+  },
+  "sockets": [
+    {
+      "id": "ROAD_EAST",
+      "node": "ROAD_EAST",
+      "position": [
+        22.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4
+    },
+    {
+      "id": "ROAD_WEST",
+      "node": "ROAD_WEST",
+      "position": [
+        -12.0,
+        0.0,
+        -0.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4
+    },
+    {
+      "id": "ROAD_NORTH",
+      "node": "ROAD_NORTH",
+      "position": [
+        15.0,
+        0.0,
+        -12.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4
+    },
+    {
+      "id": "ROAD_SOUTH",
+      "node": "ROAD_SOUTH",
+      "position": [
+        15.0,
+        0.0,
+        12.0
+      ],
+      "socket_type": "ROAD",
+      "clearance_m": 4
+    },
+    {
+      "id": "SOCKET_EXTERIOR",
+      "node": "SOCKET_EXTERIOR",
+      "position": [
+        0.0,
+        0.0,
+        -4.7
+      ],
+      "socket_type": "EXTERIOR",
+      "clearance_m": 2.2
+    },
+    {
+      "id": "SOCKET_ROOFTOP",
+      "node": "SOCKET_ROOFTOP",
+      "position": [
+        0.0,
+        13.0,
+        -13.0
+      ],
+      "socket_type": "ROOFTOP",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SOCKET_HALL_SOUTH",
+      "node": "SOCKET_HALL_SOUTH",
+      "position": [
+        0.0,
+        0.0,
+        -7.0
+      ],
+      "socket_type": "HALL",
+      "clearance_m": 2
+    },
+    {
+      "id": "SOCKET_ELEVATOR",
+      "node": "SOCKET_ELEVATOR",
+      "position": [
+        0.0,
+        0.0,
+        -15.0
+      ],
+      "socket_type": "ELEVATOR",
+      "clearance_m": 2
+    },
+    {
+      "id": "SOCKET_HALL_NORTH",
+      "node": "SOCKET_HALL_NORTH",
+      "position": [
+        0.0,
+        0.0,
+        -15.0
+      ],
+      "socket_type": "HALL",
+      "clearance_m": 2
+    },
+    {
+      "id": "ALLEY_NORTH",
+      "node": "ALLEY_NORTH",
+      "position": [
+        -10.0,
+        0.0,
+        -22.0
+      ],
+      "socket_type": "ALLEY",
+      "clearance_m": 2
+    },
+    {
+      "id": "ALLEY_SOUTH",
+      "node": "ALLEY_SOUTH",
+      "position": [
+        -10.0,
+        0.0,
+        -7.0
+      ],
+      "socket_type": "ALLEY",
+      "clearance_m": 2
+    },
+    {
+      "id": "LOT_SERVICE",
+      "node": "LOT_SERVICE",
+      "position": [
+        -7.0,
+        0.0,
+        -9.3
+      ],
+      "socket_type": "SERVICE",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "SIDEWALK_SOUTH",
+      "node": "SIDEWALK_SOUTH",
+      "position": [
+        17.0,
+        0.0,
+        -5.1
+      ],
+      "socket_type": "SIDEWALK",
+      "clearance_m": 2
+    },
+    {
+      "id": "BUILDING_ENTRANCE_MAIN",
+      "node": "BUILDING_ENTRANCE_MAIN",
+      "position": [
+        17.0,
+        0.0,
+        -6.5
+      ],
+      "socket_type": "ENTRANCE",
+      "clearance_m": 1.5
+    },
+    {
+      "id": "ALLEY_NORTH_MASTER_2",
+      "node": "ALLEY_NORTH_MASTER_2",
+      "position": [
+        11.5,
+        0.0,
+        -15.5
+      ],
+      "socket_type": "ALLEY",
+      "clearance_m": 1.5
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_CROSSWALK",
+      "node": "MARK_CROSSWALK",
+      "position": [
+        15.0,
+        0.0,
+        -0.0
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_STREET_CORNER_TWO_SHOT_A",
+      "node": "MARK_STREET_CORNER_TWO_SHOT_A",
+      "position": [
+        7.2,
+        0.2,
+        -5.6
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_STREET_CORNER_TWO_SHOT_B",
+      "node": "MARK_STREET_CORNER_TWO_SHOT_B",
+      "position": [
+        8.5,
+        0.2,
+        -5.6
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_BUS_STOP_BENCH",
+      "node": "MARK_BUS_STOP_BENCH",
+      "position": [
+        -3.0,
+        0.2,
+        -5.5
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_BUILDING_ENTRY",
+      "node": "MARK_BUILDING_ENTRY",
+      "position": [
+        0.0,
+        0.0,
+        -5.1
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_EXTERIOR_WAIT",
+      "node": "MARK_EXTERIOR_WAIT",
+      "position": [
+        3.0,
+        0.0,
+        -5.1
+      ],
+      "radius_m": 0.6
+    },
+    {
+      "id": "MARK_EXTERIOR_TWO_SHOT_A",
+      "node": "MARK_EXTERIOR_TWO_SHOT_A",
+      "position": [
+        -1.2,
+        0.0,
+        -4.3
+      ],
+      "radius_m": 0.6
+    },
+    {
+      "id": "MARK_EXTERIOR_TWO_SHOT_B",
+      "node": "MARK_EXTERIOR_TWO_SHOT_B",
+      "position": [
+        1.2,
+        0.0,
+        -4.3
+      ],
+      "radius_m": 0.6
+    },
+    {
+      "id": "MARK_LOBBY_MAILBOX",
+      "node": "MARK_LOBBY_MAILBOX",
+      "position": [
+        -2.7,
+        0.0,
+        -11.4
+      ],
+      "radius_m": 0.58
+    },
+    {
+      "id": "MARK_FRONT_DESK",
+      "node": "MARK_FRONT_DESK",
+      "position": [
+        1.45,
+        0.0,
+        -13.1
+      ],
+      "radius_m": 0.58
+    },
+    {
+      "id": "MARK_LOBBY_CONVERSATION_A",
+      "node": "MARK_LOBBY_CONVERSATION_A",
+      "position": [
+        -0.7,
+        0.0,
+        -10.75
+      ],
+      "radius_m": 0.58
+    },
+    {
+      "id": "MARK_LOBBY_CONVERSATION_B",
+      "node": "MARK_LOBBY_CONVERSATION_B",
+      "position": [
+        0.7,
+        0.0,
+        -10.75
+      ],
+      "radius_m": 0.58
+    },
+    {
+      "id": "MARK_ELEVATOR_WAIT",
+      "node": "MARK_ELEVATOR_WAIT",
+      "position": [
+        0.0,
+        0.0,
+        -13.7
+      ],
+      "radius_m": 0.58
+    },
+    {
+      "id": "MARK_HALL_CONVERSATION_A",
+      "node": "MARK_HALL_CONVERSATION_A",
+      "position": [
+        -0.7,
+        0.0,
+        -18.5
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_HALL_CONVERSATION_B",
+      "node": "MARK_HALL_CONVERSATION_B",
+      "position": [
+        0.7,
+        0.0,
+        -18.5
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ALLEY_DUMPSTER",
+      "node": "MARK_ALLEY_DUMPSTER",
+      "position": [
+        -10.3,
+        0.0,
+        -18.2
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ALLEY_DOOR",
+      "node": "MARK_ALLEY_DOOR",
+      "position": [
+        -8.2,
+        0.0,
+        -9.3
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ALLEY_TWO_SHOT_A",
+      "node": "MARK_ALLEY_TWO_SHOT_A",
+      "position": [
+        -10.7,
+        0.0,
+        -13.9
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_ALLEY_TWO_SHOT_B",
+      "node": "MARK_ALLEY_TWO_SHOT_B",
+      "position": [
+        -9.3,
+        0.0,
+        -13.9
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_STORE_ENTRANCE",
+      "node": "MARK_STORE_ENTRANCE",
+      "position": [
+        17.0,
+        0.0,
+        -5.5
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_STORE_COUNTER_CUSTOMER",
+      "node": "MARK_STORE_COUNTER_CUSTOMER",
+      "position": [
+        19.75,
+        0.0,
+        -8.7
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_STORE_COUNTER_CLERK",
+      "node": "MARK_STORE_COUNTER_CLERK",
+      "position": [
+        21.1,
+        0.0,
+        -9.5
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_AISLE_END",
+      "node": "MARK_AISLE_END",
+      "position": [
+        17.0,
+        0.0,
+        -9.5
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_STORE_WINDOW",
+      "node": "MARK_STORE_WINDOW",
+      "position": [
+        13.6,
+        0.0,
+        -7.3
+      ],
+      "radius_m": 0.55
+    },
+    {
+      "id": "MARK_MASTER_STREET",
+      "node": "MARK_MASTER_STREET",
+      "position": [
+        5.0,
+        0.0,
+        -4.8
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_MASTER_ENTRANCE",
+      "node": "MARK_MASTER_ENTRANCE",
+      "position": [
+        0.0,
+        0.0,
+        -5.5
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_MASTER_LOBBY",
+      "node": "MARK_MASTER_LOBBY",
+      "position": [
+        0.0,
+        0.0,
+        -11.0
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_MASTER_ELEVATOR",
+      "node": "MARK_MASTER_ELEVATOR",
+      "position": [
+        0.0,
+        0.0,
+        -14.0
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_MASTER_HALL",
+      "node": "MARK_MASTER_HALL",
+      "position": [
+        0.0,
+        0.0,
+        -18.5
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_MASTER_ALLEY",
+      "node": "MARK_MASTER_ALLEY",
+      "position": [
+        -10.0,
+        0.0,
+        -14.5
+      ],
+      "radius_m": 0.65
+    },
+    {
+      "id": "MARK_MASTER_STORE",
+      "node": "MARK_MASTER_STORE",
+      "position": [
+        17.0,
+        0.0,
+        -7.0
+      ],
+      "radius_m": 0.65
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_STREET_BUILDING_ESTABLISH",
+      "node": "CAM_STREET_BUILDING_ESTABLISH",
+      "position": [
+        21.0,
+        5.8,
+        15.0
+      ],
+      "look_at": [
+        3,
+        7,
+        3
+      ]
+    },
+    {
+      "id": "CAM_SIDEWALK_TWO_SHOT",
+      "node": "CAM_SIDEWALK_TWO_SHOT",
+      "position": [
+        3.0,
+        1.65,
+        -2.5
+      ],
+      "look_at": [
+        7.8,
+        5.6,
+        1.15
+      ]
+    },
+    {
+      "id": "CAM_CROSSWALK_LOW",
+      "node": "CAM_CROSSWALK_LOW",
+      "position": [
+        19.0,
+        1.4,
+        7.0
+      ],
+      "look_at": [
+        14.0,
+        0.0,
+        0.8
+      ]
+    },
+    {
+      "id": "CAM_STREET_BUILDING_ESTABLISH_MASTER_2",
+      "node": "CAM_STREET_BUILDING_ESTABLISH_MASTER_2",
+      "position": [
+        10.0,
+        6.4,
+        7.0
+      ],
+      "look_at": [
+        0,
+        7,
+        5
+      ]
+    },
+    {
+      "id": "CAM_ENTRANCE_LOW_WIDE",
+      "node": "CAM_ENTRANCE_LOW_WIDE",
+      "position": [
+        -5.2,
+        1.65,
+        0.3
+      ],
+      "look_at": [
+        0.0,
+        7.0,
+        2.2
+      ]
+    },
+    {
+      "id": "CAM_LOBBY_ENTRANCE_WIDE",
+      "node": "CAM_LOBBY_ENTRANCE_WIDE",
+      "position": [
+        0.0,
+        1.7,
+        -8.0
+      ],
+      "look_at": [
+        0.0,
+        11.8,
+        1.35
+      ]
+    },
+    {
+      "id": "CAM_ELEVATOR_FROM_MAILBOXES",
+      "node": "CAM_ELEVATOR_FROM_MAILBOXES",
+      "position": [
+        -3.05,
+        1.65,
+        -11.25
+      ],
+      "look_at": [
+        0.0,
+        14.6,
+        1.35
+      ]
+    },
+    {
+      "id": "CAM_MAILBOX_TWO_SHOT",
+      "node": "CAM_MAILBOX_TWO_SHOT",
+      "position": [
+        1.8,
+        1.65,
+        -9.5
+      ],
+      "look_at": [
+        -2.7,
+        11.25,
+        1.15
+      ]
+    },
+    {
+      "id": "CAM_HALL_LONG",
+      "node": "CAM_HALL_LONG",
+      "position": [
+        0.0,
+        1.65,
+        -15.5
+      ],
+      "look_at": [
+        0.0,
+        20.7,
+        1.15
+      ]
+    },
+    {
+      "id": "CAM_ALLEY_LONG_LENS",
+      "node": "CAM_ALLEY_LONG_LENS",
+      "position": [
+        -10.0,
+        1.7,
+        -8.0
+      ],
+      "look_at": [
+        -10.0,
+        17.7,
+        1.1
+      ]
+    },
+    {
+      "id": "CAM_ALLEY_DUMPSTER_TWO_SHOT",
+      "node": "CAM_ALLEY_DUMPSTER_TWO_SHOT",
+      "position": [
+        -8.1,
+        1.65,
+        -15.7
+      ],
+      "look_at": [
+        -10.8,
+        18.2,
+        1.1
+      ]
+    },
+    {
+      "id": "CAM_ALLEY_SERVICE_DOOR",
+      "node": "CAM_ALLEY_SERVICE_DOOR",
+      "position": [
+        -11.8,
+        1.65,
+        -11.5
+      ],
+      "look_at": [
+        -7.3,
+        9.4,
+        1.1
+      ]
+    },
+    {
+      "id": "CAM_STORE_COUNTER_TWO_SHOT",
+      "node": "CAM_STORE_COUNTER_TWO_SHOT",
+      "position": [
+        17.8,
+        1.65,
+        -9.2
+      ],
+      "look_at": [
+        20.35,
+        9.0,
+        1.25
+      ]
+    },
+    {
+      "id": "CAM_STORE_AISLE_LONG",
+      "node": "CAM_STORE_AISLE_LONG",
+      "position": [
+        12.7,
+        1.65,
+        -8.8
+      ],
+      "look_at": [
+        17.0,
+        11.4,
+        1.2
+      ]
+    },
+    {
+      "id": "CAM_STORE_FRONT_WIDE",
+      "node": "CAM_STORE_FRONT_WIDE",
+      "position": [
+        17.0,
+        2.0,
+        -3.7
+      ],
+      "look_at": [
+        17.0,
+        11.0,
+        1.5
+      ]
+    },
+    {
+      "id": "CAM_MASTER_STREET_WIDE",
+      "node": "CAM_MASTER_STREET_WIDE",
+      "position": [
+        17.0,
+        6.0,
+        14.0
+      ],
+      "look_at": [
+        0.0,
+        9.0,
+        4.8
+      ]
+    },
+    {
+      "id": "CAM_MASTER_ENTRANCE",
+      "node": "CAM_MASTER_ENTRANCE",
+      "position": [
+        -4.0,
+        1.7,
+        -2.0
+      ],
+      "look_at": [
+        0.0,
+        7.0,
+        1.8
+      ]
+    },
+    {
+      "id": "CAM_MASTER_LOBBY",
+      "node": "CAM_MASTER_LOBBY",
+      "position": [
+        0.0,
+        1.7,
+        -8.0
+      ],
+      "look_at": [
+        0.0,
+        13.0,
+        1.3
+      ]
+    },
+    {
+      "id": "CAM_MASTER_ALLEY",
+      "node": "CAM_MASTER_ALLEY",
+      "position": [
+        -10.0,
+        1.7,
+        -7.8
+      ],
+      "look_at": [
+        -10.0,
+        16.0,
+        1.1
+      ]
+    },
+    {
+      "id": "CAM_MASTER_STORE",
+      "node": "CAM_MASTER_STORE",
+      "position": [
+        17.0,
+        1.7,
+        -4.2
+      ],
+      "look_at": [
+        17.0,
+        11.0,
+        1.3
+      ]
+    },
+    {
+      "id": "CAM_WORLD_ART_TOUR",
+      "node": "CAM_WORLD_ART_TOUR",
+      "position": [
+        19.0,
+        2.1,
+        13.0
+      ],
+      "look_at": [
+        5.0,
+        7.0,
+        2.5
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_MAIN_DOOR",
+      "node": "INTERACT_MAIN_DOOR",
+      "position": [
+        0.0,
+        1.0,
+        -6.4
+      ],
+      "interaction_type": "door"
+    },
+    {
+      "id": "INTERACT_DIRECTORY",
+      "node": "INTERACT_DIRECTORY",
+      "position": [
+        3.55,
+        1.2,
+        -10.45
+      ],
+      "interaction_type": "directory"
+    },
+    {
+      "id": "INTERACT_MAILBOXES",
+      "node": "INTERACT_MAILBOXES",
+      "position": [
+        -3.5,
+        1.1,
+        -11.4
+      ],
+      "interaction_type": "mailboxes"
+    },
+    {
+      "id": "INTERACT_ELEVATOR_PANEL",
+      "node": "INTERACT_ELEVATOR_PANEL",
+      "position": [
+        1.65,
+        1.15,
+        -14.56
+      ],
+      "interaction_type": "panel"
+    },
+    {
+      "id": "INTERACT_DUMPSTER",
+      "node": "INTERACT_DUMPSTER",
+      "position": [
+        -11.5,
+        1.0,
+        -18.3
+      ],
+      "interaction_type": "dumpster"
+    },
+    {
+      "id": "INTERACT_SERVICE_DOOR",
+      "node": "INTERACT_SERVICE_DOOR",
+      "position": [
+        -7.25,
+        1.0,
+        -9.3
+      ],
+      "interaction_type": "door"
+    },
+    {
+      "id": "INTERACT_STORE_DOOR",
+      "node": "INTERACT_STORE_DOOR",
+      "position": [
+        17.0,
+        1.0,
+        -6.3
+      ],
+      "interaction_type": "door"
+    },
+    {
+      "id": "INTERACT_COUNTER",
+      "node": "INTERACT_COUNTER",
+      "position": [
+        20.2,
+        1.0,
+        -8.6
+      ],
+      "interaction_type": "counter"
+    },
+    {
+      "id": "INTERACT_REFRIGERATOR",
+      "node": "INTERACT_REFRIGERATOR",
+      "position": [
+        17.0,
+        1.2,
+        -14.9
+      ],
+      "interaction_type": "refrigerator"
+    },
+    {
+      "id": "TRANSITION_STREET_TO_ENTRANCE",
+      "node": "TRANSITION_STREET_TO_ENTRANCE",
+      "position": [
+        0.0,
+        0.0,
+        -5.6
+      ],
+      "interaction_type": "transition"
+    },
+    {
+      "id": "TRANSITION_ENTRANCE_TO_LOBBY",
+      "node": "TRANSITION_ENTRANCE_TO_LOBBY",
+      "position": [
+        0.0,
+        0.0,
+        -7.5
+      ],
+      "interaction_type": "transition"
+    },
+    {
+      "id": "TRANSITION_LOBBY_TO_ELEVATOR",
+      "node": "TRANSITION_LOBBY_TO_ELEVATOR",
+      "position": [
+        0.0,
+        0.0,
+        -14.5
+      ],
+      "interaction_type": "transition"
+    },
+    {
+      "id": "TRANSITION_HALL_TO_ALLEY",
+      "node": "TRANSITION_HALL_TO_ALLEY",
+      "position": [
+        -7.15,
+        0.0,
+        -18.5
+      ],
+      "interaction_type": "transition"
+    },
+    {
+      "id": "TRANSITION_SIDEWALK_TO_STORE",
+      "node": "TRANSITION_SIDEWALK_TO_STORE",
+      "position": [
+        17.0,
+        0.0,
+        -6.5
+      ],
+      "interaction_type": "transition"
+    }
+  ],
+  "cutaway_groups": [],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_STREET",
+      "node": "COLLIDER_STREET",
+      "position": [
+        5.0,
+        -0.25,
+        -0.0
+      ],
+      "collision_role": "solid"
+    },
+    {
+      "id": "COLLIDER_EXTERIOR_FOOTPRINT",
+      "node": "COLLIDER_EXTERIOR_FOOTPRINT",
+      "position": [
+        0.0,
+        -0.2,
+        -13.0
+      ],
+      "collision_role": "solid"
+    },
+    {
+      "id": "COLLIDER_LOBBY_FLOOR",
+      "node": "COLLIDER_LOBBY_FLOOR",
+      "position": [
+        0.0,
+        -0.2,
+        -11.0
+      ],
+      "collision_role": "solid"
+    },
+    {
+      "id": "COLLIDER_ALLEY_FLOOR",
+      "node": "COLLIDER_ALLEY_FLOOR",
+      "position": [
+        -10.0,
+        -0.23,
+        -14.5
+      ],
+      "collision_role": "solid"
+    },
+    {
+      "id": "COLLIDER_STORE_FLOOR",
+      "node": "COLLIDER_STORE_FLOOR",
+      "position": [
+        17.0,
+        -0.22,
+        -11.0
+      ],
+      "collision_role": "solid"
+    },
+    {
+      "id": "COLLIDER_MASTER_ACTOR_GROUND",
+      "node": "COLLIDER_MASTER_ACTOR_GROUND",
+      "position": [
+        5.0,
+        -0.3,
+        -8.0
+      ],
+      "collision_role": "solid"
+    }
+  ],
+  "tags": [
+    "hero",
+    "production",
+    "connected",
+    "environment_art_pass"
+  ],
+  "material_library": "assets/source/blender/world/kits/infinite_backlot_material_library.blend",
+  "detail_kit": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+  "dressing_preset": "lived_in",
+  "provenance": {
+    "author": "Infinite Backlot project",
+    "license": "project-owned",
+    "generator": "tools/blender/build_neighborhood_art_pass.py",
+    "baseline": "b09db1c3e1b3eb2bbbb8d58e1a089d45c670b43d"
+  },
+  "asset_sha256": "5ceef53420272264f385c567c5adc3fa582421cbeaab05a64fdda28ae5501190",
+  "glb_sha256": "5ceef53420272264f385c567c5adc3fa582421cbeaab05a64fdda28ae5501190"
+}

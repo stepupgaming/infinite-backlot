@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "library_id": "infinite_backlot_detail_kit_v2",
+  "assets": [
+    {
+      "asset_id": "window_single",
+      "collection": "KIT_WINDOW_SINGLE",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_CONCRETE",
+        "MAT_GLASS",
+        "MAT_METAL_DARK",
+        "MAT_PAINT_CREAM"
+      ]
+    },
+    {
+      "asset_id": "window_double",
+      "collection": "KIT_WINDOW_DOUBLE",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_CONCRETE",
+        "MAT_GLASS",
+        "MAT_METAL_DARK",
+        "MAT_PAINT_CREAM"
+      ]
+    },
+    {
+      "asset_id": "entry_door",
+      "collection": "KIT_ENTRY_DOOR",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_BRASS",
+        "MAT_GLASS",
+        "MAT_PAINT_CREAM",
+        "MAT_WOOD"
+      ]
+    },
+    {
+      "asset_id": "service_door",
+      "collection": "KIT_SERVICE_DOOR",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_BRASS",
+        "MAT_METAL_DARK",
+        "MAT_PAINT_CREAM"
+      ]
+    },
+    {
+      "asset_id": "canopy",
+      "collection": "KIT_CANOPY",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_BRASS",
+        "MAT_METAL_DARK",
+        "MAT_PAINT_TEAL"
+      ]
+    },
+    {
+      "asset_id": "awning",
+      "collection": "KIT_AWNING",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_PAINT_BURGUNDY",
+        "MAT_PAINT_CREAM"
+      ]
+    },
+    {
+      "asset_id": "fire_escape",
+      "collection": "KIT_FIRE_ESCAPE",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_METAL_DARK"
+      ]
+    },
+    {
+      "asset_id": "ac_unit",
+      "collection": "KIT_AC_UNIT",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_METAL_DARK",
+        "MAT_METAL_GALVANIZED",
+        "MAT_RUBBER"
+      ]
+    },
+    {
+      "asset_id": "drainpipe",
+      "collection": "KIT_DRAINPIPE",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_METAL_DARK",
+        "MAT_METAL_GALVANIZED"
+      ]
+    },
+    {
+      "asset_id": "utility_box",
+      "collection": "KIT_UTILITY_BOX",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_BRASS",
+        "MAT_METAL_GALVANIZED",
+        "MAT_PAINT_TEAL"
+      ]
+    },
+    {
+      "asset_id": "wall_light",
+      "collection": "KIT_WALL_LIGHT",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_EMISSIVE_WARM",
+        "MAT_METAL_DARK",
+        "MAT_PAINT_TEAL"
+      ]
+    },
+    {
+      "asset_id": "railing",
+      "collection": "KIT_RAILING",
+      "category": "architectural",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_METAL_DARK"
+      ]
+    },
+    {
+      "asset_id": "street_lamp",
+      "collection": "KIT_STREET_LAMP",
+      "category": "street",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_EMISSIVE_WARM",
+        "MAT_METAL_DARK"
+      ]
+    },
+    {
+      "asset_id": "hydrant",
+      "collection": "KIT_HYDRANT",
+      "category": "street",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_BRASS",
+        "MAT_METAL_DARK",
+        "MAT_PLASTIC_RED"
+      ]
+    },
+    {
+      "asset_id": "dumpster",
+      "collection": "KIT_DUMPSTER",
+      "category": "street",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_METAL_DARK",
+        "MAT_PAINT_TEAL",
+        "MAT_RUBBER"
+      ]
+    },
+    {
+      "asset_id": "bench",
+      "collection": "KIT_BENCH",
+      "category": "street",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_METAL_DARK",
+        "MAT_WOOD"
+      ]
+    },
+    {
+      "asset_id": "planter",
+      "collection": "KIT_PLANTER",
+      "category": "street",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_GREEN",
+        "MAT_PAINT_BURGUNDY",
+        "MAT_WOOD"
+      ]
+    },
+    {
+      "asset_id": "storm_drain",
+      "collection": "KIT_STORM_DRAIN",
+      "category": "street",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_METAL_DARK",
+        "MAT_METAL_GALVANIZED"
+      ]
+    },
+    {
+      "asset_id": "traffic_cone",
+      "collection": "KIT_TRAFFIC_CONE",
+      "category": "street",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_PAPER",
+        "MAT_PLASTIC_RED",
+        "MAT_RUBBER"
+      ]
+    },
+    {
+      "asset_id": "bike_rack",
+      "collection": "KIT_BIKE_RACK",
+      "category": "street",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_METAL_DARK",
+        "MAT_METAL_GALVANIZED"
+      ]
+    },
+    {
+      "asset_id": "mailbox_bank",
+      "collection": "KIT_MAILBOX_BANK",
+      "category": "interior",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_BRASS",
+        "MAT_METAL_DARK",
+        "MAT_METAL_GALVANIZED",
+        "MAT_PAINT_TEAL"
+      ]
+    },
+    {
+      "asset_id": "notice_board",
+      "collection": "KIT_NOTICE_BOARD",
+      "category": "interior",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_PAINT_TEAL",
+        "MAT_PAPER",
+        "MAT_WOOD"
+      ]
+    },
+    {
+      "asset_id": "lobby_chair",
+      "collection": "KIT_LOBBY_CHAIR",
+      "category": "interior",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_METAL_DARK",
+        "MAT_PAINT_BURGUNDY"
+      ]
+    },
+    {
+      "asset_id": "store_shelf_stocked",
+      "collection": "KIT_STORE_SHELF_STOCKED",
+      "category": "interior",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_CARDBOARD",
+        "MAT_METAL_DARK",
+        "MAT_PAINT_TEAL",
+        "MAT_PAPER",
+        "MAT_PLASTIC_BLUE",
+        "MAT_PLASTIC_RED"
+      ]
+    },
+    {
+      "asset_id": "store_fridge_stocked",
+      "collection": "KIT_STORE_FRIDGE_STOCKED",
+      "category": "interior",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_EMISSIVE_CYAN",
+        "MAT_GLASS",
+        "MAT_METAL_DARK",
+        "MAT_METAL_GALVANIZED",
+        "MAT_PAPER",
+        "MAT_PLASTIC_BLUE",
+        "MAT_PLASTIC_RED"
+      ]
+    },
+    {
+      "asset_id": "checkout_counter",
+      "collection": "KIT_CHECKOUT_COUNTER",
+      "category": "interior",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_BRASS",
+        "MAT_EMISSIVE_CYAN",
+        "MAT_METAL_DARK",
+        "MAT_WOOD"
+      ]
+    },
+    {
+      "asset_id": "delivery_box",
+      "collection": "KIT_DELIVERY_BOX",
+      "category": "interior",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_CARDBOARD",
+        "MAT_PAPER"
+      ]
+    },
+    {
+      "asset_id": "breaker_panel",
+      "collection": "KIT_BREAKER_PANEL",
+      "category": "interior",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_METAL_GALVANIZED",
+        "MAT_PAINT_TEAL",
+        "MAT_RUBBER"
+      ]
+    },
+    {
+      "asset_id": "potted_plant",
+      "collection": "KIT_POTTED_PLANT",
+      "category": "interior",
+      "quality_tier": "production",
+      "source": "assets/source/blender/world/kits/infinite_backlot_detail_kit.blend",
+      "materials": [
+        "MAT_GREEN",
+        "MAT_PAINT_BURGUNDY",
+        "MAT_WOOD"
+      ]
+    }
+  ]
+}

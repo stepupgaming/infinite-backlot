@@ -1,0 +1,51 @@
+{
+  "baseline_commit": "b09db1c3e1b3eb2bbbb8d58e1a089d45c670b43d",
+  "review_basis": "Existing Blender sources, GLBs, registry metadata, module thumbnails, and the b09db1c contact sheet.",
+  "classes": {
+    "structural_blockout": [
+      "apartment_hall_corner_a",
+      "apartment_hall_t_junction_a",
+      "apartment_doorway_section_a",
+      "apartment_stairwell_a",
+      "apartment_service_loading_a",
+      "neighborhood_street_corner_a",
+      "neighborhood_parking_loading_a"
+    ],
+    "usable_background": [
+      "apartment_hall_straight_a",
+      "apartment_hall_short_a",
+      "apartment_rooftop_a",
+      "neighborhood_street_straight_a",
+      "neighborhood_bus_stop_a",
+      "neighborhood_courtyard_a",
+      "neighborhood_storefront_row_a",
+      "neighborhood_skyline_facades_a"
+    ],
+    "needs_art_pass": [
+      "apartment_main_entrance_a",
+      "apartment_elevator_lobby_a",
+      "apartment_laundry_a",
+      "apartment_maintenance_a",
+      "apartment_boiler_room_a",
+      "apartment_interior_recurring_a",
+      "neighborhood_pocket_park_a",
+      "neighborhood_laundromat_a",
+      "neighborhood_diner_a"
+    ],
+    "hero_location_candidate": [
+      "apartment_exterior_a",
+      "apartment_lobby_a",
+      "neighborhood_intersection_a",
+      "neighborhood_convenience_store_a",
+      "neighborhood_alley_a"
+    ]
+  },
+  "dominant_baseline_findings": [
+    "Flat façades had little recess depth, trim hierarchy, or roof silhouette.",
+    "Repeated single-color cubes made unrelated locations feel generated from one formula.",
+    "Interior modules lacked recurring focal props, human-scale clutter, and camera layers.",
+    "Street modules proved topology but did not read as inhabited curb-to-storefront places.",
+    "The module-tour layout read as a showroom rather than one continuous neighborhood."
+  ],
+  "decision": "Retain all 29 module IDs and semantic metadata. Upgrade five candidates in place, classify the remainder honestly, and add one connected hero master rather than increase shallow module count."
+}

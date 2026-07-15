@@ -6,6 +6,7 @@
 /runtimes/**/*.pyc
 **/__pycache__/
 **/*.pyc
+**/*.blend1
 /runtimes/**/outputs
 /assets/animations/library/**/raw
 /runtimes/llama.cpp/*.dll
