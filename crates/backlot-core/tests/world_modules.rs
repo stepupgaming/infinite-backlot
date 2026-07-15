@@ -10,7 +10,7 @@ fn project_root() -> PathBuf {
 fn committed_registry_loads_without_custom_rust_scene_code() {
     let registry = WorldModuleRegistry::load(project_root().join("assets/world/registry.json"))
         .expect("load committed module registry");
-    assert_eq!(registry.modules.len(), 34);
+    assert_eq!(registry.module_count, 39);
     registry
         .validate(&project_root())
         .expect("valid module registry");

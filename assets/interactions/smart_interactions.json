@@ -1,0 +1,1144 @@
+{
+  "schema_version": 1,
+  "interactions": [
+    {
+      "semantic_id": "SMART_PANEL_PRESS",
+      "compatible_object_types": [
+        "wall_panel",
+        "elevator_panel",
+        "intercom"
+      ],
+      "approach_regions": [
+        "interior",
+        "interaction-only"
+      ],
+      "staging_slots": [
+        {
+          "id": "APPROACH",
+          "root_alignment": [
+            0,
+            0,
+            -0.7
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "CONTACT",
+          "root_alignment": [
+            0,
+            0,
+            -0.45
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "proxy_keyframes": [
+        {
+          "normalized_time": 0.0,
+          "pose_label": "approach"
+        },
+        {
+          "normalized_time": 0.25,
+          "pose_label": "reach"
+        },
+        {
+          "normalized_time": 0.5,
+          "pose_label": "press"
+        },
+        {
+          "normalized_time": 0.75,
+          "pose_label": "retract"
+        },
+        {
+          "normalized_time": 1.0,
+          "pose_label": "recover"
+        }
+      ],
+      "end_effector_constraints": [
+        {
+          "joint": "RightHand",
+          "normalized_time": 0.62,
+          "target_slot": "CONTACT",
+          "position_offset": [
+            0,
+            1.15,
+            0.42
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": true
+        },
+        {
+          "joint": "LeftFoot",
+          "normalized_time": 0.58,
+          "target_slot": "CONTACT",
+          "position_offset": [
+            -0.16,
+            0.03,
+            -0.05
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": false
+        }
+      ],
+      "contact_events": [
+        {
+          "id": "PANEL_CONTACT",
+          "normalized_start": 0.58,
+          "normalized_end": 0.68,
+          "joint": "RightHand",
+          "target_slot": "CONTACT"
+        }
+      ],
+      "runtime_state_transitions": [
+        "panel.pressed=true"
+      ],
+      "exit_state": "balanced_stand",
+      "camera_safe_zones": [
+        "CAMERA_CORRIDOR_PRIMARY",
+        "REVEAL_CLEAR_ZONE"
+      ],
+      "required_clearance": 0.48,
+      "supported_motion_backends": [
+        "kimodo",
+        "motionbricks_future",
+        "ardy_future"
+      ],
+      "tags": [
+        "panel",
+        "button",
+        "precise-contact"
+      ]
+    },
+    {
+      "semantic_id": "SMART_DOOR_OPEN",
+      "compatible_object_types": [
+        "hinged_door",
+        "sliding_door",
+        "store_door"
+      ],
+      "approach_regions": [
+        "doorway",
+        "interior",
+        "exterior"
+      ],
+      "staging_slots": [
+        {
+          "id": "APPROACH",
+          "root_alignment": [
+            0,
+            0,
+            -0.9
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "HANDLE",
+          "root_alignment": [
+            0,
+            0,
+            -0.55
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "proxy_keyframes": [
+        {
+          "normalized_time": 0.0,
+          "pose_label": "approach"
+        },
+        {
+          "normalized_time": 0.25,
+          "pose_label": "reach_handle"
+        },
+        {
+          "normalized_time": 0.5,
+          "pose_label": "pull_or_slide"
+        },
+        {
+          "normalized_time": 0.75,
+          "pose_label": "clear_swing"
+        },
+        {
+          "normalized_time": 1.0,
+          "pose_label": "recover"
+        }
+      ],
+      "end_effector_constraints": [
+        {
+          "joint": "RightHand",
+          "normalized_time": 0.42,
+          "target_slot": "HANDLE",
+          "position_offset": [
+            0.35,
+            1.05,
+            0.25
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": true
+        }
+      ],
+      "contact_events": [
+        {
+          "id": "HANDLE_CONTACT",
+          "normalized_start": 0.37,
+          "normalized_end": 0.58,
+          "joint": "RightHand",
+          "target_slot": "HANDLE"
+        }
+      ],
+      "runtime_state_transitions": [
+        "door.open=true",
+        "portal.open=true"
+      ],
+      "exit_state": "doorway_ready",
+      "camera_safe_zones": [
+        "CAMERA_CORRIDOR_PRIMARY",
+        "REVEAL_CLEAR_ZONE"
+      ],
+      "required_clearance": 0.62,
+      "supported_motion_backends": [
+        "kimodo",
+        "motionbricks_future",
+        "ardy_future"
+      ],
+      "tags": [
+        "door",
+        "portal",
+        "clearance"
+      ]
+    },
+    {
+      "semantic_id": "SMART_DOOR_WALK_THROUGH",
+      "compatible_object_types": [
+        "hinged_door",
+        "sliding_door",
+        "open_portal"
+      ],
+      "approach_regions": [
+        "doorway",
+        "narrow-passage"
+      ],
+      "staging_slots": [
+        {
+          "id": "ENTRY",
+          "root_alignment": [
+            0,
+            0,
+            -0.8
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "EXIT",
+          "root_alignment": [
+            0,
+            0,
+            0.8
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "proxy_keyframes": [
+        {
+          "normalized_time": 0.0,
+          "pose_label": "align"
+        },
+        {
+          "normalized_time": 0.3333333333333333,
+          "pose_label": "lead_step"
+        },
+        {
+          "normalized_time": 0.6666666666666666,
+          "pose_label": "cross_threshold"
+        },
+        {
+          "normalized_time": 1.0,
+          "pose_label": "clear_door"
+        }
+      ],
+      "end_effector_constraints": [
+        {
+          "joint": "LeftFoot",
+          "normalized_time": 0.48,
+          "target_slot": "EXIT",
+          "position_offset": [
+            -0.15,
+            0.03,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": false
+        },
+        {
+          "joint": "RightFoot",
+          "normalized_time": 0.62,
+          "target_slot": "EXIT",
+          "position_offset": [
+            0.15,
+            0.03,
+            0.18
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": false
+        }
+      ],
+      "contact_events": [],
+      "runtime_state_transitions": [
+        "portal.occupied=true",
+        "portal.occupied=false"
+      ],
+      "exit_state": "locomotion_continue",
+      "camera_safe_zones": [
+        "CAMERA_CORRIDOR_PRIMARY",
+        "REVEAL_CLEAR_ZONE"
+      ],
+      "required_clearance": 0.44,
+      "supported_motion_backends": [
+        "kimodo",
+        "motionbricks_future",
+        "ardy_future"
+      ],
+      "tags": [
+        "doorway",
+        "locomotion",
+        "portal"
+      ]
+    },
+    {
+      "semantic_id": "SMART_SIT",
+      "compatible_object_types": [
+        "bench",
+        "chair",
+        "stool"
+      ],
+      "approach_regions": [
+        "public",
+        "interior",
+        "interaction-only"
+      ],
+      "staging_slots": [
+        {
+          "id": "APPROACH",
+          "root_alignment": [
+            0,
+            0,
+            -0.8
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "SEAT",
+          "root_alignment": [
+            0,
+            0,
+            0
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "proxy_keyframes": [
+        {
+          "normalized_time": 0.0,
+          "pose_label": "approach"
+        },
+        {
+          "normalized_time": 0.3333333333333333,
+          "pose_label": "turn"
+        },
+        {
+          "normalized_time": 0.6666666666666666,
+          "pose_label": "lower_pelvis"
+        },
+        {
+          "normalized_time": 1.0,
+          "pose_label": "settle_seated"
+        }
+      ],
+      "end_effector_constraints": [
+        {
+          "joint": "LeftFoot",
+          "normalized_time": 0.78,
+          "target_slot": "SEAT",
+          "position_offset": [
+            -0.18,
+            0.03,
+            0.32
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": true
+        },
+        {
+          "joint": "RightFoot",
+          "normalized_time": 0.78,
+          "target_slot": "SEAT",
+          "position_offset": [
+            0.18,
+            0.03,
+            0.32
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": true
+        }
+      ],
+      "contact_events": [
+        {
+          "id": "SEAT_CONTACT",
+          "normalized_start": 0.72,
+          "normalized_end": 0.98,
+          "joint": "Pelvis",
+          "target_slot": "SEAT"
+        }
+      ],
+      "runtime_state_transitions": [
+        "seat.occupied=true"
+      ],
+      "exit_state": "seated",
+      "camera_safe_zones": [
+        "CAMERA_CORRIDOR_PRIMARY",
+        "REVEAL_CLEAR_ZONE"
+      ],
+      "required_clearance": 0.72,
+      "supported_motion_backends": [
+        "kimodo",
+        "motionbricks_future",
+        "ardy_future"
+      ],
+      "tags": [
+        "seat",
+        "full-body-keyframe"
+      ]
+    },
+    {
+      "semantic_id": "SMART_STAND",
+      "compatible_object_types": [
+        "bench",
+        "chair",
+        "stool"
+      ],
+      "approach_regions": [
+        "public",
+        "interior",
+        "interaction-only"
+      ],
+      "staging_slots": [
+        {
+          "id": "SEAT",
+          "root_alignment": [
+            0,
+            0,
+            0
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "EXIT",
+          "root_alignment": [
+            0,
+            0,
+            -0.8
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "proxy_keyframes": [
+        {
+          "normalized_time": 0.0,
+          "pose_label": "seated"
+        },
+        {
+          "normalized_time": 0.3333333333333333,
+          "pose_label": "lean_forward"
+        },
+        {
+          "normalized_time": 0.6666666666666666,
+          "pose_label": "rise"
+        },
+        {
+          "normalized_time": 1.0,
+          "pose_label": "stabilize"
+        }
+      ],
+      "end_effector_constraints": [
+        {
+          "joint": "LeftFoot",
+          "normalized_time": 0.28,
+          "target_slot": "EXIT",
+          "position_offset": [
+            -0.18,
+            0.03,
+            0.2
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": true
+        },
+        {
+          "joint": "RightFoot",
+          "normalized_time": 0.28,
+          "target_slot": "EXIT",
+          "position_offset": [
+            0.18,
+            0.03,
+            0.2
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": true
+        }
+      ],
+      "contact_events": [
+        {
+          "id": "SEAT_RELEASE",
+          "normalized_start": 0.0,
+          "normalized_end": 0.3,
+          "joint": "Pelvis",
+          "target_slot": "SEAT"
+        }
+      ],
+      "runtime_state_transitions": [
+        "seat.occupied=false"
+      ],
+      "exit_state": "balanced_stand",
+      "camera_safe_zones": [
+        "CAMERA_CORRIDOR_PRIMARY",
+        "REVEAL_CLEAR_ZONE"
+      ],
+      "required_clearance": 0.72,
+      "supported_motion_backends": [
+        "kimodo",
+        "motionbricks_future",
+        "ardy_future"
+      ],
+      "tags": [
+        "seat",
+        "stand"
+      ]
+    },
+    {
+      "semantic_id": "SMART_PICKUP_SMALL",
+      "compatible_object_types": [
+        "counter_object",
+        "package",
+        "cup",
+        "small_prop"
+      ],
+      "approach_regions": [
+        "counter",
+        "interior",
+        "interaction-only"
+      ],
+      "staging_slots": [
+        {
+          "id": "APPROACH",
+          "root_alignment": [
+            0,
+            0,
+            -0.65
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "OBJECT",
+          "root_alignment": [
+            0,
+            0,
+            0
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "proxy_keyframes": [
+        {
+          "normalized_time": 0.0,
+          "pose_label": "approach"
+        },
+        {
+          "normalized_time": 0.25,
+          "pose_label": "reach"
+        },
+        {
+          "normalized_time": 0.5,
+          "pose_label": "grasp"
+        },
+        {
+          "normalized_time": 0.75,
+          "pose_label": "lift"
+        },
+        {
+          "normalized_time": 1.0,
+          "pose_label": "recover"
+        }
+      ],
+      "end_effector_constraints": [
+        {
+          "joint": "RightHand",
+          "normalized_time": 0.55,
+          "target_slot": "OBJECT",
+          "position_offset": [
+            0,
+            0.95,
+            0.05
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": true
+        }
+      ],
+      "contact_events": [
+        {
+          "id": "OBJECT_GRASP",
+          "normalized_start": 0.5,
+          "normalized_end": 0.68,
+          "joint": "RightHand",
+          "target_slot": "OBJECT"
+        }
+      ],
+      "runtime_state_transitions": [
+        "object.held_by=performer"
+      ],
+      "exit_state": "holding_small_object",
+      "camera_safe_zones": [
+        "CAMERA_CORRIDOR_PRIMARY",
+        "REVEAL_CLEAR_ZONE"
+      ],
+      "required_clearance": 0.52,
+      "supported_motion_backends": [
+        "kimodo",
+        "motionbricks_future",
+        "ardy_future"
+      ],
+      "tags": [
+        "pickup",
+        "counter",
+        "precise-contact"
+      ]
+    },
+    {
+      "semantic_id": "SMART_HANDOFF",
+      "compatible_object_types": [
+        "small_prop",
+        "package",
+        "cup"
+      ],
+      "approach_regions": [
+        "conversation",
+        "interior",
+        "public"
+      ],
+      "staging_slots": [
+        {
+          "id": "GIVER",
+          "root_alignment": [
+            0,
+            0,
+            -0.65
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "RECEIVER",
+          "root_alignment": [
+            0,
+            0,
+            0.65
+          ],
+          "facing": [
+            0,
+            0,
+            -1
+          ]
+        }
+      ],
+      "proxy_keyframes": [
+        {
+          "normalized_time": 0.0,
+          "pose_label": "present"
+        },
+        {
+          "normalized_time": 0.3333333333333333,
+          "pose_label": "hold_for_contact"
+        },
+        {
+          "normalized_time": 0.6666666666666666,
+          "pose_label": "release"
+        },
+        {
+          "normalized_time": 1.0,
+          "pose_label": "withdraw"
+        }
+      ],
+      "end_effector_constraints": [
+        {
+          "joint": "RightHand",
+          "normalized_time": 0.5,
+          "target_slot": "RECEIVER",
+          "position_offset": [
+            0,
+            1.05,
+            -0.35
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": true
+        }
+      ],
+      "contact_events": [
+        {
+          "id": "HANDOFF_CONTACT",
+          "normalized_start": 0.42,
+          "normalized_end": 0.62,
+          "joint": "RightHand",
+          "target_slot": "RECEIVER"
+        }
+      ],
+      "runtime_state_transitions": [
+        "object.held_by=receiver"
+      ],
+      "exit_state": "balanced_stand",
+      "camera_safe_zones": [
+        "CAMERA_CORRIDOR_PRIMARY",
+        "REVEAL_CLEAR_ZONE"
+      ],
+      "required_clearance": 0.78,
+      "supported_motion_backends": [
+        "kimodo",
+        "motionbricks_future",
+        "ardy_future"
+      ],
+      "tags": [
+        "handoff",
+        "two-actor",
+        "reservation"
+      ]
+    },
+    {
+      "semantic_id": "SMART_BUS_STOP_WAIT",
+      "compatible_object_types": [
+        "transit_shelter",
+        "bus_stop",
+        "public_notice"
+      ],
+      "approach_regions": [
+        "public",
+        "transit",
+        "interaction-only"
+      ],
+      "staging_slots": [
+        {
+          "id": "WAIT",
+          "root_alignment": [
+            0,
+            0,
+            0
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "STEP_ASIDE",
+          "root_alignment": [
+            0.8,
+            0,
+            0
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "proxy_keyframes": [
+        {
+          "normalized_time": 0.0,
+          "pose_label": "arrive"
+        },
+        {
+          "normalized_time": 0.3333333333333333,
+          "pose_label": "weight_shift"
+        },
+        {
+          "normalized_time": 0.6666666666666666,
+          "pose_label": "look_for_bus"
+        },
+        {
+          "normalized_time": 1.0,
+          "pose_label": "impatient_wait"
+        }
+      ],
+      "end_effector_constraints": [
+        {
+          "joint": "LeftFoot",
+          "normalized_time": 0.42,
+          "target_slot": "WAIT",
+          "position_offset": [
+            -0.16,
+            0.03,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": false
+        },
+        {
+          "joint": "RightFoot",
+          "normalized_time": 0.42,
+          "target_slot": "WAIT",
+          "position_offset": [
+            0.16,
+            0.03,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": false
+        }
+      ],
+      "contact_events": [],
+      "runtime_state_transitions": [
+        "wait_slot.occupied=true"
+      ],
+      "exit_state": "waiting",
+      "camera_safe_zones": [
+        "CAMERA_CORRIDOR_PRIMARY",
+        "REVEAL_CLEAR_ZONE"
+      ],
+      "required_clearance": 0.58,
+      "supported_motion_backends": [
+        "kimodo",
+        "motionbricks_future",
+        "ardy_future"
+      ],
+      "tags": [
+        "transit",
+        "idle",
+        "look"
+      ]
+    },
+    {
+      "semantic_id": "SMART_LOOK_PAST",
+      "compatible_object_types": [
+        "performer",
+        "column",
+        "doorway"
+      ],
+      "approach_regions": [
+        "conversation",
+        "public",
+        "interior"
+      ],
+      "staging_slots": [
+        {
+          "id": "BASE",
+          "root_alignment": [
+            0,
+            0,
+            0
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "LOOK_TARGET",
+          "root_alignment": [
+            0.7,
+            0,
+            0.5
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "proxy_keyframes": [
+        {
+          "normalized_time": 0.0,
+          "pose_label": "notice_occlusion"
+        },
+        {
+          "normalized_time": 0.3333333333333333,
+          "pose_label": "lean"
+        },
+        {
+          "normalized_time": 0.6666666666666666,
+          "pose_label": "look_past"
+        },
+        {
+          "normalized_time": 1.0,
+          "pose_label": "recover"
+        }
+      ],
+      "end_effector_constraints": [
+        {
+          "joint": "LeftFoot",
+          "normalized_time": 0.4,
+          "target_slot": "BASE",
+          "position_offset": [
+            -0.16,
+            0.03,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": false
+        }
+      ],
+      "contact_events": [],
+      "runtime_state_transitions": [],
+      "exit_state": "balanced_stand",
+      "camera_safe_zones": [
+        "CAMERA_CORRIDOR_PRIMARY",
+        "REVEAL_CLEAR_ZONE"
+      ],
+      "required_clearance": 0.55,
+      "supported_motion_backends": [
+        "kimodo",
+        "motionbricks_future",
+        "ardy_future"
+      ],
+      "tags": [
+        "occlusion",
+        "lean",
+        "look"
+      ]
+    },
+    {
+      "semantic_id": "SMART_STEP_ASIDE",
+      "compatible_object_types": [
+        "performer",
+        "portal",
+        "moving_cart"
+      ],
+      "approach_regions": [
+        "doorway",
+        "public",
+        "narrow-passage"
+      ],
+      "staging_slots": [
+        {
+          "id": "START",
+          "root_alignment": [
+            0,
+            0,
+            0
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "CLEAR",
+          "root_alignment": [
+            0.75,
+            0,
+            0
+          ],
+          "facing": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "proxy_keyframes": [
+        {
+          "normalized_time": 0.0,
+          "pose_label": "notice_conflict"
+        },
+        {
+          "normalized_time": 0.3333333333333333,
+          "pose_label": "side_step"
+        },
+        {
+          "normalized_time": 0.6666666666666666,
+          "pose_label": "hold_clear"
+        },
+        {
+          "normalized_time": 1.0,
+          "pose_label": "resume"
+        }
+      ],
+      "end_effector_constraints": [
+        {
+          "joint": "LeftFoot",
+          "normalized_time": 0.55,
+          "target_slot": "CLEAR",
+          "position_offset": [
+            -0.12,
+            0.03,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": false
+        },
+        {
+          "joint": "RightFoot",
+          "normalized_time": 0.72,
+          "target_slot": "CLEAR",
+          "position_offset": [
+            0.12,
+            0.03,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "strict": false
+        }
+      ],
+      "contact_events": [],
+      "runtime_state_transitions": [
+        "route_corridor.clear=true"
+      ],
+      "exit_state": "locomotion_continue",
+      "camera_safe_zones": [
+        "CAMERA_CORRIDOR_PRIMARY",
+        "REVEAL_CLEAR_ZONE"
+      ],
+      "required_clearance": 0.5,
+      "supported_motion_backends": [
+        "kimodo",
+        "motionbricks_future",
+        "ardy_future"
+      ],
+      "tags": [
+        "reservation",
+        "conflict-resolution",
+        "locomotion"
+      ]
+    }
+  ]
+}

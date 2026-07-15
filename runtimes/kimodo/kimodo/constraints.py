@@ -36,7 +36,13 @@ def _convert_constraint_local_rots_to_skeleton(local_rot_mats: Tensor, skeleton:
 
 
 def create_pairs(tensor_A: Tensor, tensor_B: Tensor) -> Tensor:
-    """Form all (a, b) pairs from two 1D tensors; output shape (len(A)*len(B), 2)."""
+    """Form all (a, b) pairs from two 1D tensors; output shape (len(A)*len(B), 2).
+
+    Constraint crops preserve CUDA frame indices but reconstruct end-effector joint
+    index tensors on CPU. Normalize the second tensor here so mixed constraints can
+    be used by the CUDA runtime after multi-prompt cropping.
+    """
+    tensor_B = tensor_B.to(device=tensor_A.device)
     pairs = torch.stack(
         (
             tensor_A[:, None].expand(-1, len(tensor_B)),

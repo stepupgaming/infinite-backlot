@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "request_id": "SOMA_PANEL_PRESS_MIXED_CONSTRAINTS",
+  "backend": "kimodo-soma-rp-v1.1",
+  "checkpoint": "F:\\Models\\Kimodo\\Kimodo-SOMA-RP-v1.1",
+  "device": "cuda:0",
+  "diffusion_steps": 12,
+  "candidate_count": 2,
+  "candidate_seeds": [
+    515151,
+    515152
+  ],
+  "selected_candidate": {
+    "index": 0,
+    "seed": 515151,
+    "npz": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\panel_candidate_00.npz",
+    "bvh": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\panel_candidate_00.bvh",
+    "motion_sidecar": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\panel_candidate_00.motion.json",
+    "evaluation": {
+      "valid": true,
+      "score": 1.938969,
+      "rejection_reasons": [],
+      "metrics": {
+        "root_path_deviation": 0.04304184019565582,
+        "hand_target_error": 0.16601890325546265,
+        "hand_orientation_error_deg": 11.745292663574219,
+        "foot_slide": 0.005683030825560196,
+        "floor_penetration": 0.0,
+        "body_obstacle_intersections": 0,
+        "duration_error": 0.0,
+        "arrival_heading_error_deg": 0.516620149549108,
+        "contact_timing_error": 0.17222250998020172,
+        "joint_limit_violations": 0
+      }
+    },
+    "selected": true
+  },
+  "rejected_candidates": [
+    {
+      "index": 1,
+      "seed": 515152,
+      "npz": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\panel_candidate_01.npz",
+      "bvh": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\panel_candidate_01.bvh",
+      "motion_sidecar": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\panel_candidate_01.motion.json",
+      "evaluation": {
+        "valid": true,
+        "score": 2.417142,
+        "rejection_reasons": [],
+        "metrics": {
+          "root_path_deviation": 0.04455225169658661,
+          "hand_target_error": 0.17120711505413055,
+          "hand_orientation_error_deg": 24.705472946166992,
+          "foot_slide": 0.007021013680415172,
+          "floor_penetration": 0.0,
+          "body_obstacle_intersections": 0,
+          "duration_error": 0.0,
+          "arrival_heading_error_deg": 1.1113554607404532,
+          "contact_timing_error": 0.17120711505413055,
+          "joint_limit_violations": 0
+        }
+      },
+      "selected": false
+    }
+  ],
+  "constraints_applied": {
+    "root": true,
+    "full_body": 1,
+    "end_effectors": 3,
+    "environment": 1,
+    "contacts": 1
+  },
+  "elapsed_ms": 9206
+}

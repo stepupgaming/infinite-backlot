@@ -1247,5 +1247,13 @@
     "baseline": "b09db1c3e1b3eb2bbbb8d58e1a089d45c670b43d"
   },
   "asset_sha256": "50ab888bcaf632072188d6105a21cfd39f41eab8aeb99fab52265414f304c018",
-  "glb_sha256": "50ab888bcaf632072188d6105a21cfd39f41eab8aeb99fab52265414f304c018"
+  "glb_sha256": "50ab888bcaf632072188d6105a21cfd39f41eab8aeb99fab52265414f304c018",
+  "navigation": {
+    "asset": "assets/world/navigation/connected_navigation.json",
+    "walkable_region_count": 8,
+    "portal_count": 5,
+    "collider_count": 28,
+    "floor_support_count": 8,
+    "interaction_volume_count": 4
+  }
 }

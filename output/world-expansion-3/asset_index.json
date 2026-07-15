@@ -1,0 +1,1044 @@
+{
+  "schema_version": 1,
+  "library_id": "infinite_backlot_asset_library_v3",
+  "asset_count": 48,
+  "material_count": 29,
+  "hdri_presets": [
+    {
+      "id": "IB3_HDRI_URBAN_ALLEY",
+      "source": "assets/source/polyhaven/urban_alley_01/urban_alley_01_1k.hdr",
+      "license": "CC0"
+    },
+    {
+      "id": "IB3_HDRI_INDUSTRIAL_SUNSET",
+      "source": "assets/source/polyhaven/industrial_sunset/industrial_sunset_1k.hdr",
+      "license": "CC0"
+    },
+    {
+      "id": "IB3_HDRI_ABANDONED_BAKERY",
+      "source": "assets/source/polyhaven/abandoned_bakery/abandoned_bakery_1k.hdr",
+      "license": "CC0"
+    }
+  ],
+  "runtime_asset": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+  "assets": [
+    {
+      "asset_id": "ARCH_CORNER_WINDOW",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_SHOP_ENTRANCE",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_EXTERIOR_STAIRS",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_FIRE_ESCAPE",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_ROOF_HVAC",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_VENT_UNIT",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_SERVICE_DOOR",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_ROLLING_SHUTTER",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_BALCONY",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_RAILING",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_CONDUIT_BUNDLE",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_DRAINPIPE",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_CANOPY",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "ARCH_LOADING_DOCK",
+      "category": "architecture",
+      "search_tags": [
+        "architecture",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "boundary_or_decoration",
+      "recommended_location_types": [
+        "architecture"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_TRANSIT_MAP",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_NEWSPAPER_BOX",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_PARKING_METER",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_UTILITY_CABINET",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_TRAFFIC_SIGNAL",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_SIGNPOST",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_TRASH_RECYCLING",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_BOLLARD_SET",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_PLANTER",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_TREE_GUARD",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_BIKE_RACK",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_DELIVERY_CART",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_FOLDING_BARRIER",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "STREET_WORK_ZONE",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_WASHER",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_DRYER_BANK",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_LAUNDRY_CART",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_FOLDING_TABLE",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_DINER_BOOTH",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_CAFE_TABLE",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_COUNTER_STOOL",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_STORE_SHELF",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_VENDING_MACHINE",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_MAGAZINE_RACK",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_MAILBOX_BANK",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_BUILDING_DIRECTORY",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "interior"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_WORKBENCH",
+      "category": "workshop",
+      "search_tags": [
+        "workshop",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "workshop"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_TOOL_WALL",
+      "category": "workshop",
+      "search_tags": [
+        "workshop",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "workshop"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "INT_LOCKER_BANK",
+      "category": "workshop",
+      "search_tags": [
+        "workshop",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "project_owned",
+      "license": "project_owned",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "workshop"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "PH_CASH_REGISTER_ADAPTED",
+      "category": "interior",
+      "search_tags": [
+        "interior",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "Poly Haven CC0:CashRegister_01",
+      "license": "CC0",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "odd_hours",
+        "diner"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "PH_PLASTIC_CRATE_ADAPTED",
+      "category": "containers",
+      "search_tags": [
+        "containers",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "Poly Haven CC0:plastic_crate_01",
+      "license": "CC0",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "store",
+        "workshop",
+        "alley"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "PH_TOOL_CHEST_ADAPTED",
+      "category": "workshop",
+      "search_tags": [
+        "workshop",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "Poly Haven CC0:metal_tool_chest",
+      "license": "CC0",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "workshop",
+        "basement"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "PH_TRANSIT_BENCH_ADAPTED",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "Poly Haven CC0:painted_wooden_bench",
+      "license": "CC0",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "transit",
+        "park"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    },
+    {
+      "asset_id": "PH_STREET_LAMP_ADAPTED",
+      "category": "street",
+      "search_tags": [
+        "street",
+        "infinite_backlot",
+        "adapted"
+      ],
+      "source": "Poly Haven CC0:street_lamp_01",
+      "license": "CC0",
+      "material_dependencies": [
+        "IB3 shared materials"
+      ],
+      "runtime_path": "assets/world/kits/infinite_backlot_asset_library_v3.glb",
+      "collider_status": "simple_box_recommended",
+      "navigation_relevance": "obstacle",
+      "recommended_location_types": [
+        "street",
+        "transit"
+      ],
+      "thumbnail": "assets/reference/world-expansion-3/asset_library.png"
+    }
+  ],
+  "polyhaven_intake": {
+    "asset_count": 13,
+    "manifest": "assets/world/kits/polyhaven_cc0_intake.provenance.json"
+  }
+}

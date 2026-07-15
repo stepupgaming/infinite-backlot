@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "performer": "SOMA77",
+  "segments": [
+    {
+      "id": "curved_root_path",
+      "label": "Curved root path",
+      "reel_start": 0.0,
+      "reel_end": 2.0,
+      "source_request": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+      "source_start": 0.0,
+      "source_end": 2.0
+    },
+    {
+      "id": "root_waypoints",
+      "label": "Sparse root waypoints",
+      "reel_start": 2.0,
+      "reel_end": 4.0,
+      "source_request": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+      "source_start": 2.0,
+      "source_end": 4.0
+    },
+    {
+      "id": "prompt_sequence",
+      "label": "Prompt sequence transition",
+      "reel_start": 4.0,
+      "reel_end": 5.4,
+      "source_request": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+      "source_start": 5.8,
+      "source_end": 7.2
+    },
+    {
+      "id": "full_body_keyframe",
+      "label": "Full-body keyframe in-betweening",
+      "reel_start": 5.4,
+      "reel_end": 6.733,
+      "source_request": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+      "source_start": 7.2,
+      "source_end": 8.5
+    },
+    {
+      "id": "hand_position",
+      "label": "Hand position constraint",
+      "reel_start": 6.733,
+      "reel_end": 7.067,
+      "source_request": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+      "source_start": 15.7,
+      "source_end": 16.0
+    },
+    {
+      "id": "hand_rotation",
+      "label": "Hand rotation constraint",
+      "reel_start": 7.067,
+      "reel_end": 7.467,
+      "source_request": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+      "source_start": 16.0,
+      "source_end": 16.4
+    },
+    {
+      "id": "foot_constraint",
+      "label": "Foot position + rotation",
+      "reel_start": 7.467,
+      "reel_end": 7.8,
+      "source_request": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+      "source_start": 17.6,
+      "source_end": 17.9
+    },
+    {
+      "id": "mixed_constraints",
+      "label": "Mixed root + hand + foot",
+      "reel_start": 7.8,
+      "reel_end": 7.933,
+      "source_request": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+      "source_start": 17.9,
+      "source_end": 18.0
+    },
+    {
+      "id": "panel_interaction",
+      "label": "Smart panel press",
+      "reel_start": 7.933,
+      "reel_end": 9.067,
+      "source_request": "SOMA_PANEL_PRESS_MIXED_CONSTRAINTS",
+      "source_start": 3.35,
+      "source_end": 4.45
+    },
+    {
+      "id": "door_interaction",
+      "label": "Smart door interaction",
+      "reel_start": 9.067,
+      "reel_end": 11.0,
+      "source_request": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+      "source_start": 14.6,
+      "source_end": 16.5
+    },
+    {
+      "id": "pickup_interaction",
+      "label": "Smart counter pickup",
+      "reel_start": 11.0,
+      "reel_end": 12.2,
+      "source_request": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+      "source_start": 16.8,
+      "source_end": 18.0
+    },
+    {
+      "id": "candidate_selection",
+      "label": "Candidate scoring and selection",
+      "reel_start": 12.2,
+      "reel_end": 14.0,
+      "selected_seed": 424243
+    }
+  ]
+}

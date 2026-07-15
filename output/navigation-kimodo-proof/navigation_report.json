@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "routes_requested": 1,
+  "routes_resolved": 1,
+  "routes_failed": 0,
+  "static_collision_intersections": 0,
+  "closed_portal_violations": 0,
+  "unsupported_floor_samples": 0,
+  "clearance_failures": 0,
+  "actor_route_conflicts": 0,
+  "destination_occupancy_failures": 0,
+  "kimodo_root_corridor_violations": 0,
+  "interaction_contact_failures": 0,
+  "walkable_regions": 8,
+  "portals": 5,
+  "colliders": 28,
+  "floor_supports": 8,
+  "raw_route_points": 17,
+  "smoothed_route_points": 300,
+  "root_waypoints": 58,
+  "portal_sequence": [
+    "NAV_PORTAL_LOBBY_TO_ENTRANCE",
+    "NAV_PORTAL_BUILDING_ENTRANCE",
+    "NAV_PORTAL_TRANSIT_POCKET",
+    "NAV_PORTAL_ODD_HOURS_ENTRY",
+    "NAV_PORTAL_STORE_TO_AISLES"
+  ],
+  "reservation_resolution": "delayed_after_mara; reserved; camera_corridor_preserved",
+  "status": "passed"
+}

@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "module_id": "location_odd_hours_v3",
+  "asset": "assets/world/locations/location_odd_hours_v3.glb",
+  "source_blend": "assets/source/blender/world/locations/location_odd_hours_v3.blend",
+  "category": "recurring_location",
+  "version": 1,
+  "quality_tier": "hero",
+  "walkable_regions": [
+    {
+      "id": "NAV_REGION_LOCATION_ODD_HOURS_V3",
+      "polygon": [
+        [
+          -4.65,
+          -4.15
+        ],
+        [
+          4.65,
+          -4.15
+        ],
+        [
+          4.65,
+          4.15
+        ],
+        [
+          -4.65,
+          4.15
+        ]
+      ],
+      "height": 0,
+      "surface_type": "interior",
+      "actor_clearance": 0.34
+    }
+  ],
+  "portals": [
+    {
+      "id": "NAV_PORTAL_ODD_HOURS_V3",
+      "position": [
+        0,
+        0.0,
+        -4.4
+      ],
+      "width": 1.5,
+      "regions": [
+        "inside",
+        "outside"
+      ],
+      "runtime_open": true,
+      "control_entity": "DOOR_ODD_HOURS_V3"
+    }
+  ],
+  "colliders": [
+    {
+      "id": "COLLIDER_COUNTER",
+      "shape": "box",
+      "center": [
+        2.7,
+        0.7,
+        2.2
+      ],
+      "half_extents": [
+        1.4,
+        0.7,
+        0.7
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_SHELF_A",
+      "shape": "box",
+      "center": [
+        -2,
+        0.8,
+        0
+      ],
+      "half_extents": [
+        0.8,
+        0.8,
+        1.5
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_SHELF_B",
+      "shape": "box",
+      "center": [
+        0.2,
+        0.8,
+        0
+      ],
+      "half_extents": [
+        0.8,
+        0.8,
+        1.5
+      ],
+      "role": "static"
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_REGISTER",
+      "position": [
+        2.6,
+        1,
+        2.2
+      ],
+      "interaction_type": "counter"
+    },
+    {
+      "id": "INTERACT_PICKUP",
+      "position": [
+        1.8,
+        1,
+        1.5
+      ],
+      "interaction_type": "pickup"
+    },
+    {
+      "id": "INTERACT_STORE_DOOR",
+      "position": [
+        0,
+        1,
+        -4.2
+      ],
+      "interaction_type": "door"
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_COUNTER_CUSTOMER",
+      "position": [
+        1.4,
+        0,
+        1.3
+      ]
+    },
+    {
+      "id": "MARK_AISLE",
+      "position": [
+        1.4,
+        0,
+        -0.5
+      ]
+    },
+    {
+      "id": "MARK_LOCATION_ODD_HOURS_V3_ENTRY",
+      "position": [
+        0,
+        0,
+        -3.5
+      ]
+    },
+    {
+      "id": "MARK_LOCATION_ODD_HOURS_V3_CAMERA_SAFE",
+      "position": [
+        0,
+        0,
+        3.5
+      ]
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_LOCATION_ODD_HOURS_V3",
+      "position": [
+        9,
+        -12,
+        7
+      ],
+      "look_at": [
+        0,
+        0,
+        1.2
+      ]
+    }
+  ],
+  "cutaway_groups": [
+    "CUTAWAY_FRONT"
+  ],
+  "runtime_doors": [
+    "DOOR_ODD_HOURS_V3"
+  ],
+  "provenance": {
+    "license": "project-owned adaptation with Poly Haven CC0 sources",
+    "source": "Infinite Backlot v3 world expansion",
+    "polyhaven_cc0_assets": [
+      "CashRegister_01",
+      "plastic_crate_01"
+    ],
+    "manifest": "assets/world/kits/polyhaven_cc0_intake.provenance.json",
+    "author": "Infinite Backlot project"
+  },
+  "preview": "assets/reference/world-expansion-3/hero_previews/location_odd_hours_v3.png",
+  "glb_sha256": "bc77318d08b9c091a4d522faadc5ec78ff383021cf70cc7d84427e3e60858d9d"
+}

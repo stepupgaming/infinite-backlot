@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "module_id": "location_apartment_lobby_v3",
+  "asset": "assets/world/locations/location_apartment_lobby_v3.glb",
+  "source_blend": "assets/source/blender/world/locations/location_apartment_lobby_v3.blend",
+  "category": "recurring_location",
+  "version": 1,
+  "quality_tier": "hero",
+  "walkable_regions": [
+    {
+      "id": "NAV_REGION_LOCATION_APARTMENT_LOBBY_V3",
+      "polygon": [
+        [
+          -4.15,
+          -3.65
+        ],
+        [
+          4.15,
+          -3.65
+        ],
+        [
+          4.15,
+          3.65
+        ],
+        [
+          -4.15,
+          3.65
+        ]
+      ],
+      "height": 0,
+      "surface_type": "interior",
+      "actor_clearance": 0.34
+    }
+  ],
+  "portals": [
+    {
+      "id": "NAV_PORTAL_LOBBY_V3",
+      "position": [
+        0,
+        0.0,
+        -3.9
+      ],
+      "width": 1.5,
+      "regions": [
+        "inside",
+        "outside"
+      ],
+      "runtime_open": true,
+      "control_entity": "DOOR_LOBBY_V3"
+    },
+    {
+      "id": "NAV_PORTAL_ELEVATOR_V3",
+      "position": [
+        0,
+        0.0,
+        3.8
+      ],
+      "width": 1.5,
+      "regions": [
+        "inside",
+        "outside"
+      ],
+      "runtime_open": true,
+      "control_entity": "DOOR_ELEVATOR_V3"
+    }
+  ],
+  "colliders": [
+    {
+      "id": "COLLIDER_MAILBOX",
+      "shape": "box",
+      "center": [
+        -3.8,
+        1,
+        2.6
+      ],
+      "half_extents": [
+        0.3,
+        1,
+        1.2
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_BENCH",
+      "shape": "box",
+      "center": [
+        -2.4,
+        0.5,
+        1.8
+      ],
+      "half_extents": [
+        1.2,
+        0.5,
+        0.45
+      ],
+      "role": "static"
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_LOBBY_PANEL",
+      "position": [
+        1.4,
+        1.1,
+        3.2
+      ],
+      "interaction_type": "panel"
+    },
+    {
+      "id": "INTERACT_LOBBY_BENCH",
+      "position": [
+        -2.4,
+        0.7,
+        1.8
+      ],
+      "interaction_type": "sit"
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_LOBBY_WAIT",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "MARK_LOBBY_PANEL",
+      "position": [
+        0.8,
+        0,
+        2.8
+      ]
+    },
+    {
+      "id": "MARK_LOCATION_APARTMENT_LOBBY_V3_ENTRY",
+      "position": [
+        0,
+        0,
+        -3.0
+      ]
+    },
+    {
+      "id": "MARK_LOCATION_APARTMENT_LOBBY_V3_CAMERA_SAFE",
+      "position": [
+        0,
+        0,
+        3.0
+      ]
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_LOCATION_APARTMENT_LOBBY_V3",
+      "position": [
+        8,
+        -11,
+        6
+      ],
+      "look_at": [
+        0,
+        0.5,
+        1.1
+      ]
+    }
+  ],
+  "cutaway_groups": [
+    "CUTAWAY_FRONT"
+  ],
+  "runtime_doors": [
+    "DOOR_LOBBY_V3",
+    "DOOR_ELEVATOR_V3"
+  ],
+  "provenance": {
+    "license": "project-owned adaptation with Poly Haven CC0 sources",
+    "source": "Infinite Backlot v3 world expansion",
+    "polyhaven_cc0_assets": [
+      "painted_wooden_bench"
+    ],
+    "manifest": "assets/world/kits/polyhaven_cc0_intake.provenance.json",
+    "author": "Infinite Backlot project"
+  },
+  "preview": "assets/reference/world-expansion-3/hero_previews/location_apartment_lobby_v3.png",
+  "glb_sha256": "d4c9f7e6070eec60d89462dbe9dbd856d316a23b12eb5d112b5b28ea4f50fd9d"
+}

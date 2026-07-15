@@ -11,6 +11,7 @@ pub mod config;
 pub mod director;
 pub mod error;
 pub mod motion;
+pub mod navigation;
 pub mod package;
 pub mod protocol;
 pub mod render;

@@ -1,0 +1,64 @@
+[
+  {
+    "request_id": "MARA_COLLISION_SAFE_LOBBY_TRANSIT_ODD_HOURS",
+    "success": true,
+    "manifest": "C:\\Projects\\bevy-infinite\\output\\navigation-kimodo-proof\\candidates\\kimodo_response_manifest.json",
+    "candidate_scores": "C:\\Projects\\bevy-infinite\\output\\navigation-kimodo-proof\\candidates\\candidate_scores.json",
+    "selected_candidate": {
+      "index": 1,
+      "seed": 424243,
+      "npz": "C:\\Projects\\bevy-infinite\\output\\navigation-kimodo-proof\\candidates\\navigation_candidate_01.npz",
+      "bvh": "C:\\Projects\\bevy-infinite\\output\\navigation-kimodo-proof\\candidates\\navigation_candidate_01.bvh",
+      "motion_sidecar": "C:\\Projects\\bevy-infinite\\output\\navigation-kimodo-proof\\candidates\\navigation_candidate_01.motion.json",
+      "evaluation": {
+        "valid": true,
+        "score": 2.482208,
+        "rejection_reasons": [],
+        "metrics": {
+          "root_path_deviation": 0.11361543834209442,
+          "hand_target_error": 0.15781453251838684,
+          "hand_orientation_error_deg": 16.622873306274414,
+          "foot_slide": 0.021332332429697693,
+          "floor_penetration": 0.0,
+          "body_obstacle_intersections": 0,
+          "duration_error": 0.0,
+          "arrival_heading_error_deg": 6.621164957754363,
+          "contact_timing_error": 0.15781453251838684,
+          "joint_limit_violations": 0
+        }
+      },
+      "selected": true
+    }
+  },
+  {
+    "request_id": "SOMA_PANEL_PRESS_MIXED_CONSTRAINTS",
+    "success": true,
+    "manifest": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\kimodo_response_manifest.json",
+    "candidate_scores": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\candidate_scores.json",
+    "selected_candidate": {
+      "index": 0,
+      "seed": 515151,
+      "npz": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\panel_candidate_00.npz",
+      "bvh": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\panel_candidate_00.bvh",
+      "motion_sidecar": "C:\\Projects\\bevy-infinite\\output\\kimodo-control-showcase\\panel_candidates\\panel_candidate_00.motion.json",
+      "evaluation": {
+        "valid": true,
+        "score": 1.938969,
+        "rejection_reasons": [],
+        "metrics": {
+          "root_path_deviation": 0.04304184019565582,
+          "hand_target_error": 0.16601890325546265,
+          "hand_orientation_error_deg": 11.745292663574219,
+          "foot_slide": 0.005683030825560196,
+          "floor_penetration": 0.0,
+          "body_obstacle_intersections": 0,
+          "duration_error": 0.0,
+          "arrival_heading_error_deg": 0.516620149549108,
+          "contact_timing_error": 0.17222250998020172,
+          "joint_limit_violations": 0
+        }
+      },
+      "selected": true
+    }
+  }
+]

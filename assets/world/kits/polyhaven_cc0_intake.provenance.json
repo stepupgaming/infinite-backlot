@@ -1,0 +1,673 @@
+{
+  "schema_version": 1,
+  "source": "Poly Haven official API",
+  "license": "CC0 1.0 Universal",
+  "assets": [
+    {
+      "asset_id": "CashRegister_01",
+      "name": "Cash Register 01",
+      "asset_type": "models",
+      "source": "https://polyhaven.com/a/CashRegister_01",
+      "api": "https://api.polyhaven.com/files/CashRegister_01",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "appliances",
+        "props"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/CashRegister_01/CashRegister_01_1k.gltf",
+          "bytes": 6300,
+          "md5": "8fdef843898a54d6638f140b9737873b",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/CashRegister_01/CashRegister_01_1k.gltf"
+        },
+        {
+          "path": "assets/source/polyhaven/CashRegister_01/textures/CashRegister_01_arm_1k.jpg",
+          "bytes": 207527,
+          "md5": "8f3266ec573baa42e166bf8f21062539",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/CashRegister_01/CashRegister_01_arm_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/CashRegister_01/textures/CashRegister_01_nor_gl_1k.jpg",
+          "bytes": 146745,
+          "md5": "c45f9c81b08964a27f62e20b142a4fd9",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/CashRegister_01/CashRegister_01_nor_gl_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/CashRegister_01/textures/CashRegister_01_diff_1k.jpg",
+          "bytes": 133109,
+          "md5": "bfa598c754195bfd8e639f169c58a379",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/CashRegister_01/CashRegister_01_diff_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/CashRegister_01/textures/CashRegister_01_glass_arm_1k.jpg",
+          "bytes": 72642,
+          "md5": "daf5fe84e6ef58508d6527088248609c",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/CashRegister_01/CashRegister_01_glass_arm_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/CashRegister_01/CashRegister_01.bin",
+          "bytes": 356396,
+          "md5": "49c3cfeaf3b53d89cadab7875ffbd28a",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/CashRegister_01/CashRegister_01.bin"
+        },
+        {
+          "path": "assets/source/polyhaven/CashRegister_01/textures/CashRegister_01_glass_nor_gl_1k.jpg",
+          "bytes": 17077,
+          "md5": "6f835dd387298bbd5094706384e88a9e",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/CashRegister_01/CashRegister_01_glass_nor_gl_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/CashRegister_01/textures/CashRegister_01_glass_diff_1k.jpg",
+          "bytes": 99676,
+          "md5": "1bf914670750e0a77cb21a84e0109807",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/CashRegister_01/CashRegister_01_glass_diff_1k.jpg"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "plastic_crate_01",
+      "name": "Plastic Crate 01",
+      "asset_type": "models",
+      "source": "https://polyhaven.com/a/plastic_crate_01",
+      "api": "https://api.polyhaven.com/files/plastic_crate_01",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "collection: project_lighthouse",
+        "props",
+        "containers"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/plastic_crate_01/plastic_crate_01_1k.gltf",
+          "bytes": 2793,
+          "md5": "af44f97630da80a640c5e6d70e72c56b",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/plastic_crate_01/plastic_crate_01_1k.gltf"
+        },
+        {
+          "path": "assets/source/polyhaven/plastic_crate_01/textures/plastic_crate_01_nor_gl_1k.jpg",
+          "bytes": 884228,
+          "md5": "95f73143467ebbf4c55fb599269edc7b",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/plastic_crate_01/plastic_crate_01_nor_gl_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/plastic_crate_01/textures/plastic_crate_01_diff_1k.jpg",
+          "bytes": 518288,
+          "md5": "0250b2750da634e95ef44b6ffb11681e",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/plastic_crate_01/plastic_crate_01_diff_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/plastic_crate_01/textures/plastic_crate_01_arm_1k.jpg",
+          "bytes": 993636,
+          "md5": "a0c021fba58dc9fb16df94b1fdda2308",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/plastic_crate_01/plastic_crate_01_arm_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/plastic_crate_01/plastic_crate_01.bin",
+          "bytes": 789920,
+          "md5": "68c6e126a29ad4b72c21aa85f89a48c1",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/plastic_crate_01/plastic_crate_01.bin"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "metal_tool_chest",
+      "name": "Metal Tool Chest",
+      "asset_type": "models",
+      "source": "https://polyhaven.com/a/metal_tool_chest",
+      "api": "https://api.polyhaven.com/files/metal_tool_chest",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "props",
+        "tools",
+        "industrial",
+        "containers",
+        "rigged",
+        "collection: the_shed"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/metal_tool_chest/metal_tool_chest_1k.gltf",
+          "bytes": 12256,
+          "md5": "21cb18a2e84ed49f23a98578c543e5ad",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/metal_tool_chest/metal_tool_chest_1k.gltf"
+        },
+        {
+          "path": "assets/source/polyhaven/metal_tool_chest/metal_tool_chest.bin",
+          "bytes": 434496,
+          "md5": "b62c394a4f6764df8993a8965564b390",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/metal_tool_chest/metal_tool_chest.bin"
+        },
+        {
+          "path": "assets/source/polyhaven/metal_tool_chest/textures/metal_tool_chest_nor_gl_1k.jpg",
+          "bytes": 604781,
+          "md5": "1d53f8a77b5789f6b4e5d72a004bb5bd",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/metal_tool_chest/metal_tool_chest_nor_gl_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/metal_tool_chest/textures/metal_tool_chest_arm_1k.jpg",
+          "bytes": 755794,
+          "md5": "981d128104104cdb6ab86c648e1d7f46",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/metal_tool_chest/metal_tool_chest_arm_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/metal_tool_chest/textures/metal_tool_chest_diff_1k.jpg",
+          "bytes": 552016,
+          "md5": "4deaf0af07e8cadbfbd4975b49f597df",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/metal_tool_chest/metal_tool_chest_diff_1k.jpg"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "painted_wooden_bench",
+      "name": "Painted Wooden Bench",
+      "asset_type": "models",
+      "source": "https://polyhaven.com/a/painted_wooden_bench",
+      "api": "https://api.polyhaven.com/files/painted_wooden_bench",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "furniture",
+        "seating"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/painted_wooden_bench/painted_wooden_bench_1k.gltf",
+          "bytes": 2835,
+          "md5": "784a49250144aa5299a93c1f3b6968d7",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/painted_wooden_bench/painted_wooden_bench_1k.gltf"
+        },
+        {
+          "path": "assets/source/polyhaven/painted_wooden_bench/textures/painted_wooden_bench_diff_1k.jpg",
+          "bytes": 545216,
+          "md5": "60c7d0f34f52b1003345d318e35f468d",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/painted_wooden_bench/painted_wooden_bench_diff_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/painted_wooden_bench/textures/painted_wooden_bench_nor_gl_1k.jpg",
+          "bytes": 830104,
+          "md5": "08b74bebcff262c14beae35a4f7b3405",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/painted_wooden_bench/painted_wooden_bench_nor_gl_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/painted_wooden_bench/textures/painted_wooden_bench_arm_1k.jpg",
+          "bytes": 586040,
+          "md5": "754ecc7f47b1e5d032e45e22334954f1",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/painted_wooden_bench/painted_wooden_bench_arm_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/painted_wooden_bench/painted_wooden_bench.bin",
+          "bytes": 25444,
+          "md5": "ed331b50f955852f007313c1a75c2e2d",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/painted_wooden_bench/painted_wooden_bench.bin"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "street_lamp_01",
+      "name": "Street Lamp 01",
+      "asset_type": "models",
+      "source": "https://polyhaven.com/a/street_lamp_01",
+      "api": "https://api.polyhaven.com/files/street_lamp_01",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "lighting",
+        "industrial",
+        "collection: hidden_alley"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/street_lamp_01/street_lamp_01_1k.gltf",
+          "bytes": 6419,
+          "md5": "d29d1fc30bbdad99a58371754f144e65",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/street_lamp_01/street_lamp_01_1k.gltf"
+        },
+        {
+          "path": "assets/source/polyhaven/street_lamp_01/textures/street_lamp_01_arm_1k.jpg",
+          "bytes": 664324,
+          "md5": "63d980174db10cf22a1b175743c465c9",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/street_lamp_01/street_lamp_01_arm_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/street_lamp_01/textures/street_lamp_01_diff_1k.jpg",
+          "bytes": 307889,
+          "md5": "82efb7531a25cda3ef8af2aff8ecccf7",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/street_lamp_01/street_lamp_01_diff_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/street_lamp_01/textures/street_lamp_01_nor_gl_1k.jpg",
+          "bytes": 438623,
+          "md5": "c27d8102c7e851a8f0f654bb959b9d67",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/street_lamp_01/street_lamp_01_nor_gl_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/street_lamp_01/street_lamp_01.bin",
+          "bytes": 748908,
+          "md5": "324bc6295e3962322514ddcfc7037b23",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/street_lamp_01/street_lamp_01.bin"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "asphalt_02",
+      "name": "Asphalt 02",
+      "asset_type": "textures",
+      "source": "https://polyhaven.com/a/asphalt_02",
+      "api": "https://api.polyhaven.com/files/asphalt_02",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "terrain",
+        "road",
+        "man made",
+        "outdoor",
+        "floor"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/asphalt_02/asphalt_02_diffuse_1k.jpg",
+          "bytes": 731707,
+          "md5": "fa19772d4817754c3efab708c651f5a8",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_diff_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/asphalt_02/asphalt_02_nor_gl_1k.jpg",
+          "bytes": 1240122,
+          "md5": "338da8de636ea36133170578cac82e8e",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_nor_gl_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/asphalt_02/asphalt_02_arm_1k.jpg",
+          "bytes": 296770,
+          "md5": "33820445f43af5e5ee484674b6939271",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_arm_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/asphalt_02/asphalt_02_rough_1k.jpg",
+          "bytes": 544032,
+          "md5": "ec80a2929797c1b3ffc121c4f665585a",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_rough_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/asphalt_02/asphalt_02_displacement_1k.jpg",
+          "bytes": 354943,
+          "md5": "2699b93c9eacfcf2e10582bccf849287",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_disp_1k.jpg"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "chipped_concrete",
+      "name": "Chipped Concrete",
+      "asset_type": "textures",
+      "source": "https://polyhaven.com/a/chipped_concrete",
+      "api": "https://api.polyhaven.com/files/chipped_concrete",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "floor",
+        "man made",
+        "plaster-concrete"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/chipped_concrete/chipped_concrete_diffuse_1k.exr",
+          "bytes": 1029406,
+          "md5": "4f8362cda8390c1804e37955b1e6de09",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/1k/chipped_concrete/chipped_concrete_diff_1k.exr"
+        },
+        {
+          "path": "assets/source/polyhaven/chipped_concrete/chipped_concrete_nor_gl_1k.exr",
+          "bytes": 2117062,
+          "md5": "5a0b91d13f34ddc106c2545c281f6187",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/1k/chipped_concrete/chipped_concrete_nor_gl_1k.exr"
+        },
+        {
+          "path": "assets/source/polyhaven/chipped_concrete/chipped_concrete_arm_1k.exr",
+          "bytes": 1106400,
+          "md5": "6db4f14c03409f21ed1b690d876cd5fc",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/1k/chipped_concrete/chipped_concrete_arm_1k.exr"
+        },
+        {
+          "path": "assets/source/polyhaven/chipped_concrete/chipped_concrete_rough_1k.exr",
+          "bytes": 287286,
+          "md5": "c5c4e677a324afd6e81ec014cf5caf73",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/1k/chipped_concrete/chipped_concrete_rough_1k.exr"
+        },
+        {
+          "path": "assets/source/polyhaven/chipped_concrete/chipped_concrete_displacement_1k.exr",
+          "bytes": 634078,
+          "md5": "f8bea6db6cebda9f2c7426530ea4f7af",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/1k/chipped_concrete/chipped_concrete_disp_1k.exr"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "metal_grate_rusty",
+      "name": "Metal Grate Rusty",
+      "asset_type": "textures",
+      "source": "https://polyhaven.com/a/metal_grate_rusty",
+      "api": "https://api.polyhaven.com/files/metal_grate_rusty",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "man made",
+        "metal",
+        "outdoor"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/metal_grate_rusty/metal_grate_rusty_diffuse_1k.jpg",
+          "bytes": 929481,
+          "md5": "96ca939eb6dd637959ee64d1a03bb2ab",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_grate_rusty/metal_grate_rusty_diff_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/metal_grate_rusty/metal_grate_rusty_nor_gl_1k.jpg",
+          "bytes": 878053,
+          "md5": "54183a92d9fa896d15042a7b30ba5e7f",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_grate_rusty/metal_grate_rusty_nor_gl_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/metal_grate_rusty/metal_grate_rusty_arm_1k.jpg",
+          "bytes": 966761,
+          "md5": "02149a2e91e8ccefd91a22bd042966bc",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_grate_rusty/metal_grate_rusty_arm_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/metal_grate_rusty/metal_grate_rusty_rough_1k.jpg",
+          "bytes": 847824,
+          "md5": "5e0e02466a962b25f5b40de7297442d9",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_grate_rusty/metal_grate_rusty_rough_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/metal_grate_rusty/metal_grate_rusty_displacement_1k.jpg",
+          "bytes": 169669,
+          "md5": "78a3649540788ee0dd09641c88d7fa25",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_grate_rusty/metal_grate_rusty_disp_1k.jpg"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "brick_floor_003",
+      "name": "Brick Floor 003",
+      "asset_type": "textures",
+      "source": "https://polyhaven.com/a/brick_floor_003",
+      "api": "https://api.polyhaven.com/files/brick_floor_003",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "floor",
+        "brick",
+        "man made",
+        "outdoor",
+        "indoor",
+        "clean",
+        "wall"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/brick_floor_003/brick_floor_003_diffuse_1k.jpg",
+          "bytes": 199347,
+          "md5": "a36d1f30f49c5bee4a5d91c86b6cd755",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_floor_003/brick_floor_003_diffuse_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/brick_floor_003/brick_floor_003_nor_gl_1k.jpg",
+          "bytes": 253840,
+          "md5": "eb9692c679503e7b5f7c8bb401956f41",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_floor_003/brick_floor_003_nor_gl_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/brick_floor_003/brick_floor_003_arm_1k.jpg",
+          "bytes": 162334,
+          "md5": "0b4854287b7fcc8acf9c1e0ea9fb12cb",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_floor_003/brick_floor_003_arm_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/brick_floor_003/brick_floor_003_rough_1k.jpg",
+          "bytes": 159389,
+          "md5": "7a039754df03d8ae2e8797fe7824cc92",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_floor_003/brick_floor_003_rough_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/brick_floor_003/brick_floor_003_displacement_1k.jpg",
+          "bytes": 139661,
+          "md5": "6f0bb93b1185443b73134733b9bb526e",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_floor_003/brick_floor_003_displacement_1k.jpg"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "green_metal_rust",
+      "name": "Green Metal Rust",
+      "asset_type": "textures",
+      "source": "https://polyhaven.com/a/green_metal_rust",
+      "api": "https://api.polyhaven.com/files/green_metal_rust",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "metal",
+        "outdoor",
+        "indoor",
+        "man made",
+        "dirty"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/green_metal_rust/green_metal_rust_diffuse_1k.jpg",
+          "bytes": 212088,
+          "md5": "f69d8c507961f0629019652162090917",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/green_metal_rust/green_metal_rust_diff_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/green_metal_rust/green_metal_rust_nor_gl_1k.jpg",
+          "bytes": 121379,
+          "md5": "a6cefc436aa41f73f15347dcf7a791d0",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/green_metal_rust/green_metal_rust_nor_gl_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/green_metal_rust/green_metal_rust_arm_1k.jpg",
+          "bytes": 108674,
+          "md5": "f7474f11a76b3747265873c325ecbb88",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/green_metal_rust/green_metal_rust_arm_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/green_metal_rust/green_metal_rust_rough_1k.jpg",
+          "bytes": 124360,
+          "md5": "22cb8ebbd84cd90667a2734114fc4732",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/green_metal_rust/green_metal_rust_rough_1k.jpg"
+        },
+        {
+          "path": "assets/source/polyhaven/green_metal_rust/green_metal_rust_displacement_1k.jpg",
+          "bytes": 355245,
+          "md5": "c8703bb4c927c6ce75b0a1e85dd56498",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/green_metal_rust/green_metal_rust_disp_1k.jpg"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "urban_alley_01",
+      "name": "Urban Alley 01",
+      "asset_type": "hdris",
+      "source": "https://polyhaven.com/a/urban_alley_01",
+      "api": "https://api.polyhaven.com/files/urban_alley_01",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "outdoor",
+        "urban",
+        "morning-afternoon",
+        "clear",
+        "medium contrast",
+        "natural light"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/urban_alley_01/urban_alley_01_1k.hdr",
+          "bytes": 1708553,
+          "md5": "9715c38fea5725219c64ba312cced80a",
+          "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/urban_alley_01_1k.hdr"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "industrial_sunset",
+      "name": "Industrial Sunset",
+      "asset_type": "hdris",
+      "source": "https://polyhaven.com/a/industrial_sunset",
+      "api": "https://api.polyhaven.com/files/industrial_sunset",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "outdoor",
+        "skies",
+        "nature",
+        "sunrise-sunset",
+        "partly cloudy",
+        "low contrast",
+        "natural light"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/industrial_sunset/industrial_sunset_1k.hdr",
+          "bytes": 1640864,
+          "md5": "a9dede569276e3b6bc3df10755d39e81",
+          "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/industrial_sunset_1k.hdr"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    },
+    {
+      "asset_id": "abandoned_bakery",
+      "name": "Abandoned Bakery",
+      "asset_type": "hdris",
+      "source": "https://polyhaven.com/a/abandoned_bakery",
+      "api": "https://api.polyhaven.com/files/abandoned_bakery",
+      "license": "CC0 1.0 Universal",
+      "license_url": "https://polyhaven.com/license",
+      "resolution": "1k",
+      "categories": [
+        "natural light",
+        "artificial light",
+        "urban",
+        "indoor",
+        "high contrast"
+      ],
+      "files": [
+        {
+          "path": "assets/source/polyhaven/abandoned_bakery/abandoned_bakery_1k.hdr",
+          "bytes": 1730263,
+          "md5": "9a835b2f0e7a42e2b98fefd19c4a3b9d",
+          "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/abandoned_bakery_1k.hdr"
+        }
+      ],
+      "planned_adaptations": [
+        "palette unification",
+        "material simplification",
+        "runtime naming",
+        "simple collider",
+        "Infinite Backlot kitbash variants"
+      ]
+    }
+  ]
+}

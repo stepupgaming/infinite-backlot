@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "location_count": 5,
+  "locations": [
+    {
+      "module_id": "location_odd_hours_v3",
+      "label": "ODD HOURS / CC0 CASH REGISTER + STORE KIT",
+      "asset": "assets/world/locations/location_odd_hours_v3.glb",
+      "source_blend": "assets/source/blender/world/locations/location_odd_hours_v3.blend",
+      "walkable_regions": 1,
+      "portals": 1,
+      "colliders": 3,
+      "interactions": 3,
+      "preview": "assets/reference/world-expansion-3/hero_previews/location_odd_hours_v3.png",
+      "polyhaven_cc0_assets": [
+        "CashRegister_01",
+        "plastic_crate_01"
+      ]
+    },
+    {
+      "module_id": "location_apartment_lobby_v3",
+      "label": "APARTMENT LOBBY / NAVIGATION-READY DRESSING",
+      "asset": "assets/world/locations/location_apartment_lobby_v3.glb",
+      "source_blend": "assets/source/blender/world/locations/location_apartment_lobby_v3.blend",
+      "walkable_regions": 1,
+      "portals": 2,
+      "colliders": 2,
+      "interactions": 2,
+      "preview": "assets/reference/world-expansion-3/hero_previews/location_apartment_lobby_v3.png",
+      "polyhaven_cc0_assets": [
+        "painted_wooden_bench"
+      ]
+    },
+    {
+      "module_id": "location_transit_pocket_v3",
+      "label": "TRANSIT POCKET / CC0 BENCH + STREET LAMP",
+      "asset": "assets/world/locations/location_transit_pocket_v3.glb",
+      "source_blend": "assets/source/blender/world/locations/location_transit_pocket_v3.blend",
+      "walkable_regions": 1,
+      "portals": 2,
+      "colliders": 2,
+      "interactions": 2,
+      "preview": "assets/reference/world-expansion-3/hero_previews/location_transit_pocket_v3.png",
+      "polyhaven_cc0_assets": [
+        "painted_wooden_bench",
+        "street_lamp_01"
+      ]
+    },
+    {
+      "module_id": "location_laundromat_v3",
+      "label": "LAUNDROMAT / REUSABLE APPLIANCE KIT",
+      "asset": "assets/world/locations/location_laundromat_v3.glb",
+      "source_blend": "assets/source/blender/world/locations/location_laundromat_v3.blend",
+      "walkable_regions": 1,
+      "portals": 1,
+      "colliders": 3,
+      "interactions": 2,
+      "preview": "assets/reference/world-expansion-3/hero_previews/location_laundromat_v3.png",
+      "polyhaven_cc0_assets": [
+        "plastic_crate_01"
+      ]
+    },
+    {
+      "module_id": "location_maintenance_workshop_v3",
+      "label": "MAINTENANCE WORKSHOP / CC0 TOOL + MATERIAL KIT",
+      "asset": "assets/world/locations/location_maintenance_workshop_v3.glb",
+      "source_blend": "assets/source/blender/world/locations/location_maintenance_workshop_v3.blend",
+      "walkable_regions": 1,
+      "portals": 1,
+      "colliders": 3,
+      "interactions": 2,
+      "preview": "assets/reference/world-expansion-3/hero_previews/location_maintenance_workshop_v3.png",
+      "polyhaven_cc0_assets": [
+        "metal_tool_chest",
+        "plastic_crate_01"
+      ]
+    }
+  ]
+}

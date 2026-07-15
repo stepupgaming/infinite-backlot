@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "module_id": "location_maintenance_workshop_v3",
+  "asset": "assets/world/locations/location_maintenance_workshop_v3.glb",
+  "source_blend": "assets/source/blender/world/locations/location_maintenance_workshop_v3.blend",
+  "category": "recurring_location",
+  "version": 1,
+  "quality_tier": "hero",
+  "walkable_regions": [
+    {
+      "id": "NAV_REGION_LOCATION_MAINTENANCE_WORKSHOP_V3",
+      "polygon": [
+        [
+          -5.65,
+          -4.15
+        ],
+        [
+          5.65,
+          -4.15
+        ],
+        [
+          5.65,
+          4.15
+        ],
+        [
+          -5.65,
+          4.15
+        ]
+      ],
+      "height": 0,
+      "surface_type": "interior",
+      "actor_clearance": 0.34
+    }
+  ],
+  "portals": [
+    {
+      "id": "NAV_PORTAL_WORKSHOP",
+      "position": [
+        0,
+        0.0,
+        -4.4
+      ],
+      "width": 1.5,
+      "regions": [
+        "inside",
+        "outside"
+      ],
+      "runtime_open": true,
+      "control_entity": "DOOR_WORKSHOP"
+    }
+  ],
+  "colliders": [
+    {
+      "id": "COLLIDER_WORKBENCH",
+      "shape": "box",
+      "center": [
+        0,
+        0.8,
+        2.6
+      ],
+      "half_extents": [
+        1.8,
+        0.8,
+        0.8
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_TOOL_CHEST",
+      "shape": "box",
+      "center": [
+        -3.8,
+        0.75,
+        2.6
+      ],
+      "half_extents": [
+        0.8,
+        0.75,
+        0.55
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_LOCKERS",
+      "shape": "box",
+      "center": [
+        -4,
+        1,
+        -0.5
+      ],
+      "half_extents": [
+        0.6,
+        1,
+        1.5
+      ],
+      "role": "static"
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_TOOL_CHEST",
+      "position": [
+        -3.8,
+        1,
+        2.6
+      ],
+      "interaction_type": "pickup"
+    },
+    {
+      "id": "INTERACT_WORKBENCH",
+      "position": [
+        0,
+        1,
+        2.6
+      ],
+      "interaction_type": "counter"
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "MARK_WORKBENCH",
+      "position": [
+        0,
+        0,
+        1.3
+      ]
+    },
+    {
+      "id": "MARK_WORKSHOP_WIDE",
+      "position": [
+        0,
+        0,
+        -1.5
+      ]
+    },
+    {
+      "id": "MARK_LOCATION_MAINTENANCE_WORKSHOP_V3_ENTRY",
+      "position": [
+        0,
+        0,
+        -3.5
+      ]
+    },
+    {
+      "id": "MARK_LOCATION_MAINTENANCE_WORKSHOP_V3_CAMERA_SAFE",
+      "position": [
+        0,
+        0,
+        3.5
+      ]
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_LOCATION_MAINTENANCE_WORKSHOP_V3",
+      "position": [
+        12,
+        -13,
+        7.5
+      ],
+      "look_at": [
+        0,
+        0.6,
+        1.2
+      ]
+    }
+  ],
+  "cutaway_groups": [
+    "CUTAWAY_FRONT"
+  ],
+  "runtime_doors": [
+    "DOOR_WORKSHOP"
+  ],
+  "provenance": {
+    "license": "project-owned adaptation with Poly Haven CC0 sources",
+    "source": "Infinite Backlot v3 world expansion",
+    "polyhaven_cc0_assets": [
+      "metal_tool_chest",
+      "plastic_crate_01"
+    ],
+    "manifest": "assets/world/kits/polyhaven_cc0_intake.provenance.json",
+    "author": "Infinite Backlot project"
+  },
+  "preview": "assets/reference/world-expansion-3/hero_previews/location_maintenance_workshop_v3.png",
+  "glb_sha256": "c5be07e6e5b1f8609c18e32736f37a0af76ddc5b891c5d3da266ea4fde182e53"
+}
