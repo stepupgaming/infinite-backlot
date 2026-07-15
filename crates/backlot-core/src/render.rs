@@ -58,6 +58,9 @@ pub struct ProductionTimingContext {
     pub elapsed_before_finalize_secs: f32,
     pub bevy_capture_secs: f32,
     pub effective_fps: Option<f32>,
+    pub bevy_free_vram_before_mb: Option<u64>,
+    pub bevy_free_vram_during_mb: Option<u64>,
+    pub bevy_free_vram_after_mb: Option<u64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -1609,21 +1612,9 @@ pub fn mix_audio(
 ) {
     let sr = sample_rate as usize;
     let total = ((duration + 0.5) * sr as f32).ceil().max(1.0) as usize;
+    // Silence is the production default. Never synthesize an always-on mains
+    // hum or random-noise floor; ambience must be an explicit licensed asset.
     let mut mixed: Vec<f32> = vec![0.0; total];
-    // Quiet deterministic hallway bed: mains hum, ventilation overtone, and a
-    // tiny seeded noise floor. This prevents dead digital gaps while remaining
-    // well below centered dialogue and scheduled elevator/panel effects.
-    let mut noise_state = 0x9e37_79b9u32;
-    for (index, sample) in mixed.iter_mut().enumerate() {
-        noise_state = noise_state
-            .wrapping_mul(1_664_525)
-            .wrapping_add(1_013_904_223);
-        let noise = ((noise_state >> 8) as f32 / 16_777_215.0) * 2.0 - 1.0;
-        let t = index as f32 / sr.max(1) as f32;
-        *sample = (std::f32::consts::TAU * 55.0 * t).sin() * 0.018
-            + (std::f32::consts::TAU * 110.0 * t).sin() * 0.005
-            + noise * 0.008;
-    }
     for (path, start, _dur) in clips {
         if let Some((samples, _source_rate)) = read_wav_mono_f32(path) {
             let off = (*start * sr as f32).round().max(0.0) as usize;
@@ -1830,6 +1821,83 @@ pub struct AudioQualityReport {
     pub clipped_sample_pct: f32,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContinuousNoiseFloorReport {
+    pub detected: bool,
+    pub analyzed_windows: usize,
+    pub active_low_level_window_ratio: f32,
+    pub low_level_rms_mean: f32,
+    pub low_level_rms_variation: f32,
+}
+
+pub fn detect_continuous_noise_floor(path: &str) -> Option<ContinuousNoiseFloorReport> {
+    let (samples, sample_rate) = read_wav_mono_f32(path)?;
+    let window = (sample_rate / 10).max(1) as usize;
+    let rms = samples
+        .chunks(window)
+        .filter(|chunk| !chunk.is_empty())
+        .map(|chunk| {
+            (chunk.iter().map(|sample| sample * sample).sum::<f32>() / chunk.len() as f32).sqrt()
+        })
+        .collect::<Vec<_>>();
+    if rms.is_empty() {
+        return None;
+    }
+    let low_level = rms
+        .iter()
+        .copied()
+        .filter(|value| *value >= 0.002 && *value <= 0.08)
+        .collect::<Vec<_>>();
+    let ratio = low_level.len() as f32 / rms.len() as f32;
+    let mean = if low_level.is_empty() {
+        0.0
+    } else {
+        low_level.iter().sum::<f32>() / low_level.len() as f32
+    };
+    let variation = if mean <= f32::EPSILON || low_level.is_empty() {
+        0.0
+    } else {
+        let variance = low_level
+            .iter()
+            .map(|value| (value - mean).powi(2))
+            .sum::<f32>()
+            / low_level.len() as f32;
+        variance.sqrt() / mean
+    };
+    Some(ContinuousNoiseFloorReport {
+        detected: ratio >= 0.85 && variation <= 0.08,
+        analyzed_windows: rms.len(),
+        active_low_level_window_ratio: ratio,
+        low_level_rms_mean: mean,
+        low_level_rms_variation: variation,
+    })
+}
+
+fn audible_wav_duration(path: &str, measured_duration: f32) -> f32 {
+    let Some((samples, sample_rate)) = read_wav_mono_f32(path) else {
+        return measured_duration;
+    };
+    if samples.is_empty() || sample_rate == 0 {
+        return measured_duration;
+    }
+    let window = (sample_rate / 50).max(1) as usize; // 20 ms
+    let last_active = samples
+        .chunks(window)
+        .enumerate()
+        .rev()
+        .find_map(|(index, chunk)| {
+            let rms = (chunk.iter().map(|sample| sample * sample).sum::<f32>()
+                / chunk.len().max(1) as f32)
+                .sqrt();
+            (rms >= 0.0008).then_some(index)
+        });
+    let Some(last_active) = last_active else {
+        return measured_duration;
+    };
+    let audible_end = ((last_active + 1) * window) as f32 / sample_rate as f32 + 0.02;
+    audible_end.clamp((measured_duration - 0.6).max(0.1), measured_duration)
+}
+
 pub fn analyze_audio_quality(path: &str) -> Option<AudioQualityReport> {
     let (samples, sample_rate) = read_wav_mono_f32(path)?;
     if samples.is_empty() {
@@ -1941,6 +2009,7 @@ pub struct PreparedProduction {
     pub prep_timings: PrepTimings,
     pub word_alignments: HashMap<(String, String), crate::asr::WordAlignment>,
     pub motion_plan: crate::motion::ProductionMotionPlan,
+    pub overlap_report: crate::stage::CharacterOverlapReport,
     pub runtime_telemetry: backlot_runtime::RuntimeTelemetry,
 }
 
@@ -2097,10 +2166,14 @@ pub fn prepare_production(
         if res.ok {
             any_real = true;
         }
-        // Gepard's worker-reported/measured source WAV duration is authoritative
-        // and its original episode artifact must remain byte-for-byte intact.
+        // Preserve Gepard's original WAV byte-for-byte. Timeline duration uses
+        // the measured audible end (with a 20 ms safety tail), so post-voice
+        // silence does not accumulate into an overlong episode.
         let dur = if provider == "gepard_batch" {
-            res.duration
+            res.audio_path
+                .as_deref()
+                .map(|path| audible_wav_duration(path, res.duration))
+                .unwrap_or(res.duration)
         } else if let Some(p) = &res.audio_path {
             let t = trim_wav_silence_in_place(p, config.tts.sample_rate, 0.01);
             if t > 0.0 {
@@ -2237,6 +2310,40 @@ pub fn prepare_production(
     // inter-line gap exceeds the dead-air limit.
     compact_dead_air(&mut sched, config.runtime.max_dead_air_secs);
     crate::timeline::apply_word_aligned_captions(&mut sched, &word_alignments);
+    let unresolved_movements = sched
+        .movement_resolutions
+        .iter()
+        .filter(|movement| !movement.executed)
+        .collect::<Vec<_>>();
+    if !unresolved_movements.is_empty() {
+        return Err(crate::error::CoreError::Msg(format!(
+            "production blocking has {} unresolved required movement(s): {}",
+            unresolved_movements.len(),
+            unresolved_movements
+                .iter()
+                .map(|movement| format!(
+                    "{}:{} ({})",
+                    movement.actor,
+                    movement.action,
+                    movement
+                        .unresolved_reason
+                        .as_deref()
+                        .unwrap_or("unresolved")
+                ))
+                .collect::<Vec<_>>()
+                .join(", ")
+        )));
+    }
+    let rigs = build_rigs(world);
+    let overlap_report = crate::timeline::sample_schedule_overlap(&sched, &rigs, world, 30);
+    if overlap_report.character_overlap_frames > 0 {
+        return Err(crate::error::CoreError::Msg(format!(
+            "production blocking rejected: {} overlap frames, maximum depth {:.3}m, actors [{}]",
+            overlap_report.character_overlap_frames,
+            overlap_report.maximum_overlap_depth,
+            overlap_report.actor_pairs.join(", ")
+        )));
+    }
     let timeline_prep_secs = t_timeline.elapsed().as_secs_f32();
     let t_motion = std::time::Instant::now();
     let mut motion_plan =
@@ -2281,7 +2388,9 @@ pub fn prepare_production(
             min_duration,
             max_duration
         );
-        if require_llm || provider == "gepard_batch" {
+        let performance_proof =
+            std::env::var("BACKLOT_PERFORMANCE_PROOF").ok().as_deref() == Some("1");
+        if !performance_proof && (require_llm || provider == "gepard_batch") {
             return Err(if provider == "gepard_batch" {
                 crate::error::CoreError::Msg(msg)
             } else {
@@ -2310,7 +2419,6 @@ pub fn prepare_production(
         )?;
         clips.push((path, scheduled.start.max(0.0), duration));
     }
-    let rigs = build_rigs(world);
     Ok(PreparedProduction {
         episode_id,
         planned,
@@ -2337,6 +2445,7 @@ pub fn prepare_production(
         },
         word_alignments,
         motion_plan,
+        overlap_report,
         runtime_telemetry: backlot_runtime::snapshot_global_telemetry(),
     })
 }
@@ -2348,12 +2457,12 @@ fn ensure_semantic_sfx(
 ) -> crate::error::Result<(String, f32)> {
     let duration = match semantic {
         "elevator_ding" => 0.9,
-        "door_motor" => 1.6,
+        "door_motor" => 1.2,
+        "door_slam" => 0.35,
         "panel_beep" => 0.28,
         "indicator_glitch" => 0.55,
         "electrical_flicker" => 0.45,
         "footsteps" => 1.2,
-        "impossible_floor_ambience" => 3.0,
         "reaction_sting" => 0.7,
         other => {
             return Err(crate::error::CoreError::Msg(format!(
@@ -2385,19 +2494,15 @@ fn ensure_semantic_sfx(
             }
             "panel_beep" => (std::f32::consts::TAU * 1180.0 * t).sin(),
             "door_motor" => 0.55 * (std::f32::consts::TAU * (82.0 + 18.0 * t) * t).sin() + 0.18 * n,
-            "indicator_glitch" => {
-                let gate = if (t * 34.0).fract() > 0.42 { 1.0 } else { 0.0 };
-                gate * ((std::f32::consts::TAU * 720.0 * t).sin() + 0.35 * n)
+            "door_slam" => {
+                let attack = (t / 0.012).clamp(0.0, 1.0);
+                let decay = (-18.0 * t).exp();
+                attack * decay * (0.65 * n + 0.5 * (std::f32::consts::TAU * 86.0 * t).sin())
             }
             "electrical_flicker" => 0.7 * n * if (t * 27.0).fract() > 0.5 { 1.0 } else { 0.15 },
             "footsteps" => {
                 let phase = (t * 3.4).fract();
                 n * (-18.0 * phase).exp()
-            }
-            "impossible_floor_ambience" => {
-                0.45 * (std::f32::consts::TAU * 46.0 * t).sin()
-                    + 0.2 * (std::f32::consts::TAU * 71.0 * t).sin()
-                    + 0.08 * n
             }
             "reaction_sting" => {
                 (std::f32::consts::TAU * (260.0 + 360.0 * t) * t).sin() * (-2.0 * t).exp()
@@ -2779,6 +2884,30 @@ pub fn finalize_production(
     let plan = prep.planned.plan.clone();
     let auth = &prep.auth;
 
+    for (name, value) in [
+        (
+            "blocking_plan.json",
+            serde_json::to_value(&sched.blocking_plan),
+        ),
+        (
+            "movement_diagnostics.json",
+            serde_json::to_value(&sched.movement_resolutions),
+        ),
+        (
+            "overlap_report.json",
+            serde_json::to_value(&prep.overlap_report),
+        ),
+        (
+            "motion_provenance.json",
+            serde_json::to_value(&prep.motion_plan),
+        ),
+    ] {
+        let value = value.map_err(|error| crate::error::CoreError::Msg(error.to_string()))?;
+        let path = review_dir.join(name);
+        std::fs::write(&path, serde_json::to_vec_pretty(&value).unwrap_or_default())
+            .map_err(io_err(&path))?;
+    }
+
     // Persist the final authored plan + per-beat commands + authorship so the
     // exact LLM-authored episode is reproducible and auditable.
     let _ = std::fs::write(
@@ -3003,6 +3132,7 @@ pub fn finalize_production(
         .filter_map(|gap| gap.get("duration").and_then(|value| value.as_f64()))
         .fold(0.0f64, f64::max) as f32;
     let audio_quality = analyze_audio_quality(&mix_path.to_string_lossy());
+    let continuous_noise_floor = detect_continuous_noise_floor(&mix_path.to_string_lossy());
     let clipped_samples = audio_quality
         .as_ref()
         .map(|quality| quality.clipped_samples)
@@ -3025,9 +3155,13 @@ pub fn finalize_production(
         "mixed_wav": audio_quality,
         "mix_elements": {
             "dialogue": "original mono Gepard WAVs, centered in the encoded stereo mix",
-            "ambience": "deterministic low-level hallway hum and ventilation bed",
+            "ambience": "silence; no always-on synthetic ambience",
+            "music": "none; no licensed local music asset was available",
             "effects": "scheduled elevator, ding, panel, and environmental semantic cues",
         },
+        "synthetic_hum_enabled": false,
+        "procedural_noise_bed_enabled": false,
+        "continuous_noise_floor": continuous_noise_floor.clone(),
         "encoded_audio": {
             "codec": probe.audio_codec,
             "sample_rate": probe.audio_sample_rate,
@@ -3087,6 +3221,12 @@ pub fn finalize_production(
             issues.push(format!(
                 "audio: {clipped_samples} clipped samples detected in final_mix.wav"
             ));
+        }
+        if continuous_noise_floor
+            .as_ref()
+            .is_some_and(|report| report.detected)
+        {
+            issues.push("audio: continuous unchanging noise floor detected".into());
         }
         if prep.tts_provider == "estimating" || prep.tts_provider.ends_with("-failed") {
             issues.push(format!(
@@ -3216,6 +3356,9 @@ pub fn finalize_production(
         motion_processing: prep.prep_timings.motion_processing_secs,
         timeline_assembly: prep.prep_timings.timeline_prep_secs,
         bevy_capture: timing_context.map(|t| t.bevy_capture_secs).unwrap_or(0.0),
+        bevy_free_vram_before_mb: timing_context.and_then(|t| t.bevy_free_vram_before_mb),
+        bevy_free_vram_during_mb: timing_context.and_then(|t| t.bevy_free_vram_during_mb),
+        bevy_free_vram_after_mb: timing_context.and_then(|t| t.bevy_free_vram_after_mb),
         audio_mixing: audio_mixing_secs,
         encoding: ffmpeg_encode_secs,
         review_packaging: packaging_secs,
@@ -3594,6 +3737,7 @@ mod review_tests {
                     actor: "mara".into(),
                     action: "speak".into(),
                     target: None,
+                    target_position: None,
                     text: Some("hello".into()),
                     start: 0.0,
                     dur: 4.0,
@@ -3615,6 +3759,8 @@ mod review_tests {
             inserts: vec![],
             environment: vec![],
             sounds: vec![],
+            movement_resolutions: vec![],
+            blocking_plan: vec![],
         };
         let rep = review_schedule(&sched, &rigs, &world, 160, 284, 24);
         assert_eq!(rep.sampled_frames, 24);
@@ -4002,6 +4148,7 @@ mod review_tests {
                     actor: "mara".into(),
                     action: "move_to".into(),
                     target: Some("apt_3b_door".into()),
+                    target_position: None,
                     text: None,
                     start: 0.0,
                     dur: 3.0,
@@ -4017,6 +4164,8 @@ mod review_tests {
             inserts: vec![],
             environment: vec![],
             sounds: vec![],
+            movement_resolutions: vec![],
+            blocking_plan: vec![],
         };
         let a = evaluate_at(&sched, &rigs, &world, 0.0);
         let b = evaluate_at(&sched, &rigs, &world, 1.5);
@@ -4047,6 +4196,7 @@ mod review_tests {
                     actor: "mara".into(),
                     action: "turn_toward".into(),
                     target: Some("hall_center".into()),
+                    target_position: None,
                     text: None,
                     start: 0.0,
                     dur: 4.0,
@@ -4068,6 +4218,8 @@ mod review_tests {
             inserts: vec![],
             environment: vec![],
             sounds: vec![],
+            movement_resolutions: vec![],
+            blocking_plan: vec![],
         };
         let r = StageRenderer::new(200, 356);
         for i in 0..8 {

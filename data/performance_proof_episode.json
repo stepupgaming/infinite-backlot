@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "episode_title": "Performance Proof: Clear the Elevator",
+  "logline": "Ellis enters the hall as Mara crosses safely to the panel and opens the elevator.",
+  "tone": ["physical", "clear", "muted-readable"],
+  "target_duration_seconds": 14.5,
+  "active_characters": ["voss", "mara", "ellis"],
+  "primary_location": "floor_3_hallway",
+  "central_goal": {
+    "character": "ellis",
+    "goal": "reach a reserved elevator mark without intersecting Mara"
+  },
+  "beats": [
+    {
+      "id": "proof_blocking",
+      "narrative_purpose": "situation: demonstrate executable full-body hallway blocking",
+      "target_start_second": 0.0,
+      "actions": [
+        {
+          "actor": "ellis",
+          "action": "enter_room",
+          "target": "service_area",
+          "intensity": 0.7,
+          "performance_intent": "walk out from apartment 3B and settle with weight",
+          "duration_override": 2.0
+        },
+        {
+          "actor": "ellis",
+          "action": "approach",
+          "target": "elevator",
+          "intensity": 0.65,
+          "performance_intent": "walk to the reserved elevator-right mark and stop cleanly",
+          "duration_override": 2.0
+        },
+        {
+          "actor": "ellis",
+          "action": "turn_toward",
+          "target": "elevator",
+          "intensity": 0.55,
+          "performance_intent": "turn ninety degrees toward the elevator",
+          "performance": { "motion": "look" },
+          "duration_override": 0.7
+        },
+        {
+          "actor": "voss",
+          "action": "point_at",
+          "target": "elevator",
+          "intensity": 0.55,
+          "performance_intent": "point toward the elevator with torso and shoulder involvement, then recover",
+          "duration_override": 0.7
+        },
+        {
+          "actor": "mara",
+          "action": "move_to",
+          "target": "ellis",
+          "intensity": 0.72,
+          "performance_intent": "cross in front of Ellis at conversational distance without touching him",
+          "duration_override": 1.8
+        },
+        {
+          "actor": "ellis",
+          "action": "react",
+          "target": "mara",
+          "intensity": 0.62,
+          "performance_intent": "lean and look around Mara toward the elevator",
+          "performance": { "motion": "sigh" },
+          "duration_override": 0.7
+        },
+        {
+          "actor": "mara",
+          "action": "move_to",
+          "target": "maintenance_panel",
+          "intensity": 0.68,
+          "performance_intent": "walk to the reserved panel-operator mark and align to contact",
+          "duration_override": 1.8
+        },
+        {
+          "actor": "mara",
+          "action": "activate",
+          "target": "maintenance_panel",
+          "intensity": 0.7,
+          "performance_intent": "press the panel with readable hand contact and recover",
+          "duration_override": 1.0
+        },
+        {
+          "actor": "mara",
+          "action": "open_elevator",
+          "target": "elevator",
+          "intensity": 0.8,
+          "performance_intent": "hold clear of the doorway while the elevator opens",
+          "duration_override": 1.1
+        },
+        {
+          "actor": "ellis",
+          "action": "react",
+          "target": "elevator",
+          "intensity": 0.72,
+          "performance_intent": "full-body surprised weight shift toward the opening",
+          "performance": { "motion": "sigh" },
+          "duration_override": 0.5
+        },
+        {
+          "actor": "mara",
+          "action": "react",
+          "target": "elevator",
+          "intensity": 0.65,
+          "performance_intent": "turn from the panel and share the reveal",
+          "performance": { "motion": "sigh" },
+          "duration_override": 0.5
+        }
+      ],
+      "camera_intent": {
+        "type": "comedic_wide",
+        "subject": "hallway_group_c"
+      },
+      "completion_condition": {
+        "type": "timer",
+        "seconds": 14.5
+      },
+      "blocking": "Ellis enters from apartment 3B, walks to elevator-right and turns. Mara crosses in front at a reserved offset, Ellis looks around her, then Mara walks to the panel, presses it, and both react to the opening elevator.",
+      "visible_action": "The entire entrance, crossing, panel press, and elevator reveal remain visible in one wide shot.",
+      "intended_reaction": "Ellis leans around Mara and both transfer weight toward the opening elevator.",
+      "camera_purpose": "spatial full-body proof",
+      "performance_intent": "readable with audio muted; clean starts, stops, turns, contact, and recovery",
+      "sound_cues": [],
+      "expected_state_changes": []
+    }
+  ],
+  "payoff": "The elevator opens with all performers separated and the doorway visible.",
+  "persistent_changes": [],
+  "notes": "Bounded local performance-proof plan; no new story or LLM call."
+}

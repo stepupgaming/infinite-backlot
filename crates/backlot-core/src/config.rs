@@ -7,6 +7,7 @@
 use crate::error::{CoreError, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -95,6 +96,9 @@ pub struct RuntimeConfig {
     /// Fixed frame rate for deterministic capture (e.g. 30).
     #[serde(default = "default_fps")]
     pub frame_rate: u32,
+    /// Native production or scaled preview rendering.
+    #[serde(default)]
+    pub render_quality: RenderQuality,
     /// Path or command name for FFmpeg. Safe argument passing is used.
     #[serde(default = "default_ffmpeg")]
     pub ffmpeg_path: String,
@@ -102,6 +106,40 @@ pub struct RuntimeConfig {
     /// Empty => a best-effort system font is located at render time.
     #[serde(default)]
     pub font_path: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum RenderQuality {
+    Preview,
+    #[default]
+    Production,
+}
+
+impl FromStr for RenderQuality {
+    type Err = String;
+
+    fn from_str(value: &str) -> std::result::Result<Self, Self::Err> {
+        match value {
+            "preview" => Ok(Self::Preview),
+            "production" => Ok(Self::Production),
+            other => Err(format!(
+                "invalid render quality '{other}'; expected preview or production"
+            )),
+        }
+    }
+}
+
+impl RuntimeConfig {
+    pub fn render_resolution(&self) -> (u32, u32) {
+        match self.render_quality {
+            RenderQuality::Production => self.resolution,
+            RenderQuality::Preview => (
+                (self.resolution.0 / 2).max(1),
+                (self.resolution.1 / 2).max(1),
+            ),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -332,6 +370,7 @@ impl Default for RuntimeConfig {
             caption_style: "backlot-default".into(),
             resolution: (1080, 1920),
             frame_rate: 30,
+            render_quality: RenderQuality::Production,
             ffmpeg_path: "ffmpeg".into(),
             font_path: String::new(),
         }
@@ -511,4 +550,27 @@ fn default_parakeet_model() -> String {
 }
 fn default_asr_cache() -> String {
     "output/cache/asr".into()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn render_resolution_respects_quality() {
+        let mut runtime = RuntimeConfig::default();
+        runtime.resolution = (1080, 1920);
+
+        runtime.render_quality = RenderQuality::Production;
+        assert_eq!(runtime.render_resolution(), (1080, 1920));
+
+        runtime.render_quality = RenderQuality::Preview;
+        assert_eq!(runtime.render_resolution(), (540, 960));
+    }
+
+    #[test]
+    fn render_quality_is_serde_default_compatible() {
+        let runtime: RuntimeConfig = toml::from_str("").unwrap();
+        assert_eq!(runtime.render_quality, RenderQuality::Production);
+    }
 }

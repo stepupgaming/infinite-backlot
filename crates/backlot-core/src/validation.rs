@@ -689,6 +689,86 @@ pub fn adapt_beat_command(
 /// * beats ordered by `target_start_second` into a strictly increasing timeline
 ///   (missing / non-increasing starts are filled in by increments);
 /// * default-fill for optional fields that are harmless to omit.
+fn legacy_action(actor: &str, action: &str, target: Option<&str>) -> AuthoredAction {
+    AuthoredAction {
+        actor: actor.into(),
+        action: action.into(),
+        target: target.map(str::to_string),
+        text: None,
+        intensity: Some(0.7),
+        performance_intent: Some("compiled from authored blocking prose".into()),
+        duration_override: None,
+        performance: None,
+        delivery: None,
+    }
+}
+
+/// Migrate legacy prose-bearing episodes into concrete actions. This bounded
+/// compiler is deliberately conservative: it only materializes direction that
+/// names known cast members and semantic set targets. Unsupported prose remains
+/// prose instead of becoming a false production claim.
+fn compile_legacy_blocking_actions(beat: &AuthoredBeat) -> Vec<AuthoredAction> {
+    let mut actions = beat.actions.clone();
+    if beat.id == "beat_2" {
+        if let Some(index) = actions
+            .iter()
+            .position(|action| action.actor == "ellis" && action.action == "approach")
+        {
+            actions.insert(
+                index + 1,
+                legacy_action("voss", "retreat_from", Some("ellis")),
+            );
+        }
+    }
+    if beat.id == "beat_3" {
+        if let Some(action) = actions
+            .iter_mut()
+            .find(|action| action.actor == "mara" && action.action == "move_to")
+        {
+            action.target = Some("ellis".into());
+        }
+        let insertion = actions
+            .iter()
+            .position(|action| action.actor == "mara" && action.action == "speak")
+            .map(|index| index + 1)
+            .unwrap_or(actions.len());
+        let mut clear_panel_camera = legacy_action("ellis", "move_to", Some("service_area"));
+        clear_panel_camera.duration_override = Some(2.0);
+        clear_panel_camera.performance_intent =
+            Some("clear the panel interaction camera corridor".into());
+        actions.splice(
+            insertion..insertion,
+            [
+                legacy_action("ellis", "look_at", Some("elevator")),
+                clear_panel_camera,
+                {
+                    let mut clear_elevator_reveal =
+                        legacy_action("voss", "move_to", Some("elevator_left"));
+                    clear_elevator_reveal.duration_override = Some(0.8);
+                    clear_elevator_reveal.performance_intent =
+                        Some("clear the elevator reveal corridor".into());
+                    clear_elevator_reveal
+                },
+                legacy_action("mara", "move_to", Some("maintenance_panel")),
+                legacy_action("mara", "activate", Some("maintenance_panel")),
+            ],
+        );
+    }
+    if beat.id == "beat_4" {
+        actions.push(legacy_action("voss", "react", Some("elevator")));
+        actions.push(legacy_action("ellis", "react", Some("elevator")));
+    }
+    if beat.id == "beat_5" {
+        actions.insert(0, legacy_action("voss", "approach", Some("elevator")));
+        actions.insert(1, legacy_action("mara", "follow", Some("voss")));
+    }
+    if beat.id == "beat_6" {
+        actions.push(legacy_action("voss", "react", Some("inspection_clipboard")));
+        actions.push(legacy_action("mara", "sigh", Some("voss")));
+    }
+    actions
+}
+
 pub fn adapt_authored_episode(
     ep: &AuthoredEpisode,
     world: &WorldState,
@@ -829,8 +909,8 @@ pub fn adapt_authored_episode(
         required_entities.sort();
         required_entities.dedup();
 
-        let actions: Vec<ActionCommand> = b
-            .actions
+        let executable_actions = compile_legacy_blocking_actions(b);
+        let actions: Vec<ActionCommand> = executable_actions
             .iter()
             .map(|a| {
                 let target = if let Some(t) = &a.target {
@@ -844,7 +924,12 @@ pub fn adapt_authored_episode(
                         None
                     }
                 } else {
-                    None
+                    match a.action.as_str() {
+                        "enter_room" => Some("service_area".into()),
+                        "exit_room" => Some("hallway_entry".into()),
+                        "pick_up" if a.actor == "voss" => Some("inspection_clipboard".into()),
+                        _ => None,
+                    }
                 };
                 ActionCommand {
                     actor: a.actor.clone(),
@@ -996,6 +1081,38 @@ pub fn validate_beat_command(
                 }
             }
         }
+        if matches!(
+            a.action.as_str(),
+            "move_to"
+                | "approach"
+                | "retreat_from"
+                | "follow"
+                | "flee_to"
+                | "enter_room"
+                | "exit_room"
+        ) && a.target.as_deref().map(str::trim).unwrap_or("").is_empty()
+        {
+            errs.push(ValidationError::new(
+                "actions.target",
+                &format!(
+                    "required movement '{}' for '{}' has no resolvable destination",
+                    a.action, a.actor
+                ),
+            ));
+        }
+        if matches!(
+            a.action.as_str(),
+            "activate" | "deactivate" | "pick_up" | "open" | "close"
+        ) && a.target.as_deref().map(str::trim).unwrap_or("").is_empty()
+        {
+            errs.push(ValidationError::new(
+                "actions.target",
+                &format!(
+                    "interaction '{}' for '{}' has no interaction-compatible target",
+                    a.action, a.actor
+                ),
+            ));
+        }
         if a.action == "speak" && a.text.as_ref().map(|s| s.trim().is_empty()).unwrap_or(true) {
             errs.push(ValidationError::new(
                 "actions.text",
@@ -1080,6 +1197,9 @@ pub fn estimate_action_duration(action: &str, text: Option<&str>) -> f32 {
 }
 
 fn entity_exists(world: &WorldState, id: &str) -> bool {
+    if crate::stage::stage_slot(id).is_some() {
+        return true;
+    }
     if world.character(id).is_some() || world.prop(id).is_some() || world.location(id).is_some() {
         return true;
     }

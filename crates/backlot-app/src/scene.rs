@@ -1,6 +1,7 @@
 //! Greybox 3D scene: the surreal apartment building, its characters, the camera
 //! rig, lights, and a minimal (text-free) operator overlay.
 
+use crate::backlot_scene::BacklotSetMode;
 use crate::state::*;
 use backlot_core::avatar::{HumanoidRig, Pose, Xform};
 use bevy::prelude::*;
@@ -43,120 +44,128 @@ pub fn spawn_scene(
     world: Res<CanonicalWorld>,
     mut scene: ResMut<SceneIndex>,
     mut hud: ResMut<Hud>,
+    set_mode: Res<BacklotSetMode>,
 ) {
     scene.characters.clear();
-    scene.props.clear();
-    scene.marks.clear();
-    scene.anchors.clear();
+    let greybox = *set_mode == BacklotSetMode::Greybox;
+    if greybox {
+        scene.props.clear();
+        scene.marks.clear();
+        scene.anchors.clear();
+    }
 
-    // Lighting.
-    commands.spawn((
-        PointLight {
-            intensity: 1_200.0,
+    // The procedural set is an explicit diagnostic fallback only.
+    if greybox {
+        commands.spawn((
+            PointLight {
+                intensity: 1_200.0,
+                ..default()
+            },
+            Transform::from_xyz(0.0, 5.0, 2.0),
+            FlickerLight {
+                base_intensity: 1_200.0,
+                active: false,
+                phase: 0.0,
+            },
+        ));
+        commands.spawn(AmbientLight {
+            color: Color::srgb(0.5, 0.5, 0.6),
+            brightness: 0.6,
+            affects_lightmapped_meshes: true,
+        });
+        commands.spawn((
+            DirectionalLight {
+                illuminance: 800.0,
+                ..default()
+            },
+            Transform::from_xyz(2.0, 6.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ));
+
+        // Floor.
+        commands.spawn((
+            Mesh3d(meshes.add(Plane3d::default().mesh().size(24.0, 24.0))),
+            MeshMaterial3d(materials.add(StandardMaterial {
+                base_color: Color::srgb(0.18, 0.18, 0.22),
+                ..default()
+            })),
+            Transform::from_xyz(0.0, 0.0, -2.0)
+                .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
+        ));
+
+        // Back wall + simple side walls (greybox).
+        let wall_mat = materials.add(StandardMaterial {
+            base_color: Color::srgb(0.28, 0.28, 0.34),
             ..default()
-        },
-        Transform::from_xyz(0.0, 5.0, 2.0),
-        FlickerLight {
-            base_intensity: 1_200.0,
-            active: false,
-            phase: 0.0,
-        },
-    ));
-    commands.spawn(AmbientLight {
-        color: Color::srgb(0.5, 0.5, 0.6),
-        brightness: 0.6,
-        affects_lightmapped_meshes: true,
-    });
-    commands.spawn((
-        DirectionalLight {
-            illuminance: 800.0,
-            ..default()
-        },
-        Transform::from_xyz(2.0, 6.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
-    ));
+        });
+        commands.spawn((
+            Mesh3d(meshes.add(Cuboid::new(20.0, 4.0, 0.3))),
+            MeshMaterial3d(wall_mat.clone()),
+            Transform::from_xyz(0.0, 2.0, -3.2),
+        ));
+        commands.spawn((
+            Mesh3d(meshes.add(Cuboid::new(0.3, 4.0, 12.0))),
+            MeshMaterial3d(wall_mat.clone()),
+            Transform::from_xyz(8.0, 2.0, -2.0),
+        ));
+        commands.spawn((
+            Mesh3d(meshes.add(Cuboid::new(0.3, 4.0, 12.0))),
+            MeshMaterial3d(wall_mat),
+            Transform::from_xyz(-8.0, 2.0, -2.0),
+        ));
 
-    // Floor.
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::default().mesh().size(24.0, 24.0))),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: Color::srgb(0.18, 0.18, 0.22),
-            ..default()
-        })),
-        Transform::from_xyz(0.0, 0.0, -2.0)
-            .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
-    ));
-
-    // Back wall + simple side walls (greybox).
-    let wall_mat = materials.add(StandardMaterial {
-        base_color: Color::srgb(0.28, 0.28, 0.34),
-        ..default()
-    });
-    commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(20.0, 4.0, 0.3))),
-        MeshMaterial3d(wall_mat.clone()),
-        Transform::from_xyz(0.0, 2.0, -3.2),
-    ));
-    commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(0.3, 4.0, 12.0))),
-        MeshMaterial3d(wall_mat.clone()),
-        Transform::from_xyz(8.0, 2.0, -2.0),
-    ));
-    commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(0.3, 4.0, 12.0))),
-        MeshMaterial3d(wall_mat),
-        Transform::from_xyz(-8.0, 2.0, -2.0),
-    ));
-
-    // Elevator + doors from world data.
-    let elevator = world.0.prop("elevator");
-    if let Some(e) = elevator {
-        if let Some(loc) = world.0.location(&e.location_id) {
-            if let Some(m) = loc.staging_marks.iter().find(|m| m.id == e.home_mark) {
-                commands.spawn((
-                    Mesh3d(meshes.add(Cuboid::new(1.6, 2.6, 0.6))),
-                    MeshMaterial3d(materials.add(StandardMaterial {
-                        base_color: Color::srgb(0.45, 0.47, 0.5),
-                        metallic: 0.9,
-                        ..default()
-                    })),
-                    Transform::from_xyz(m.position[0], 1.3, m.position[2] + 0.2),
-                ));
+        // Elevator + doors from world data.
+        let elevator = world.0.prop("elevator");
+        if let Some(e) = elevator {
+            if let Some(loc) = world.0.location(&e.location_id) {
+                if let Some(m) = loc.staging_marks.iter().find(|m| m.id == e.home_mark) {
+                    commands.spawn((
+                        Mesh3d(meshes.add(Cuboid::new(1.6, 2.6, 0.6))),
+                        MeshMaterial3d(materials.add(StandardMaterial {
+                            base_color: Color::srgb(0.45, 0.47, 0.5),
+                            metallic: 0.9,
+                            ..default()
+                        })),
+                        Transform::from_xyz(m.position[0], 1.3, m.position[2] + 0.2),
+                    ));
+                }
             }
         }
-    }
 
-    // Props as small colored shapes at their home marks.
-    for p in world.0.props.values() {
-        let loc = match world.0.location(&p.location_id) {
-            Some(l) => l,
-            None => continue,
-        };
-        let mpos = match loc.staging_marks.iter().find(|m| m.id == p.home_mark) {
-            Some(m) => m.position,
-            None => continue,
-        };
-        let ent = commands
-            .spawn((
-                Mesh3d(meshes.add(Sphere::new(0.22).mesh().ico(3).unwrap())),
-                MeshMaterial3d(materials.add(StandardMaterial {
-                    base_color: Color::srgb(0.9, 0.75, 0.3),
-                    ..default()
-                })),
-                Transform::from_xyz(mpos[0], 0.4, mpos[2] + 0.4),
-                PropMarker { id: p.id.clone() },
-            ))
-            .id();
-        scene.props.insert(p.id.clone(), ent);
-        scene.marks.insert(p.home_mark.clone(), v3(mpos));
-    }
-
-    // Record staging marks + camera anchors.
-    for l in world.0.locations.values() {
-        for m in &l.staging_marks {
-            scene.marks.insert(m.id.clone(), v3(m.position));
+        // Props as small colored shapes at their home marks.
+        for p in world.0.props.values() {
+            let loc = match world.0.location(&p.location_id) {
+                Some(l) => l,
+                None => continue,
+            };
+            let mpos = match loc.staging_marks.iter().find(|m| m.id == p.home_mark) {
+                Some(m) => m.position,
+                None => continue,
+            };
+            let ent = commands
+                .spawn((
+                    Mesh3d(meshes.add(Sphere::new(0.22).mesh().ico(3).unwrap())),
+                    MeshMaterial3d(materials.add(StandardMaterial {
+                        base_color: Color::srgb(0.9, 0.75, 0.3),
+                        ..default()
+                    })),
+                    Transform::from_xyz(mpos[0], 0.4, mpos[2] + 0.4),
+                    PropMarker {
+                        ids: vec![p.id.clone()],
+                    },
+                ))
+                .id();
+            scene.props.insert(p.id.clone(), ent);
+            scene.marks.insert(p.home_mark.clone(), v3(mpos));
         }
-        for a in &l.camera_anchors {
-            scene.anchors.push((v3(a.position), v3(a.look_at)));
+
+        // Record staging marks + camera anchors.
+        for l in world.0.locations.values() {
+            for m in &l.staging_marks {
+                scene.marks.insert(m.id.clone(), v3(m.position));
+            }
+            for a in &l.camera_anchors {
+                scene.anchors.push((v3(a.position), v3(a.look_at)));
+            }
         }
     }
 
@@ -238,8 +247,10 @@ pub fn spawn_scene(
         MainCamera,
         CameraRig {
             intent: "establish".into(),
+            anchor_node: None,
             desired_pos: cam_pos,
             desired_look: cam_look,
+            desired_fov: 50.0_f32.to_radians(),
             current_look: cam_look,
             anchors: scene.anchors.clone(),
         },

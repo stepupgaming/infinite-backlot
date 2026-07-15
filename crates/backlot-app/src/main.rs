@@ -4,6 +4,7 @@
 //! author (an OpenAI-compatible LLM director with deterministic fallback), then
 //! runs the Bevy application state machine described in the PRD.
 
+mod backlot_scene;
 mod bevy_capture;
 mod pipeline;
 mod player;
@@ -11,7 +12,7 @@ mod scene;
 mod state;
 
 use backlot_core::author::{DeterministicAuthor, EpisodeAuthor};
-use backlot_core::config::Config;
+use backlot_core::config::{Config, RenderQuality};
 use backlot_core::director::DirectorContext;
 use backlot_core::render::{produce_episode, ProduceConfig};
 use backlot_core::world::build_default_world;
@@ -41,6 +42,31 @@ fn main() {
         .map(String::as_str)
         .unwrap_or("data/config.toml");
     let mut config = Config::load_or_default(config_path);
+    let performance_proof = cli_args.iter().any(|arg| arg == "--performance-proof");
+    if performance_proof {
+        std::env::set_var("BACKLOT_PERFORMANCE_PROOF", "1");
+        config.runtime.output_dir = "output/performance-proof".into();
+        config.runtime.resolution = (1080, 1920);
+        config.runtime.frame_rate = 30;
+        config.director.require_llm = false;
+    }
+    if let Some(value) = cli_args
+        .iter()
+        .position(|arg| arg == "--render-quality")
+        .and_then(|index| cli_args.get(index + 1))
+    {
+        config.runtime.render_quality = value.parse::<RenderQuality>().unwrap_or_else(|error| {
+            eprintln!("{error}");
+            std::process::exit(2);
+        });
+    }
+    if let Some(value) = cli_args
+        .iter()
+        .position(|arg| arg == "--output-dir")
+        .and_then(|index| cli_args.get(index + 1))
+    {
+        config.runtime.output_dir = value.clone();
+    }
     let diagnostic_tts = cli_args.iter().any(|arg| arg == "--diagnostic-tts");
     if diagnostic_tts {
         config.tts.provider = "espeak".into();
@@ -54,12 +80,14 @@ fn main() {
     if cli_args.iter().any(|arg| arg == "--review-render") {
         config.director.force_fallback = true;
         config.director.require_llm = false;
-        config.runtime.resolution = (540, 960);
+        config.runtime.render_quality = RenderQuality::Preview;
+        config.runtime.resolution = (1080, 1920);
         config.runtime.frame_rate = 12;
         config.runtime.output_dir = "output/review-dev".into();
     }
     if cli_args.iter().any(|arg| arg == "--motion-review-fast") {
-        config.runtime.resolution = (360, 640);
+        config.runtime.render_quality = RenderQuality::Preview;
+        config.runtime.resolution = (720, 1280);
         config.runtime.frame_rate = 6;
         config.runtime.output_dir = "output/motion-review".into();
     }
@@ -78,14 +106,21 @@ fn main() {
         .position(|a| a == "--reuse-authored-path")
         .and_then(|index| cli_args.get(index + 1))
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from("data/last_authored_episode.json"));
-    let reuse_authored = cli_args.iter().any(|a| a == "--reuse-authored")
+        .unwrap_or_else(|| {
+            if performance_proof {
+                PathBuf::from("data/performance_proof_episode.json")
+            } else {
+                PathBuf::from("data/last_authored_episode.json")
+            }
+        });
+    let reuse_authored = performance_proof
+        || cli_args.iter().any(|a| a == "--reuse-authored")
         || cli_args.iter().any(|a| a == "--reuse-authored-path");
     let repair_authored = cli_args.iter().any(|a| a == "--repair-authored");
     let require_llm_requested =
         config.director.require_llm || cli_args.iter().any(|a| a == "--require-llm");
-    // Frozen replay is a validated local-input mode and must never start a new
-    // model-backed authoring run.
+    // Frozen replay is a validated local-input mode: it must not start or claim
+    // a model-backed run, even when production defaults normally require one.
     let require_llm = require_llm_requested && !(reuse_authored && !repair_authored);
     if produce_one && !diagnostic_tts && config.tts.provider != "gepard_batch" {
         eprintln!(
@@ -97,7 +132,7 @@ fn main() {
         .iter()
         .position(|a| a == "--render-backend")
         .and_then(|i| cli_args.get(i + 1).cloned())
-        .unwrap_or_else(|| "cpu".to_string());
+        .unwrap_or_else(|| "bevy".to_string());
     // --- Authoring-only diagnostic (no rendering) ---
     if cli_args.iter().any(|a| a == "--diagnostic-authoring") {
         eprintln!("AUTHORING DIAGNOSTIC (no render)");
@@ -297,6 +332,12 @@ fn main() {
         using_llm,
     };
 
+    let project_root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    let backlot_plugin =
+        backlot_scene::BacklotScenePlugin::load(&project_root).unwrap_or_else(|error| {
+            eprintln!("BACKLOT SET CONTRACT FAILED: {error}");
+            std::process::exit(2);
+        });
     let mut app = App::new();
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
@@ -306,6 +347,7 @@ fn main() {
         }),
         ..default()
     }))
+    .add_plugins(backlot_plugin)
     .insert_resource(RunControl::from(&config))
     .insert_resource(CanonicalWorld(world))
     .insert_resource(handle)
@@ -322,8 +364,8 @@ fn main() {
     // State transitions.
     app.add_systems(OnEnter(AppState::Boot), boot_to_loading)
         .add_systems(
-            OnEnter(AppState::AssetLoading),
-            pipeline::asset_loading_system,
+            Update,
+            pipeline::asset_loading_system.run_if(in_state(AppState::AssetLoading)),
         )
         .add_systems(
             Update,

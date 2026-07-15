@@ -4,6 +4,10 @@
 //! `Rendering` (deterministic replay at higher quality). The LLM is never
 //! touched here — only the committed plan is replayed.
 
+use crate::backlot_scene::{
+    camera_fov_radians, camera_look_at, select_camera_anchor, BacklotFrameState,
+    BacklotSceneManifest, CameraSubject, CameraSubjectKind,
+};
 use crate::scene::Hud;
 use crate::state::*;
 use backlot_core::validation::ResolvedAction;
@@ -98,13 +102,16 @@ pub fn flicker_system(time: Res<Time>, mut lights: Query<(&mut PointLight, &mut 
 
 pub fn camera_system(
     time: Res<Time>,
-    mut cams: Query<(&mut Transform, &mut CameraRig), With<MainCamera>>,
+    mut cams: Query<(&mut Transform, &mut Projection, &mut CameraRig), With<MainCamera>>,
 ) {
     let k = 1.0 - (-3.0 * time.delta_secs()).exp();
-    for (mut tf, mut rig) in cams.iter_mut() {
+    for (mut tf, mut projection, mut rig) in cams.iter_mut() {
         rig.current_look = rig.current_look.lerp(rig.desired_look, k);
         tf.translation = tf.translation.lerp(rig.desired_pos, k);
         tf.look_at(rig.current_look, Vec3::Y);
+        if let Projection::Perspective(perspective) = projection.as_mut() {
+            perspective.fov += (rig.desired_fov - perspective.fov) * k;
+        }
     }
 }
 
@@ -157,6 +164,8 @@ pub fn player_system(
     mut log: ResMut<RehearsalLog>,
     current: Res<CurrentEpisode>,
     scene: Res<SceneIndex>,
+    manifest: Option<Res<BacklotSceneManifest>>,
+    mut backlot_frame: ResMut<BacklotFrameState>,
     mut active: ResMut<ActiveCaption>,
     run: ResMut<RunControl>,
     mut next: ResMut<NextState<AppState>>,
@@ -199,6 +208,8 @@ pub fn player_system(
             &mut log,
             validated,
             &scene,
+            manifest.as_deref(),
+            &mut backlot_frame,
             &mut chars,
             &mut cams,
         );
@@ -206,6 +217,8 @@ pub fn player_system(
 
     let dt = time.delta_secs() * clock.scale;
     clock.elapsed += dt;
+    backlot_frame.time = clock.elapsed;
+    backlot_frame.panel_active = (backlot_frame.panel_active - dt * 3.0).max(0.0);
     player.beat_elapsed += dt;
     player.since_event += dt;
     if player.since_event > log.dead_air_max {
@@ -220,7 +233,9 @@ pub fn player_system(
         char_map.insert(av.id.clone(), (tf.translation, e, av.display.clone()));
     }
     for (_, p, tf) in props.iter() {
-        prop_map.insert(p.id.clone(), tf.translation);
+        for id in &p.ids {
+            prop_map.insert(id.clone(), tf.translation);
+        }
     }
 
     // Fire any due actions.
@@ -240,6 +255,7 @@ pub fn player_system(
             &world,
             &mut chars,
             &mut lights,
+            &mut backlot_frame,
             &run,
         );
         player.action_cursor += 1;
@@ -286,6 +302,8 @@ fn begin_beat(
     log: &mut RehearsalLog,
     validated: &backlot_core::validation::ValidatedPlan,
     scene: &SceneIndex,
+    manifest: Option<&BacklotSceneManifest>,
+    backlot_frame: &mut BacklotFrameState,
     chars: &mut Query<
         (Entity, &mut CharacterAvatar, &mut Transform),
         (Without<PropMarker>, Without<MainCamera>),
@@ -336,12 +354,74 @@ fn begin_beat(
                 .find(|(ent, _, _)| *ent == *e)
                 .map(|(_, _, tf)| tf.translation)
         });
-    let (pos, look) = compute_camera(&intent, subject_pos, reaction_pos, &scene.anchors);
+    let previous_anchor = cams
+        .iter_mut()
+        .next()
+        .and_then(|(_, _, rig)| rig.anchor_node.clone());
+    let authored = manifest.and_then(|manifest| {
+        let elevated = |point: Vec3| [point.x, point.y + 1.23, point.z];
+        let subject = if intent.contains("group") || intent.contains("conversation") {
+            CameraSubject::group(
+                rb.camera_intent.subject.clone(),
+                chars
+                    .iter()
+                    .map(|(_, _, transform)| elevated(transform.translation))
+                    .collect(),
+            )
+        } else if intent == "reaction" {
+            if let Some(reaction) = reaction_pos {
+                CameraSubject::character(
+                    rb.camera_intent
+                        .reaction_subject
+                        .clone()
+                        .unwrap_or_else(|| rb.camera_intent.subject.clone()),
+                    elevated(reaction),
+                )
+            } else {
+                CameraSubject::character(rb.camera_intent.subject.clone(), elevated(subject_pos))
+            }
+        } else if scene.characters.contains_key(&rb.camera_intent.subject) {
+            CameraSubject::character(rb.camera_intent.subject.clone(), elevated(subject_pos))
+        } else if let Some(position) = manifest.prop_position(&rb.camera_intent.subject) {
+            CameraSubject::feature(
+                rb.camera_intent.subject.clone(),
+                position,
+                CameraSubjectKind::Prop,
+            )
+        } else if let Some(position) = scene.marks.get(&rb.camera_intent.subject) {
+            CameraSubject::feature(
+                rb.camera_intent.subject.clone(),
+                position.to_array(),
+                CameraSubjectKind::StagingRegion,
+            )
+        } else {
+            CameraSubject::missing(rb.camera_intent.subject.clone())
+        };
+        match select_camera_anchor(manifest, &intent, &subject, previous_anchor.as_deref()) {
+            Ok(anchor) => Some((
+                Vec3::from_array(anchor.position),
+                Vec3::from_array(camera_look_at(anchor, &subject)),
+                camera_fov_radians(anchor),
+                anchor.node.clone(),
+            )),
+            Err(error) => {
+                tracing::error!("{error}");
+                None
+            }
+        }
+    });
+    let (pos, look, fov, anchor_node) = authored.unwrap_or_else(|| {
+        let (pos, look) = compute_camera(&intent, subject_pos, reaction_pos, &scene.anchors);
+        (pos, look, 50.0_f32.to_radians(), String::new())
+    });
     for (_, _, mut rig) in cams.iter_mut() {
         rig.intent = intent.clone();
+        rig.anchor_node = (!anchor_node.is_empty()).then(|| anchor_node.clone());
         rig.desired_pos = pos;
         rig.desired_look = look;
+        rig.desired_fov = fov;
     }
+    backlot_frame.active_anchor = (!anchor_node.is_empty()).then_some(anchor_node);
 
     log.camera.push(backlot_core::package::CameraShot {
         start: clock.elapsed,
@@ -373,6 +453,7 @@ fn fire_action(
         (Without<PropMarker>, Without<MainCamera>),
     >,
     lights: &mut Query<(&mut PointLight, &mut FlickerLight)>,
+    backlot_frame: &mut BacklotFrameState,
     run: &RunControl,
 ) {
     let display = char_map
@@ -392,6 +473,28 @@ fn fire_action(
         log.visual_changes += 1;
     }
     player.since_event = 0.0;
+
+    let action = act.action.to_ascii_lowercase();
+    let target = act
+        .target_id
+        .as_deref()
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+    if action.contains("open") && target.contains("elevator") {
+        backlot_frame.elevator_open = 1.0;
+        backlot_frame.elevator_indicator_active = true;
+    } else if action.contains("close") && target.contains("elevator") {
+        backlot_frame.elevator_open = 0.0;
+    }
+    if (action.contains("press") || action.contains("interact") || action.contains("use"))
+        && (target.contains("panel") || target.contains("button"))
+    {
+        backlot_frame.panel_active = 1.0;
+        backlot_frame.elevator_indicator_active = true;
+    }
+    if action.contains("reveal") && (target.contains("elevator") || target.contains("floor")) {
+        backlot_frame.impossible_reveal = 1.0;
+    }
 
     match act.action.as_str() {
         "speak" | "whisper" | "shout" => {
@@ -434,6 +537,7 @@ fn fire_action(
             }
         }
         "flicker_lights" => {
+            backlot_frame.flicker = true;
             for (_, mut fl) in lights.iter_mut() {
                 fl.active = true;
             }

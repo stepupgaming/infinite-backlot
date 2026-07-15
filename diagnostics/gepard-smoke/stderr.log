@@ -1,0 +1,61 @@
+OneLogger: Setting error_handling_strategy to DISABLE_QUIETLY_AND_REPORT_METRIC_ERROR for rank (rank=0) with OneLogger disabled. To override: explicitly set error_handling_strategy parameter.
+No exporters were provided. This means that no telemetry data will be collected.
+W0714 18:55:37.377000 30456 .venv\Lib\site-packages\torch\utils\flop_counter.py:29] triton not found; flop counting will not work for triton kernels
+[GepardRunner] model config: F:\Models\InfiniteBacklot\gepard-1.0/gepard_config.json
+[GepardRunner] legacy 0-dim params reshaped to match model: ['audio_embed_scale', 'ref_compressor.output_scale']
+[NeMo W 2026-07-14 18:55:44 modelPT:176] If you intend to do training or fine-tuning, please call the ModelPT.setup_training_data() method and provide a valid configuration file to setup the train data loader.
+    Train config : 
+    dataset:
+      dataset_type: tarred_vocoder
+      dataset_args:
+        dataset_meta:
+          mls_english:
+            manifest_path: /lustre/fsw/portfolios/llmservice/projects/llmservice_nemo_speechlm/data/TTS/mls_english/filtered_22khz/tarred_audio/train_manifest.json
+            tar_filepath: /lustre/fsw/portfolios/llmservice/projects/llmservice_nemo_speechlm/data/TTS/mls_english/filtered_22khz/tarred_audio/audio_{0..1999}.tar
+          cv:
+            manifest_path: /lustre/fsw/portfolios/llmservice/projects/llmservice_nemo_speechlm/data/TTS/commonvoice13/22khz/tarred_audio/train_manifest.json
+            tar_filepath: /lustre/fsw/portfolios/llmservice/projects/llmservice_nemo_speechlm/data/TTS/commonvoice13/22khz/tarred_audio/audio_{0..279}.tar
+        sample_rate: 22050
+        n_samples: 24576
+        min_duration: 0.4
+        max_duration: null
+        shard_strategy: replicate
+        sample_type: weighted_random
+        sample_args:
+          batch_size: 32
+          steps_per_epoch: 1000
+          dataset_weights:
+          - 0.75
+          - 0.25
+        shuffle_n: 10000
+    dataloader_params:
+      batch_size: 32
+      drop_last: true
+      num_workers: 4
+    
+[NeMo W 2026-07-14 18:55:44 modelPT:183] If you intend to do validation, please call the ModelPT.setup_validation_data() or ModelPT.setup_multiple_validation_data() method and provide a valid configuration file to setup the validation data loader(s). 
+    Validation config : 
+    dataset:
+      dataset_type: vocoder
+      dataset_args:
+        sample_rate: 22050
+        n_samples: null
+        min_duration: null
+        max_duration: null
+        trunc_duration: 10.0
+        dataset_meta:
+          mls_english:
+            manifest_path: /lustre/fsw/portfolios/llmservice/projects/llmservice_nemo_speechlm/data/TTS/mls_english/filtered_22khz/val_manifest_unseen.json
+            audio_dir: /lustre/fsw/portfolios/llmservice/projects/llmservice_nemo_speechlm/data/TTS/mls_english/filtered_22khz/audio_22khz
+          cv:
+            manifest_path: /lustre/fsw/portfolios/llmservice/projects/llmservice_nemo_speechlm/data/TTS/commonvoice13/22khz/val_manifest.json
+            audio_dir: /lustre/fsw/portfolios/llmservice/projects/llmservice_nemo_speechlm/data/TTS/commonvoice13/22khz/audio_22khz
+    dataloader_params:
+      batch_size: 4
+      num_workers: 2
+    
+[NeMo I 2026-07-14 18:55:44 audio_codec:109] Vector quantizer does not support commit loss.
+[NeMo I 2026-07-14 18:55:50 audio_codec:234] Speaker encoder loaded and frozen !!
+[NeMo I 2026-07-14 18:55:51 save_restore_connector:286] Model UnfoldedCodecModel was successfully restored from F:\Models\huggingface\hub\models--nvidia--nemo-nano-codec-22khz-1.89kbps-21.5fps\snapshots\3c482a402a3c4cf33690a2c0f0a7d41afea6bd6a\nemo-nano-codec-22khz-1.89kbps-21.5fps.nemo.
+[Player] codec nvidia/nemo-nano-codec-22khz-1.89kbps-21.5fps on cuda | fsq_levels=[8, 7, 6, 6] sr=22050
+[GepardSession] ready on cuda | checkpoint=F:\Models\InfiniteBacklot\gepard-1.0 | default voice=None

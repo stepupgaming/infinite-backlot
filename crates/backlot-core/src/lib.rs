@@ -28,7 +28,7 @@ pub use avatar::{
     character_pose, part_corners, CameraTargetRole, HumanoidRig, PerformanceState, Pose, RigWorld,
     SemanticJoint, Xform,
 };
-pub use config::{Config, DirectorConfig, LlmConfig, RuntimeConfig};
+pub use config::{Config, DirectorConfig, LlmConfig, RenderQuality, RuntimeConfig};
 pub use director::{DeterministicDirector, Director, DirectorContext};
 pub use error::{CoreError, Result};
 pub use package::{

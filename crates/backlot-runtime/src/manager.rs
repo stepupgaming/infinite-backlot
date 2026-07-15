@@ -156,7 +156,7 @@ impl ModelRuntimeManager {
     }
 }
 
-fn query_free_vram_mb() -> Option<u64> {
+pub fn query_free_vram_mb() -> Option<u64> {
     let output = Command::new("nvidia-smi")
         .args(["--query-gpu=memory.free", "--format=csv,noheader,nounits"])
         .stdin(Stdio::null())

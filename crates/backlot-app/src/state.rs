@@ -45,7 +45,7 @@ pub struct CharacterAvatar {
 
 #[derive(Component)]
 pub struct PropMarker {
-    pub id: String,
+    pub ids: Vec<String>,
 }
 
 #[derive(Component)]
@@ -65,8 +65,10 @@ pub struct SpeechIndicator;
 #[derive(Component)]
 pub struct CameraRig {
     pub intent: String,
+    pub anchor_node: Option<String>,
     pub desired_pos: Vec3,
     pub desired_look: Vec3,
+    pub desired_fov: f32,
     pub current_look: Vec3,
     pub anchors: Vec<(Vec3, Vec3)>,
 }

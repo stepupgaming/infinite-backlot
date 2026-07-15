@@ -1,0 +1,7 @@
+{"phase":"tts.load.started","request_count":1}
+{"phase":"tts.gpu_memory","stage":"before_load","device":"0","free_mb":15158,"total_mb":16311,"allocated_mb":0,"reserved_mb":0}
+{"phase":"tts.load.completed","elapsed_ms":12032}
+{"phase":"tts.gpu_memory","stage":"after_load","device":"0","free_mb":13210,"total_mb":16311,"allocated_mb":1929,"reserved_mb":1948}
+{"phase":"tts.line.completed","id":"mara-smoke","output":"C:\\Projects\\bevy-infinite\\diagnostics\\gepard-smoke\\mara.wav","sample_rate":22050,"duration":2.972154195011338,"elapsed_ms":3371,"success":true}
+{"phase":"tts.gpu_memory","stage":"after_generation","device":"0","free_mb":12892,"total_mb":16311,"allocated_mb":1529,"reserved_mb":2230}
+{"phase":"tts.complete","response_count":1,"failure_count":0}

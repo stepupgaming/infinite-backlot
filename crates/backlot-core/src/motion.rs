@@ -388,6 +388,39 @@ pub fn native_state_for_semantic(semantic: &str) -> PerformanceState {
     }
 }
 
+/// Warp a reviewed Kimodo root trajectory onto an authored world-space segment.
+/// The generated root determines locomotion progress (and therefore foot-cycle
+/// timing); the authored endpoints remain exact stage reservations.
+pub fn path_warped_root_position(
+    clip: &backlot_motion::library::ProcessedMotionClip,
+    normalized_time: f32,
+    start: [f32; 3],
+    destination: [f32; 3],
+) -> [f32; 3] {
+    let Some(first) = clip.root_positions.first().copied() else {
+        return start;
+    };
+    let Some(last) = clip.root_positions.last().copied() else {
+        return start;
+    };
+    let sample = ((normalized_time.clamp(0.0, 1.0)
+        * clip.root_positions.len().saturating_sub(1) as f32)
+        .round() as usize)
+        .min(clip.root_positions.len().saturating_sub(1));
+    let current = clip.root_positions[sample];
+    let generated_distance = ((last[0] - first[0]).powi(2) + (last[2] - first[2]).powi(2))
+        .sqrt()
+        .max(0.001);
+    let progress = (((current[0] - first[0]).powi(2) + (current[2] - first[2]).powi(2)).sqrt()
+        / generated_distance)
+        .clamp(0.0, 1.0);
+    [
+        start[0] + (destination[0] - start[0]) * progress,
+        start[1] + (destination[1] - start[1]) * progress,
+        start[2] + (destination[2] - start[2]) * progress,
+    ]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -411,5 +444,25 @@ mod tests {
         ] {
             assert_ne!(semantic_for_action(action), "unmapped", "{action}");
         }
+    }
+
+    #[test]
+    fn kimodo_root_trajectory_drives_authored_world_path_progress() {
+        let clip = backlot_motion::library::ProcessedMotionClip {
+            schema_version: 2,
+            semantic: "walk".into(),
+            sample_rate: 2.0,
+            duration: 1.0,
+            tracks: vec![],
+            root_positions: vec![[0.0, 0.0, 0.0], [0.2, 0.0, 0.0], [1.0, 0.0, 0.0]],
+            foot_contacts: vec![],
+            foot_positions: vec![],
+            foot_lock_offsets: vec![],
+            contact_channels: vec![],
+            looping: false,
+        };
+        let position = path_warped_root_position(&clip, 0.5, [10.0, 0.0, 3.0], [20.0, 0.0, 3.0]);
+        assert!((position[0] - 12.0).abs() < 0.001, "{position:?}");
+        assert_eq!(position[2], 3.0);
     }
 }

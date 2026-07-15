@@ -13,6 +13,18 @@ fn identity_quat() -> [f32; 4] {
     [0.0, 0.0, 0.0, 1.0]
 }
 
+/// Runtime delta-basis correction (xyzw). Both loaders normalize the reviewed
+/// clips and KayKit rig to the same Bevy-local axes; raw Blender Z-up rest-space
+/// corrections are diagnostic only and must not be baked into clip deltas.
+fn kaykit_basis(target: &str) -> [f32; 4] {
+    match target {
+        "hips" | "spine" | "chest" | "neck" | "head" | "upperarm.l" | "lowerarm.l" | "hand.l"
+        | "upperarm.r" | "lowerarm.r" | "hand.r" | "upperleg.l" | "lowerleg.l" | "foot.l"
+        | "toes.l" | "upperleg.r" | "lowerleg.r" | "foot.r" | "toes.r" => identity_quat(),
+        _ => identity_quat(),
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct RetargetMap {
     pub source_skeleton: String,
@@ -73,7 +85,7 @@ impl RetargetMap {
                 .map(|(source, target)| RetargetJoint {
                     source: source.into(),
                     target: target.into(),
-                    rest_correction: identity_quat(),
+                    rest_correction: kaykit_basis(target),
                 })
                 .collect(),
         }

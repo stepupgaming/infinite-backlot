@@ -8,7 +8,7 @@ pub mod parakeet;
 pub mod process;
 pub mod telemetry;
 
-pub use manager::{ModelRuntimeManager, RuntimeError, RuntimeKind};
+pub use manager::{query_free_vram_mb, ModelRuntimeManager, RuntimeError, RuntimeKind};
 pub use process::ProcessSpec;
 pub use telemetry::{
     clear_global_telemetry, snapshot_global_telemetry, PhaseTiming, RuntimeTelemetry,

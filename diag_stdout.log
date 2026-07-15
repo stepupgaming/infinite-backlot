@@ -1,9 +1,0 @@
-Infinite Backlot — base_url=http://127.0.0.1:8080/v1 model=dcf179a91153e3a7ece792e48ef872180d9d6ef9b7677f0a0bd3e83cfe624d5e force_fallback=false
-AUTHORING DIAGNOSTIC (no render)
-DIAGNOSTIC COMPLETE
-  packet: diagnostics/llm_authoring_packet\LLM_AUTHORING_DIAGNOSTIC_PACKET.md
-  total_wire_calls=14 total_logical_calls=14
-  wall_ms=63856 prompt_tokens=20300 completion_tokens=8230
-  produced=false estimated_duration=None status=n/a
-  finish_reasons=["stop", "stop", "stop", "stop", "stop", "stop", "stop", "stop", "stop", "stop", "stop", "stop", "stop", "stop"] any_length_truncated=false
-  schema_repairs=2 plan_title=None beats=0

@@ -11,6 +11,7 @@ use crate::package::{Caption, DialogueLine, TimedEvent};
 use crate::protocol::{ActionPhases, EnvironmentEventKind, PerformanceCue, SoundCue};
 use crate::validation::ValidatedPlan;
 use crate::world::WorldState;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 // ===========================================================================
@@ -22,6 +23,10 @@ pub struct ScheduledAction {
     pub actor: String,
     pub action: String,
     pub target: Option<String>,
+    /// Authoritative world-space destination captured by the occupancy planner.
+    /// Dynamic near-actor fallback slots are not part of the static set manifest,
+    /// so resolving only by slot name during playback would silently drop them.
+    pub target_position: Option<[f32; 3]>,
     pub text: Option<String>,
     pub start: f32,
     pub dur: f32,
@@ -70,6 +75,31 @@ pub struct ScheduledSoundCue {
     pub start: f32,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MovementResolution {
+    pub actor: String,
+    pub action: String,
+    pub requested_destination: Option<String>,
+    pub resolved_destination: Option<String>,
+    pub start: f32,
+    pub end: f32,
+    pub path: Vec<[f32; 3]>,
+    pub executed: bool,
+    pub unresolved_reason: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExecutableBlockingAction {
+    pub actor: String,
+    pub starting_slot: String,
+    pub destination_slot: String,
+    pub travel_path: Vec<[f32; 3]>,
+    pub facing_target: Option<String>,
+    pub arrival_time: f32,
+    pub action_after_arrival: Option<String>,
+    pub required_camera_visible_moment: f32,
+}
+
 #[derive(Debug, Clone)]
 pub struct Schedule {
     pub duration: f32,
@@ -84,6 +114,8 @@ pub struct Schedule {
     pub inserts: Vec<(f32, String)>,
     pub environment: Vec<ScheduledEnvironmentCue>,
     pub sounds: Vec<ScheduledSoundCue>,
+    pub movement_resolutions: Vec<MovementResolution>,
+    pub blocking_plan: Vec<ExecutableBlockingAction>,
 }
 
 #[derive(Debug, Clone)]
@@ -173,6 +205,12 @@ pub fn resolve_pos(
     world: &WorldState,
     home_of: &HashMap<String, [f32; 3]>,
 ) -> Option<[f32; 3]> {
+    if let Some(position) = crate::stage::slot_position(target) {
+        return Some(position);
+    }
+    if let Some(position) = crate::stage::feature_position(target) {
+        return Some(position);
+    }
     // staging mark
     for l in world.locations.values() {
         if let Some(m) = l.staging_marks.iter().find(|m| m.id == target) {
@@ -207,33 +245,14 @@ pub fn build_schedule(
     tts_durations: &HashMap<(String, String), f32>,
 ) -> Schedule {
     use crate::director::plan_shots;
-    let loc_id = &validated.plan.primary_location;
-    let marks: Vec<[f32; 3]> = world
-        .locations
-        .get(loc_id)
-        .map(|l| l.staging_marks.iter().map(|m| m.position).collect())
-        .unwrap_or_default();
-
     let active: Vec<&String> = validated.plan.active_characters.iter().collect();
+    let mut occupancy =
+        crate::stage::StageOccupancy::for_episode(active.iter().map(|actor| actor.as_str()));
     let mut home_of: HashMap<String, [f32; 3]> = HashMap::new();
-    let default_marks = [
-        "hall_center",
-        "apt_3b_door",
-        "maintenance_panel",
-        "apt_4a_door",
-    ];
-    for (i, id) in active.iter().enumerate() {
-        let pos = marks
-            .get(i)
-            .copied()
-            .or_else(|| {
-                world.locations.get(loc_id).and_then(|l| {
-                    l.staging_marks
-                        .iter()
-                        .find(|m| m.id == default_marks[i % default_marks.len()])
-                        .map(|m| m.position)
-                })
-            })
+    for id in &active {
+        let pos = occupancy
+            .current(id)
+            .map(|reservation| reservation.position)
             .unwrap_or([0.0, 0.0, 0.0]);
         home_of.insert((*id).clone(), pos);
     }
@@ -256,30 +275,160 @@ pub fn build_schedule(
     let mut environment: Vec<ScheduledEnvironmentCue> = Vec::new();
     let mut sounds: Vec<ScheduledSoundCue> = Vec::new();
     let mut camera_shots: Vec<CameraShotSpec> = Vec::new();
+    let mut movement_resolutions = Vec::new();
+    let mut blocking_plan = Vec::new();
+    // Long-form authored beats commonly place direction (look, react, point,
+    // interact) immediately before dialogue. Those directions are simultaneous
+    // performance, not silent timeline blocks. Short proof fixtures remain
+    // strictly sequential so their explicit choreography timestamps are stable.
+    let overlap_nonblocking_actions = validated.plan.target_duration_seconds >= 45.0;
 
     let mut clock = 0.0f32;
     for rb in &validated.resolved_beats {
         let beat_start = clock;
+        let direction_text = format!(
+            "{} {} {} {}",
+            rb.outline.description,
+            rb.command.dramatic_purpose,
+            rb.command.visible_action.as_deref().unwrap_or(""),
+            rb.command.intended_reaction.as_deref().unwrap_or("")
+        )
+        .to_ascii_lowercase();
+        let opens_elevator = (direction_text.contains("doors open")
+            || direction_text.contains("doors slide open"))
+            && !direction_text.contains("slam shut");
+        let closes_elevator = direction_text.contains("doors close")
+            || direction_text.contains("close violently")
+            || direction_text.contains("slam shut");
         let mut t = 0.0f32;
+        let mut movement_t = 0.0f32;
+        let mut movement_ready_by_actor: HashMap<String, f32> = HashMap::new();
+        let mut visible_end = 0.0f32;
         for ra in &rb.resolved_actions {
-            let dur = match action_kind(&ra.action) {
+            let kind = action_kind(&ra.action);
+            let dur = match kind {
                 ActionKind::Speak => {
                     let key = (ra.actor_id.clone(), ra.text.clone().unwrap_or_default());
                     *tts_durations.get(&key).unwrap_or(&ra.estimated_duration)
                 }
                 _ => ra.estimated_duration,
             };
+            let action_t = if overlap_nonblocking_actions && matches!(kind, ActionKind::Move) {
+                movement_t
+            } else if overlap_nonblocking_actions && !matches!(kind, ActionKind::Speak) {
+                // A direction written after dialogue is a listener/reaction beat:
+                // place it under the end of that line rather than adding silent
+                // tail time after the actor stops speaking.
+                (t - dur)
+                    .max(0.0)
+                    .max(*movement_ready_by_actor.get(&ra.actor_id).unwrap_or(&0.0))
+            } else {
+                t
+            };
+            let action_start = beat_start + action_t;
+            let mut resolved_target = ra.target_id.clone();
+            let mut resolved_target_position = None;
+            if matches!(action_kind(&ra.action), ActionKind::Move) {
+                let start_reservation = occupancy.current(&ra.actor_id).cloned();
+                let movement_kind = match ra.action.as_str() {
+                    "approach" | "follow" | "retreat_from" => crate::stage::MovementKind::Approach,
+                    "enter_room" => crate::stage::MovementKind::Enter,
+                    "exit_room" | "flee_to" => crate::stage::MovementKind::Exit,
+                    _ => crate::stage::MovementKind::Move,
+                };
+                let requested = ra.target_id.as_deref().unwrap_or("");
+                let reservation = if requested.is_empty() {
+                    Err("movement has no requested destination".to_string())
+                } else {
+                    occupancy.reserve(&ra.actor_id, requested, movement_kind)
+                };
+                match reservation {
+                    Ok(reservation) => {
+                        resolved_target = Some(reservation.slot.clone());
+                        resolved_target_position = Some(reservation.position);
+                        let start_position = start_reservation
+                            .as_ref()
+                            .map(|value| value.position)
+                            .unwrap_or(reservation.position);
+                        movement_resolutions.push(MovementResolution {
+                            actor: ra.actor_id.clone(),
+                            action: ra.action.clone(),
+                            requested_destination: ra.target_id.clone(),
+                            resolved_destination: Some(reservation.slot.clone()),
+                            start: action_start,
+                            end: action_start + dur,
+                            path: vec![start_position, reservation.position],
+                            executed: true,
+                            unresolved_reason: None,
+                        });
+                        blocking_plan.push(ExecutableBlockingAction {
+                            actor: ra.actor_id.clone(),
+                            starting_slot: start_reservation
+                                .map(|value| value.slot)
+                                .unwrap_or_else(|| "unknown".into()),
+                            destination_slot: reservation.slot,
+                            travel_path: vec![start_position, reservation.position],
+                            facing_target: ra.target_id.clone(),
+                            arrival_time: action_start + dur,
+                            action_after_arrival: None,
+                            required_camera_visible_moment: action_start + dur * 0.5,
+                        });
+                    }
+                    Err(reason) => movement_resolutions.push(MovementResolution {
+                        actor: ra.actor_id.clone(),
+                        action: ra.action.clone(),
+                        requested_destination: ra.target_id.clone(),
+                        resolved_destination: None,
+                        start: action_start,
+                        end: action_start + dur,
+                        path: vec![],
+                        executed: false,
+                        unresolved_reason: Some(reason),
+                    }),
+                }
+            }
             // record on the actor track
+            visible_end = visible_end.max(action_t + dur);
             if let Some(ct) = chars.iter_mut().find(|c| c.id == ra.actor_id) {
                 ct.actions.push(ScheduledAction {
                     actor: ra.actor_id.clone(),
                     action: ra.action.clone(),
-                    target: ra.target_id.clone(),
+                    target: resolved_target.clone(),
+                    target_position: resolved_target_position,
                     text: ra.text.clone(),
-                    start: beat_start + t,
+                    start: action_start,
                     dur,
                     performance: ra.performance.clone(),
                 });
+            }
+            let interaction_sound = |sound: &str, gain: f32, start: f32| ScheduledSoundCue {
+                cue: SoundCue {
+                    sound: sound.into(),
+                    source: None,
+                    gain,
+                    start_offset: 0.0,
+                },
+                start,
+            };
+            match ra.action.as_str() {
+                "activate" if ra.target_id.as_deref() == Some("maintenance_panel") => {
+                    sounds.push(interaction_sound(
+                        "panel_beep",
+                        0.36,
+                        action_start + dur * 0.55,
+                    ));
+                }
+                "open_elevator" => {
+                    sounds.push(interaction_sound("elevator_ding", 0.42, action_start));
+                    sounds.push(interaction_sound("door_motor", 0.28, action_start + 0.15));
+                }
+                "close_elevator" => {
+                    sounds.push(interaction_sound("door_motor", 0.26, action_start));
+                }
+                "flicker_lights" => {
+                    sounds.push(interaction_sound("electrical_flicker", 0.2, action_start));
+                }
+                _ => {}
             }
             // dialogue + captions for speech
             if matches!(action_kind(&ra.action), ActionKind::Speak) {
@@ -287,7 +436,7 @@ pub fn build_schedule(
                     .character(&ra.actor_id)
                     .map(|c| c.voice_id.clone())
                     .unwrap_or_else(|| ra.actor_id.clone());
-                let s = beat_start + t;
+                let s = action_start;
                 let e = s + dur;
                 let text = ra.text.clone().unwrap_or_default();
                 dialogue.push(DialogueLine {
@@ -301,23 +450,28 @@ pub fn build_schedule(
             }
             // events log
             events.push(TimedEvent {
-                t: beat_start + t,
+                t: action_start,
                 kind: ra.action.clone(),
                 actor: Some(ra.actor_id.clone()),
-                target: ra.target_id.clone(),
+                target: resolved_target.clone(),
                 detail: ra.text.clone().unwrap_or_default(),
             });
             // flicker
             if ra.action == "flicker_lights" {
-                flicker.push((beat_start + t, beat_start + t + dur));
+                flicker.push((action_start, action_start + dur));
             }
             // insert markers for prop reveal / indicator moments
             if matches!(
                 ra.action.as_str(),
-                "inspect" | "reveal_object" | "open_elevator" | "activate" | "point_at"
+                "inspect"
+                    | "reveal_object"
+                    | "open_elevator"
+                    | "close_elevator"
+                    | "activate"
+                    | "point_at"
             ) {
                 if let Some(tgt) = &ra.target_id {
-                    inserts.push((beat_start + t, tgt.clone()));
+                    inserts.push((action_start, tgt.clone()));
                 }
             }
             // prop attach for interaction actions
@@ -330,13 +484,20 @@ pub fn build_schedule(
                         prop_attach.push(PropAttach {
                             prop: target.clone(),
                             char_id: ra.actor_id.clone(),
-                            start: beat_start + t,
-                            end: beat_start + t + dur + 2.0,
+                            start: action_start,
+                            end: action_start + dur + 2.0,
                         });
                     }
                 }
             }
-            t += dur;
+            if !overlap_nonblocking_actions {
+                t += dur;
+            } else if matches!(kind, ActionKind::Speak) {
+                t += dur;
+            } else if matches!(kind, ActionKind::Move) {
+                movement_t += dur;
+                movement_ready_by_actor.insert(ra.actor_id.clone(), movement_t);
+            }
         }
         for cue in &rb.command.environment {
             environment.push(ScheduledEnvironmentCue {
@@ -356,8 +517,132 @@ pub fn build_schedule(
                 start: beat_start + cue.start_offset.max(0.0),
             });
         }
-        let beat_end =
-            (beat_start + t + 0.6).max(rb.completion.seconds.unwrap_or(0.0).max(beat_start + t));
+        if opens_elevator {
+            let reveal_time = beat_start + 0.1;
+            environment.push(ScheduledEnvironmentCue {
+                target: "elevator_doors".into(),
+                event: EnvironmentEventKind::ElevatorDoors,
+                start: reveal_time,
+                duration: 1.2,
+                from: Some(0.0),
+                to: Some(1.0),
+                value: None,
+                easing: "smoothstep".into(),
+            });
+            environment.push(ScheduledEnvironmentCue {
+                target: "elevator_interior".into(),
+                event: EnvironmentEventKind::ImpossibleFloorReveal,
+                start: reveal_time + 0.35,
+                duration: 0.8,
+                from: Some(0.0),
+                to: Some(1.0),
+                value: None,
+                easing: "smoothstep".into(),
+            });
+            sounds.push(ScheduledSoundCue {
+                cue: SoundCue {
+                    sound: "elevator_ding".into(),
+                    source: None,
+                    gain: 0.42,
+                    start_offset: 0.0,
+                },
+                start: reveal_time,
+            });
+            sounds.push(ScheduledSoundCue {
+                cue: SoundCue {
+                    sound: "door_motor".into(),
+                    source: None,
+                    gain: 0.28,
+                    start_offset: 0.0,
+                },
+                start: reveal_time + 0.12,
+            });
+            inserts.push((reveal_time, "elevator".into()));
+            events.push(TimedEvent {
+                t: reveal_time,
+                kind: "open_elevator".into(),
+                actor: None,
+                target: Some("elevator_doors".into()),
+                detail: "compiled from authored blocking/visible-action prose".into(),
+            });
+            blocking_plan.push(ExecutableBlockingAction {
+                actor: "elevator_doors".into(),
+                starting_slot: "closed".into(),
+                destination_slot: "open".into(),
+                travel_path: vec![],
+                facing_target: None,
+                arrival_time: reveal_time + 1.2,
+                action_after_arrival: Some("reveal_elevator_interior".into()),
+                required_camera_visible_moment: reveal_time + 0.7,
+            });
+        }
+        let beat_duration = t.max(movement_t).max(visible_end);
+        let beat_padding = if overlap_nonblocking_actions {
+            0.0
+        } else {
+            0.6
+        };
+        let beat_end = (beat_start + beat_duration + beat_padding).max(
+            rb.completion
+                .seconds
+                .unwrap_or(0.0)
+                .max(beat_start + beat_duration),
+        );
+        if closes_elevator {
+            let close_time = (beat_end - 1.1).max(beat_start);
+            environment.push(ScheduledEnvironmentCue {
+                target: "elevator_doors".into(),
+                event: EnvironmentEventKind::ElevatorDoors,
+                start: close_time,
+                duration: 0.8,
+                from: Some(1.0),
+                to: Some(0.0),
+                value: None,
+                easing: "smoothstep".into(),
+            });
+            sounds.push(ScheduledSoundCue {
+                cue: SoundCue {
+                    sound: "door_motor".into(),
+                    source: None,
+                    gain: 0.30,
+                    start_offset: 0.0,
+                },
+                start: close_time,
+            });
+            sounds.push(ScheduledSoundCue {
+                cue: SoundCue {
+                    sound: "door_slam".into(),
+                    source: None,
+                    gain: 0.44,
+                    start_offset: 0.0,
+                },
+                start: close_time + 0.76,
+            });
+            flicker.push((close_time + 0.7, close_time + 1.05));
+            events.push(TimedEvent {
+                t: close_time,
+                kind: "close_elevator".into(),
+                actor: None,
+                target: Some("elevator_doors".into()),
+                detail: "compiled from authored payoff/visible-action prose".into(),
+            });
+            inserts.push((close_time, "elevator".into()));
+            blocking_plan.push(ExecutableBlockingAction {
+                actor: "elevator_doors".into(),
+                starting_slot: "open".into(),
+                destination_slot: "closed".into(),
+                travel_path: vec![],
+                facing_target: None,
+                arrival_time: close_time + 0.8,
+                action_after_arrival: Some("clipboard_disappears".into()),
+                required_camera_visible_moment: close_time + 0.4,
+            });
+            for attachment in &mut prop_attach {
+                if attachment.prop == "inspection_clipboard" {
+                    attachment.end = close_time + 0.4;
+                }
+            }
+        }
         clock = beat_end;
     }
 
@@ -385,7 +670,32 @@ pub fn build_schedule(
         inserts,
         environment,
         sounds,
+        movement_resolutions,
+        blocking_plan,
     }
+}
+
+pub fn sample_schedule_overlap(
+    sched: &Schedule,
+    rigs: &HashMap<String, HumanoidRig>,
+    world: &WorldState,
+    fps: u32,
+) -> crate::stage::CharacterOverlapReport {
+    let fps = fps.max(1);
+    let frame_count = (sched.duration * fps as f32).ceil() as usize;
+    let mut samples = Vec::with_capacity(frame_count * sched.characters.len());
+    for frame in 0..=frame_count {
+        let time = (frame as f32 / fps as f32).min(sched.duration);
+        for (character, _) in evaluate_at(sched, rigs, world, time).chars {
+            samples.push(crate::stage::ActorRootSample::new(
+                time,
+                character.id,
+                character.root.pos,
+                0.45,
+            ));
+        }
+    }
+    crate::stage::analyze_actor_overlap(&samples, 0.05)
 }
 
 /// Split a spoken line into punctuation-aware, two-line-safe caption phrases.
@@ -656,6 +966,14 @@ pub fn compact_dead_air(sched: &mut Schedule, max_dead_air: f32) {
             a.dur = (ne - ns).max(0.01);
         }
     }
+    for movement in &mut sched.movement_resolutions {
+        movement.start = warp(movement.start);
+        movement.end = warp(movement.end);
+    }
+    for action in &mut sched.blocking_plan {
+        action.arrival_time = warp(action.arrival_time);
+        action.required_camera_visible_moment = warp(action.required_camera_visible_moment);
+    }
     sched.duration = new_dur;
 }
 
@@ -700,6 +1018,8 @@ mod timeline_tests {
             inserts: vec![],
             environment: vec![],
             sounds: vec![],
+            movement_resolutions: vec![],
+            blocking_plan: vec![],
         };
         compact_dead_air(&mut sched, 4.0);
         // First line starts within ~1s (was 4.0s cold open).
@@ -790,11 +1110,13 @@ pub fn evaluate_at(
             }
             match action_kind(&a.action) {
                 ActionKind::Move => {
-                    if let Some(p) = resolve_pos(
-                        a.target.as_deref().unwrap_or(""),
-                        world,
-                        &char_home_map(sched),
-                    ) {
+                    if let Some(p) = a.target_position.or_else(|| {
+                        resolve_pos(
+                            a.target.as_deref().unwrap_or(""),
+                            world,
+                            &char_home_map(sched),
+                        )
+                    }) {
                         let k = ((t - a.start) / a.dur.max(0.001)).clamp(0.0, 1.0);
                         if t < a.start + a.dur {
                             pos = [
@@ -837,7 +1159,8 @@ pub fn evaluate_at(
                             active_state = Some((PerformanceState::Listen, false))
                         }
                         ActionKind::Interact => {
-                            active_state = Some((PerformanceState::Gesture, false))
+                            active_state = Some((PerformanceState::Gesture, false));
+                            focus_target = a.target.clone();
                         }
                         ActionKind::Environment | ActionKind::Narrative | ActionKind::Unknown => {}
                         ActionKind::Move => {}
@@ -943,15 +1266,21 @@ pub fn evaluate_at(
         .find(|s| t >= s.start && t < s.end)
         .or_else(|| sched.camera_shots.last());
 
-    // Elevator door state: once an `open_elevator` action has started, the doors
-    // stay open for the rest of the episode.
-    let legacy_elevator_open = sched
+    // Explicit door actions are persistent state transitions. The latest action
+    // wins so authored payoffs can close doors after an earlier reveal.
+    let authored_elevator_state = sched
         .characters
         .iter()
         .flat_map(|c| c.actions.iter())
-        .any(|a| a.action == "open_elevator" && a.start <= t)
-        .then(|| 1.0f32)
-        .unwrap_or(0.0);
+        .filter(|a| matches!(a.action.as_str(), "open_elevator" | "close_elevator") && a.start <= t)
+        .max_by(|left, right| left.start.total_cmp(&right.start))
+        .map(|action| {
+            if action.action == "open_elevator" {
+                1.0
+            } else {
+                0.0
+            }
+        });
     let cue_value = |kind: EnvironmentEventKind| -> f32 {
         sched
             .environment
@@ -964,7 +1293,8 @@ pub fn evaluate_at(
             .last()
             .unwrap_or(0.0)
     };
-    let elevator_open = legacy_elevator_open.max(cue_value(EnvironmentEventKind::ElevatorDoors));
+    let elevator_open =
+        authored_elevator_state.unwrap_or_else(|| cue_value(EnvironmentEventKind::ElevatorDoors));
     let panel_active = cue_value(EnvironmentEventKind::ControlPanel);
     let impossible_reveal = cue_value(EnvironmentEventKind::ImpossibleFloorReveal);
     let elevator_indicator = sched

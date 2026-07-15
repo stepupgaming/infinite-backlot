@@ -22,9 +22,28 @@ pub fn asset_loading_system(
     world: Res<CanonicalWorld>,
     scene: ResMut<SceneIndex>,
     hud: ResMut<Hud>,
+    set_mode: Res<crate::backlot_scene::BacklotSetMode>,
+    runtime: Res<crate::backlot_scene::BacklotSceneRuntime>,
+    manifest: Option<Res<crate::backlot_scene::BacklotSceneManifest>>,
     mut next: ResMut<NextState<AppState>>,
+    mut spawned: Local<bool>,
 ) {
-    crate::scene::spawn_scene(commands, meshes, materials, world, scene, hud);
+    if *spawned {
+        return;
+    }
+    match &runtime.status {
+        crate::backlot_scene::BacklotLoadStatus::Loading => return,
+        crate::backlot_scene::BacklotLoadStatus::Failed(message) => {
+            panic!("backlot set contract failed after GLB instantiation: {message}");
+        }
+        crate::backlot_scene::BacklotLoadStatus::Ready => {}
+    }
+    let mut scene = scene;
+    if let Some(manifest) = manifest {
+        crate::backlot_scene::populate_scene_index(&mut scene, &manifest, &runtime);
+    }
+    crate::scene::spawn_scene(commands, meshes, materials, world, scene, hud, set_mode);
+    *spawned = true;
     next.set(AppState::Idle);
     tracing::info!("scene loaded — entering idle");
 }

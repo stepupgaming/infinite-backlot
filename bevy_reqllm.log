@@ -1,2 +1,0 @@
-Infinite Backlot — base_url=http://127.0.0.1:8080/v1 model=gemma-4-26b-mtp-q5 force_fallback=false
-PRODUCTION FAILED: llm request failed: require_llm: plan request failed: llm request failed: could not obtain structured output

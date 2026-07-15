@@ -1,0 +1,2138 @@
+{
+  "camera_anchors": [
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 35.0,
+      "look_at": [
+        -5.5,
+        1.3,
+        -5.75
+      ],
+      "node": "CAM_Elevator_Interior",
+      "position": [
+        -5.5,
+        1.6,
+        -1.8
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 39.0,
+      "look_at": [
+        -5.5,
+        1.45,
+        -4.78
+      ],
+      "node": "CAM_Elevator_Reveal",
+      "position": [
+        -5.5,
+        1.7,
+        -0.45
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 26.0,
+      "look_at": [
+        -4.85,
+        1.05,
+        -3.15
+      ],
+      "node": "CAM_Elevator_Blocking_Wide",
+      "position": [
+        -2.7,
+        2.45,
+        2.9
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 42.0,
+      "look_at": [
+        -0.2,
+        1.2,
+        -1.4
+      ],
+      "node": "CAM_Hallway_Depth",
+      "position": [
+        -1.75,
+        1.65,
+        7.8
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 35.0,
+      "look_at": [
+        0.0,
+        1.25,
+        1.0
+      ],
+      "node": "CAM_Hallway_Wide",
+      "position": [
+        0.0,
+        2.25,
+        10.8
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 55.0,
+      "look_at": [
+        0.65,
+        1.3,
+        0.2
+      ],
+      "node": "CAM_OTS_Left",
+      "position": [
+        -1.6,
+        1.65,
+        2.7
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 55.0,
+      "look_at": [
+        -0.65,
+        1.3,
+        0.2
+      ],
+      "node": "CAM_OTS_Right",
+      "position": [
+        1.6,
+        1.65,
+        2.7
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 55.0,
+      "look_at": [
+        -4.1,
+        1.28,
+        -4.12
+      ],
+      "node": "CAM_Panel_Insert",
+      "position": [
+        -5.0,
+        2.8,
+        -1.2
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 45.0,
+      "look_at": [
+        -5.5,
+        1.3,
+        -4.45
+      ],
+      "node": "CAM_Payoff",
+      "position": [
+        -5.5,
+        1.85,
+        0.8
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 58.0,
+      "look_at": [
+        -0.85,
+        1.28,
+        0.35
+      ],
+      "node": "CAM_Reaction_Left",
+      "position": [
+        -2.8,
+        1.6,
+        1.9
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 58.0,
+      "look_at": [
+        0.85,
+        1.28,
+        0.35
+      ],
+      "node": "CAM_Reaction_Right",
+      "position": [
+        2.8,
+        1.6,
+        1.9
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 40.0,
+      "look_at": [
+        2.2,
+        1.2,
+        0.3
+      ],
+      "node": "CAM_Side_Corridor",
+      "position": [
+        9.8,
+        1.7,
+        0.3
+      ]
+    },
+    {
+      "kind": "camera_anchor",
+      "lens_mm": 48.0,
+      "look_at": [
+        0.0,
+        1.2,
+        0.2
+      ],
+      "node": "CAM_TwoShot_A",
+      "position": [
+        0.0,
+        1.55,
+        5.3
+      ]
+    }
+  ],
+  "colliders": [
+    {
+      "collision_role": "walkable_region",
+      "dimensions": [
+        2.0,
+        0.2,
+        2.0
+      ],
+      "kind": "collider",
+      "node": "COLLIDER_Elevator",
+      "position": [
+        -5.5,
+        0.1,
+        -5.75
+      ]
+    },
+    {
+      "collision_role": "walkable_region",
+      "dimensions": [
+        5.0,
+        0.3,
+        12.0
+      ],
+      "kind": "collider",
+      "node": "COLLIDER_Hallway",
+      "position": [
+        0.0,
+        0.15,
+        2.0
+      ]
+    },
+    {
+      "collision_role": "wall_boundary",
+      "dimensions": [
+        0.18,
+        3.1,
+        12.0
+      ],
+      "kind": "collider",
+      "node": "COLLIDER_Walls",
+      "position": [
+        2.6,
+        1.55,
+        2.0
+      ]
+    }
+  ],
+  "coordinate_system": "Bevy right-handed Y-up; positions converted from Blender X/Z/-Y",
+  "counts": {
+    "camera_anchors": 12,
+    "colliders": 3,
+    "cutaways": 5,
+    "dynamic_objects": 3,
+    "interactables": 4,
+    "materials": 15,
+    "objects": 137,
+    "staging_marks": 12
+  },
+  "cutaways": [
+    {
+      "default_visible": true,
+      "dimensions": [
+        10.8,
+        0.16,
+        4.2
+      ],
+      "kind": "cutaway",
+      "node": "CUTAWAY_Ceiling_Lobby",
+      "position": [
+        -3.0,
+        3.12,
+        -2.8
+      ]
+    },
+    {
+      "default_visible": true,
+      "dimensions": [
+        5.2,
+        0.16,
+        12.0
+      ],
+      "kind": "cutaway",
+      "node": "CUTAWAY_Ceiling_Main",
+      "position": [
+        0.0,
+        3.12,
+        2.0
+      ]
+    },
+    {
+      "default_visible": true,
+      "dimensions": [
+        6.0,
+        0.16,
+        4.4
+      ],
+      "kind": "cutaway",
+      "node": "CUTAWAY_Ceiling_Side",
+      "position": [
+        5.5,
+        3.12,
+        0.3
+      ]
+    },
+    {
+      "default_visible": true,
+      "dimensions": [
+        2.1,
+        2.72,
+        0.08
+      ],
+      "kind": "cutaway",
+      "node": "CUTAWAY_Elevator_Back",
+      "position": [
+        -5.5,
+        1.38,
+        -6.8
+      ]
+    },
+    {
+      "default_visible": false,
+      "dimensions": [
+        5.2,
+        3.1,
+        0.16
+      ],
+      "kind": "cutaway",
+      "node": "CUTAWAY_Hallway_South",
+      "position": [
+        0.0,
+        1.55,
+        8.05
+      ]
+    }
+  ],
+  "dynamic_objects": [
+    {
+      "closed_position_bevy": [
+        -5.99,
+        1.38,
+        -4.66
+      ],
+      "dimensions": [
+        0.98,
+        2.66,
+        0.08
+      ],
+      "kind": "dynamic_door",
+      "node": "DOOR_Elevator_Left",
+      "open_axis_bevy": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "position": [
+        -5.99,
+        1.38,
+        -4.66
+      ],
+      "travel_m": 0.92
+    },
+    {
+      "closed_position_bevy": [
+        -5.01,
+        1.38,
+        -4.66
+      ],
+      "dimensions": [
+        0.98,
+        2.66,
+        0.08
+      ],
+      "kind": "dynamic_door",
+      "node": "DOOR_Elevator_Right",
+      "open_axis_bevy": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "position": [
+        -5.01,
+        1.38,
+        -4.66
+      ],
+      "travel_m": 0.92
+    },
+    {
+      "dimensions": [
+        0.36,
+        0.1,
+        0.025
+      ],
+      "kind": "dynamic_indicator",
+      "node": "PROP_Floor_Indicator_Glyph",
+      "position": [
+        -5.5,
+        2.92,
+        -4.485
+      ]
+    }
+  ],
+  "glb_sha256": "c31e46a7270f7d88a40f34e4aa74791f90b4c30d3bb93058e60f907608d66941",
+  "interactables": [
+    {
+      "dimensions": [
+        0.13,
+        0.03,
+        0.13
+      ],
+      "kind": "interactable",
+      "node": "PROP_Call_Button_Light",
+      "position": [
+        -4.08,
+        0.78,
+        -4.49
+      ]
+    },
+    {
+      "dimensions": [
+        0.14,
+        0.035,
+        0.14
+      ],
+      "kind": "interactable",
+      "node": "PROP_Elevator_Panel_Button_1",
+      "position": [
+        -4.12,
+        1.55,
+        -4.515
+      ]
+    },
+    {
+      "dimensions": [
+        0.14,
+        0.035,
+        0.14
+      ],
+      "kind": "interactable",
+      "node": "PROP_Elevator_Panel_Button_2",
+      "position": [
+        -4.12,
+        1.3,
+        -4.515
+      ]
+    },
+    {
+      "dimensions": [
+        0.14,
+        0.035,
+        0.14
+      ],
+      "kind": "interactable",
+      "node": "PROP_Elevator_Panel_Button_3",
+      "position": [
+        -4.12,
+        1.05,
+        -4.515
+      ]
+    }
+  ],
+  "lighting_references": [
+    {
+      "kind": "lighting_reference",
+      "node": "LIGHTREF_Elevator_Cool",
+      "position": [
+        -5.5,
+        2.5,
+        -5.75
+      ]
+    },
+    {
+      "kind": "lighting_reference",
+      "node": "LIGHTREF_Hall_Warm",
+      "position": [
+        0.0,
+        2.8,
+        2.8
+      ]
+    },
+    {
+      "kind": "runtime_light_reference",
+      "node": "LIGHT_Elevator_Cool",
+      "position": [
+        -5.5,
+        2.55,
+        -5.75
+      ]
+    },
+    {
+      "kind": "runtime_light_reference",
+      "node": "LIGHT_Hall_Warm_1",
+      "position": [
+        0.0,
+        2.88,
+        6.0
+      ]
+    },
+    {
+      "kind": "runtime_light_reference",
+      "node": "LIGHT_Hall_Warm_2",
+      "position": [
+        0.0,
+        2.88,
+        2.8
+      ]
+    },
+    {
+      "kind": "runtime_light_reference",
+      "node": "LIGHT_Hall_Warm_3",
+      "position": [
+        0.0,
+        2.88,
+        -0.4
+      ]
+    },
+    {
+      "kind": "runtime_light_reference",
+      "node": "LIGHT_Hall_Warm_4",
+      "position": [
+        -1.5,
+        2.88,
+        -3.2
+      ]
+    },
+    {
+      "kind": "runtime_light_reference",
+      "node": "LIGHT_Lobby_Key",
+      "position": [
+        -2.8,
+        2.65,
+        -1.9
+      ]
+    },
+    {
+      "kind": "runtime_light_reference",
+      "node": "LIGHT_Side_Cool",
+      "position": [
+        5.4,
+        2.65,
+        0.2
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "base_color": [
+        0.24,
+        0.035,
+        0.055,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.0,
+      "name": "MAT_Carpet_Burgundy",
+      "roughness": 0.98
+    },
+    {
+      "base_color": [
+        0.8,
+        0.76,
+        0.67,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.0,
+      "name": "MAT_Ceiling_SoftWhite",
+      "roughness": 0.9
+    },
+    {
+      "base_color": [
+        0.012,
+        0.018,
+        0.022,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.35,
+      "name": "MAT_Control_Black",
+      "roughness": 0.25
+    },
+    {
+      "base_color": [
+        0.22,
+        0.075,
+        0.028,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.0,
+      "name": "MAT_Door_Walnut",
+      "roughness": 0.56
+    },
+    {
+      "base_color": [
+        0.31,
+        0.34,
+        0.36,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.82,
+      "name": "MAT_Elevator_BrushedMetal",
+      "roughness": 0.28
+    },
+    {
+      "base_color": [
+        0.055,
+        0.12,
+        0.19,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.36,
+      "name": "MAT_Elevator_InteriorBlue",
+      "roughness": 0.34
+    },
+    {
+      "base_color": [
+        0.16,
+        0.18,
+        0.18,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.0,
+      "name": "MAT_Floor_Terrazzo",
+      "roughness": 0.58
+    },
+    {
+      "base_color": [
+        0.55,
+        0.12,
+        0.018,
+        1.0
+      ],
+      "emission_strength": 5.0,
+      "gltf_compatible": true,
+      "metallic": 0.0,
+      "name": "MAT_Indicator_Amber",
+      "roughness": 0.25
+    },
+    {
+      "base_color": [
+        0.02,
+        0.16,
+        0.3,
+        1.0
+      ],
+      "emission_strength": 4.0,
+      "gltf_compatible": true,
+      "metallic": 0.0,
+      "name": "MAT_Panel_CoolGlow",
+      "roughness": 0.22
+    },
+    {
+      "base_color": [
+        0.055,
+        0.28,
+        0.1,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.0,
+      "name": "MAT_Prop_Plant",
+      "roughness": 0.85
+    },
+    {
+      "base_color": [
+        0.58,
+        0.035,
+        0.025,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.1,
+      "name": "MAT_Prop_SafetyRed",
+      "roughness": 0.48
+    },
+    {
+      "base_color": [
+        0.12,
+        0.29,
+        0.24,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.0,
+      "name": "MAT_Service_Sage",
+      "roughness": 0.68
+    },
+    {
+      "base_color": [
+        0.47,
+        0.28,
+        0.08,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.78,
+      "name": "MAT_Trim_Brass",
+      "roughness": 0.3
+    },
+    {
+      "base_color": [
+        0.055,
+        0.18,
+        0.19,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.0,
+      "name": "MAT_Wall_DeepTeal",
+      "roughness": 0.72
+    },
+    {
+      "base_color": [
+        0.64,
+        0.57,
+        0.47,
+        1.0
+      ],
+      "emission_strength": 0.0,
+      "gltf_compatible": true,
+      "metallic": 0.0,
+      "name": "MAT_Wall_WarmIvory",
+      "roughness": 0.82
+    }
+  ],
+  "props": [
+    {
+      "dimensions": [
+        0.09,
+        0.16,
+        0.09
+      ],
+      "kind": "prop",
+      "node": "PROP_Apartment_3B_Handle",
+      "position": [
+        2.4,
+        1.05,
+        5.36
+      ]
+    },
+    {
+      "dimensions": [
+        0.025,
+        0.18,
+        0.3
+      ],
+      "kind": "prop",
+      "node": "PROP_Apartment_3B_Number",
+      "position": [
+        2.415,
+        1.75,
+        5.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.09,
+        0.16,
+        0.09
+      ],
+      "kind": "prop",
+      "node": "PROP_Apartment_3C_Handle",
+      "position": [
+        2.4,
+        1.05,
+        2.36
+      ]
+    },
+    {
+      "dimensions": [
+        0.025,
+        0.18,
+        0.3
+      ],
+      "kind": "prop",
+      "node": "PROP_Apartment_3C_Number",
+      "position": [
+        2.415,
+        1.75,
+        2.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.09,
+        0.16,
+        0.09
+      ],
+      "kind": "prop",
+      "node": "PROP_Apartment_3D_Handle",
+      "position": [
+        5.14,
+        1.05,
+        -1.7
+      ]
+    },
+    {
+      "dimensions": [
+        0.3,
+        0.18,
+        0.025
+      ],
+      "kind": "prop",
+      "node": "PROP_Apartment_3D_Number",
+      "position": [
+        5.5,
+        1.75,
+        -1.715
+      ]
+    },
+    {
+      "dimensions": [
+        0.09,
+        0.16,
+        0.09
+      ],
+      "kind": "prop",
+      "node": "PROP_Apartment_4A_Handle",
+      "position": [
+        2.4,
+        1.05,
+        -2.64
+      ]
+    },
+    {
+      "dimensions": [
+        0.025,
+        0.18,
+        0.3
+      ],
+      "kind": "prop",
+      "node": "PROP_Apartment_4A_Number",
+      "position": [
+        2.415,
+        1.75,
+        -3.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.22,
+        0.28,
+        0.08
+      ],
+      "kind": "prop",
+      "node": "PROP_Call_Button",
+      "position": [
+        -4.08,
+        0.78,
+        -4.54
+      ]
+    },
+    {
+      "dimensions": [
+        0.236354,
+        0.06,
+        0.24
+      ],
+      "kind": "prop",
+      "node": "PROP_Cart_Wheel_-1.38_-2.98",
+      "position": [
+        -1.38,
+        0.16,
+        2.98
+      ]
+    },
+    {
+      "dimensions": [
+        0.236354,
+        0.06,
+        0.24
+      ],
+      "kind": "prop",
+      "node": "PROP_Cart_Wheel_-1.38_-3.72",
+      "position": [
+        -1.38,
+        0.16,
+        3.72
+      ]
+    },
+    {
+      "dimensions": [
+        0.236354,
+        0.06,
+        0.24
+      ],
+      "kind": "prop",
+      "node": "PROP_Cart_Wheel_-1.92_-2.98",
+      "position": [
+        -1.92,
+        0.16,
+        2.98
+      ]
+    },
+    {
+      "dimensions": [
+        0.236354,
+        0.06,
+        0.24
+      ],
+      "kind": "prop",
+      "node": "PROP_Cart_Wheel_-1.92_-3.72",
+      "position": [
+        -1.92,
+        0.16,
+        3.72
+      ]
+    },
+    {
+      "dimensions": [
+        0.3,
+        0.78,
+        0.1
+      ],
+      "kind": "prop",
+      "node": "PROP_Elevator_Panel",
+      "position": [
+        -4.12,
+        1.3,
+        -4.58
+      ]
+    },
+    {
+      "dimensions": [
+        1.25,
+        0.06,
+        0.55
+      ],
+      "kind": "prop",
+      "node": "PROP_Elevator_Practical",
+      "position": [
+        -5.5,
+        2.65,
+        -5.75
+      ]
+    },
+    {
+      "dimensions": [
+        0.32,
+        0.82,
+        0.32
+      ],
+      "kind": "prop",
+      "node": "PROP_Fire_Extinguisher",
+      "position": [
+        -2.38,
+        0.48,
+        0.8
+      ]
+    },
+    {
+      "dimensions": [
+        0.72,
+        0.22,
+        0.09
+      ],
+      "kind": "prop",
+      "node": "PROP_Floor_Indicator",
+      "position": [
+        -5.5,
+        2.92,
+        -4.54
+      ]
+    },
+    {
+      "dimensions": [
+        1.2,
+        0.08,
+        0.34
+      ],
+      "kind": "prop",
+      "node": "PROP_Hall_Practical_1",
+      "position": [
+        0.0,
+        3.0,
+        6.0
+      ]
+    },
+    {
+      "dimensions": [
+        1.2,
+        0.08,
+        0.34
+      ],
+      "kind": "prop",
+      "node": "PROP_Hall_Practical_2",
+      "position": [
+        0.0,
+        3.0,
+        2.8
+      ]
+    },
+    {
+      "dimensions": [
+        1.2,
+        0.08,
+        0.34
+      ],
+      "kind": "prop",
+      "node": "PROP_Hall_Practical_3",
+      "position": [
+        0.0,
+        3.0,
+        -0.4
+      ]
+    },
+    {
+      "dimensions": [
+        1.2,
+        0.08,
+        0.34
+      ],
+      "kind": "prop",
+      "node": "PROP_Hall_Practical_4",
+      "position": [
+        -1.5,
+        3.0,
+        -3.2
+      ]
+    },
+    {
+      "dimensions": [
+        2.1,
+        0.92,
+        0.12
+      ],
+      "kind": "prop",
+      "node": "PROP_Lobby_Bench_Back",
+      "position": [
+        -1.4,
+        1.05,
+        -3.9
+      ]
+    },
+    {
+      "dimensions": [
+        2.1,
+        0.16,
+        0.55
+      ],
+      "kind": "prop",
+      "node": "PROP_Lobby_Bench_Seat",
+      "position": [
+        -1.4,
+        0.55,
+        -3.65
+      ]
+    },
+    {
+      "dimensions": [
+        0.7,
+        0.75,
+        1.05
+      ],
+      "kind": "prop",
+      "node": "PROP_Maintenance_Cart_Body",
+      "position": [
+        -1.65,
+        0.48,
+        3.35
+      ]
+    },
+    {
+      "dimensions": [
+        0.78,
+        0.08,
+        1.1
+      ],
+      "kind": "prop",
+      "node": "PROP_Maintenance_Cart_Top",
+      "position": [
+        -1.65,
+        0.9,
+        3.35
+      ]
+    },
+    {
+      "dimensions": [
+        0.646719,
+        0.68,
+        0.68
+      ],
+      "kind": "prop",
+      "node": "PROP_Plant_Leaf_1",
+      "position": [
+        1.65,
+        0.95,
+        -3.75
+      ]
+    },
+    {
+      "dimensions": [
+        0.646719,
+        0.68,
+        0.68
+      ],
+      "kind": "prop",
+      "node": "PROP_Plant_Leaf_2",
+      "position": [
+        1.83,
+        0.82,
+        -3.81
+      ]
+    },
+    {
+      "dimensions": [
+        0.646719,
+        0.68,
+        0.68
+      ],
+      "kind": "prop",
+      "node": "PROP_Plant_Leaf_3",
+      "position": [
+        1.5,
+        0.88,
+        -3.7
+      ]
+    },
+    {
+      "dimensions": [
+        0.646719,
+        0.68,
+        0.68
+      ],
+      "kind": "prop",
+      "node": "PROP_Plant_Leaf_4",
+      "position": [
+        1.7,
+        1.05,
+        -3.59
+      ]
+    },
+    {
+      "dimensions": [
+        0.68,
+        0.62,
+        0.68
+      ],
+      "kind": "prop",
+      "node": "PROP_Plant_Pot",
+      "position": [
+        1.65,
+        0.35,
+        -3.75
+      ]
+    },
+    {
+      "dimensions": [
+        0.09,
+        0.16,
+        0.09
+      ],
+      "kind": "prop",
+      "node": "PROP_Service_Handle",
+      "position": [
+        -2.58,
+        1.05,
+        3.96
+      ]
+    },
+    {
+      "dimensions": [
+        0.025,
+        0.18,
+        0.3
+      ],
+      "kind": "prop",
+      "node": "PROP_Service_Number",
+      "position": [
+        -2.565,
+        1.75,
+        3.6
+      ]
+    },
+    {
+      "dimensions": [
+        0.035,
+        0.72,
+        1.1
+      ],
+      "kind": "prop",
+      "node": "PROP_Wall_Art_A",
+      "position": [
+        -2.48,
+        1.72,
+        6.2
+      ]
+    },
+    {
+      "dimensions": [
+        0.035,
+        0.72,
+        1.1
+      ],
+      "kind": "prop",
+      "node": "PROP_Wall_Art_B",
+      "position": [
+        -2.48,
+        1.72,
+        -0.6
+      ]
+    }
+  ],
+  "required_nodes": [
+    "CAM_Elevator_Interior",
+    "CAM_Elevator_Reveal",
+    "CAM_Hallway_Depth",
+    "CAM_Hallway_Wide",
+    "CAM_OTS_Left",
+    "CAM_OTS_Right",
+    "CAM_Panel_Insert",
+    "CAM_Payoff",
+    "CAM_Reaction_Left",
+    "CAM_Reaction_Right",
+    "CAM_TwoShot_A",
+    "COLLIDER_Elevator",
+    "COLLIDER_Hallway",
+    "COLLIDER_Walls",
+    "CUTAWAY_Elevator_Back",
+    "CUTAWAY_Hallway_South",
+    "DOOR_Elevator_Left",
+    "DOOR_Elevator_Right",
+    "MARK_Elevator_Interior_A",
+    "MARK_Elevator_Interior_B",
+    "MARK_Elevator_Threshold",
+    "MARK_Hallway_Entrance",
+    "MARK_Hallway_TwoShot_A",
+    "MARK_Hallway_TwoShot_B",
+    "MARK_Panel_Interaction",
+    "PROP_Elevator_Panel",
+    "PROP_Floor_Indicator",
+    "PROP_Maintenance_Cart_Body",
+    "SET_Elevator_Cabin_Floor",
+    "SET_Elevator_Frame_Left",
+    "SET_Hallway_Main_Floor",
+    "SET_Hallway_Side_Floor"
+  ],
+  "runtime_glb": "assets/scenes/apartment_floor_03.glb",
+  "schema_version": 1,
+  "set_id": "apartment_floor_03",
+  "source_blend": "assets/source/blender/apartment_floor_03.blend",
+  "staging_marks": [
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Apartment_3B",
+      "position": [
+        1.62,
+        0.0,
+        5.0
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Apartment_4A",
+      "position": [
+        1.62,
+        0.0,
+        -3.0
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Elevator_Interior_A",
+      "position": [
+        -5.85,
+        0.0,
+        -5.55
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Elevator_Interior_B",
+      "position": [
+        -5.15,
+        0.0,
+        -5.55
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Elevator_Threshold",
+      "position": [
+        -5.5,
+        0.0,
+        -3.75
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Hallway_Entrance",
+      "position": [
+        0.0,
+        0.0,
+        7.15
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Hallway_Group_C",
+      "position": [
+        0.0,
+        0.0,
+        -0.7
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Hallway_TwoShot_A",
+      "position": [
+        -0.85,
+        0.0,
+        0.35
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Hallway_TwoShot_B",
+      "position": [
+        0.85,
+        0.0,
+        0.35
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Panel_Interaction",
+      "position": [
+        -4.1,
+        0.0,
+        -3.8
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Service_Area",
+      "position": [
+        -1.55,
+        0.0,
+        2.35
+      ]
+    },
+    {
+      "kind": "staging_mark",
+      "node": "MARK_Side_Corridor",
+      "position": [
+        5.55,
+        0.0,
+        0.3
+      ]
+    }
+  ],
+  "static_geometry": [
+    {
+      "dimensions": [
+        0.12,
+        2.24,
+        1.12
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3B_Door",
+      "position": [
+        2.49,
+        1.12,
+        5.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        2.42,
+        0.12
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3B_Frame_L",
+      "position": [
+        2.48,
+        1.18,
+        5.64
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        2.42,
+        0.12
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3B_Frame_R",
+      "position": [
+        2.48,
+        1.18,
+        4.36
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        0.14,
+        1.4
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3B_Frame_T",
+      "position": [
+        2.48,
+        2.34,
+        5.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.12,
+        2.24,
+        1.12
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3C_Door",
+      "position": [
+        2.49,
+        1.12,
+        2.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        2.42,
+        0.12
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3C_Frame_L",
+      "position": [
+        2.48,
+        1.18,
+        2.64
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        2.42,
+        0.12
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3C_Frame_R",
+      "position": [
+        2.48,
+        1.18,
+        1.36
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        0.14,
+        1.4
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3C_Frame_T",
+      "position": [
+        2.48,
+        2.34,
+        2.0
+      ]
+    },
+    {
+      "dimensions": [
+        1.12,
+        2.24,
+        0.12
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3D_Door",
+      "position": [
+        5.5,
+        1.12,
+        -1.79
+      ]
+    },
+    {
+      "dimensions": [
+        0.12,
+        2.42,
+        0.2
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3D_Frame_L",
+      "position": [
+        4.86,
+        1.18,
+        -1.78
+      ]
+    },
+    {
+      "dimensions": [
+        0.12,
+        2.42,
+        0.2
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3D_Frame_R",
+      "position": [
+        6.14,
+        1.18,
+        -1.78
+      ]
+    },
+    {
+      "dimensions": [
+        1.4,
+        0.14,
+        0.2
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_3D_Frame_T",
+      "position": [
+        5.5,
+        2.34,
+        -1.78
+      ]
+    },
+    {
+      "dimensions": [
+        0.12,
+        2.24,
+        1.12
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_4A_Door",
+      "position": [
+        2.49,
+        1.12,
+        -3.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        2.42,
+        0.12
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_4A_Frame_L",
+      "position": [
+        2.48,
+        1.18,
+        -2.36
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        2.42,
+        0.12
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_4A_Frame_R",
+      "position": [
+        2.48,
+        1.18,
+        -3.64
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        0.14,
+        1.4
+      ],
+      "kind": "static",
+      "node": "SET_Apartment_4A_Frame_T",
+      "position": [
+        2.48,
+        2.34,
+        -3.0
+      ]
+    },
+    {
+      "dimensions": [
+        1.55,
+        2.1,
+        0.03
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Cabin_BackAccent",
+      "position": [
+        -5.5,
+        1.38,
+        -6.74
+      ]
+    },
+    {
+      "dimensions": [
+        2.1,
+        0.1,
+        2.15
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Cabin_Ceiling",
+      "position": [
+        -5.5,
+        2.74,
+        -5.75
+      ]
+    },
+    {
+      "dimensions": [
+        2.1,
+        0.08,
+        2.15
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Cabin_Floor",
+      "position": [
+        -5.5,
+        0.02,
+        -5.75
+      ]
+    },
+    {
+      "dimensions": [
+        0.08,
+        2.72,
+        2.15
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Cabin_Left",
+      "position": [
+        -6.53,
+        1.38,
+        -5.75
+      ]
+    },
+    {
+      "dimensions": [
+        1.45,
+        0.07,
+        0.07
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Cabin_Rail",
+      "position": [
+        -5.5,
+        1.0,
+        -6.68
+      ]
+    },
+    {
+      "dimensions": [
+        0.08,
+        2.72,
+        2.15
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Cabin_Right",
+      "position": [
+        -4.47,
+        1.38,
+        -5.75
+      ]
+    },
+    {
+      "dimensions": [
+        2.32,
+        0.22,
+        0.32
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Frame_Header",
+      "position": [
+        -5.5,
+        2.76,
+        -4.72
+      ]
+    },
+    {
+      "dimensions": [
+        0.22,
+        2.8,
+        0.32
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Frame_Left",
+      "position": [
+        -6.55,
+        1.4,
+        -4.72
+      ]
+    },
+    {
+      "dimensions": [
+        0.22,
+        2.8,
+        0.32
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Frame_Right",
+      "position": [
+        -4.45,
+        1.4,
+        -4.72
+      ]
+    },
+    {
+      "dimensions": [
+        1.7,
+        0.2,
+        0.1
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Lobby_Baseboard_N_Left",
+      "position": [
+        -7.45,
+        0.1,
+        -4.76
+      ]
+    },
+    {
+      "dimensions": [
+        6.7,
+        0.2,
+        0.1
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Lobby_Baseboard_N_Right",
+      "position": [
+        -1.0,
+        0.1,
+        -4.76
+      ]
+    },
+    {
+      "dimensions": [
+        10.8,
+        0.11,
+        4.2
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Lobby_Floor",
+      "position": [
+        -3.0,
+        -0.055,
+        -2.8
+      ]
+    },
+    {
+      "dimensions": [
+        9.5,
+        0.025,
+        2.65
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Lobby_Inlay",
+      "position": [
+        -3.4,
+        0.012,
+        -2.75
+      ]
+    },
+    {
+      "dimensions": [
+        1.7,
+        1.16,
+        0.06
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Lobby_Wainscot_N_Left",
+      "position": [
+        -7.45,
+        0.58,
+        -4.78
+      ]
+    },
+    {
+      "dimensions": [
+        6.7,
+        1.16,
+        0.06
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Lobby_Wainscot_N_Right",
+      "position": [
+        -1.0,
+        0.58,
+        -4.78
+      ]
+    },
+    {
+      "dimensions": [
+        2.0,
+        3.1,
+        0.2
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Lobby_Wall_N_A",
+      "position": [
+        -7.25,
+        1.55,
+        -4.9
+      ]
+    },
+    {
+      "dimensions": [
+        2.2,
+        3.1,
+        0.2
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Lobby_Wall_N_B",
+      "position": [
+        -3.25,
+        1.55,
+        -4.9
+      ]
+    },
+    {
+      "dimensions": [
+        4.0,
+        3.1,
+        0.2
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Lobby_Wall_N_C",
+      "position": [
+        0.5,
+        1.55,
+        -4.9
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        3.1,
+        4.4
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Lobby_Wall_W",
+      "position": [
+        -8.4,
+        1.55,
+        -2.8
+      ]
+    },
+    {
+      "dimensions": [
+        2.1,
+        0.07,
+        0.45
+      ],
+      "kind": "static",
+      "node": "SET_Elevator_Threshold",
+      "position": [
+        -5.5,
+        0.035,
+        -4.62
+      ]
+    },
+    {
+      "dimensions": [
+        0.1,
+        0.2,
+        12.0
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Baseboard_E",
+      "position": [
+        2.4875,
+        0.1,
+        2.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.1,
+        0.2,
+        12.0
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Baseboard_W",
+      "position": [
+        -2.4875,
+        0.1,
+        2.0
+      ]
+    },
+    {
+      "dimensions": [
+        2.1,
+        0.035,
+        10.9
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Carpet",
+      "position": [
+        0.0,
+        0.015,
+        2.25
+      ]
+    },
+    {
+      "dimensions": [
+        5.2,
+        0.12,
+        12.0
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Floor",
+      "position": [
+        0.0,
+        -0.06,
+        2.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.06,
+        1.16,
+        12.0
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Wainscot_E",
+      "position": [
+        2.5,
+        0.58,
+        2.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.06,
+        1.16,
+        12.0
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Wainscot_W",
+      "position": [
+        -2.5,
+        0.58,
+        2.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.18,
+        3.1,
+        4.0
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Wall_E_A",
+      "position": [
+        2.6,
+        1.55,
+        6.0
+      ]
+    },
+    {
+      "dimensions": [
+        0.18,
+        3.1,
+        1.7
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Wall_E_B",
+      "position": [
+        2.6,
+        1.55,
+        1.85
+      ]
+    },
+    {
+      "dimensions": [
+        0.18,
+        3.1,
+        2.2
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Wall_E_C",
+      "position": [
+        2.6,
+        1.55,
+        -2.9
+      ]
+    },
+    {
+      "dimensions": [
+        0.18,
+        3.1,
+        4.2
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Wall_W_A",
+      "position": [
+        -2.6,
+        1.55,
+        5.9
+      ]
+    },
+    {
+      "dimensions": [
+        0.18,
+        3.1,
+        4.8
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Main_Wall_W_B",
+      "position": [
+        -2.6,
+        1.55,
+        0.4
+      ]
+    },
+    {
+      "dimensions": [
+        6.0,
+        0.1,
+        4.4
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Side_Floor",
+      "position": [
+        5.5,
+        -0.05,
+        0.3
+      ]
+    },
+    {
+      "dimensions": [
+        0.18,
+        3.1,
+        4.4
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Side_Wall_End",
+      "position": [
+        8.5,
+        1.55,
+        0.3
+      ]
+    },
+    {
+      "dimensions": [
+        6.0,
+        3.1,
+        0.18
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Side_Wall_N",
+      "position": [
+        5.5,
+        1.55,
+        -1.9
+      ]
+    },
+    {
+      "dimensions": [
+        6.0,
+        3.1,
+        0.18
+      ],
+      "kind": "static",
+      "node": "SET_Hallway_Side_Wall_S",
+      "position": [
+        5.5,
+        1.55,
+        2.5
+      ]
+    },
+    {
+      "dimensions": [
+        0.12,
+        2.24,
+        1.12
+      ],
+      "kind": "static",
+      "node": "SET_Service_Door",
+      "position": [
+        -2.49,
+        1.12,
+        3.6
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        2.42,
+        0.12
+      ],
+      "kind": "static",
+      "node": "SET_Service_Frame_L",
+      "position": [
+        -2.5,
+        1.18,
+        4.24
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        2.42,
+        0.12
+      ],
+      "kind": "static",
+      "node": "SET_Service_Frame_R",
+      "position": [
+        -2.5,
+        1.18,
+        2.96
+      ]
+    },
+    {
+      "dimensions": [
+        0.2,
+        0.14,
+        1.4
+      ],
+      "kind": "static",
+      "node": "SET_Service_Frame_T",
+      "position": [
+        -2.5,
+        2.34,
+        3.6
+      ]
+    }
+  ],
+  "units": "meters"
+}

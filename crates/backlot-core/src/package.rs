@@ -169,6 +169,12 @@ pub struct TimingReport {
     #[serde(default)]
     pub bevy_capture: f32,
     #[serde(default)]
+    pub bevy_free_vram_before_mb: Option<u64>,
+    #[serde(default)]
+    pub bevy_free_vram_during_mb: Option<u64>,
+    #[serde(default)]
+    pub bevy_free_vram_after_mb: Option<u64>,
+    #[serde(default)]
     pub audio_mixing: f32,
     #[serde(default)]
     pub encoding: f32,

@@ -43,6 +43,9 @@ caption_style = "backlot-default"
 resolution = [1080, 1920]
 # Fixed frame rate for deterministic capture.
 frame_rate = 30
+# Production renders at the configured native resolution. Preview renders at
+# half scale while preserving the same timeline and configured frame rate.
+render_quality = "production"
 # FFmpeg binary name / path (on PATH here).
 ffmpeg_path = "ffmpeg"
 # TrueType font for burned-in captions (Windows Arial).

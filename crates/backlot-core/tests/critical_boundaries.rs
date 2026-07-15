@@ -12,9 +12,14 @@ use backlot_core::author::{AuthorSource, DeterministicAuthor, EpisodeAuthor};
 use backlot_core::avatar::{HumanoidRig, SemanticJoint};
 use backlot_core::config::TtsConfig;
 use backlot_core::director::DirectorContext;
-use backlot_core::render::{analyze_audio_quality, detect_silence, mix_audio};
+use backlot_core::protocol::AuthoredEpisode;
+use backlot_core::render::{
+    analyze_audio_quality, detect_continuous_noise_floor, detect_silence, mix_audio,
+};
 use backlot_core::tts::{build_tts, wav_duration_secs};
-use backlot_core::validation::{validate_beat_command, ValidatedPlan};
+use backlot_core::validation::{
+    adapt_authored_episode, validate_beat_command, validate_plan, ValidatedPlan,
+};
 use backlot_core::world::build_default_world;
 use std::collections::{HashMap, HashSet};
 
@@ -147,16 +152,190 @@ fn wav_duration_is_measured_from_header() {
 }
 
 #[test]
-fn production_mix_has_ambience_headroom_and_no_digital_dead_air() {
-    let path = std::env::temp_dir().join("backlot_test_ambience_mix.wav");
+fn production_mix_defaults_to_silence_without_procedural_hum_or_noise() {
+    let path = std::env::temp_dir().join("backlot_test_silent_mix.wav");
     let value = path.to_string_lossy().to_string();
     mix_audio(&[], &value, 22050, 3.0);
     let quality = analyze_audio_quality(&value).unwrap();
     assert_eq!(quality.clipped_samples, 0);
-    assert!(quality.headroom_dbfs > 1.0);
+    assert_eq!(quality.rms_amplitude, 0.0);
     let silence = detect_silence(&value, 2.5, 0.012);
-    assert_eq!(silence.max_gap_secs, 0.0);
+    assert!(silence.max_gap_secs >= 3.0);
+    assert!(!detect_continuous_noise_floor(&value).unwrap().detected);
     let _ = std::fs::remove_file(path);
+}
+
+#[test]
+fn continuous_low_level_tone_is_rejected_as_a_noise_floor() {
+    let path = std::env::temp_dir().join("backlot_test_constant_hum.wav");
+    let sample_rate = 22050u32;
+    let samples = (0..sample_rate * 3)
+        .map(|index| {
+            let time = index as f32 / sample_rate as f32;
+            ((std::f32::consts::TAU * 55.0 * time).sin() * 0.02 * 32767.0) as i16
+        })
+        .collect::<Vec<_>>();
+    let data_len = samples.len() as u32 * 2;
+    let mut wav = Vec::with_capacity(44 + data_len as usize);
+    wav.extend_from_slice(b"RIFF");
+    wav.extend_from_slice(&(36 + data_len).to_le_bytes());
+    wav.extend_from_slice(b"WAVEfmt ");
+    wav.extend_from_slice(&16u32.to_le_bytes());
+    wav.extend_from_slice(&1u16.to_le_bytes());
+    wav.extend_from_slice(&1u16.to_le_bytes());
+    wav.extend_from_slice(&sample_rate.to_le_bytes());
+    wav.extend_from_slice(&(sample_rate * 2).to_le_bytes());
+    wav.extend_from_slice(&2u16.to_le_bytes());
+    wav.extend_from_slice(&16u16.to_le_bytes());
+    wav.extend_from_slice(b"data");
+    wav.extend_from_slice(&data_len.to_le_bytes());
+    for sample in samples {
+        wav.extend_from_slice(&sample.to_le_bytes());
+    }
+    std::fs::write(&path, wav).unwrap();
+    let report = detect_continuous_noise_floor(&path.to_string_lossy()).unwrap();
+    assert!(report.detected, "{report:#?}");
+    let _ = std::fs::remove_file(path);
+}
+
+#[test]
+fn frozen_episode_compiles_required_movements_and_has_zero_root_overlaps() {
+    let world = build_default_world();
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../data/cached_episode_set_proof.json");
+    let authored: AuthoredEpisode = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+    let (plan, commands) = adapt_authored_episode(&authored, &world).unwrap();
+    let mut validated = validate_plan(&world, &plan).unwrap();
+    validated.resolved_beats = plan
+        .beats
+        .iter()
+        .map(|beat| validate_beat_command(&world, &plan, commands.get(&beat.id).unwrap()).unwrap())
+        .collect();
+    let schedule = backlot_core::timeline::build_schedule(&world, &validated, &HashMap::new());
+    let unresolved = schedule
+        .movement_resolutions
+        .iter()
+        .filter(|movement| !movement.executed)
+        .collect::<Vec<_>>();
+    assert!(
+        unresolved.is_empty(),
+        "unresolved movements: {unresolved:#?}"
+    );
+    assert!(schedule
+        .blocking_plan
+        .iter()
+        .any(|action| action.actor == "ellis" && action.destination_slot.contains("elevator")));
+    assert!(schedule
+        .characters
+        .iter()
+        .find(|character| character.id == "mara")
+        .unwrap()
+        .actions
+        .iter()
+        .any(|action| action.action == "activate"
+            && action.target.as_deref() == Some("maintenance_panel")));
+    let elevator_cues = schedule
+        .environment
+        .iter()
+        .filter(|cue| cue.event == backlot_core::protocol::EnvironmentEventKind::ElevatorDoors)
+        .collect::<Vec<_>>();
+    assert_eq!(
+        elevator_cues.len(),
+        2,
+        "authored door-open/door-close prose must compile into persistent environment cues"
+    );
+    let rigs = plan
+        .active_characters
+        .iter()
+        .map(|actor| {
+            (
+                actor.clone(),
+                HumanoidRig::default_humanoid(actor, actor, [0.5, 0.5, 0.5]),
+            )
+        })
+        .collect::<HashMap<_, _>>();
+    let opened = backlot_core::timeline::evaluate_at(
+        &schedule,
+        &rigs,
+        &world,
+        elevator_cues[0].start + elevator_cues[0].duration,
+    );
+    assert!(opened.elevator_open > 0.95, "{opened:#?}");
+    let closed = backlot_core::timeline::evaluate_at(
+        &schedule,
+        &rigs,
+        &world,
+        elevator_cues[1].start + elevator_cues[1].duration,
+    );
+    assert!(closed.elevator_open < 0.05, "{closed:#?}");
+    let overlap = backlot_core::timeline::sample_schedule_overlap(&schedule, &rigs, &world, 30);
+    assert_eq!(overlap.character_overlap_frames, 0, "{overlap:#?}");
+    assert_eq!(overlap.character_interpenetration_failures, 0);
+}
+
+#[test]
+fn performance_proof_plan_is_executable_and_overlap_free() {
+    let world = build_default_world();
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../data/performance_proof_episode.json");
+    let authored: AuthoredEpisode = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+    let (plan, commands) = adapt_authored_episode(&authored, &world).unwrap();
+    let mut validated = validate_plan(&world, &plan).unwrap();
+    validated.resolved_beats = plan
+        .beats
+        .iter()
+        .map(|beat| validate_beat_command(&world, &plan, commands.get(&beat.id).unwrap()).unwrap())
+        .collect();
+    let schedule = backlot_core::timeline::build_schedule(&world, &validated, &HashMap::new());
+    let unresolved = schedule
+        .movement_resolutions
+        .iter()
+        .filter(|movement| !movement.executed)
+        .collect::<Vec<_>>();
+    assert!(unresolved.is_empty(), "{unresolved:#?}");
+    let rigs = plan
+        .active_characters
+        .iter()
+        .map(|actor| {
+            (
+                actor.clone(),
+                HumanoidRig::default_humanoid(actor, actor, [0.5; 3]),
+            )
+        })
+        .collect::<HashMap<_, _>>();
+    let crossing = backlot_core::timeline::evaluate_at(&schedule, &rigs, &world, 6.3);
+    let mara = crossing
+        .chars
+        .iter()
+        .find(|(frame, _)| frame.id == "mara")
+        .map(|(frame, _)| frame.root.pos)
+        .unwrap();
+    let mara_crossing_start = schedule
+        .movement_resolutions
+        .iter()
+        .find(|movement| movement.actor == "mara")
+        .and_then(|movement| movement.path.first())
+        .copied()
+        .unwrap();
+    assert!(
+        (mara[0] - mara_crossing_start[0]).abs() > 0.1
+            || (mara[2] - mara_crossing_start[2]).abs() > 0.1,
+        "Mara's dynamically generated near-actor slot resolved in diagnostics but did not execute: {mara:?}"
+    );
+    let panel_press = backlot_core::timeline::evaluate_at(&schedule, &rigs, &world, 10.2);
+    let mara_panel = panel_press
+        .chars
+        .iter()
+        .find(|(frame, _)| frame.id == "mara")
+        .map(|(frame, _)| &frame.root)
+        .unwrap();
+    assert!(
+        mara_panel.rot[1].abs() > 1.5,
+        "Mara must face the panel while pressing it: {:?}",
+        mara_panel.rot
+    );
+    let overlap = backlot_core::timeline::sample_schedule_overlap(&schedule, &rigs, &world, 30);
+    assert_eq!(overlap.character_overlap_frames, 0, "{overlap:#?}");
 }
 
 #[test]
