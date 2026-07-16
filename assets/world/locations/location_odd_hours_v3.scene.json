@@ -4,192 +4,939 @@
   "asset": "assets/world/locations/location_odd_hours_v3.glb",
   "source_blend": "assets/source/blender/world/locations/location_odd_hours_v3.blend",
   "category": "recurring_location",
-  "version": 1,
-  "quality_tier": "hero",
+  "version": 2,
+  "quality_tier": "hero_production",
+  "bounds": {
+    "min": [
+      -5.0,
+      -0.25,
+      -4.5
+    ],
+    "max": [
+      5.0,
+      4.2,
+      9.0
+    ]
+  },
+  "sockets": [
+    {
+      "id": "NAV_PORTAL_ODD_HOURS_FRONT_DOOR",
+      "node": "DOOR_ODD_HOURS_HERO",
+      "position": [
+        0.0,
+        0.0,
+        4.32
+      ],
+      "width": 1.5,
+      "runtime_open": false,
+      "control_entity": "DOOR_ODD_HOURS_HERO"
+    }
+  ],
+  "staging_marks": [
+    {
+      "id": "ODD_HOURS_EXTERIOR_APPROACH",
+      "node": "ODD_HOURS_EXTERIOR_APPROACH",
+      "position": [
+        2.8,
+        0.0,
+        7.45
+      ]
+    },
+    {
+      "id": "ODD_HOURS_DOOR_HANDLE_SIDE",
+      "node": "ODD_HOURS_DOOR_HANDLE_SIDE",
+      "position": [
+        0.15,
+        0,
+        4.8
+      ]
+    },
+    {
+      "id": "ODD_HOURS_ENTRY",
+      "node": "ODD_HOURS_ENTRY",
+      "position": [
+        0.15,
+        0.0,
+        3.55
+      ]
+    },
+    {
+      "id": "ODD_HOURS_COUNTER_APPROACH",
+      "node": "ODD_HOURS_COUNTER_APPROACH",
+      "position": [
+        0.9,
+        0.0,
+        -1.2
+      ]
+    },
+    {
+      "id": "ODD_HOURS_COUNTER_INTERACTION",
+      "node": "ODD_HOURS_COUNTER_INTERACTION",
+      "position": [
+        0.9,
+        0.0,
+        -1.9
+      ]
+    }
+  ],
+  "camera_anchors": [
+    {
+      "id": "CAM_OH_EXTERIOR_WIDE",
+      "node": "CAM_OH_EXTERIOR_WIDE",
+      "position": [
+        7.0,
+        2.8,
+        10.5
+      ],
+      "look_at": [
+        0.8,
+        1.0,
+        5.6
+      ]
+    },
+    {
+      "id": "CAM_OH_DOOR_MEDIUM",
+      "node": "CAM_OH_DOOR_MEDIUM",
+      "position": [
+        4.1,
+        2.1,
+        7.0
+      ],
+      "look_at": [
+        0.0,
+        1.0,
+        4.25
+      ]
+    },
+    {
+      "id": "CAM_OH_INTERIOR_WIDE",
+      "node": "CAM_OH_INTERIOR_WIDE",
+      "position": [
+        4.45,
+        2.65,
+        2.2
+      ],
+      "look_at": [
+        0.7,
+        1.0,
+        -0.2
+      ]
+    },
+    {
+      "id": "CAM_OH_COUNTER_MEDIUM",
+      "node": "CAM_OH_COUNTER_MEDIUM",
+      "position": [
+        0.0,
+        2.0,
+        -3.8
+      ],
+      "look_at": [
+        1.7,
+        1.05,
+        -2.0
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "INTERACT_ODD_HOURS_DOOR_HANDLE",
+      "node": "OH_DOOR_HANDLE",
+      "position": [
+        0.48,
+        1.08,
+        4.38
+      ],
+      "interaction_type": "door_handle",
+      "smart_interaction": "SMART_DOOR_OPEN"
+    },
+    {
+      "id": "INTERACT_ODD_HOURS_PACKAGE",
+      "node": "PROP_COUNTER_PACKAGE",
+      "position": [
+        1.7,
+        1.22,
+        -1.98
+      ],
+      "interaction_type": "pickup",
+      "smart_interaction": "SMART_PICKUP_SMALL"
+    }
+  ],
+  "cutaway_groups": [
+    {
+      "id": "CUTAWAY_FRONT",
+      "node": "CUTAWAY_FRONT",
+      "position": [
+        0.0,
+        1.8,
+        4.43
+      ]
+    }
+  ],
+  "collision_groups": [
+    {
+      "id": "COLLIDER_STOREFRONT_LEFT",
+      "node": "COLLIDER_STOREFRONT_LEFT",
+      "position": [
+        -3.05,
+        1.75,
+        4.43
+      ],
+      "shape": "box",
+      "half_extents": [
+        1.93,
+        1.75,
+        0.1
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_STOREFRONT_RIGHT",
+      "node": "COLLIDER_STOREFRONT_RIGHT",
+      "position": [
+        3.05,
+        1.75,
+        4.43
+      ],
+      "shape": "box",
+      "half_extents": [
+        1.93,
+        1.75,
+        0.1
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_FRAME_LEFT",
+      "node": "COLLIDER_DOOR_FRAME_LEFT",
+      "position": [
+        -0.86,
+        1.25,
+        4.32
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.1,
+        1.25,
+        0.12
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_FRAME_RIGHT",
+      "node": "COLLIDER_DOOR_FRAME_RIGHT",
+      "position": [
+        0.86,
+        1.25,
+        4.32
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.1,
+        1.25,
+        0.12
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_HEADER",
+      "node": "COLLIDER_DOOR_HEADER",
+      "position": [
+        0.0,
+        2.75,
+        4.32
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.96,
+        0.3,
+        0.12
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_CLOSED",
+      "node": "COLLIDER_DOOR_CLOSED",
+      "position": [
+        0.0,
+        1.18,
+        4.24
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.73,
+        1.18,
+        0.07
+      ],
+      "role": "dynamic"
+    },
+    {
+      "id": "COLLIDER_SHELF_WEST",
+      "node": "COLLIDER_SHELF_WEST",
+      "position": [
+        -2.75,
+        0.83,
+        0.15
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.53,
+        0.83,
+        1.86
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_SHELF_CENTER",
+      "node": "COLLIDER_SHELF_CENTER",
+      "position": [
+        -0.55,
+        0.78,
+        -0.65
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.5,
+        0.78,
+        1.28
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_ENDCAP",
+      "node": "COLLIDER_ENDCAP",
+      "position": [
+        2.95,
+        0.68,
+        1.55
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.45,
+        0.68,
+        0.53
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_COUNTER",
+      "node": "COLLIDER_COUNTER",
+      "position": [
+        2.85,
+        0.55,
+        -2.3
+      ],
+      "shape": "box",
+      "half_extents": [
+        1.46,
+        0.55,
+        0.69
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_FRIDGE_BANK",
+      "node": "COLLIDER_FRIDGE_BANK",
+      "position": [
+        -2.1,
+        1.18,
+        -3.93
+      ],
+      "shape": "box",
+      "half_extents": [
+        2.0,
+        1.18,
+        0.42
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_VENDING",
+      "node": "COLLIDER_VENDING",
+      "position": [
+        4.2,
+        1.02,
+        -0.05
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.58,
+        1.02,
+        0.4
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_WINDOW_DISPLAY",
+      "node": "COLLIDER_WINDOW_DISPLAY",
+      "position": [
+        -2.8,
+        0.42,
+        3.82
+      ],
+      "shape": "box",
+      "half_extents": [
+        1.08,
+        0.42,
+        0.34
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_EXTERIOR_BOLLARD_LEFT",
+      "node": "COLLIDER_EXTERIOR_BOLLARD_LEFT",
+      "position": [
+        -3.6,
+        0.42,
+        5.55
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.15,
+        0.42,
+        0.15
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_EXTERIOR_BOLLARD_RIGHT",
+      "node": "COLLIDER_EXTERIOR_BOLLARD_RIGHT",
+      "position": [
+        3.6,
+        0.42,
+        5.55
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.15,
+        0.42,
+        0.15
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_NEWSPAPER_BOX",
+      "node": "COLLIDER_NEWSPAPER_BOX",
+      "position": [
+        -4.0,
+        0.52,
+        6.3
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.31,
+        0.52,
+        0.23
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_TRASH_BIN",
+      "node": "COLLIDER_TRASH_BIN",
+      "position": [
+        4.15,
+        0.52,
+        6.05
+      ],
+      "shape": "box",
+      "half_extents": [
+        0.31,
+        0.52,
+        0.31
+      ],
+      "role": "static"
+    }
+  ],
+  "lighting": [
+    {
+      "id": "LIGHT_STORE_0",
+      "role": "LIGHT_STORE",
+      "light_type": "point",
+      "position": [
+        -2.6,
+        3.05,
+        1.8
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "color_rgb": [
+        1.0,
+        0.78,
+        0.55
+      ],
+      "intensity": 500.0,
+      "range": 8.0,
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_STORE_1",
+      "role": "LIGHT_STORE",
+      "light_type": "point",
+      "position": [
+        0.0,
+        3.05,
+        1.8
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "color_rgb": [
+        1.0,
+        0.78,
+        0.55
+      ],
+      "intensity": 500.0,
+      "range": 8.0,
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_STORE_2",
+      "role": "LIGHT_STORE",
+      "light_type": "point",
+      "position": [
+        2.6,
+        3.05,
+        1.8
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "color_rgb": [
+        1.0,
+        0.78,
+        0.55
+      ],
+      "intensity": 500.0,
+      "range": 8.0,
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_STORE_3",
+      "role": "LIGHT_STORE",
+      "light_type": "point",
+      "position": [
+        -2.6,
+        3.05,
+        -1.7
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "color_rgb": [
+        1.0,
+        0.78,
+        0.55
+      ],
+      "intensity": 500.0,
+      "range": 8.0,
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_STORE_4",
+      "role": "LIGHT_STORE",
+      "light_type": "point",
+      "position": [
+        0.0,
+        3.05,
+        -1.7
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "color_rgb": [
+        1.0,
+        0.78,
+        0.55
+      ],
+      "intensity": 500.0,
+      "range": 8.0,
+      "runtime_controlled": false
+    },
+    {
+      "id": "LIGHT_STORE_5",
+      "role": "LIGHT_STORE",
+      "light_type": "point",
+      "position": [
+        2.6,
+        3.05,
+        -1.7
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "color_rgb": [
+        1.0,
+        0.78,
+        0.55
+      ],
+      "intensity": 500.0,
+      "range": 8.0,
+      "runtime_controlled": false
+    }
+  ],
+  "runtime_controls": [
+    {
+      "id": "DOOR_ODD_HOURS_HERO",
+      "node": "DOOR_ODD_HOURS_HERO",
+      "kind": "hinged_door",
+      "default_state": "closed"
+    },
+    {
+      "id": "PROP_COUNTER_PACKAGE",
+      "node": "PROP_COUNTER_PACKAGE",
+      "kind": "pickup_prop",
+      "default_state": "counter"
+    }
+  ],
   "walkable_regions": [
     {
-      "id": "NAV_REGION_LOCATION_ODD_HOURS_V3",
+      "id": "NAV_REGION_ODD_HOURS_EXTERIOR",
       "polygon": [
         [
-          -4.65,
-          -4.15
+          -4.7,
+          8.8
         ],
         [
-          4.65,
-          -4.15
+          4.7,
+          8.8
         ],
         [
-          4.65,
-          4.15
+          4.7,
+          4.5
         ],
         [
-          -4.65,
-          4.15
+          -4.7,
+          4.5
         ]
       ],
-      "height": 0,
+      "height": 0.0,
+      "surface_type": "sidewalk",
+      "actor_clearance": 0.34
+    },
+    {
+      "id": "NAV_REGION_ODD_HOURS_INTERIOR",
+      "polygon": [
+        [
+          -4.7,
+          4.2
+        ],
+        [
+          4.7,
+          4.2
+        ],
+        [
+          4.7,
+          -4.2
+        ],
+        [
+          -4.7,
+          -4.2
+        ]
+      ],
+      "height": 0.0,
       "surface_type": "interior",
       "actor_clearance": 0.34
     }
   ],
   "portals": [
     {
-      "id": "NAV_PORTAL_ODD_HOURS_V3",
+      "id": "NAV_PORTAL_ODD_HOURS_FRONT_DOOR",
       "position": [
-        0,
         0.0,
-        -4.4
+        0.0,
+        4.32
       ],
       "width": 1.5,
       "regions": [
-        "inside",
-        "outside"
+        "NAV_REGION_ODD_HOURS_EXTERIOR",
+        "NAV_REGION_ODD_HOURS_INTERIOR"
       ],
-      "runtime_open": true,
-      "control_entity": "DOOR_ODD_HOURS_V3"
+      "runtime_open": false,
+      "control_entity": "DOOR_ODD_HOURS_HERO"
     }
   ],
   "colliders": [
     {
+      "id": "COLLIDER_STOREFRONT_LEFT",
+      "shape": "box",
+      "center": [
+        -3.05,
+        1.75,
+        4.43
+      ],
+      "half_extents": [
+        1.93,
+        1.75,
+        0.1
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_STOREFRONT_RIGHT",
+      "shape": "box",
+      "center": [
+        3.05,
+        1.75,
+        4.43
+      ],
+      "half_extents": [
+        1.93,
+        1.75,
+        0.1
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_FRAME_LEFT",
+      "shape": "box",
+      "center": [
+        -0.86,
+        1.25,
+        4.32
+      ],
+      "half_extents": [
+        0.1,
+        1.25,
+        0.12
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_FRAME_RIGHT",
+      "shape": "box",
+      "center": [
+        0.86,
+        1.25,
+        4.32
+      ],
+      "half_extents": [
+        0.1,
+        1.25,
+        0.12
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_HEADER",
+      "shape": "box",
+      "center": [
+        0.0,
+        2.75,
+        4.32
+      ],
+      "half_extents": [
+        0.96,
+        0.3,
+        0.12
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_CLOSED",
+      "shape": "box",
+      "center": [
+        0.0,
+        1.18,
+        4.24
+      ],
+      "half_extents": [
+        0.73,
+        1.18,
+        0.07
+      ],
+      "role": "dynamic"
+    },
+    {
+      "id": "COLLIDER_SHELF_WEST",
+      "shape": "box",
+      "center": [
+        -2.75,
+        0.83,
+        0.15
+      ],
+      "half_extents": [
+        0.53,
+        0.83,
+        1.86
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_SHELF_CENTER",
+      "shape": "box",
+      "center": [
+        -0.55,
+        0.78,
+        -0.65
+      ],
+      "half_extents": [
+        0.5,
+        0.78,
+        1.28
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_ENDCAP",
+      "shape": "box",
+      "center": [
+        2.95,
+        0.68,
+        1.55
+      ],
+      "half_extents": [
+        0.45,
+        0.68,
+        0.53
+      ],
+      "role": "static"
+    },
+    {
       "id": "COLLIDER_COUNTER",
       "shape": "box",
       "center": [
-        2.7,
-        0.7,
-        2.2
+        2.85,
+        0.55,
+        -2.3
       ],
       "half_extents": [
-        1.4,
-        0.7,
-        0.7
+        1.46,
+        0.55,
+        0.69
       ],
       "role": "static"
     },
     {
-      "id": "COLLIDER_SHELF_A",
+      "id": "COLLIDER_FRIDGE_BANK",
       "shape": "box",
       "center": [
-        -2,
-        0.8,
-        0
+        -2.1,
+        1.18,
+        -3.93
       ],
       "half_extents": [
-        0.8,
-        0.8,
-        1.5
+        2.0,
+        1.18,
+        0.42
       ],
       "role": "static"
     },
     {
-      "id": "COLLIDER_SHELF_B",
+      "id": "COLLIDER_VENDING",
       "shape": "box",
       "center": [
-        0.2,
-        0.8,
-        0
+        4.2,
+        1.02,
+        -0.05
       ],
       "half_extents": [
-        0.8,
-        0.8,
-        1.5
+        0.58,
+        1.02,
+        0.4
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_WINDOW_DISPLAY",
+      "shape": "box",
+      "center": [
+        -2.8,
+        0.42,
+        3.82
+      ],
+      "half_extents": [
+        1.08,
+        0.42,
+        0.34
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_EXTERIOR_BOLLARD_LEFT",
+      "shape": "box",
+      "center": [
+        -3.6,
+        0.42,
+        5.55
+      ],
+      "half_extents": [
+        0.15,
+        0.42,
+        0.15
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_EXTERIOR_BOLLARD_RIGHT",
+      "shape": "box",
+      "center": [
+        3.6,
+        0.42,
+        5.55
+      ],
+      "half_extents": [
+        0.15,
+        0.42,
+        0.15
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_NEWSPAPER_BOX",
+      "shape": "box",
+      "center": [
+        -4.0,
+        0.52,
+        6.3
+      ],
+      "half_extents": [
+        0.31,
+        0.52,
+        0.23
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_TRASH_BIN",
+      "shape": "box",
+      "center": [
+        4.15,
+        0.52,
+        6.05
+      ],
+      "half_extents": [
+        0.31,
+        0.52,
+        0.31
       ],
       "role": "static"
     }
-  ],
-  "interactions": [
-    {
-      "id": "INTERACT_REGISTER",
-      "position": [
-        2.6,
-        1,
-        2.2
-      ],
-      "interaction_type": "counter"
-    },
-    {
-      "id": "INTERACT_PICKUP",
-      "position": [
-        1.8,
-        1,
-        1.5
-      ],
-      "interaction_type": "pickup"
-    },
-    {
-      "id": "INTERACT_STORE_DOOR",
-      "position": [
-        0,
-        1,
-        -4.2
-      ],
-      "interaction_type": "door"
-    }
-  ],
-  "staging_marks": [
-    {
-      "id": "MARK_COUNTER_CUSTOMER",
-      "position": [
-        1.4,
-        0,
-        1.3
-      ]
-    },
-    {
-      "id": "MARK_AISLE",
-      "position": [
-        1.4,
-        0,
-        -0.5
-      ]
-    },
-    {
-      "id": "MARK_LOCATION_ODD_HOURS_V3_ENTRY",
-      "position": [
-        0,
-        0,
-        -3.5
-      ]
-    },
-    {
-      "id": "MARK_LOCATION_ODD_HOURS_V3_CAMERA_SAFE",
-      "position": [
-        0,
-        0,
-        3.5
-      ]
-    }
-  ],
-  "camera_anchors": [
-    {
-      "id": "CAM_LOCATION_ODD_HOURS_V3",
-      "position": [
-        9,
-        -12,
-        7
-      ],
-      "look_at": [
-        0,
-        0,
-        1.2
-      ]
-    }
-  ],
-  "cutaway_groups": [
-    "CUTAWAY_FRONT"
   ],
   "runtime_doors": [
-    "DOOR_ODD_HOURS_V3"
+    "DOOR_ODD_HOURS_HERO"
   ],
   "provenance": {
+    "author": "Infinite Backlot project",
     "license": "project-owned adaptation with Poly Haven CC0 sources",
-    "source": "Infinite Backlot v3 world expansion",
+    "source": "Odd Hours production hero upgrade",
     "polyhaven_cc0_assets": [
       "CashRegister_01",
       "plastic_crate_01"
     ],
-    "manifest": "assets/world/kits/polyhaven_cc0_intake.provenance.json",
-    "author": "Infinite Backlot project"
+    "manifest": "assets/world/kits/polyhaven_cc0_intake.provenance.json"
   },
-  "preview": "assets/reference/world-expansion-3/hero_previews/location_odd_hours_v3.png",
-  "glb_sha256": "bc77318d08b9c091a4d522faadc5ec78ff383021cf70cc7d84427e3e60858d9d"
+  "preview": "assets/reference/production-vertical-slice/odd_hours_hero_preview.png",
+  "glb_sha256": "159682901ee663bd08abbfbb4bcf0a87df7f53b7ac899c8b495b3d1644ed7d5a"
 }

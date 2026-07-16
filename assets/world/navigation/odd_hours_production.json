@@ -1,0 +1,610 @@
+{
+  "schema_version": 1,
+  "world_id": "odd_hours_production",
+  "coordinate_system": "bevy_y_up_meters",
+  "actor_defaults": {
+    "capsule_radius": 0.34,
+    "capsule_half_height": 0.9,
+    "floor_sample_step": 0.1,
+    "path_sample_step": 0.1,
+    "turn_radius": 0.48
+  },
+  "regions": [
+    {
+      "id": "NAV_REGION_ODD_HOURS_EXTERIOR",
+      "surface_type": "sidewalk",
+      "access": "public",
+      "height": 0.0,
+      "max_slope_deg": 3.0,
+      "actor_clearance": 0.34,
+      "priority": 1,
+      "polygon": [
+        [
+          -4.7,
+          8.8
+        ],
+        [
+          4.7,
+          8.8
+        ],
+        [
+          4.7,
+          4.5
+        ],
+        [
+          -4.7,
+          4.5
+        ]
+      ],
+      "connected_portals": [
+        "NAV_PORTAL_ODD_HOURS_FRONT_DOOR"
+      ]
+    },
+    {
+      "id": "NAV_REGION_ODD_HOURS_INTERIOR",
+      "surface_type": "interior",
+      "access": "public",
+      "height": 0.0,
+      "max_slope_deg": 3.0,
+      "actor_clearance": 0.34,
+      "priority": 2,
+      "polygon": [
+        [
+          -4.7,
+          4.2
+        ],
+        [
+          4.7,
+          4.2
+        ],
+        [
+          4.7,
+          -4.2
+        ],
+        [
+          -4.7,
+          -4.2
+        ]
+      ],
+      "connected_portals": [
+        "NAV_PORTAL_ODD_HOURS_FRONT_DOOR"
+      ]
+    }
+  ],
+  "portals": [
+    {
+      "id": "NAV_PORTAL_ODD_HOURS_FRONT_DOOR",
+      "regions": [
+        "NAV_REGION_ODD_HOURS_EXTERIOR",
+        "NAV_REGION_ODD_HOURS_INTERIOR"
+      ],
+      "position": [
+        0.0,
+        0.0,
+        4.32
+      ],
+      "facing": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "width": 1.5,
+      "clearance": 0.08,
+      "traversal_type": "hinged_door",
+      "runtime_open": false,
+      "control_entity": "DOOR_ODD_HOURS_HERO"
+    }
+  ],
+  "colliders": [
+    {
+      "id": "COLLIDER_STOREFRONT_LEFT",
+      "shape": "box",
+      "center": [
+        -3.05,
+        1.75,
+        4.43
+      ],
+      "half_extents": [
+        1.93,
+        1.75,
+        0.1
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_STOREFRONT_RIGHT",
+      "shape": "box",
+      "center": [
+        3.05,
+        1.75,
+        4.43
+      ],
+      "half_extents": [
+        1.93,
+        1.75,
+        0.1
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_FRAME_LEFT",
+      "shape": "box",
+      "center": [
+        -0.86,
+        1.25,
+        4.32
+      ],
+      "half_extents": [
+        0.1,
+        1.25,
+        0.12
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_FRAME_RIGHT",
+      "shape": "box",
+      "center": [
+        0.86,
+        1.25,
+        4.32
+      ],
+      "half_extents": [
+        0.1,
+        1.25,
+        0.12
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_DOOR_HEADER",
+      "shape": "box",
+      "center": [
+        0.0,
+        2.75,
+        4.32
+      ],
+      "half_extents": [
+        0.96,
+        0.3,
+        0.12
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_SHELF_WEST",
+      "shape": "box",
+      "center": [
+        -2.75,
+        0.83,
+        0.15
+      ],
+      "half_extents": [
+        0.53,
+        0.83,
+        1.86
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_SHELF_CENTER",
+      "shape": "box",
+      "center": [
+        -0.55,
+        0.78,
+        -0.65
+      ],
+      "half_extents": [
+        0.5,
+        0.78,
+        1.28
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_ENDCAP",
+      "shape": "box",
+      "center": [
+        2.95,
+        0.68,
+        1.55
+      ],
+      "half_extents": [
+        0.45,
+        0.68,
+        0.53
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_COUNTER",
+      "shape": "box",
+      "center": [
+        2.85,
+        0.55,
+        -2.3
+      ],
+      "half_extents": [
+        1.46,
+        0.55,
+        0.69
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_FRIDGE_BANK",
+      "shape": "box",
+      "center": [
+        -2.1,
+        1.18,
+        -3.93
+      ],
+      "half_extents": [
+        2.0,
+        1.18,
+        0.42
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_VENDING",
+      "shape": "box",
+      "center": [
+        4.2,
+        1.02,
+        -0.05
+      ],
+      "half_extents": [
+        0.58,
+        1.02,
+        0.4
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_WINDOW_DISPLAY",
+      "shape": "box",
+      "center": [
+        -2.8,
+        0.42,
+        3.82
+      ],
+      "half_extents": [
+        1.08,
+        0.42,
+        0.34
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_EXTERIOR_BOLLARD_LEFT",
+      "shape": "box",
+      "center": [
+        -3.6,
+        0.42,
+        5.55
+      ],
+      "half_extents": [
+        0.15,
+        0.42,
+        0.15
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_EXTERIOR_BOLLARD_RIGHT",
+      "shape": "box",
+      "center": [
+        3.6,
+        0.42,
+        5.55
+      ],
+      "half_extents": [
+        0.15,
+        0.42,
+        0.15
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_NEWSPAPER_BOX",
+      "shape": "box",
+      "center": [
+        -4.0,
+        0.52,
+        6.3
+      ],
+      "half_extents": [
+        0.31,
+        0.52,
+        0.23
+      ],
+      "role": "static"
+    },
+    {
+      "id": "COLLIDER_TRASH_BIN",
+      "shape": "box",
+      "center": [
+        4.15,
+        0.52,
+        6.05
+      ],
+      "half_extents": [
+        0.31,
+        0.52,
+        0.31
+      ],
+      "role": "static"
+    }
+  ],
+  "floor_supports": [
+    {
+      "id": "FLOOR_SUPPORT_EXTERIOR",
+      "region_id": "NAV_REGION_ODD_HOURS_EXTERIOR",
+      "height": 0.0,
+      "polygon": [
+        [
+          -4.7,
+          8.8
+        ],
+        [
+          4.7,
+          8.8
+        ],
+        [
+          4.7,
+          4.5
+        ],
+        [
+          -4.7,
+          4.5
+        ]
+      ]
+    },
+    {
+      "id": "FLOOR_SUPPORT_DOOR_THRESHOLD",
+      "region_id": "NAV_REGION_ODD_HOURS_INTERIOR",
+      "height": 0.0,
+      "polygon": [
+        [
+          -0.9,
+          4.65
+        ],
+        [
+          0.9,
+          4.65
+        ],
+        [
+          0.9,
+          3.75
+        ],
+        [
+          -0.9,
+          3.75
+        ]
+      ]
+    },
+    {
+      "id": "FLOOR_SUPPORT_INTERIOR",
+      "region_id": "NAV_REGION_ODD_HOURS_INTERIOR",
+      "height": 0.0,
+      "polygon": [
+        [
+          -4.7,
+          4.2
+        ],
+        [
+          4.7,
+          4.2
+        ],
+        [
+          4.7,
+          -4.2
+        ],
+        [
+          -4.7,
+          -4.2
+        ]
+      ]
+    }
+  ],
+  "guide_nodes": [
+    {
+      "id": "GUIDE_EXTERIOR_START",
+      "region_id": "NAV_REGION_ODD_HOURS_EXTERIOR",
+      "position": [
+        2.8,
+        0.0,
+        7.45
+      ],
+      "portal_id": null
+    },
+    {
+      "id": "GUIDE_EXTERIOR_AROUND_BIN",
+      "region_id": "NAV_REGION_ODD_HOURS_EXTERIOR",
+      "position": [
+        2.1,
+        0.0,
+        6.15
+      ],
+      "portal_id": null
+    },
+    {
+      "id": "GUIDE_DOOR_APPROACH",
+      "region_id": "NAV_REGION_ODD_HOURS_EXTERIOR",
+      "position": [
+        0.15,
+        0,
+        4.8
+      ],
+      "portal_id": null
+    },
+    {
+      "id": "GUIDE_PORTAL_OUT",
+      "region_id": "NAV_REGION_ODD_HOURS_EXTERIOR",
+      "position": [
+        0.1,
+        0.0,
+        4.58
+      ],
+      "portal_id": "NAV_PORTAL_ODD_HOURS_FRONT_DOOR"
+    },
+    {
+      "id": "GUIDE_PORTAL_IN",
+      "region_id": "NAV_REGION_ODD_HOURS_INTERIOR",
+      "position": [
+        0.1,
+        0.0,
+        3.82
+      ],
+      "portal_id": "NAV_PORTAL_ODD_HOURS_FRONT_DOOR"
+    },
+    {
+      "id": "GUIDE_INTERIOR_ENTRY",
+      "region_id": "NAV_REGION_ODD_HOURS_INTERIOR",
+      "position": [
+        0.7,
+        0.0,
+        3.15
+      ],
+      "portal_id": null
+    },
+    {
+      "id": "GUIDE_AISLE_TURN",
+      "region_id": "NAV_REGION_ODD_HOURS_INTERIOR",
+      "position": [
+        1.3,
+        0.0,
+        2.2
+      ],
+      "portal_id": null
+    },
+    {
+      "id": "GUIDE_AISLE_MID",
+      "region_id": "NAV_REGION_ODD_HOURS_INTERIOR",
+      "position": [
+        1.35,
+        0.0,
+        0.55
+      ],
+      "portal_id": null
+    },
+    {
+      "id": "GUIDE_COUNTER_APPROACH",
+      "region_id": "NAV_REGION_ODD_HOURS_INTERIOR",
+      "position": [
+        0.9,
+        0.0,
+        -1.2
+      ],
+      "portal_id": null
+    },
+    {
+      "id": "GUIDE_COUNTER_INTERACTION",
+      "region_id": "NAV_REGION_ODD_HOURS_INTERIOR",
+      "position": [
+        0.9,
+        0.0,
+        -1.9
+      ],
+      "portal_id": null
+    }
+  ],
+  "guide_edges": [
+    [
+      "GUIDE_EXTERIOR_START",
+      "GUIDE_EXTERIOR_AROUND_BIN"
+    ],
+    [
+      "GUIDE_EXTERIOR_AROUND_BIN",
+      "GUIDE_DOOR_APPROACH"
+    ],
+    [
+      "GUIDE_DOOR_APPROACH",
+      "GUIDE_PORTAL_OUT"
+    ],
+    [
+      "GUIDE_PORTAL_OUT",
+      "GUIDE_PORTAL_IN"
+    ],
+    [
+      "GUIDE_PORTAL_IN",
+      "GUIDE_INTERIOR_ENTRY"
+    ],
+    [
+      "GUIDE_INTERIOR_ENTRY",
+      "GUIDE_AISLE_TURN"
+    ],
+    [
+      "GUIDE_AISLE_TURN",
+      "GUIDE_AISLE_MID"
+    ],
+    [
+      "GUIDE_AISLE_MID",
+      "GUIDE_COUNTER_APPROACH"
+    ],
+    [
+      "GUIDE_COUNTER_APPROACH",
+      "GUIDE_COUNTER_INTERACTION"
+    ]
+  ],
+  "interaction_volumes": [
+    {
+      "id": "INTERACTION_VOLUME_DOOR",
+      "interaction_id": "SMART_DOOR_OPEN",
+      "center": [
+        0.15,
+        0.9,
+        5.0
+      ],
+      "half_extents": [
+        0.75,
+        0.9,
+        0.65
+      ],
+      "required_clearance": 0.62
+    },
+    {
+      "id": "INTERACTION_VOLUME_COUNTER",
+      "interaction_id": "SMART_PICKUP_SMALL",
+      "center": [
+        0.9,
+        0.9,
+        -1.9
+      ],
+      "half_extents": [
+        0.62,
+        0.9,
+        0.62
+      ],
+      "required_clearance": 0.52
+    }
+  ],
+  "semantic_destinations": {
+    "ODD_HOURS_EXTERIOR_APPROACH": [
+      2.8,
+      0.0,
+      7.45
+    ],
+    "ODD_HOURS_DOOR_HANDLE_SIDE": [
+      0.15,
+      0,
+      4.8
+    ],
+    "ODD_HOURS_ENTRY": [
+      0.15,
+      0.0,
+      3.55
+    ],
+    "ODD_HOURS_COUNTER_APPROACH": [
+      0.9,
+      0.0,
+      -1.2
+    ],
+    "ODD_HOURS_COUNTER_INTERACTION": [
+      0.9,
+      0.0,
+      -1.9
+    ]
+  }
+}

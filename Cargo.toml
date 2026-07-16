@@ -44,7 +44,7 @@ async-openai = { version = "0.41", default-features = false, features = ["rustls
 reqwest = { version = "0.13", default-features = false, features = ["rustls"] }
 
 # Engine
-bevy = { version = "0.19" }
+bevy = { version = "0.19", features = ["jpeg"] }
 
 [profile.release]
 opt-level = 3

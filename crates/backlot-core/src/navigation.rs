@@ -440,14 +440,42 @@ impl NavigationWorld {
         }
         for portal_id in request.portal_states.keys() {
             if self.portal_state(portal_id, request) == PortalState::Closed
-                && path.iter().any(|point| {
-                    self.portals
-                        .iter()
-                        .find(|portal| portal.id == *portal_id)
-                        .is_some_and(|portal| {
-                            distance_xz(*point, portal.position) < portal.width * 0.5
+                && self
+                    .portals
+                    .iter()
+                    .find(|portal| portal.id == *portal_id)
+                    .is_some_and(|portal| {
+                        let normal = normalize_xz(portal.facing);
+                        path.windows(2).any(|segment| {
+                            let a = segment[0];
+                            let b = segment[1];
+                            let da = (a[0] - portal.position[0]) * normal[0]
+                                + (a[2] - portal.position[2]) * normal[2];
+                            let db = (b[0] - portal.position[0]) * normal[0]
+                                + (b[2] - portal.position[2]) * normal[2];
+                            if da.abs() < 1e-5 && db.abs() < 1e-5 {
+                                return true;
+                            }
+                            if da * db > 0.0 {
+                                return false;
+                            }
+                            let denominator = da - db;
+                            if denominator.abs() < 1e-6 {
+                                return false;
+                            }
+                            let t = (da / denominator).clamp(0.0, 1.0);
+                            let crossing = [
+                                a[0] + (b[0] - a[0]) * t,
+                                a[1] + (b[1] - a[1]) * t,
+                                a[2] + (b[2] - a[2]) * t,
+                            ];
+                            let tangent = [-normal[2], 0.0, normal[0]];
+                            let lateral = ((crossing[0] - portal.position[0]) * tangent[0]
+                                + (crossing[2] - portal.position[2]) * tangent[2])
+                                .abs();
+                            lateral < portal.width * 0.5
                         })
-                })
+                    })
             {
                 result.closed_portal_violations += 1;
             }
@@ -583,8 +611,11 @@ fn distance(a: Point3, b: Point3) -> f32 {
     ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt()
 }
 
-fn distance_xz(a: Point3, b: Point3) -> f32 {
-    ((a[0] - b[0]).powi(2) + (a[2] - b[2]).powi(2)).sqrt()
+fn normalize_xz(vector: Point3) -> Point3 {
+    let length = (vector[0] * vector[0] + vector[2] * vector[2])
+        .sqrt()
+        .max(1e-6);
+    [vector[0] / length, 0.0, vector[2] / length]
 }
 
 fn normalized_sub(a: Point3, b: Point3) -> Point3 {

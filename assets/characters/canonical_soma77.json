@@ -1,0 +1,713 @@
+{
+  "schema_version": 1,
+  "asset_id": "canonical_soma77_bevy",
+  "skeleton": "NVIDIA Kimodo SOMA v1.1 somaskel77",
+  "joint_count": 77,
+  "joints": [
+    {
+      "name": "Hips",
+      "parent": null,
+      "rest_position": [
+        -2.684690237045288,
+        0.8986708521842957,
+        -11.42897891998291
+      ]
+    },
+    {
+      "name": "Spine1",
+      "parent": "Hips",
+      "rest_position": [
+        -2.6925158500671387,
+        0.9453593492507935,
+        -11.412760734558105
+      ]
+    },
+    {
+      "name": "Spine2",
+      "parent": "Spine1",
+      "rest_position": [
+        -2.7125244140625,
+        1.0081831216812134,
+        -11.385744094848633
+      ]
+    },
+    {
+      "name": "Chest",
+      "parent": "Spine2",
+      "rest_position": [
+        -2.72688627243042,
+        1.0783827304840088,
+        -11.360590934753418
+      ]
+    },
+    {
+      "name": "Neck1",
+      "parent": "Chest",
+      "rest_position": [
+        -2.8071117401123047,
+        1.2915363311767578,
+        -11.49246883392334
+      ]
+    },
+    {
+      "name": "Neck2",
+      "parent": "Neck1",
+      "rest_position": [
+        -2.8467886447906494,
+        1.3430277109146118,
+        -11.53988265991211
+      ]
+    },
+    {
+      "name": "Head",
+      "parent": "Neck2",
+      "rest_position": [
+        -2.869589328765869,
+        1.3918499946594238,
+        -11.575018882751465
+      ]
+    },
+    {
+      "name": "HeadEnd",
+      "parent": "Head",
+      "rest_position": [
+        -2.9306511878967285,
+        1.5038037300109863,
+        -11.475598335266113
+      ]
+    },
+    {
+      "name": "Jaw",
+      "parent": "Head",
+      "rest_position": [
+        -2.856567144393921,
+        1.415190577507019,
+        -11.59133243560791
+      ]
+    },
+    {
+      "name": "LeftEye",
+      "parent": "Head",
+      "rest_position": [
+        -2.8776257038116455,
+        1.483407974243164,
+        -11.61011028289795
+      ]
+    },
+    {
+      "name": "RightEye",
+      "parent": "Head",
+      "rest_position": [
+        -2.825026273727417,
+        1.4792428016662598,
+        -11.573381423950195
+      ]
+    },
+    {
+      "name": "LeftShoulder",
+      "parent": "Chest",
+      "rest_position": [
+        -2.8194661140441895,
+        1.2311515808105469,
+        -11.518593788146973
+      ]
+    },
+    {
+      "name": "LeftArm",
+      "parent": "LeftShoulder",
+      "rest_position": [
+        -2.975698232650757,
+        1.2133362293243408,
+        -11.494890213012695
+      ]
+    },
+    {
+      "name": "LeftForeArm",
+      "parent": "LeftArm",
+      "rest_position": [
+        -2.952171564102173,
+        0.9768341779708862,
+        -11.3333101272583
+      ]
+    },
+    {
+      "name": "LeftHand",
+      "parent": "LeftForeArm",
+      "rest_position": [
+        -2.9540441036224365,
+        0.7103251218795776,
+        -11.382073402404785
+      ]
+    },
+    {
+      "name": "LeftHandThumb1",
+      "parent": "LeftHand",
+      "rest_position": [
+        -2.9917643070220947,
+        0.7031365633010864,
+        -11.398075103759766
+      ]
+    },
+    {
+      "name": "LeftHandThumb2",
+      "parent": "LeftHandThumb1",
+      "rest_position": [
+        -3.0346693992614746,
+        0.6885353326797485,
+        -11.385427474975586
+      ]
+    },
+    {
+      "name": "LeftHandThumb3",
+      "parent": "LeftHandThumb2",
+      "rest_position": [
+        -3.056335926055908,
+        0.6848489046096802,
+        -11.36810302734375
+      ]
+    },
+    {
+      "name": "LeftHandThumbEnd",
+      "parent": "LeftHandThumb3",
+      "rest_position": [
+        -3.077669143676758,
+        0.6809257864952087,
+        -11.34483814239502
+      ]
+    },
+    {
+      "name": "LeftHandIndex1",
+      "parent": "LeftHand",
+      "rest_position": [
+        -2.993950843811035,
+        0.7125592827796936,
+        -11.38563060760498
+      ]
+    },
+    {
+      "name": "LeftHandIndex2",
+      "parent": "LeftHandIndex1",
+      "rest_position": [
+        -3.04781174659729,
+        0.7217221260070801,
+        -11.352934837341309
+      ]
+    },
+    {
+      "name": "LeftHandIndex3",
+      "parent": "LeftHandIndex2",
+      "rest_position": [
+        -3.0773353576660156,
+        0.7199903726577759,
+        -11.331332206726074
+      ]
+    },
+    {
+      "name": "LeftHandIndex4",
+      "parent": "LeftHandIndex3",
+      "rest_position": [
+        -3.094769239425659,
+        0.7106413841247559,
+        -11.319036483764648
+      ]
+    },
+    {
+      "name": "LeftHandIndexEnd",
+      "parent": "LeftHandIndex4",
+      "rest_position": [
+        -3.1086604595184326,
+        0.6898021101951599,
+        -11.307252883911133
+      ]
+    },
+    {
+      "name": "LeftHandMiddle1",
+      "parent": "LeftHand",
+      "rest_position": [
+        -2.9853711128234863,
+        0.7189775705337524,
+        -11.374974250793457
+      ]
+    },
+    {
+      "name": "LeftHandMiddle2",
+      "parent": "LeftHandMiddle1",
+      "rest_position": [
+        -3.032135009765625,
+        0.7245576977729797,
+        -11.333479881286621
+      ]
+    },
+    {
+      "name": "LeftHandMiddle3",
+      "parent": "LeftHandMiddle2",
+      "rest_position": [
+        -3.068497657775879,
+        0.7148860692977905,
+        -11.311521530151367
+      ]
+    },
+    {
+      "name": "LeftHandMiddle4",
+      "parent": "LeftHandMiddle3",
+      "rest_position": [
+        -3.0915966033935547,
+        0.7014520168304443,
+        -11.297953605651855
+      ]
+    },
+    {
+      "name": "LeftHandMiddleEnd",
+      "parent": "LeftHandMiddle4",
+      "rest_position": [
+        -3.102482795715332,
+        0.6817955374717712,
+        -11.292048454284668
+      ]
+    },
+    {
+      "name": "LeftHandRing1",
+      "parent": "LeftHand",
+      "rest_position": [
+        -2.977015495300293,
+        0.7145527005195618,
+        -11.364866256713867
+      ]
+    },
+    {
+      "name": "LeftHandRing2",
+      "parent": "LeftHandRing1",
+      "rest_position": [
+        -3.0195913314819336,
+        0.7185525894165039,
+        -11.322307586669922
+      ]
+    },
+    {
+      "name": "LeftHandRing3",
+      "parent": "LeftHandRing2",
+      "rest_position": [
+        -3.056659698486328,
+        0.71505206823349,
+        -11.299802780151367
+      ]
+    },
+    {
+      "name": "LeftHandRing4",
+      "parent": "LeftHandRing3",
+      "rest_position": [
+        -3.0747499465942383,
+        0.6984519362449646,
+        -11.289795875549316
+      ]
+    },
+    {
+      "name": "LeftHandRingEnd",
+      "parent": "LeftHandRing4",
+      "rest_position": [
+        -3.08408784866333,
+        0.6822898983955383,
+        -11.284595489501953
+      ]
+    },
+    {
+      "name": "LeftHandPinky1",
+      "parent": "LeftHand",
+      "rest_position": [
+        -2.9710474014282227,
+        0.7109974026679993,
+        -11.353837966918945
+      ]
+    },
+    {
+      "name": "LeftHandPinky2",
+      "parent": "LeftHandPinky1",
+      "rest_position": [
+        -3.0071871280670166,
+        0.7023056149482727,
+        -11.312631607055664
+      ]
+    },
+    {
+      "name": "LeftHandPinky3",
+      "parent": "LeftHandPinky2",
+      "rest_position": [
+        -3.0342864990234375,
+        0.6974339485168457,
+        -11.299030303955078
+      ]
+    },
+    {
+      "name": "LeftHandPinky4",
+      "parent": "LeftHandPinky3",
+      "rest_position": [
+        -3.0476577281951904,
+        0.6933020949363708,
+        -11.292376518249512
+      ]
+    },
+    {
+      "name": "LeftHandPinkyEnd",
+      "parent": "LeftHandPinky4",
+      "rest_position": [
+        -3.061272382736206,
+        0.6812586188316345,
+        -11.285257339477539
+      ]
+    },
+    {
+      "name": "RightShoulder",
+      "parent": "Chest",
+      "rest_position": [
+        -2.7909886837005615,
+        1.2364879846572876,
+        -11.526529312133789
+      ]
+    },
+    {
+      "name": "RightArm",
+      "parent": "RightShoulder",
+      "rest_position": [
+        -2.6366941928863525,
+        1.276994228363037,
+        -11.542007446289062
+      ]
+    },
+    {
+      "name": "RightForeArm",
+      "parent": "RightArm",
+      "rest_position": [
+        -2.443535804748535,
+        1.1077783107757568,
+        -11.413029670715332
+      ]
+    },
+    {
+      "name": "RightHand",
+      "parent": "RightForeArm",
+      "rest_position": [
+        -2.506596326828003,
+        0.9014559984207153,
+        -11.577583312988281
+      ]
+    },
+    {
+      "name": "RightHandThumb1",
+      "parent": "RightHand",
+      "rest_position": [
+        -2.4877779483795166,
+        0.9326823949813843,
+        -11.597076416015625
+      ]
+    },
+    {
+      "name": "RightHandThumb2",
+      "parent": "RightHandThumb1",
+      "rest_position": [
+        -2.478586435317993,
+        0.9533613324165344,
+        -11.638310432434082
+      ]
+    },
+    {
+      "name": "RightHandThumb3",
+      "parent": "RightHandThumb2",
+      "rest_position": [
+        -2.4771511554718018,
+        0.9555453062057495,
+        -11.6661376953125
+      ]
+    },
+    {
+      "name": "RightHandThumbEnd",
+      "parent": "RightHandThumb3",
+      "rest_position": [
+        -2.480006217956543,
+        0.95261549949646,
+        -11.697711944580078
+      ]
+    },
+    {
+      "name": "RightHandIndex1",
+      "parent": "RightHand",
+      "rest_position": [
+        -2.4846410751342773,
+        0.919837236404419,
+        -11.605630874633789
+      ]
+    },
+    {
+      "name": "RightHandIndex2",
+      "parent": "RightHandIndex1",
+      "rest_position": [
+        -2.465829610824585,
+        0.9172238111495972,
+        -11.666165351867676
+      ]
+    },
+    {
+      "name": "RightHandIndex3",
+      "parent": "RightHandIndex2",
+      "rest_position": [
+        -2.45965838432312,
+        0.9154098033905029,
+        -11.702143669128418
+      ]
+    },
+    {
+      "name": "RightHandIndex4",
+      "parent": "RightHandIndex3",
+      "rest_position": [
+        -2.45906138420105,
+        0.9172194004058838,
+        -11.725341796875
+      ]
+    },
+    {
+      "name": "RightHandIndexEnd",
+      "parent": "RightHandIndex4",
+      "rest_position": [
+        -2.4659531116485596,
+        0.9221551418304443,
+        -11.751712799072266
+      ]
+    },
+    {
+      "name": "RightHandMiddle1",
+      "parent": "RightHand",
+      "rest_position": [
+        -2.4882113933563232,
+        0.9053189754486084,
+        -11.605097770690918
+      ]
+    },
+    {
+      "name": "RightHandMiddle2",
+      "parent": "RightHandMiddle1",
+      "rest_position": [
+        -2.4795236587524414,
+        0.8961576223373413,
+        -11.666479110717773
+      ]
+    },
+    {
+      "name": "RightHandMiddle3",
+      "parent": "RightHandMiddle2",
+      "rest_position": [
+        -2.4748518466949463,
+        0.9016290307044983,
+        -11.709369659423828
+      ]
+    },
+    {
+      "name": "RightHandMiddle4",
+      "parent": "RightHandMiddle3",
+      "rest_position": [
+        -2.4777965545654297,
+        0.9095436334609985,
+        -11.7381591796875
+      ]
+    },
+    {
+      "name": "RightHandMiddleEnd",
+      "parent": "RightHandMiddle4",
+      "rest_position": [
+        -2.487194299697876,
+        0.9220107793807983,
+        -11.755339622497559
+      ]
+    },
+    {
+      "name": "RightHandRing1",
+      "parent": "RightHand",
+      "rest_position": [
+        -2.4999241828918457,
+        0.8981096744537354,
+        -11.605636596679688
+      ]
+    },
+    {
+      "name": "RightHandRing2",
+      "parent": "RightHandRing1",
+      "rest_position": [
+        -2.4950990676879883,
+        0.8874347805976868,
+        -11.664816856384277
+      ]
+    },
+    {
+      "name": "RightHandRing3",
+      "parent": "RightHandRing2",
+      "rest_position": [
+        -2.491356134414673,
+        0.8969039916992188,
+        -11.706993103027344
+      ]
+    },
+    {
+      "name": "RightHandRing4",
+      "parent": "RightHandRing3",
+      "rest_position": [
+        -2.4957401752471924,
+        0.9078446626663208,
+        -11.730782508850098
+      ]
+    },
+    {
+      "name": "RightHandRingEnd",
+      "parent": "RightHandRing4",
+      "rest_position": [
+        -2.50113582611084,
+        0.9171450138092041,
+        -11.746871948242188
+      ]
+    },
+    {
+      "name": "RightHandPinky1",
+      "parent": "RightHand",
+      "rest_position": [
+        -2.510301113128662,
+        0.8907368779182434,
+        -11.608497619628906
+      ]
+    },
+    {
+      "name": "RightHandPinky2",
+      "parent": "RightHandPinky1",
+      "rest_position": [
+        -2.5169336795806885,
+        0.8866574168205261,
+        -11.663480758666992
+      ]
+    },
+    {
+      "name": "RightHandPinky3",
+      "parent": "RightHandPinky2",
+      "rest_position": [
+        -2.512415885925293,
+        0.8984852433204651,
+        -11.691368103027344
+      ]
+    },
+    {
+      "name": "RightHandPinky4",
+      "parent": "RightHandPinky3",
+      "rest_position": [
+        -2.5118463039398193,
+        0.9057669043540955,
+        -11.704999923706055
+      ]
+    },
+    {
+      "name": "RightHandPinkyEnd",
+      "parent": "RightHandPinky4",
+      "rest_position": [
+        -2.5174803733825684,
+        0.9181028604507446,
+        -11.71904468536377
+      ]
+    },
+    {
+      "name": "LeftLeg",
+      "parent": "Hips",
+      "rest_position": [
+        -2.6642918586730957,
+        0.7867212891578674,
+        -11.358796119689941
+      ]
+    },
+    {
+      "name": "LeftShin",
+      "parent": "LeftLeg",
+      "rest_position": [
+        -2.913849353790283,
+        0.4358792006969452,
+        -11.397622108459473
+      ]
+    },
+    {
+      "name": "LeftFoot",
+      "parent": "LeftShin",
+      "rest_position": [
+        -2.7704427242279053,
+        0.0705946683883667,
+        -11.239764213562012
+      ]
+    },
+    {
+      "name": "LeftToeBase",
+      "parent": "LeftFoot",
+      "rest_position": [
+        -2.8854360580444336,
+        0.020163774490356445,
+        -11.305341720581055
+      ]
+    },
+    {
+      "name": "LeftToeEnd",
+      "parent": "LeftToeBase",
+      "rest_position": [
+        -2.940365791320801,
+        0.0008608698844909668,
+        -11.338860511779785
+      ]
+    },
+    {
+      "name": "RightLeg",
+      "parent": "Hips",
+      "rest_position": [
+        -2.7262890338897705,
+        0.8419592976570129,
+        -11.541743278503418
+      ]
+    },
+    {
+      "name": "RightShin",
+      "parent": "RightLeg",
+      "rest_position": [
+        -2.677828073501587,
+        0.4111592173576355,
+        -11.529256820678711
+      ]
+    },
+    {
+      "name": "RightFoot",
+      "parent": "RightShin",
+      "rest_position": [
+        -2.497312545776367,
+        0.08416968584060669,
+        -11.33154582977295
+      ]
+    },
+    {
+      "name": "RightToeBase",
+      "parent": "RightFoot",
+      "rest_position": [
+        -2.517087459564209,
+        0.02016359567642212,
+        -11.457002639770508
+      ]
+    },
+    {
+      "name": "RightToeEnd",
+      "parent": "RightToeBase",
+      "rest_position": [
+        -2.5304675102233887,
+        -0.005109727382659912,
+        -11.517196655273438
+      ]
+    }
+  ],
+  "coordinate_system": "right-handed, Y-up meters; world forward +Z; Kimodo heading pair [cos(theta), sin(theta)] maps to [sin(theta),0,cos(theta)]",
+  "scale_meters": 1.0,
+  "motion_loading_path": "Kimodo NPZ posed_joints -> tools/motion/export_soma_track.py -> SomaMotionTrack JSON -> Bevy canonical performer",
+  "material_setup": {
+    "torso": "berry hoodie",
+    "arms": "berry sleeves + skin hands",
+    "legs": "navy trousers",
+    "shoes": "mint soles",
+    "head": "warm skin + dark hair"
+  },
+  "rest_pose_source": "output/navigation-kimodo-proof/candidates/selected.npz",
+  "rest_pose_note": "Display calibration uses a native SOMA77 generated frame only for mesh proportions; every delivered performance uses selected Kimodo SOMA77 posed_joints directly and is never retargeted to KayKit."
+}

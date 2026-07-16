@@ -7,6 +7,7 @@ pub mod manager;
 pub mod motion_authoring;
 pub mod parakeet;
 pub mod process;
+pub mod production_performance;
 pub mod smart_interactions;
 pub mod telemetry;
 
